@@ -36,5 +36,5 @@ features = [
     "Win32_System_SystemServices",
 ]
 
-[target.'cfg(windows)'.build-dependencies]
+[build-dependencies]
 embed-resource = "3"

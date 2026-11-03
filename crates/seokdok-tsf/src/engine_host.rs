@@ -49,6 +49,11 @@ impl Host {
         self.engine.read().map(|g| g.is_some()).unwrap_or(false)
     }
 
+    /// Whether a load has been requested since process start.
+    pub fn started(&self) -> bool {
+        self.generation.load(Ordering::SeqCst) > 0
+    }
+
     pub fn set(&self, engine: Engine) {
         if let Ok(mut g) = self.engine.write() {
             *g = Some(Arc::new(engine));

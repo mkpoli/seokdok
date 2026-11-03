@@ -1,0 +1,94 @@
+//! The master TSF COM object. A single `TextService` implements every
+//! interface the running TIP needs; its mutable state sits in a `RefCell`.
+//! No borrow is ever held across a call into TSF, which may call back into
+//! this object.
+
+use std::cell::{Ref, RefCell, RefMut};
+use std::rc::Rc;
+
+use windows::core::implement;
+use windows::Win32::UI::TextServices::{
+    ITfCategoryMgr, ITfComposition, ITfCompositionSink, ITfDisplayAttributeProvider,
+    ITfFnConfigure, ITfFunction, ITfFunctionProvider, ITfKeyEventSink, ITfLangBarItem,
+    ITfTextInputProcessor, ITfTextInputProcessorEx, ITfThreadMgr, ITfThreadMgrEventSink,
+    TF_INVALID_COOKIE,
+};
+
+use crate::candidate_window::CandidateWindow;
+use crate::lang_bar::ModeShared;
+use crate::session::{Mode, Session};
+
+pub struct TextServiceState {
+    pub thread_mgr: Option<ITfThreadMgr>,
+    pub client_id: u32,
+    pub thread_mgr_cookie: u32,
+    pub category_mgr: Option<ITfCategoryMgr>,
+    /// TfGuidAtoms of the display attributes: input, converted, focus.
+    pub display_atoms: [u32; 3],
+    pub composition: Option<ITfComposition>,
+    pub session: Session,
+    /// Mode shared with the language-bar button.
+    pub mode: Rc<ModeShared>,
+    pub langbar_item: Option<ITfLangBarItem>,
+    pub candidate_window: Option<CandidateWindow>,
+    /// Screen position (left, bottom) of the focused segment, for the popup.
+    pub anchor: Option<(i32, i32)>,
+}
+
+impl Default for TextServiceState {
+    fn default() -> Self {
+        Self {
+            thread_mgr: None,
+            client_id: 0,
+            thread_mgr_cookie: TF_INVALID_COOKIE,
+            category_mgr: None,
+            display_atoms: [0; 3],
+            composition: None,
+            session: Session::new(Mode::Seokdok, true),
+            mode: Rc::new(ModeShared::new(Mode::Seokdok)),
+            langbar_item: None,
+            candidate_window: None,
+            anchor: None,
+        }
+    }
+}
+
+#[implement(
+    ITfTextInputProcessor,
+    ITfTextInputProcessorEx,
+    ITfKeyEventSink,
+    ITfThreadMgrEventSink,
+    ITfCompositionSink,
+    ITfDisplayAttributeProvider,
+    ITfFunctionProvider,
+    ITfFnConfigure,
+    ITfFunction
+)]
+pub struct TextService {
+    inner: RefCell<TextServiceState>,
+}
+
+impl TextService {
+    pub fn new() -> Self {
+        // The object itself pins the DLL: COM may release the class factory
+        // while clients still hold a TextService.
+        crate::lock_module();
+        Self { inner: RefCell::new(TextServiceState::default()) }
+    }
+}
+
+impl Drop for TextService {
+    fn drop(&mut self) {
+        crate::unlock_module();
+    }
+}
+
+impl TextService_Impl {
+    pub(crate) fn inner(&self) -> Ref<'_, TextServiceState> {
+        self.inner.borrow()
+    }
+
+    pub(crate) fn inner_mut(&self) -> RefMut<'_, TextServiceState> {
+        self.inner.borrow_mut()
+    }
+}

@@ -152,6 +152,7 @@ rt {
   margin: 0 0 var(--s-6);
   color: var(--c-soft);
   font-size: 17px;
+  line-height: 2;
 }
 
 .card {

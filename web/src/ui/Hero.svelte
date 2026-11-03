@@ -108,6 +108,7 @@
     margin: 0 0 var(--s-5);
     color: var(--c-soft);
     font-size: 16.5px;
+    line-height: 2;
   }
   .cta {
     display: flex;

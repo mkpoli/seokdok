@@ -60,17 +60,29 @@ final class SeokdokInputController: IMKInputController {
 
     override func deactivateServer(_ sender: Any!) {
         // Focus moves away: keep what was typed.
-        session.flush()
-        update(sender)
-        CandidateWindow.shared.hide()
+        finish(sender)
         super.deactivateServer(sender)
     }
 
     /// The system asks for the composition to end (a click in the text, a
     /// change of input source).
     override func commitComposition(_ sender: Any!) {
+        finish(sender)
+    }
+
+    /// Commit the composition and close the window, asking the client for
+    /// nothing: it may be losing focus, and some clients block on queries
+    /// then.
+    private func finish(_ sender: Any?) {
         session.flush()
-        update(sender)
+        CandidateWindow.shared.hide()
+        guard let client = textInput(sender) else { return }
+        if let text = session.takeCommit() {
+            client.insertText(text, replacementRange: Self.notFound)
+        } else if hasMarkedText {
+            client.setMarkedText("", selectionRange: NSRange(location: 0, length: 0), replacementRange: Self.notFound)
+        }
+        hasMarkedText = false
     }
 
     /// A mode chosen in the input menu. The value is the mode's key in

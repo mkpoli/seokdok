@@ -5,4 +5,50 @@
     <string name="subtype">釋讀 (두벌식)</string>
 
     <string name="loading">辭典 讀는 中…</string>
+
+    <string name="section_enable">켜기 · Turn on</string>
+    <string name="enable_help">설정에서 釋讀 키보드를 켜고, 入力 方法으로 고릅니다.\nTurn on the 釋讀 keyboard in Settings, then pick it as the input method.</string>
+    <string name="enable_open">키보드 設定 열기 · Keyboard settings</string>
+    <string name="enable_pick">入力 方法 고르기 · Choose input method</string>
+    <string name="try_hint">여기서 試驗해 봅니다 · Try it here</string>
+
+    <string name="section_input">入力 · Input</string>
+    <string name="default_mode">始作 模式 · Start in</string>
+    <string name="space_converts">Space로 變換 · Space converts</string>
+    <string name="old_clusters">옛한글 겹자모 · Old Hangul clusters (ㅅㄱ→ᄭ)</string>
+    <string name="candidate_layout">候補 方向 · Candidate layout</string>
+
+    <string name="section_conversion">變換 · Conversion</string>
+    <string name="style">表記 · Style</string>
+    <string name="fragment">남은 母音 · Leftover vowel</string>
+    <string name="coda_always">받침 늘 쓰기 · Always write the final consonant</string>
+    <string name="resyllabify">連音 · Move a final consonant onto a following ㅇ</string>
+    <string name="hada_kun">하다를 爲로 · Prefer 爲 for 하다</string>
+    <string name="max_candidates">候補 數 · Phrase candidates</string>
+
+    <string name="section_custom">내 낱말 · Own words</string>
+    <string name="custom_help">seokdok.mkpo.li/#custom 에서 내보낸 custom.json 을 가져옵니다.\nImport the custom.json exported from seokdok.mkpo.li/#custom.</string>
+    <string name="custom_import">가져오기 · Import</string>
+    <string name="custom_remove">지우기 · Remove</string>
+    <string name="custom_present">custom.json 있음 · custom.json present</string>
+    <string name="custom_absent">custom.json 없음 · No custom.json</string>
+    <string name="saved_failed">設定을 쓰지 못했습니다 · Could not save the settings</string>
+
+    <string-array name="mode_labels">
+        <item>釋讀</item>
+        <item>한글 · Hangul</item>
+        <item>Latin</item>
+    </string-array>
+    <string-array name="layout_labels">
+        <item>세로 · Vertical</item>
+        <item>가로 · Horizontal</item>
+    </string-array>
+    <string-array name="style_labels">
+        <item>表音式 · Surface (見ㅆ다)</item>
+        <item>形態式 · Morpheme (見았다)</item>
+    </string-array>
+    <string-array name="fragment_labels">
+        <item>漢字가 머금음 · Absorb (見라)</item>
+        <item>글자로 · Letter (見ㅏ라)</item>
+    </string-array>
 </resources>

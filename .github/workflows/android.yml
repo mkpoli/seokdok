@@ -2,7 +2,15 @@ name: Android
 
 on:
   push:
-    branches: [main, ci/android-apk]
+    branches: [main]
+    paths:
+      - "android/**"
+      - "crates/**"
+      - "dict/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/android.yml"
+  pull_request:
     paths:
       - "android/**"
       - "crates/**"

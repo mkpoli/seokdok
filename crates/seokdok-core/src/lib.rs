@@ -3,6 +3,7 @@
 //! meaning (訓讀), with the inflected remainder in Hangul (送韓字).
 
 pub mod conj;
+pub mod custom;
 pub mod jamo;
 pub mod dict;
 pub mod dubeolsik;

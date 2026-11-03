@@ -165,6 +165,9 @@ const ko = {
     disclaimerSource: '{會|모임} 포스터에서',
     president: '{會長|회장} {車魄|차백}',
     button: 't.me/pimsdh {入|들어}가기',
+    friends: '{隣|이웃} {會|모임}',
+    chat: '{國漢文混用|국한문혼용}으로 {雜談|잡담}하는 텔레그램 {房|방}',
+    wiki: '{誰|누구}나 {書|쓰}고 {修正|수정}하는 {國漢文混用|국한문혼용} 위키',
   },
   old: {
     eyebrow: '{古|예}ㅅ{韓㐎|한글}',
@@ -380,6 +383,9 @@ const en = {
     disclaimerSource: 'from the group’s poster: a hobby club in the spirit of a constructed language',
     president: '車魄, head of the group',
     button: 'Join t.me/pimsdh',
+    friends: 'Neighbours',
+    chat: 'A Telegram chat written in mixed Hanja and Hangul',
+    wiki: 'A wiki in mixed Hanja and Hangul that anyone can edit',
   },
   old: {
     eyebrow: 'Old Hangul',

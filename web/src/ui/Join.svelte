@@ -29,6 +29,21 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="var(--c-telegram)" /><path fill="#fff" d="M5.4 11.8 16.6 7.5c.5-.2 1 .1.8.9l-1.9 9c-.1.6-.5.8-1 .5l-2.8-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-2.9 5.3-4.8c.2-.2 0-.3-.3-.1L8.4 13.7l-2.8-.9c-.6-.2-.6-.6.1-.9z" /></svg>
         <span>https://t.me/pimsdh</span>
       </a>
+      <p class="friends-title">{@html r(t().join.friends)}</p>
+      <ul class="friends">
+        <li>
+          <a href="https://t.me/+WM1ZSd-2Nd7T55Wm" target="_blank" rel="noopener">
+            <b>漢字混用</b>
+            <span>{@html r(t().join.chat)}</span>
+          </a>
+        </li>
+        <li>
+          <a href="https://wiki.韓國語.漢字.net/" target="_blank" rel="noopener">
+            <b>國漢大百科</b>
+            <span>{@html r(t().join.wiki)}</span>
+          </a>
+        </li>
+      </ul>
     </div>
   </div>
 </section>
@@ -124,6 +139,40 @@
   .tg svg {
     width: 44px;
     height: 44px;
+  }
+  .friends-title {
+    margin: var(--s-6) 0 var(--s-2);
+    font: 700 15px/2 var(--f-sans);
+    opacity: 0.85;
+  }
+  .friends {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: var(--s-3);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .friends a {
+    display: grid;
+    gap: var(--s-1);
+    height: 100%;
+    padding: var(--s-3) var(--s-4);
+    border-radius: var(--r-2);
+    background: color-mix(in srgb, var(--c-on-accent) 12%, transparent);
+    color: inherit;
+    text-decoration: none;
+    transition: background var(--t-fast) var(--ease);
+  }
+  .friends a:hover {
+    background: color-mix(in srgb, var(--c-on-accent) 20%, transparent);
+  }
+  .friends b {
+    font: 700 20px/1.3 var(--f-serif);
+  }
+  .friends span {
+    font: 500 14px/1.9 var(--f-sans);
+    opacity: 0.9;
   }
   @media (max-width: 760px) {
     .inner {

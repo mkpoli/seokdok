@@ -14,3 +14,4 @@ crate-type = ["staticlib", "rlib"]
 [dependencies]
 seokdok-core = { path = "../seokdok-core" }
 seokdok-session = { path = "../seokdok-session" }
+serde_json = "1"

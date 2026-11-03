@@ -27,6 +27,10 @@ pub enum Mode {
 /// Source of conversions; the engine in production, a stub in tests.
 pub trait Converter {
     fn segments(&self, input: &str) -> Vec<Segment>;
+    /// Candidates for exactly this span (used when a segment is resized).
+    fn whole(&self, input: &str) -> Vec<Candidate> {
+        self.segments(input).into_iter().flat_map(|s| s.candidates).collect()
+    }
 }
 
 /// Display style of a run of preedit text.
@@ -56,6 +60,8 @@ pub struct Popup {
     /// 1-based position of the selected candidate and the candidate count.
     pub position: usize,
     pub total: usize,
+    /// Lay the candidates out in a row instead of a column.
+    pub horizontal: bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -78,6 +84,7 @@ pub struct Output {
 
 #[derive(Clone, Debug)]
 struct Seg {
+    reading: String,
     cands: Vec<Candidate>,
     sel: usize,
 }
@@ -93,6 +100,8 @@ struct Conv {
     segs: Vec<Seg>,
     focus: usize,
     open: bool,
+    /// Started with Space: confirming it marks a word break.
+    spaced: bool,
 }
 
 /// What a key does in the current state.
@@ -100,7 +109,8 @@ struct Conv {
 enum Act {
     Insert(char),
     Literal(char),
-    Convert,
+    /// Convert; true when started by Space (a word break follows).
+    Convert(bool),
     /// Commit the buffer or the conversion, then append this character.
     CommitWith(Option<char>),
     /// Commit, then start a new composition with this jamo key.
@@ -114,7 +124,14 @@ enum Act {
     Prev,
     FocusLeft,
     FocusRight,
+    /// Pick a candidate on the page and confirm through this segment.
     Pick(usize),
+    /// Next / previous page of candidates.
+    Page(isize),
+    /// Shrink (-1) or extend (+1) the focused segment by one syllable.
+    Resize(isize),
+    /// Close the candidate window, keeping the conversion.
+    CloseWindow,
     ToggleLatin,
     Noop,
 }
@@ -125,14 +142,26 @@ pub struct Session {
     /// Mode to return to from Latin.
     hangul_mode: Mode,
     space_converts: bool,
+    /// Candidate window in a row; ← → then walk the candidates.
+    horizontal: bool,
     composer: Composer,
     conv: Option<Conv>,
+    /// A Space conversion was confirmed: the next Hangul typed gets a space first.
+    pending_break: bool,
 }
 
 impl Session {
     pub fn new(mode: Mode, space_converts: bool) -> Self {
         let hangul_mode = if mode == Mode::Latin { Mode::Seokdok } else { mode };
-        Session { mode, hangul_mode, space_converts, composer: Composer::new(), conv: None }
+        Session {
+            mode,
+            hangul_mode,
+            space_converts,
+            horizontal: false,
+            composer: Composer::new(),
+            conv: None,
+            pending_break: false,
+        }
     }
 
     pub fn mode(&self) -> Mode {
@@ -141,6 +170,10 @@ impl Session {
 
     pub fn set_space_converts(&mut self, v: bool) {
         self.space_converts = v;
+    }
+
+    pub fn set_horizontal(&mut self, v: bool) {
+        self.horizontal = v;
     }
 
     /// True while a composition exists.
@@ -167,6 +200,7 @@ impl Session {
         }
         let jamo = key.jamo_key();
         if let Some(conv) = &self.conv {
+            let walk = conv.open && self.horizontal;
             return Some(match key {
                 Key::Letter { .. } => Act::CommitThenInsert(jamo.unwrap()),
                 Key::Printable(c @ '1'..='9') if conv.open => {
@@ -179,13 +213,20 @@ impl Session {
                     }
                 }
                 Key::Printable(c) => Act::CommitThenLiteral(c),
-                Key::Space { shift: true } => Act::CommitWith(Some(' ')),
-                Key::Space { shift: false } if !self.space_converts => Act::CommitWith(Some(' ')),
-                Key::Space { shift: false } | Key::Tab | Key::Down | Key::Convert => Act::Next,
-                Key::Up => Act::Prev,
-                Key::Left => Act::FocusLeft,
-                Key::Right => Act::FocusRight,
+                Key::Space { shift: false } if !self.space_converts && !conv.open => Act::CommitWith(Some(' ')),
+                Key::Space { shift: true } | Key::Up => Act::Prev,
+                Key::Space { shift: false } | Key::Down | Key::Convert => Act::Next,
+                Key::Tab { shift } => Act::Page(if shift { -1 } else { 1 }),
+                Key::PageDown => Act::Page(1),
+                Key::PageUp => Act::Page(-1),
+                Key::Left { shift: true } => Act::Resize(-1),
+                Key::Right { shift: true } => Act::Resize(1),
+                Key::Left { .. } if walk => Act::Prev,
+                Key::Right { .. } if walk => Act::Next,
+                Key::Left { .. } => Act::FocusLeft,
+                Key::Right { .. } => Act::FocusRight,
                 Key::Enter => Act::CommitWith(None),
+                Key::Esc if conv.open => Act::CloseWindow,
                 Key::Esc | Key::Backspace => Act::Revert,
                 Key::Other => Act::Noop,
                 Key::HangulToggle => unreachable!(),
@@ -200,7 +241,7 @@ impl Session {
         let converts = self.mode == Mode::Seokdok;
         Some(match key {
             Key::Letter { .. } => Act::Insert(jamo.unwrap()),
-            Key::Space { shift: false } if converts && self.space_converts => Act::Convert,
+            Key::Space { shift: false } if converts && self.space_converts => Act::Convert(true),
             Key::Space { shift: false } if !converts => Act::CommitWith(Some(' ')),
             Key::Space { .. } if converts => Act::Literal(' '),
             Key::Space { .. } => Act::CommitWith(Some(' ')),
@@ -209,22 +250,34 @@ impl Session {
             Key::Enter => Act::CommitWith(None),
             Key::Esc => Act::Cancel,
             Key::Backspace => Act::Backspace,
-            Key::Tab | Key::Down | Key::Convert if converts => Act::Convert,
-            Key::Tab | Key::Down | Key::Convert | Key::Up | Key::Left | Key::Right | Key::Other => {
-                Act::Noop
-            }
+            Key::Tab { .. } | Key::Down | Key::Convert if converts => Act::Convert(false),
+            Key::Tab { .. }
+            | Key::Down
+            | Key::Convert
+            | Key::Up
+            | Key::Left { .. }
+            | Key::Right { .. }
+            | Key::PageUp
+            | Key::PageDown
+            | Key::Other => Act::Noop,
             Key::HangulToggle => unreachable!(),
         })
     }
 
     pub fn handle(&mut self, key: Key, conv: &dyn Converter) -> Output {
         let Some(act) = self.plan(key) else {
+            self.pending_break = false;
             return Output { eaten: false, effects: Vec::new() };
         };
+        let brk = std::mem::take(&mut self.pending_break);
         let mut fx = Vec::new();
         match act {
             Act::Noop => {}
             Act::Insert(k) => {
+                // The first Hangul after a confirmed Space conversion starts a new word.
+                if brk && self.composer.is_empty() && self.conv.is_none() {
+                    fx.push(Effect::Commit(" ".into()));
+                }
                 self.composer.input(k);
                 fx.push(self.input_preedit());
             }
@@ -244,21 +297,29 @@ impl Session {
                 self.composer.clear();
                 fx.push(Effect::Cancel);
             }
-            Act::Convert => self.convert(conv, &mut fx),
+            Act::Convert(spaced) => self.convert(conv, spaced, &mut fx),
             Act::CommitWith(c) => {
                 let mut text = self.take_text();
                 text.extend(c);
+                if c.is_some() {
+                    self.pending_break = false;
+                }
                 fx.push(Effect::Commit(text));
                 fx.push(Effect::Popup(None));
             }
             Act::CommitThenInsert(k) => {
-                fx.push(Effect::Commit(self.take_text()));
+                let mut text = self.take_text();
+                if std::mem::take(&mut self.pending_break) && !text.ends_with(char::is_whitespace) {
+                    text.push(' ');
+                }
+                fx.push(Effect::Commit(text));
                 fx.push(Effect::Popup(None));
                 self.composer.input(k);
                 fx.push(self.input_preedit());
             }
             Act::CommitThenLiteral(c) => {
                 fx.push(Effect::Commit(self.take_text()));
+                self.pending_break = false;
                 fx.push(Effect::Popup(None));
                 self.composer.push_literal(c);
                 fx.push(self.input_preedit());
@@ -267,6 +328,12 @@ impl Session {
                 self.conv = None;
                 fx.push(self.input_preedit());
                 fx.push(Effect::Popup(None));
+            }
+            Act::CloseWindow => {
+                if let Some(c) = &mut self.conv {
+                    c.open = false;
+                }
+                self.push_view(&mut fx);
             }
             Act::Next | Act::Prev => {
                 if let Some(c) = &mut self.conv {
@@ -277,12 +344,23 @@ impl Session {
                 }
                 self.push_view(&mut fx);
             }
+            Act::Page(d) => {
+                if let Some(c) = &mut self.conv {
+                    let seg = &mut c.segs[c.focus];
+                    let n = seg.cands.len();
+                    let pages = n.div_ceil(PAGE_SIZE) as isize;
+                    let p = ((seg.sel / PAGE_SIZE) as isize + d).rem_euclid(pages.max(1)) as usize;
+                    seg.sel = (p * PAGE_SIZE).min(n - 1);
+                    c.open = true;
+                }
+                self.push_view(&mut fx);
+            }
             Act::FocusLeft | Act::FocusRight => {
                 if let Some(c) = &mut self.conv {
                     let step: isize = if act == Act::FocusLeft { -1 } else { 1 };
                     let mut i = c.focus as isize + step;
                     while i >= 0 && (i as usize) < c.segs.len() {
-                        if c.segs[i as usize].cands.len() > 1 {
+                        if focusable(&c.segs[i as usize]) {
                             c.focus = i as usize;
                             break;
                         }
@@ -292,13 +370,13 @@ impl Session {
                 }
                 self.push_view(&mut fx);
             }
+            Act::Resize(d) => self.resize(conv, d, &mut fx),
             Act::Pick(n) => {
                 if let Some(c) = &mut self.conv {
                     let seg = &mut c.segs[c.focus];
                     seg.sel = seg.sel / PAGE_SIZE * PAGE_SIZE + n;
-                    c.open = false;
                 }
-                self.push_view(&mut fx);
+                self.commit_through(&mut fx);
             }
             Act::ToggleLatin => {
                 let next = if self.mode == Mode::Latin { self.hangul_mode } else { Mode::Latin };
@@ -306,6 +384,59 @@ impl Session {
             }
         }
         Output { eaten: true, effects: fx }
+    }
+
+    /// Confirm the segments up to the focused one; the rest stay converting.
+    fn commit_through(&mut self, fx: &mut Vec<Effect>) {
+        let Some(c) = self.conv.take() else { return };
+        let (done, rest) = c.segs.split_at(c.focus + 1);
+        let mut text: String = done.iter().map(Seg::text).collect();
+        let left: String = rest.iter().map(|s| s.reading.as_str()).collect();
+        fx.push(Effect::Popup(None));
+        if rest.is_empty() || !left.chars().any(is_hangul) {
+            text.push_str(&rest.iter().map(Seg::text).collect::<String>());
+            self.composer.clear();
+            self.pending_break = c.spaced;
+            fx.push(Effect::Commit(text));
+            return;
+        }
+        fx.push(Effect::Commit(text));
+        self.composer = Composer::from_text(&left);
+        let segs = rest.to_vec();
+        let focus = segs.iter().position(focusable).unwrap_or(0);
+        self.conv = Some(Conv { segs, focus, open: false, spaced: c.spaced });
+        self.push_view(fx);
+    }
+
+    fn resize(&mut self, conv: &dyn Converter, d: isize, fx: &mut Vec<Effect>) {
+        let Some(c) = &mut self.conv else { return };
+        let i = c.focus;
+        let cur: Vec<char> = c.segs[i].reading.chars().collect();
+        let next: Vec<char> = c.segs.get(i + 1).map(|s| s.reading.chars().collect()).unwrap_or_default();
+        if (d < 0 && cur.len() <= 1) || (d > 0 && next.is_empty()) {
+            return;
+        }
+        let (a, b): (String, String) = if d < 0 {
+            (cur[..cur.len() - 1].iter().collect(), std::iter::once(cur[cur.len() - 1]).chain(next.iter().copied()).collect())
+        } else {
+            (cur.iter().copied().chain(std::iter::once(next[0])).collect(), next[1..].iter().collect())
+        };
+        let span = |t: &str| {
+            let mut v = conv.whole(t);
+            if !v.iter().any(|k| k.text == t) {
+                v.push(Candidate { text: t.to_string(), note: String::new() });
+            }
+            Seg { reading: t.to_string(), cands: v, sel: 0 }
+        };
+        let mut fresh = vec![span(&a)];
+        if !b.is_empty() {
+            fresh.push(span(&b));
+        }
+        let end = (i + 2).min(c.segs.len());
+        c.segs.splice(i..end, fresh);
+        c.focus = i;
+        c.open = false;
+        self.push_view(fx);
     }
 
     /// Switch mode, committing any composition as it stands.
@@ -350,6 +481,9 @@ impl Session {
 
     fn take_text(&mut self) -> String {
         let text = self.current_text();
+        if let Some(c) = &self.conv {
+            self.pending_break = c.spaced;
+        }
         self.composer.clear();
         self.conv = None;
         text
@@ -359,18 +493,18 @@ impl Session {
         Effect::Preedit(vec![Run { text: self.composer.text().to_string(), attr: Attr::Input }])
     }
 
-    fn convert(&mut self, conv: &dyn Converter, fx: &mut Vec<Effect>) {
+    fn convert(&mut self, conv: &dyn Converter, spaced: bool, fx: &mut Vec<Effect>) {
         let segs: Vec<Seg> = conv
             .segments(self.composer.text())
             .into_iter()
             .filter(|s| !s.candidates.is_empty())
-            .map(|s| Seg { cands: s.candidates, sel: 0 })
+            .map(|s| Seg { reading: s.reading, cands: s.candidates, sel: 0 })
             .collect();
         if segs.is_empty() {
             return;
         }
-        let focus = segs.iter().position(|s| s.cands.len() > 1).unwrap_or(0);
-        self.conv = Some(Conv { segs, focus, open: false });
+        let focus = segs.iter().position(focusable).unwrap_or(0);
+        self.conv = Some(Conv { segs, focus, open: false, spaced });
         self.push_view(fx);
     }
 
@@ -399,8 +533,18 @@ impl Session {
             selected: seg.sel - start,
             position: seg.sel + 1,
             total: seg.cands.len(),
+            horizontal: self.horizontal,
         }
     }
+}
+
+fn is_hangul(c: char) -> bool {
+    ('\u{AC00}'..='\u{D7A3}').contains(&c)
+}
+
+/// Segments the focus can visit: a real choice, or Hangul to resize.
+fn focusable(s: &Seg) -> bool {
+    s.cands.len() > 1 || s.reading.chars().any(is_hangul)
 }
 
 #[cfg(test)]
@@ -485,7 +629,7 @@ mod tests {
     #[test]
     fn idle_passes_non_letters_through() {
         let s = seokdok();
-        for k in [Key::Space { shift: false }, Key::Enter, Key::Esc, Key::Backspace, Key::Printable('1'), Key::Left, Key::Convert] {
+        for k in [Key::Space { shift: false }, Key::Enter, Key::Esc, Key::Backspace, Key::Printable('1'), Key::Left { shift: false }, Key::Convert] {
             assert!(!s.eats(k), "{k:?}");
         }
         assert!(s.eats(letter('a')));
@@ -533,29 +677,29 @@ mod tests {
         assert_eq!(runs[0].attr, Attr::Focus);
         assert_eq!(runs[2].attr, Attr::Converted);
         // Right skips the space and the one-candidate segment.
-        let o = s.handle(Key::Right, &Stub(2));
+        let o = s.handle(Key::Right { shift: false }, &Stub(2));
         let runs = preedit_of(&o).unwrap();
         assert_eq!(runs[4].attr, Attr::Focus);
         assert_eq!(runs[0].attr, Attr::Converted);
         // Right at the end stays.
-        let o = s.handle(Key::Right, &Stub(2));
+        let o = s.handle(Key::Right { shift: false }, &Stub(2));
         assert_eq!(preedit_of(&o).unwrap()[4].attr, Attr::Focus);
         // Cycling changes only the focused segment.
         let o = s.handle(Key::Space { shift: false }, &Stub(2));
         let all: String = preedit_of(&o).unwrap().iter().map(|r| r.text.as_str()).collect();
         assert_eq!(all, "a1 _b1 c2");
-        s.handle(Key::Left, &Stub(2));
+        s.handle(Key::Left { shift: false }, &Stub(2));
         let o = s.handle(Key::Enter, &Stub(2));
         assert_eq!(commit_of(&o).unwrap(), "a1 _b1 c2");
         assert!(!s.is_composing());
     }
 
     #[test]
-    fn digits_pick_a_candidate_only_while_the_window_is_open() {
+    fn digits_pick_and_confirm_only_while_the_window_is_open() {
         let mut s = seokdok();
         type_str(&mut s, "gks");
         s.handle(Key::Space { shift: false }, &Stub(12));
-        // window closed: a digit commits the conversion and starts a new composition
+        // window closed: a digit confirms the conversion and goes on as text
         let o = s.handle(Key::Printable('2'), &Stub(12));
         assert_eq!(commit_of(&o).unwrap(), "한1");
         assert_eq!(s.buffer(), "2");
@@ -565,25 +709,76 @@ mod tests {
         s.handle(Key::Space { shift: false }, &Stub(12));
         s.handle(Key::Space { shift: false }, &Stub(12));
         let o = s.handle(Key::Printable('4'), &Stub(12));
-        assert_eq!(preedit_of(&o).unwrap()[0].text, "한4");
-        assert_eq!(popup_of(&o), Some(None));
-        // pages of nine: select the 11th candidate, then digit 2 picks the 11th
-        for _ in 0..6 {
-            s.handle(Key::Down, &Stub(12));
-        }
-        let o = s.handle(Key::Down, &Stub(12));
+        assert_eq!(commit_of(&o).unwrap(), "한4");
+        assert!(!s.is_composing());
+
+        // Tab pages by nine; digit 2 then picks the 11th.
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        s.handle(Key::Space { shift: false }, &Stub(12));
+        let o = s.handle(Key::Tab { shift: false }, &Stub(12));
         let p = popup_of(&o).unwrap().unwrap();
-        assert_eq!(p.items.len(), 3);
-        assert_eq!(p.position, 11);
+        assert_eq!((p.items.len(), p.position), (3, 10));
         let o = s.handle(Key::Printable('2'), &Stub(12));
-        assert_eq!(preedit_of(&o).unwrap()[0].text, "한11");
-        // out of range digit is eaten and ignored
-        s.handle(Key::Down, &Stub(12));
-        let o = s.handle(Key::Printable('9'), &Stub(12));
-        assert!(o.eaten);
-        assert_eq!(preedit_of(&o), None);
+        assert_eq!(commit_of(&o).unwrap(), "한11");
+        let o = s.handle(Key::PageUp, &Stub(12));
+        assert!(!o.eaten || o.effects.is_empty());
     }
 
+    #[test]
+    fn a_pick_confirms_through_the_focused_segment_only() {
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        s.handle(Key::Space { shift: true }, &Stub(3));
+        type_str(&mut s, "rk");
+        s.handle(Key::Space { shift: false }, &Stub(3));
+        s.handle(Key::Down, &Stub(3));
+        let o = s.handle(Key::Printable('2'), &Stub(3));
+        assert_eq!(commit_of(&o).unwrap(), "한2");
+        // " 가" stays converting with focus on 가
+        let runs = preedit_of(&o).unwrap();
+        assert_eq!(runs.iter().map(|r| r.text.as_str()).collect::<String>(), " 가1");
+        let o = s.handle(Key::Enter, &Stub(3));
+        assert_eq!(commit_of(&o).unwrap(), " 가1");
+    }
+
+    #[test]
+    fn shift_arrows_resize_the_segment() {
+        let mut s = seokdok();
+        type_str(&mut s, "gksrk");
+        s.handle(Key::Space { shift: false }, &Stub(3));
+        let o = s.handle(Key::Left { shift: true }, &Stub(3));
+        let texts: Vec<String> = preedit_of(&o).unwrap().into_iter().map(|r| r.text).collect();
+        assert_eq!(texts, ["한1", "가1"]);
+        let o = s.handle(Key::Right { shift: true }, &Stub(3));
+        let texts: Vec<String> = preedit_of(&o).unwrap().into_iter().map(|r| r.text).collect();
+        assert_eq!(texts, ["한가1"]);
+    }
+
+    #[test]
+    fn horizontal_window_walks_with_arrows() {
+        let mut s = seokdok();
+        s.set_horizontal(true);
+        type_str(&mut s, "gks");
+        s.handle(Key::Space { shift: false }, &Stub(3));
+        let o = s.handle(Key::Space { shift: false }, &Stub(3));
+        assert!(popup_of(&o).unwrap().unwrap().horizontal);
+        let o = s.handle(Key::Right { shift: false }, &Stub(3));
+        assert_eq!(preedit_of(&o).unwrap()[0].text, "한3");
+        let o = s.handle(Key::Left { shift: false }, &Stub(3));
+        assert_eq!(preedit_of(&o).unwrap()[0].text, "한2");
+    }
+
+    #[test]
+    fn a_word_break_follows_enter_after_a_space_conversion() {
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        s.handle(Key::Space { shift: false }, &Stub(3));
+        s.handle(Key::Enter, &Stub(3));
+        let o = s.handle(letter('r'), &Stub(3));
+        assert_eq!(commit_of(&o).unwrap(), " ");
+        assert_eq!(s.buffer(), "ㄱ");
+    }
     #[test]
     fn enter_commits_raw_hangul_or_conversion() {
         let mut s = seokdok();
@@ -594,19 +789,20 @@ mod tests {
     }
 
     #[test]
-    fn escape_reverts_to_hangul_then_cancels() {
+    fn escape_closes_the_window_then_reverts_then_cancels() {
         let mut s = seokdok();
         type_str(&mut s, "gks");
         s.handle(Key::Space { shift: false }, &Stub(3));
         s.handle(Key::Space { shift: false }, &Stub(3));
         let o = s.handle(Key::Esc, &Stub(3));
-        assert_eq!(preedit_of(&o).unwrap(), vec![Run { text: "한".into(), attr: Attr::Input }]);
+        assert_eq!(preedit_of(&o).unwrap()[0].attr, Attr::Focus);
         assert_eq!(popup_of(&o), Some(None));
+        let o = s.handle(Key::Esc, &Stub(3));
+        assert_eq!(preedit_of(&o).unwrap(), vec![Run { text: "한".into(), attr: Attr::Input }]);
         let o = s.handle(Key::Esc, &Stub(3));
         assert!(o.effects.contains(&Effect::Cancel));
         assert!(!s.is_composing());
     }
-
     #[test]
     fn backspace_edits_and_reverts() {
         let mut s = seokdok();
@@ -627,26 +823,32 @@ mod tests {
         let mut s = seokdok();
         type_str(&mut s, "gks");
         s.handle(Key::Space { shift: false }, &Stub(3));
+        // A Space conversion marks a word break: the commit ends in a space.
         let o = s.handle(letter('r'), &Stub(3));
-        assert_eq!(commit_of(&o).unwrap(), "한1");
+        assert_eq!(commit_of(&o).unwrap(), "한1 ");
         assert_eq!(s.buffer(), "ㄱ");
         assert_eq!(preedit_of(&o).unwrap()[0].text, "ㄱ");
+        // Converted with Tab: no space.
+        let mut t = seokdok();
+        type_str(&mut t, "gks");
+        t.handle(Key::Tab { shift: false }, &Stub(3));
+        let o = t.handle(letter('r'), &Stub(3));
+        assert_eq!(commit_of(&o).unwrap(), "한1");
     }
-
     #[test]
-    fn shift_space_inserts_a_space() {
+    fn shift_space_inserts_a_space_then_steps_back() {
         let mut s = seokdok();
         type_str(&mut s, "gks");
         let o = s.handle(Key::Space { shift: true }, &Stub(3));
         assert_eq!(s.buffer(), "한 ");
         assert_eq!(preedit_of(&o).unwrap()[0].text, "한 ");
-        // converted: shift-space commits and appends the space
-        type_str(&mut s, "rk");
-        s.handle(Key::Space { shift: false }, &Stub(3));
-        let o = s.handle(Key::Space { shift: true }, &Stub(3));
-        assert_eq!(commit_of(&o).unwrap(), "한1 가1 ");
+        // converted: Shift+Space is the previous candidate
+        let mut t = seokdok();
+        type_str(&mut t, "gks");
+        t.handle(Key::Space { shift: false }, &Stub(3));
+        let o = t.handle(Key::Space { shift: true }, &Stub(3));
+        assert_eq!(preedit_of(&o).unwrap()[0].text, "한3");
     }
-
     #[test]
     fn space_converts_off() {
         let mut s = Session::new(Mode::Seokdok, false);
@@ -654,22 +856,19 @@ mod tests {
         let o = s.handle(Key::Space { shift: false }, &Stub(3));
         assert_eq!(s.buffer(), "한 ");
         assert_eq!(preedit_of(&o).unwrap()[0].attr, Attr::Input);
-        for k in [Key::Convert, Key::Tab, Key::Down] {
+        for k in [Key::Convert, Key::Tab { shift: false }, Key::Down] {
             let mut t = Session::new(Mode::Seokdok, false);
             type_str(&mut t, "gks");
             let o = t.handle(k, &Stub(3));
             assert_eq!(preedit_of(&o).unwrap()[0].attr, Attr::Focus, "{k:?}");
         }
-        // converted: space commits with a space, Tab cycles
+        // converted: Space confirms and types a space
         let mut t = Session::new(Mode::Seokdok, false);
         type_str(&mut t, "gks");
         t.handle(Key::Convert, &Stub(3));
-        let o = t.handle(Key::Tab, &Stub(3));
-        assert_eq!(preedit_of(&o).unwrap()[0].text, "한2");
         let o = t.handle(Key::Space { shift: false }, &Stub(3));
-        assert_eq!(commit_of(&o).unwrap(), "한2 ");
+        assert_eq!(commit_of(&o).unwrap(), "한1 ");
     }
-
     #[test]
     fn hanja_and_f7_convert() {
         let mut s = seokdok();
@@ -693,7 +892,7 @@ mod tests {
     fn hangul_mode_never_converts() {
         let mut s = Session::new(Mode::Hangul, true);
         type_str(&mut s, "gks");
-        for k in [Key::Convert, Key::Tab, Key::Down, Key::Left, Key::Other] {
+        for k in [Key::Convert, Key::Tab { shift: false }, Key::Down, Key::Left { shift: false }, Key::Other] {
             let o = s.handle(k, &Stub(3));
             assert!(o.eaten && o.effects.is_empty(), "{k:?}");
         }
@@ -753,9 +952,9 @@ mod tests {
             Key::Enter,
             Key::Esc,
             Key::Backspace,
-            Key::Tab,
-            Key::Left,
-            Key::Right,
+            Key::Tab { shift: false },
+            Key::Left { shift: false },
+            Key::Right { shift: false },
             Key::Up,
             Key::Down,
             Key::Convert,

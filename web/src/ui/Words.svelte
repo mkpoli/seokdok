@@ -1,4 +1,5 @@
 <script>
+  import { reveal } from '../lib/reveal.js'
   import { t, r, p } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
 
@@ -17,10 +18,10 @@
 </script>
 
 <section class="section" id="words">
-  <p class="eyebrow">{@html r(t().words.eyebrow)}</p>
-  <h2 class="h2">{@html r(t().words.title)}</h2>
-  <p class="lede">{@html r(t().words.lede)}</p>
-  <input class="filter" type="search" bind:value={q} placeholder={p(t().words.filter)} aria-label={p(t().words.filter)} />
+  <p class="eyebrow" use:reveal>{@html r(t().words.eyebrow)}</p>
+  <h2 class="h2" use:reveal={1}>{@html r(t().words.title)}</h2>
+  <p class="lede" use:reveal={2}>{@html r(t().words.lede)}</p>
+  <input class="filter ui-input" type="search" bind:value={q} placeholder={p(t().words.filter)} aria-label={p(t().words.filter)} />
   <div class="grid">
     {#each shown as e (e.lemma + e.written)}
       <button

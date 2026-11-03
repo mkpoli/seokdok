@@ -1,4 +1,5 @@
 <script>
+  import { reveal } from '../lib/reveal.js'
   import { t, r, p } from '../lib/i18n.svelte.js'
   import Ruby from './Ruby.svelte'
 
@@ -6,10 +7,10 @@
 </script>
 
 <section class="section" id="read">
-  <p class="eyebrow">{@html r(t().reader.eyebrow)}</p>
-  <h2 class="h2">{@html r(t().reader.title)}</h2>
-  <p class="lede">{@html r(t().reader.lede)}</p>
-  <div class="reader card">
+  <p class="eyebrow" use:reveal>{@html r(t().reader.eyebrow)}</p>
+  <h2 class="h2" use:reveal={1}>{@html r(t().reader.title)}</h2>
+  <p class="lede" use:reveal={2}>{@html r(t().reader.lede)}</p>
+  <div class="reader card" use:reveal={3}>
     <textarea bind:value={text} rows="3" lang="ko" aria-label={p(t().reader.title)}></textarea>
     <p class="out" lang="ko" aria-label={p(t().reader.reading)}><Ruby {text} /></p>
   </div>

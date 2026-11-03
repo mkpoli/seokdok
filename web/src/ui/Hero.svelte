@@ -166,6 +166,60 @@
     }
   }
 
+  /* As the page scrolls past the hero, the title sinks and the wall tilts
+     away, where scroll timelines exist and motion is welcome. */
+  @supports (animation-timeline: view()) {
+    @media (prefers-reduced-motion: no-preference) {
+      .big {
+        animation: sink linear both;
+        animation-timeline: view();
+        animation-range: exit 0% exit 100%;
+      }
+      .wall {
+        animation: tilt linear both;
+        animation-timeline: view();
+        animation-range: exit 0% exit 100%;
+      }
+    }
+  }
+  @keyframes sink {
+    to {
+      transform: translateY(18%) scale(0.94);
+      opacity: 0.2;
+    }
+  }
+  @keyframes tilt {
+    to {
+      transform: perspective(900px) rotateY(-40deg) rotateX(10deg) skewY(-3deg) translateX(-8%);
+      opacity: 0;
+    }
+  }
+  /* The hero text arrives in sequence on load. */
+  .text > * {
+    animation: rise 800ms var(--ease) both;
+  }
+  .text > :nth-child(2) {
+    animation-delay: 90ms;
+  }
+  .text > :nth-child(3) {
+    animation-delay: 180ms;
+  }
+  .text > :nth-child(4) {
+    animation-delay: 300ms;
+  }
+  .text > :nth-child(5) {
+    animation-delay: 380ms;
+  }
+  .text > :nth-child(6) {
+    animation-delay: 460ms;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+
   @media (max-width: 860px) {
     .hero {
       grid-template-columns: 1fr;

@@ -1,4 +1,5 @@
 <script>
+  import { reveal } from '../lib/reveal.js'
   import { t, r, p } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
   import { options, DEFAULTS } from '../lib/options.svelte.js'
@@ -25,12 +26,12 @@
 </script>
 
 <section class="section" id="rules">
-  <p class="eyebrow">{@html r(t().rules.eyebrow)}</p>
-  <h2 class="h2">{@html r(t().rules.title)}</h2>
-  <p class="lede">{@html r(t().rules.lede)}</p>
+  <p class="eyebrow" use:reveal>{@html r(t().rules.eyebrow)}</p>
+  <h2 class="h2" use:reveal={1}>{@html r(t().rules.title)}</h2>
+  <p class="lede" use:reveal={2}>{@html r(t().rules.lede)}</p>
   <div class="cards">
     {#each cards as [head, sub, ex], i}
-      <article class="card kind">
+      <article class="card kind" use:reveal={i}>
         <span class="n">{i + 1}</span>
         <h3>{head}</h3>
         <p class="sub">{@html r(sub)}</p>
@@ -40,7 +41,7 @@
   </div>
   <h3 class="h3">{@html r(t().rules.variants)}</h3>
   <p class="lede small">{@html r(t().rules.variantsLede)}</p>
-  <div class="variants card">
+  <div class="variants card" use:reveal>
     <p class="src" lang="ko">{SAMPLE}</p>
     {#if rows.length}
       <dl>

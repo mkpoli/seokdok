@@ -39,7 +39,7 @@ fn default_options() {
         // A stem ending in ㅏ/ㅓ takes 아/어 without a letter of its own.
         ("사", "買"), ("가", "去"), ("서", "立"),
         // Wiktionary etymologies and the interjection tier.
-        ("대충", "大總"), ("재미", "滋味"), ("예", "唯"), ("아니요", "否"), ("이것저것", "此彼"),
+        ("게", "事ㅣ"), ("건", "事ㄴ"), ("대충", "大總"), ("재미", "滋味"), ("예", "唯"), ("아니요", "否"), ("이것저것", "此彼"),
     ]);
 }
 

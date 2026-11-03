@@ -380,7 +380,9 @@ impl Engine {
                         let inside = if q == n { 0.0 } else if crate::jamo::syllable_count(&entry.stem) == 1 { 5.0 } else { 3.0 };
                         edges.push(Edge { start: s, end: q, cost: base + inside, kind: Kind::Nominal { entry: i, particle: None } });
                     }
-                    let pron = entry.pos == Pos::Pron;
+                    // Pronouns and bound nouns contract with a following particle:
+                    // 저는 → 전, 거+이 → 게, 할 수는 → 할 순.
+                    let pron = matches!(entry.pos, Pos::Pron | Pos::Bound);
                     for (r, pis) in self.particle_trie.prefixes(comps, q) {
                         if !boundary(r) {
                             continue;
@@ -746,7 +748,7 @@ impl Engine {
         } else {
             let base = Edge { start: 0, end: n.stem.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: None } };
             out.push((self.render(&n.stem, &base)[0].text.clone(), compose(&n.stem)));
-            let pron = n.pos == Pos::Pron;
+            let pron = matches!(n.pos, Pos::Pron | Pos::Bound);
             let last = *n.stem.last().unwrap();
             for (pi, p) in self.particles.iter().enumerate() {
                 if allowed(p.cond, last, pron) {

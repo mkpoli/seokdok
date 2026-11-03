@@ -14,7 +14,7 @@ pub enum Cond {
     /// Vowel-final or ㄹ-final (로).
     VowelOrL,
     Any,
-    /// Vowel-final pronoun only (나+ㅣ → 내).
+    /// Vowel-final pronoun or bound noun only (나+ㅣ → 내, 거+ㅣ → 게).
     PronVowel,
 }
 
@@ -48,7 +48,7 @@ const RO: &[(&str, &str)] = &[
 const CONTRACT: &[(&str, Cond)] = &[
     ("ㄴ", Cond::PronVowel), // 저는 → 전
     ("ㄹ", Cond::PronVowel), // 저를 → 절
-    ("ㅣ", Cond::PronVowel), // 나의 → 내, 저의 → 제
+    ("ㅣ", Cond::PronVowel), // 나의 → 내, 저의 → 제, 거+이 → 게
     ("ㅣ가", Cond::PronVowel), // 내가, 제가, 네가
     ("ㄴ데", Cond::PronVowel),
 ];

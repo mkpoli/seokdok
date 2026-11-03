@@ -88,6 +88,64 @@ export class Ime {
     return [...this.doc].slice(this.cursor).join('')
   }
 
+  // Edit history: snapshots of the committed text, caret and selection.
+  #past = []
+  #future = []
+  #lastKind = ''
+  #lastAt = 0
+
+  /** Save the state before an edit. Runs of typing (or of erasing) within a
+   *  second count as one step, as in text editors. */
+  #record(kind) {
+    const now = Date.now()
+    const run = (kind === 'type' || kind === 'erase') && kind === this.#lastKind && now - this.#lastAt < 1000
+    this.#lastKind = kind
+    this.#lastAt = now
+    if (run) return
+    this.#past.push({ doc: this.doc, cursor: this.cursor, anchor: this.anchor })
+    if (this.#past.length > 300) this.#past.shift()
+    this.#future = []
+  }
+
+  #restore(st) {
+    this.doc = st.doc
+    this.cursor = st.cursor
+    this.anchor = st.anchor
+    this.#lastKind = ''
+  }
+
+  get canUndo() {
+    return this.#past.length > 0
+  }
+
+  get canRedo() {
+    return this.#future.length > 0
+  }
+
+  /** Undo: first back out of a conversion or composition, then edits. */
+  undo() {
+    if (this.segs) return this.cancel(), true
+    if (this.pre) {
+      this.composer.clear()
+      this.#sync()
+      return true
+    }
+    const st = this.#past.pop()
+    if (!st) return false
+    this.#future.push({ doc: this.doc, cursor: this.cursor, anchor: this.anchor })
+    this.#restore(st)
+    return true
+  }
+
+  redo() {
+    if (this.segs || this.pre) return false
+    const st = this.#future.pop()
+    if (!st) return false
+    this.#past.push({ doc: this.doc, cursor: this.cursor, anchor: this.anchor })
+    this.#restore(st)
+    return true
+  }
+
   /** The selected range [start, end), or null. */
   get selection() {
     if (this.anchor === null || this.anchor === this.cursor) return null
@@ -112,10 +170,11 @@ export class Ime {
   }
 
   /** Delete the selection; true when there was one. */
-  deleteSelection() {
+  deleteSelection(record = true) {
     const s = this.selection
     this.anchor = null
     if (!s) return false
+    if (record) this.#record('delete')
     const a = [...this.doc]
     a.splice(s[0], s[1] - s[0])
     this.doc = a.join('')
@@ -124,8 +183,11 @@ export class Ime {
   }
 
   /** Insert text at the caret. */
-  #insert(text) {
-    this.deleteSelection()
+  /** @param {string} text @param {string} [kind] history step kind */
+  #insert(text, kind) {
+    if (!text) return
+    this.#record(kind ?? ([...text].length === 1 ? 'type' : 'insert'))
+    this.deleteSelection(false)
     const a = [...this.doc]
     const t = [...text]
     a.splice(this.cursor, 0, ...t)
@@ -135,6 +197,7 @@ export class Ime {
 
   /** Replace the whole document (clear, paste into the editor). */
   setDoc(text) {
+    if (text !== this.doc) this.#record('set')
     this.doc = text
     this.anchor = null
     this.cursor = [...text].length
@@ -197,7 +260,7 @@ export class Ime {
   /** Confirm everything. */
   commit() {
     if (this.segs) this.#wordBreak = this.#spaced
-    this.#insert(this.segs ? this.converted : this.pre)
+    this.#insert(this.segs ? this.converted : this.pre, 'commit')
     this.segs = null
     this.open = false
     this.composer.clear()
@@ -209,7 +272,7 @@ export class Ime {
     if (!this.segs) return
     const done = this.segs.slice(0, i + 1)
     const rest = this.segs.slice(i + 1)
-    this.#insert(done.map((s) => s.candidates[s.pick]?.text ?? s.reading).join(''))
+    this.#insert(done.map((s) => s.candidates[s.pick]?.text ?? s.reading).join(''), 'commit')
     this.open = false
     const left = rest.map((s) => s.reading).join('')
     if (!rest.length || !HANGUL.test(left)) {
@@ -365,6 +428,7 @@ export class Ime {
         } else if (this.deleteSelection()) {
           // removed the selection
         } else if (this.cursor > 0) {
+          this.#record('erase')
           const a = [...this.doc]
           a.splice(this.cursor - 1, 1)
           this.doc = a.join('')
@@ -375,6 +439,7 @@ export class Ime {
         if (this.pre) return true
         if (this.deleteSelection()) return true
         if (this.cursor < [...this.doc].length) {
+          this.#record('erase')
           const a = [...this.doc]
           a.splice(this.cursor, 1)
           this.doc = a.join('')

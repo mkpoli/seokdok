@@ -14,7 +14,7 @@
     <li>釋讀會 · 漢字混用 Telegram — 2022–2026</li>
     <li><a href="/dict/NOTICE.txt">NOTICE.txt</a></li>
   </ul>
-  <p class="meta">{@html r(t().footer.licence)} · {@html r(t().footer.made)} <a href="https://mkpo.li/">mkpoli</a></p>
+  <p class="meta">{@html r(t().footer.licence)} · {@html r(t().footer.made)} <a href="https://mkpo.li/">mkpoli</a> · <a href="https://github.com/mkpoli/seokdok" rel="noopener">GitHub</a></p>
 </footer>
 
 <style>

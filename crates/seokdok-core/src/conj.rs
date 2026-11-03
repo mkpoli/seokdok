@@ -143,7 +143,7 @@ const FINALS: &[Morph] = &[
     m(Kind::K, "도다"), m(Kind::K, "노라"),
     // Adverbial -이 (많이, 같이) and -히 is lexical; -이 attaches like K.
     m(Kind::K, "이"), m(Kind::K, "다네요"), m(Kind::K, "다면"), m(Kind::K, "다니까"), m(Kind::K, "기엔"),
-    m(Kind::K, "지마는"), m(Kind::K, "더라도"), m(Kind::K, "자마자"), m(Kind::K, "는데도"), m(Kind::K, "든"), m(Kind::K, "든지"),
+    m(Kind::K, "고자"), m(Kind::K, "노니"), m(Kind::K, "느니라"), m(Kind::K, "지마는"), m(Kind::K, "더라도"), m(Kind::K, "자마자"), m(Kind::K, "는데도"), m(Kind::K, "든"), m(Kind::K, "든지"),
     // N
     m(Kind::N, "ㄴ다"), m(Kind::N, "ㄴ다고"), m(Kind::N, "ㄴ다는"), m(Kind::N, "ㄴ대요"), m(Kind::N, "ㄴ다면"),
     // E

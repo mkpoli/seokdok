@@ -307,6 +307,24 @@ impl Engine {
                 let k = crate::jamo::syllable_count(comps) as f32;
                 edges.push(Edge { start: 0, end: n, cost: RAW_COST + 2.5 * (k - 1.0), kind: Kind::Raw });
             }
+            // An unknown word left in Hangul, followed by a particle (따름+이니라).
+            if s == 0 {
+                for q in (1..n).filter(|&q| is_l(comps[q])) {
+                    for (r, pis) in self.particle_trie.prefixes(comps, q) {
+                        if r != n {
+                            continue;
+                        }
+                        let ok = pis.iter().any(|&pi| {
+                            let p = &self.particles[pi as usize];
+                            allowed(p.cond, comps[q - 1], false) && is_l(p.comps[0])
+                        });
+                        if ok {
+                            let k = crate::jamo::syllable_count(&comps[..q]) as f32;
+                            edges.push(Edge { start: 0, end: n, cost: RAW_COST + 2.5 * (k - 1.0) + 0.4, kind: Kind::Raw });
+                        }
+                    }
+                }
+            }
             // Sino-Korean words, optionally with a particle.
             for (q, items) in self.sino.prefixes(comps, s) {
                 if !boundary(q) {
@@ -326,7 +344,7 @@ impl Engine {
                                 edges.push(Edge {
                                     start: s,
                                     end: r,
-                                    cost: base + 0.2 + mid(r),
+                                    cost: base + 0.2 + mid(r) + weak(p),
                                     kind: Kind::Sino { entry: i, particle: Some(pi) },
                                 });
                             }

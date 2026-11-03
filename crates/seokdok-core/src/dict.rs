@@ -277,7 +277,10 @@ pub fn parse_sino(fields: &[&str]) -> Result<Sino, String> {
     }
     let count = get(2).parse().unwrap_or(0);
     let source = Source::parse(if get(3).is_empty() { "lexicon" } else { get(3) });
-    let cost = sino_cost(&reading, source, count);
+    // "hangul": the chat writes this reading in Hangul and never this Hanja
+    // form, so it is most likely a native word (사랑 ≠ 舍廊).
+    let native_homophone = get(3) == "hangul";
+    let cost = sino_cost(&reading, source, count) + if native_homophone { 4.0 } else { 0.0 };
     Ok(Sino { reading, hanja, source, count, cost })
 }
 

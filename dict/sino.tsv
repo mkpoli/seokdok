@@ -4,7 +4,7 @@
 # 漢字混用 (export to 2026-11-03).
 reading	hanja	count	source
 가	可	564	lexicon
-가	加	298	lexicon
+가	加	299	lexicon
 가	家	216	lexicon
 가	歌	197	lexicon
 가	假	116	lexicon
@@ -2538,7 +2538,7 @@ reading	hanja	count	source
 각희	角戱	0	lexicon
 각희산	角戱山	0	lexicon
 간	間	299	lexicon
-간	簡	145	lexicon
+간	簡	146	lexicon
 간	干	101	lexicon
 간	看	50	lexicon
 간	乾	27	lexicon
@@ -2734,7 +2734,7 @@ reading	hanja	count	source
 간능	幹能	0	lexicon
 간다라미술	간다라美術	0	lexicon
 간다크강	간다크江	0	lexicon
-간단	簡單	25	lexicon
+간단	簡單	26	lexicon
 간단	間斷	0	lexicon
 간단명료	簡單明瞭	1	lexicon
 간단반응	簡單反應	0	lexicon
@@ -8168,7 +8168,7 @@ reading	hanja	count	source
 거화전	炬火戰	0	lexicon
 거휘	擧揮	0	lexicon
 걱	巪	6	lexicon
-건	件	141	lexicon
+건	件	143	lexicon
 건	建	83	lexicon
 건	乾	27	lexicon
 건	健	22	lexicon
@@ -11065,7 +11065,7 @@ reading	hanja	count	source
 경	經	101	lexicon
 경	慶	59	lexicon
 경	更	58	lexicon
-경	驚	57	lexicon
+경	驚	58	lexicon
 경	敬	44	lexicon
 경	景	35	lexicon
 경	頃	31	lexicon
@@ -14633,7 +14633,7 @@ reading	hanja	count	source
 곗자내관	啓字內官	0	lexicon
 곗장	契狀	0	lexicon
 고	古	483	lexicon
-고	高	349	lexicon
+고	高	351	lexicon
 고	故	228	lexicon
 고	固	162	lexicon
 고	考	120	lexicon
@@ -16264,7 +16264,7 @@ reading	hanja	count	source
 고송	古松	0	lexicon
 고송	孤松	0	lexicon
 고송	枯松	0	lexicon
-고수	高手	3	lexicon
+고수	高手	5	lexicon
 고수	固守	2	lexicon
 고수	叩首	0	lexicon
 고수	孤愁	0	lexicon
@@ -36625,11 +36625,11 @@ reading	hanja	count	source
 긍황	兢惶	0	lexicon
 긍휼	矜恤	0	lexicon
 긔수	幾數	0	lexicon
-기	記	768	lexicon
+기	記	769	lexicon
 기	其	440	lexicon
-기	機	206	lexicon
+기	機	207	lexicon
 기	氣	172	lexicon
-기	期	153	lexicon
+기	期	154	lexicon
 기	基	137	lexicon
 기	幾	109	lexicon
 기	紀	105	lexicon
@@ -37378,7 +37378,7 @@ reading	hanja	count	source
 기념행사	記念行事	0	lexicon
 기념호	記念號	0	lexicon
 기념회	記念會	0	lexicon
-기능	機能	36	lexicon
+기능	機能	37	lexicon
 기능	技能	6	lexicon
 기능개념	機能槪念	0	lexicon
 기능검사	技能檢査	0	lexicon
@@ -37444,7 +37444,7 @@ reading	hanja	count	source
 기당	幾堂	0	lexicon
 기당	耆堂	0	lexicon
 기당	騎堂	0	lexicon
-기대	期待	15	lexicon
+기대	期待	16	lexicon
 기대	企待	0	lexicon
 기대	器臺	0	lexicon
 기대	基臺	0	lexicon
@@ -45844,7 +45844,7 @@ reading	hanja	count	source
 녈반당	녈반堂	0	lexicon
 녈반종	녈반宗	0	lexicon
 녈반종	녈반鍾	0	lexicon
-념	念	69	lexicon
+념	念	70	lexicon
 념	恬	1	lexicon
 념	㑫	0	lexicon
 념	䧔	0	lexicon
@@ -45885,7 +45885,7 @@ reading	hanja	count	source
 념아	恬雅	0	lexicon
 념연	恬然	0	lexicon
 념외	念外	0	lexicon
-념원	念願	0	lexicon
+념원	念願	1	lexicon
 념의	念意	0	lexicon
 념일	念日	1	lexicon
 념전	念前	0	lexicon
@@ -49443,7 +49443,7 @@ reading	hanja	count	source
 늠철	凜綴	0	lexicon
 늠추	凜秋	0	lexicon
 늠호	凜乎	0	lexicon
-능	能	366	lexicon
+능	能	367	lexicon
 능	陵	30	lexicon
 능	凌	1	lexicon
 능	綾	1	lexicon
@@ -50780,7 +50780,7 @@ reading	hanja	count	source
 다회치기	多繪치기	0	lexicon
 다효소복합체	多酵素複合體	0	lexicon
 다후구류	多後口類	0	lexicon
-단	單	314	lexicon
+단	單	315	lexicon
 단	段	77	lexicon
 단	旦	66	lexicon
 단	斷	57	lexicon
@@ -54344,12 +54344,12 @@ reading	hanja	count	source
 당후일기	堂後日記	0	lexicon
 닻벌렛증	닻벌렛症	0	lexicon
 닻흑구	닻黑球	0	lexicon
-대	大	1004	lexicon
+대	大	1005	lexicon
 대	代	744	lexicon
 대	對	237	lexicon
 대	臺	213	lexicon
 대	台	90	lexicon
-대	待	62	lexicon
+대	待	63	lexicon
 대	帶	46	lexicon
 대	隊	42	lexicon
 대	対	12	lexicon
@@ -54594,9 +54594,9 @@ reading	hanja	count	source
 대결장	대결場	0	lexicon
 대결전	大決戰	0	lexicon
 대경	大慶	1	lexicon
+대경	大驚	1	lexicon
 대경	大徑	0	lexicon
 대경	大經	0	lexicon
-대경	大驚	0	lexicon
 대경	對境	0	lexicon
 대경국사	大鏡國師	0	lexicon
 대경대법	大經大法	0	lexicon
@@ -60711,7 +60711,7 @@ reading	hanja	count	source
 도흔	道欣	0	lexicon
 도흥	都興	0	lexicon
 도흥정	都흥정	0	lexicon
-독	讀	1677	lexicon
+독	讀	1678	lexicon
 독	獨	109	lexicon
 독	読	47	lexicon
 독	毒	30	lexicon
@@ -61506,7 +61506,7 @@ reading	hanja	count	source
 독활기생탕	獨活寄生湯	0	lexicon
 독활주	獨活酒	0	lexicon
 독활채	獨活菜	0	lexicon
-독회	讀會	149	lexicon
+독회	讀會	150	lexicon
 독효	篤孝	0	lexicon
 독후	篤厚	0	lexicon
 독후	讀後	0	lexicon
@@ -64415,7 +64415,7 @@ reading	hanja	count	source
 됫박구궁	됫박九宮	0	lexicon
 됫병	됫甁	0	lexicon
 됫수	됫數	0	lexicon
-두	讀	1677	lexicon
+두	讀	1678	lexicon
 두	頭	191	lexicon
 두	豆	59	lexicon
 두	杜	21	lexicon
@@ -67668,7 +67668,7 @@ reading	hanja	count	source
 략탈성	掠奪性	0	lexicon
 략탈적	掠奪的	0	lexicon
 략탈전	掠奪戰	0	lexicon
-량	良	154	lexicon
+량	良	155	lexicon
 량	兩	120	lexicon
 량	場	106	lexicon
 량	量	51	lexicon
@@ -70005,8 +70005,8 @@ reading	hanja	count	source
 료	遼	16	lexicon
 료	僚	10	lexicon
 료	爳	4	lexicon
+료	聊	4	lexicon
 료	瞭	3	lexicon
-료	聊	3	lexicon
 료	鬧	3	lexicon
 료	佬	2	lexicon
 료	寮	2	lexicon
@@ -71176,7 +71176,7 @@ reading	hanja	count	source
 리	理	381	lexicon
 리	李	291	lexicon
 리	吏	174	lexicon
-리	里	171	lexicon
+리	里	172	lexicon
 리	利	141	lexicon
 리	離	64	lexicon
 리	哩	62	lexicon
@@ -73002,7 +73002,7 @@ reading	hanja	count	source
 마흐주의	마흐主義	0	lexicon
 마희	馬戱	0	lexicon
 마희	魔戱	0	lexicon
-막	幕	40	lexicon
+막	幕	41	lexicon
 막	莫	25	lexicon
 막	漠	4	lexicon
 막	寞	1	lexicon
@@ -99083,7 +99083,7 @@ reading	hanja	count	source
 볕기	볕氣	0	lexicon
 볕색	볕色	0	lexicon
 보	報	133	lexicon
-보	保	87	lexicon
+보	保	88	lexicon
 보	普	82	lexicon
 보	步	43	lexicon
 보	補	37	lexicon
@@ -109234,15 +109234,15 @@ reading	hanja	count	source
 블록킹발진기	블록킹發振器	0	lexicon
 블루우리지산맥	블루우리지山脈	0	lexicon
 블타바강	블타바江	0	lexicon
-비	非	405	lexicon
+비	非	406	lexicon
 비	比	105	lexicon
 비	飛	69	lexicon
 비	鼻	58	lexicon
 비	備	31	lexicon
 비	卑	21	lexicon
 비	悲	21	lexicon
+비	費	19	lexicon
 비	秘	18	lexicon
-비	費	18	lexicon
 비	婢	12	lexicon
 비	菲	11	lexicon
 비	批	9	lexicon
@@ -111576,7 +111576,7 @@ reading	hanja	count	source
 빈	頻	50	lexicon
 빈	賓	22	lexicon
 빈	濱	5	lexicon
-빈	貧	4	lexicon
+빈	貧	5	lexicon
 빈	浜	3	lexicon
 빈	檳	2	lexicon
 빈	份	1	lexicon
@@ -111808,7 +111808,7 @@ reading	hanja	count	source
 빈파	頻婆	0	lexicon
 빈파사라왕	頻婆娑羅王	0	lexicon
 빈폭동	빈暴動	0	lexicon
-빈핍	貧乏	0	lexicon
+빈핍	貧乏	1	lexicon
 빈학단	빈學團	0	lexicon
 빈학파	빈學派	0	lexicon
 빈한	貧寒	0	lexicon
@@ -112172,7 +112172,7 @@ reading	hanja	count	source
 삐친석삼부	삐친석三部	0	lexicon
 사	事	487	lexicon
 사	食	348	lexicon
-사	使	333	lexicon
+사	使	334	lexicon
 사	詞	277	lexicon
 사	辭	215	lexicon
 사	思	202	lexicon
@@ -112189,7 +112189,7 @@ reading	hanja	count	source
 사	斯	46	lexicon
 사	私	44	lexicon
 사	司	40	lexicon
-사	賜	37	lexicon
+사	賜	38	lexicon
 사	仕	31	lexicon
 사	寺	31	lexicon
 사	舍	28	lexicon
@@ -124553,7 +124553,7 @@ reading	hanja	count	source
 샛수	샛數	0	lexicon
 샛요기	샛療飢	0	lexicon
 샛장식	샛裝飾	0	lexicon
-생	生	486	lexicon
+생	生	487	lexicon
 생	省	88	lexicon
 생	栍	3	lexicon
 생	㗂	2	lexicon
@@ -125631,7 +125631,7 @@ reading	hanja	count	source
 생화학적연료전지	生化學的燃料電池	0	lexicon
 생화학적형태학	生化學的形態學	0	lexicon
 생환	生還	0	lexicon
-생활	生活	25	lexicon
+생활	生活	26	lexicon
 생활감	生活感	0	lexicon
 생활감정	生活感情	0	lexicon
 생활개선	生活改善	0	lexicon
@@ -125669,7 +125669,7 @@ reading	hanja	count	source
 생활부장	生活部長	0	lexicon
 생활분리법	생활分離法	0	lexicon
 생활불안	生活不安	0	lexicon
-생활비	生活費	0	lexicon
+생활비	生活費	1	lexicon
 생활사	生活史	0	lexicon
 생활상	生活相	0	lexicon
 생활상태	生活狀態	0	lexicon
@@ -127082,7 +127082,7 @@ reading	hanja	count	source
 서흥호	西興湖	0	lexicon
 서희	徐熙	0	lexicon
 서힌두말	西힌두말	0	lexicon
-석	釋	768	lexicon
+석	釋	769	lexicon
 석	石	116	lexicon
 석	昔	79	lexicon
 석	夕	32	lexicon
@@ -127329,7 +127329,7 @@ reading	hanja	count	source
 석독악원	釋讀樂園	5	corpus
 석독표기	釋讀表記	5	corpus
 석독화	釋讀化	11	corpus
-석독회	釋讀會	135	corpus
+석독회	釋讀會	136	corpus
 석동	石洞	5	lexicon
 석두	石頭	0	lexicon
 석두기	石頭記	0	lexicon
@@ -127998,11 +127998,11 @@ reading	hanja	count	source
 섞은약	섞은藥	0	lexicon
 섞음품종	섞음品種	0	lexicon
 섞임박자	섞임拍子	0	lexicon
-선	單	314	lexicon
+선	單	315	lexicon
 선	鮮	259	lexicon
 선	先	139	lexicon
 선	善	98	lexicon
-선	選	87	lexicon
+선	選	89	lexicon
 선	線	67	lexicon
 선	宣	37	lexicon
 선	船	28	lexicon
@@ -129689,7 +129689,7 @@ reading	hanja	count	source
 선태류	蘚苔類	0	lexicon
 선태식물	蘚苔植物	0	lexicon
 선태학	蘚苔學	0	lexicon
-선택	選擇	19	lexicon
+선택	選擇	21	lexicon
 선택공리	選擇公理	0	lexicon
 선택과	선택科	0	lexicon
 선택과목	選擇科目	0	lexicon
@@ -130891,7 +130891,7 @@ reading	hanja	count	source
 섭화수연	攝化隨緣	0	lexicon
 섭화이생	섭화利生	0	lexicon
 섯자잠	書字簪	0	lexicon
-성	成	348	lexicon
+성	成	351	lexicon
 성	性	222	lexicon
 성	城	176	lexicon
 성	聲	169	lexicon
@@ -138201,7 +138201,7 @@ reading	hanja	count	source
 숄츠이론	숄츠理論	0	lexicon
 숍제	숍制	0	lexicon
 수	水	296	lexicon
-수	手	263	lexicon
+수	手	268	lexicon
 수	數	226	lexicon
 수	修	115	lexicon
 수	受	80	lexicon
@@ -159825,7 +159825,7 @@ reading	hanja	count	source
 얄타협정	얄타協定	0	lexicon
 얄타회담	얄타會談	0	lexicon
 얌체족	얌체族	0	lexicon
-양	良	154	lexicon
+양	良	155	lexicon
 양	兩	120	lexicon
 양	樣	103	lexicon
 양	陽	89	lexicon
@@ -159836,7 +159836,7 @@ reading	hanja	count	source
 양	揚	26	lexicon
 양	梁	22	lexicon
 양	養	14	lexicon
-양	様	12	lexicon
+양	様	13	lexicon
 양	亮	7	lexicon
 양	凉	6	lexicon
 양	楊	5	lexicon
@@ -169158,7 +169158,7 @@ reading	hanja	count	source
 열후	劣後	0	lexicon
 열후주	劣後株	0	lexicon
 열훈	熱暈	0	lexicon
-염	念	69	lexicon
+염	念	70	lexicon
 염	染	18	lexicon
 염	厭	15	lexicon
 염	炎	12	lexicon
@@ -169625,7 +169625,7 @@ reading	hanja	count	source
 염용	艶容	0	lexicon
 염우	廉隅	0	lexicon
 염우염치	廉隅廉恥	0	lexicon
-염원	念願	0	lexicon
+염원	念願	1	lexicon
 염위	炎威	0	lexicon
 염의	厭意	0	lexicon
 염의	廉義	0	lexicon
@@ -171808,7 +171808,7 @@ reading	hanja	count	source
 예	例	170	lexicon
 예	兒	98	lexicon
 예	禮	64	lexicon
-예	豫	57	lexicon
+예	豫	58	lexicon
 예	藝	21	lexicon
 예	裔	13	lexicon
 예	隸	12	lexicon
@@ -172671,7 +172671,7 @@ reading	hanja	count	source
 예절서	禮節書	0	lexicon
 예절실	禮節室	0	lexicon
 예접	禮接	0	lexicon
-예정	豫定	17	lexicon
+예정	豫定	18	lexicon
 예정	穢政	0	lexicon
 예정	豫程	0	lexicon
 예정	銳精	0	lexicon
@@ -179677,7 +179677,7 @@ reading	hanja	count	source
 요황수	僥倖數	0	lexicon
 요흉	妖兇	0	lexicon
 요희	妖姬	0	lexicon
-욕	欲	70	lexicon
+욕	欲	71	lexicon
 욕	辱	27	lexicon
 욕	慾	6	lexicon
 욕	浴	5	lexicon
@@ -183500,7 +183500,7 @@ reading	hanja	count	source
 원	院	91	lexicon
 원	員	73	lexicon
 원	遠	71	lexicon
-원	願	55	lexicon
+원	願	56	lexicon
 원	圓	50	lexicon
 원	園	32	lexicon
 원	援	31	lexicon
@@ -186959,7 +186959,7 @@ reading	hanja	count	source
 윗수염	윗鬚髥	0	lexicon
 윗주	윗註	0	lexicon
 윗중방	윗中枋	0	lexicon
-유	有	1616	lexicon
+유	有	1617	lexicon
 유	由	203	lexicon
 유	類	126	lexicon
 유	流	95	lexicon
@@ -195340,7 +195340,7 @@ reading	hanja	count	source
 이	而	268	lexicon
 이	二	225	lexicon
 이	吏	174	lexicon
-이	里	171	lexicon
+이	里	172	lexicon
 이	利	141	lexicon
 이	易	103	lexicon
 이	已	91	lexicon
@@ -199141,7 +199141,7 @@ reading	hanja	count	source
 익혹	溺惑	0	lexicon
 익효	翌曉	0	lexicon
 익휘부위	翊麾副尉	0	lexicon
-인	人	1469	lexicon
+인	人	1470	lexicon
 인	認	90	lexicon
 인	印	74	lexicon
 인	引	65	lexicon
@@ -204827,8 +204827,8 @@ reading	hanja	count	source
 잎차	잎茶	0	lexicon
 잎채소	잎菜蔬	0	lexicon
 잎초	잎草	0	lexicon
-자	字	2582	lexicon
-자	自	756	lexicon
+자	字	2583	lexicon
+자	自	757	lexicon
 자	者	581	lexicon
 자	子	382	lexicon
 자	資	89	lexicon
@@ -208379,7 +208379,7 @@ reading	hanja	count	source
 자흑	紫黑	0	lexicon
 자흑색	紫黑色	0	lexicon
 자흔	疵痕	0	lexicon
-작	作	456	lexicon
+작	作	457	lexicon
 작	昨	45	lexicon
 작	炸	16	lexicon
 작	灼	13	lexicon
@@ -212461,7 +212461,7 @@ reading	hanja	count	source
 장희빈	張禧嬪	0	lexicon
 장희재	張希載	0	lexicon
 장히	壯히	0	lexicon
-재	在	411	lexicon
+재	在	413	lexicon
 재	再	87	lexicon
 재	載	52	lexicon
 재	哉	45	lexicon
@@ -213830,7 +213830,7 @@ reading	hanja	count	source
 쟁휘	爭輝	0	lexicon
 쟁힐	爭詰	0	lexicon
 쟈벨수	쟈벨水	0	lexicon
-저	諸	80	lexicon
+저	諸	82	lexicon
 저	著	47	lexicon
 저	低	38	lexicon
 저	這	33	lexicon
@@ -216105,7 +216105,7 @@ reading	hanja	count	source
 전	專	80	lexicon
 전	轉	66	lexicon
 전	田	53	lexicon
-전	錢	43	lexicon
+전	錢	44	lexicon
 전	展	22	lexicon
 전	戦	20	lexicon
 전	殿	20	lexicon
@@ -222307,7 +222307,7 @@ reading	hanja	count	source
 젓국수란	젓국水卵	0	lexicon
 젓국포	젓국脯	0	lexicon
 정	正	440	lexicon
-정	定	330	lexicon
+정	定	331	lexicon
 정	政	136	lexicon
 정	程	129	lexicon
 정	情	84	lexicon
@@ -225829,7 +225829,7 @@ reading	hanja	count	source
 제	第	128	lexicon
 제	制	108	lexicon
 제	際	98	lexicon
-제	諸	80	lexicon
+제	諸	82	lexicon
 제	除	67	lexicon
 제	祭	38	lexicon
 제	弟	36	lexicon
@@ -258219,7 +258219,7 @@ reading	hanja	count	source
 최후진술	最後陳述	0	lexicon
 최후통첩	最後通牒	0	lexicon
 쵤너의착시	쵤너의錯視	0	lexicon
-추	追	118	lexicon
+추	追	119	lexicon
 추	推	100	lexicon
 추	秋	57	lexicon
 추	墜	10	lexicon
@@ -258424,7 +258424,7 @@ reading	hanja	count	source
 추	齱	0	lexicon
 추	齺	0	lexicon
 추	龝	0	lexicon
-추가	追加	84	lexicon
+추가	追加	85	lexicon
 추가	秋稼	0	hangul
 추가경정예산	追加更正豫算	0	lexicon
 추가납부가산세	추가納付加算稅	0	lexicon
@@ -268477,7 +268477,7 @@ reading	hanja	count	source
 태후	太后	1	lexicon
 태흔	苔痕	0	lexicon
 태흘봉	太屹峰	0	lexicon
-택	擇	33	lexicon
+택	擇	35	lexicon
 택	泽	30	lexicon
 택	宅	15	lexicon
 택	澤	10	lexicon
@@ -277686,7 +277686,7 @@ reading	hanja	count	source
 퐁텐블로파	퐁텐블로派	0	lexicon
 푀양당	푀양黨	0	lexicon
 푀양파	푀양派	0	lexicon
-표	表	625	lexicon
+표	表	626	lexicon
 표	標	187	lexicon
 표	票	11	lexicon
 표	漂	6	lexicon
@@ -277820,7 +277820,7 @@ reading	hanja	count	source
 표금	標金	0	lexicon
 표금	驃金	0	lexicon
 표급	剽急	0	lexicon
-표기	表記	389	lexicon
+표기	表記	390	lexicon
 표기	標記	3	lexicon
 표기	標旗	0	hangul
 표기대장군	驃騎大將軍	0	lexicon
@@ -280353,7 +280353,7 @@ reading	hanja	count	source
 필흔	筆痕	0	lexicon
 필흥	筆興	0	lexicon
 필히	必히	0	lexicon
-핍	乏	3	lexicon
+핍	乏	4	lexicon
 핍	逼	2	lexicon
 핍	偪	0	lexicon
 핍	姂	0	lexicon
@@ -282181,7 +282181,7 @@ reading	hanja	count	source
 학회지	學會紙	0	lexicon
 학훈단	學訓團	0	lexicon
 학흉배	鶴胸背	0	lexicon
-한	漢	1848	lexicon
+한	漢	1849	lexicon
 한	韓	1337	lexicon
 한	限	107	lexicon
 한	寒	65	lexicon
@@ -283183,7 +283183,7 @@ reading	hanja	count	source
 한일히	閑逸히	0	lexicon
 한임아	韓林兒	1	lexicon
 한입골수	恨入骨髓	0	lexicon
-한자	漢字	1098	lexicon
+한자	漢字	1099	lexicon
 한자	韓字	9	corpus
 한자	漢子	0	hangul
 한자	韓子	0	hangul
@@ -288204,7 +288204,7 @@ reading	hanja	count	source
 허황성	虛荒性	0	lexicon
 허황지설	虛荒之說	0	lexicon
 허훈	虛暈	0	lexicon
-헌	獻	35	lexicon
+헌	獻	36	lexicon
 헌	憲	15	lexicon
 헌	軒	4	lexicon
 헌	宪	1	lexicon
@@ -291477,7 +291477,7 @@ reading	hanja	count	source
 혜훈	惠訓	0	lexicon
 혜휼	惠恤	0	lexicon
 혠양	咸陽	0	lexicon
-호	好	593	lexicon
+호	好	594	lexicon
 호	乎	337	lexicon
 호	號	129	lexicon
 호	呼	118	lexicon
@@ -297084,7 +297084,7 @@ reading	hanja	count	source
 환희지	歡喜地	0	lexicon
 환희천	歡喜天	0	lexicon
 환희천법	歡喜天法	0	lexicon
-활	活	189	lexicon
+활	活	190	lexicon
 활	滑	5	lexicon
 활	闊	4	lexicon
 활	豁	2	lexicon
@@ -298555,7 +298555,7 @@ reading	hanja	count	source
 홰	翙	0	lexicon
 홰	翽	0	lexicon
 횃댓보	횃댓褓	0	lexicon
-회	會	402	lexicon
+회	會	403	lexicon
 회	回	82	lexicon
 회	会	22	lexicon
 회	膾	22	lexicon

@@ -51,7 +51,7 @@ lemma	written	pos	class	source	count	note
 건지다	撈다	동사		community	1	
 걷다	步다	동사		community	5	
 것	物	명사		community	34	複數登載
-것	件	명사		community	85	複數登載
+것	件	명사		community	86	複數登載
 게	蟹	명사		community	1	
 게우다	嘔다	동사		community	1	
 게으르다	怠르다	형용사		community		
@@ -246,7 +246,7 @@ lemma	written	pos	class	source	count	note
 도끼	斧	명사		community	1	
 도토리	橡	명사		community	3	
 독	甕	명사		community		
-돈	錢	명사		community	12	
+돈	錢	명사		community	13	
 돌	石	명사		community	11	
 돌다	回다	동사		community	13	
 돕다	助다	동사		community	4	
@@ -509,7 +509,7 @@ lemma	written	pos	class	source	count	note
 소쿠리	簞	명사		community	3	
 속다	欺다	동사		community		
 속이다	欺이다	동사		community		
-손	手	명사		community	97	
+손	手	명사		community	100	
 손아귀	手叉	명사		community		
 손톱	手爪	명사		community	2	
 솔개	鳶	명사		community	1	
@@ -584,7 +584,7 @@ lemma	written	pos	class	source	count	note
 앗다	奪다	동사		community		
 앗아가다	奪아去다	동사		community		
 앞	前	명사		community	98	
-애오라지	聊	부사		community	1	
+애오라지	聊	부사		community		
 약다	傻다	형용사		community		
 어긋나다	歪나다	동사		community	1	
 어깨	肩	명사		community		
@@ -669,7 +669,7 @@ lemma	written	pos	class	source	count	note
 입	口	명사		community	24	
 입술	脣	명사		community	2	
 잇다	續다	동사		community	2	
-있다	有다	동사		community	593	
+있다	有다	동사		community	594	
 잊다	忘다	동사		community	5	
 잎	葉	명사		community	4	
 자다	眠다	동사		community	10	
@@ -706,7 +706,7 @@ lemma	written	pos	class	source	count	note
 조카	姪	명사		community	1	
 좁다	狹다	형용사		community	1	
 종이	紙	명사		community	5	
-좋다	好다	형용사		community	311	
+좋다	好다	형용사		community	312	
 주검	屍	명사		community		
 주먹	拳	명사		community	1	
 죽다	死다	동사		community	29	

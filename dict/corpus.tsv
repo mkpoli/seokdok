@@ -33,7 +33,7 @@ lemma	written	pos	class	source	count	note
 그렇다	然다	adj		corpus	372	然네요, 然ㄴ (그런)
 그렇다	然ㅎ다	adj		corpus	299	然ㅎ네요, 然ㅎ죠: final ㅎ written out
 것	事ㅅ	bound		corpus	18	事ㅅ을; also the 釋讀會 welcome message
-저	自	pron		corpus	295	自도, 自ㄴ (전)
+저	自	pron		corpus	296	自도, 自ㄴ (전)
 저	僕	pron		corpus	36	僕는
 나	吾	pron		corpus	80	吾ㅣ (내)
 우리	我리	pron		corpus	5	
@@ -63,15 +63,15 @@ lemma	written	pos	class	source	count	note
 쓰이다	用이다	verb		corpus	180	用이는, 用인
 읽히다	讀히다	verb		corpus	32	讀히는
 보이다	見이다	verb		corpus	116	見이는, 見이네요
-되다	成다	verb		corpus	107	成ㄹ까요, 成면
+되다	成다	verb		corpus	109	成ㄹ까요, 成면
 다르다	他다	adj		corpus	47	他ㄴ
 같다	同다	adj		corpus	47	同은
-있다	在다	adj		corpus	148	在는, 在네요
+있다	在다	adj		corpus	150	在는, 在네요
 주다	授다	verb		corpus	19	授시면, 授세요
 주다	給다	verb		corpus	10	給세요
-주다	賜다	verb		corpus	12	賜시니: honorific giving
+주다	賜다	verb		corpus	13	賜시니: honorific giving
 가다	行다	verb		corpus	53	行ㅆ다
-만들다	作다	verb		corpus	57	作어, 作ㄴ
+만들다	作다	verb		corpus	58	作어, 作ㄴ
 나다	出다	verb		corpus	57	出면
 내다	出ㅣ다	verb		corpus	18	出ㅣ다
 나오다	出오다	verb		corpus	13	出오네요
@@ -83,10 +83,10 @@ lemma	written	pos	class	source	count	note
 쉽다	易다	adj		corpus	46	易게
 맞다	適다	verb		corpus	135	適는, 適네요
 남다	殘다	verb		corpus	18	殘아
-시키다	使다	verb		corpus	29	使는
+시키다	使다	verb		corpus	30	使는
 않다	不ㅎ다	verb		corpus	105	不ㅎ은, 不ㅎ네요: 아니하다 contracted
 아니	不니	adv		corpus	21	
-아니다	非다	adj	ani	corpus	139	非ㄴ, 非라
+아니다	非다	adj	ani	corpus	140	非ㄴ, 非라
 말	言	noun		corpus	94	
 말씀	言씀	noun		corpus	5	
 말하다	言하다	verb		corpus	26	
@@ -98,3 +98,9 @@ lemma	written	pos	class	source	count	note
 이름	名	noun		corpus	106	名이
 뜻	意	noun		corpus	160	
 진짜	眞짜	noun		corpus	25	音讀 眞 + 짜
+이뤄지다	成뤄지다	verb		corpus	15	成뤄지는 (2026-11-03)
+바치다	獻치다	verb		corpus	1	獻쳐서 (2026-11-03)
+잘	良ㄹ	adv		corpus	1	良ㄹ (2026-11-03)
+싶다	欲ㅍ다	adj		corpus	1	欲ㅍ네요: final ㅍ written out (2026-11-03)
+좀	聊	adv		corpus	2	聊(좀) (2026-11-03)
+쓰다	使다	verb		corpus	30	使는 (2026-11-03)

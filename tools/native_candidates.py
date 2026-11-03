@@ -2,6 +2,8 @@
 assigning Hanja by meaning.
 
 Usage: uv run tools/native_candidates.py > data/private/native-candidates.tsv
+       uv run tools/native_candidates.py --pos intj,adv --min-chat 0 > …
+         (interjections and every adverb, used or not; one-syllable words too)
 
 Columns: lemma, pos, chat (how often the chats use the word's stem in Hangul),
 gloss_hanja (characters whose libhangul 訓 gloss names this word), sense
@@ -9,6 +11,7 @@ gloss_hanja (characters whose libhangul 訓 gloss names this word), sense
 Words come from English Wiktionary's Korean headwords (kaikki.org extract)
 that carry no hanja form, so they are native or loan words.
 """
+import argparse
 import collections
 import json
 import re
@@ -68,6 +71,11 @@ def gloss_hanja():
 
 
 def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--pos", default="verb,adj,adv,noun", help="comma-separated Wiktionary parts of speech")
+    ap.add_argument("--min-chat", type=int, default=3, help="chat uses required for nouns and adverbs")
+    args = ap.parse_args()
+    wanted = set(args.pos.split(","))
     pre = chat_prefixes()
     have = covered()
     gh = gloss_hanja()
@@ -76,14 +84,14 @@ def main():
         for line in f:
             d = json.loads(line)
             pos, word = d.get("pos"), d.get("word", "")
-            if pos not in ("verb", "adj", "adv", "noun") or not HANGUL.match(word) or word in have:
+            if pos not in wanted or not HANGUL.match(word) or word in have:
                 continue
             if any("hanja" in (x.get("tags") or []) for x in d.get("forms") or []):
                 continue
             senses = [g for s in d.get("senses") or [] for g in s.get("glosses") or []]
             if not senses or JUNK.search(senses[0]):
                 continue
-            if pos in ("noun", "adv") and len(word) < 2:
+            if pos in ("noun", "adv") and len(word) < 2 and args.min_chat > 0:
                 continue
             if pos in ("verb", "adj") and not word.endswith("다"):
                 continue
@@ -92,7 +100,7 @@ def main():
                 continue
             chat = pre.get(stem, 0)
             # Nouns and adverbs only when the chats use them; all verbs and adjectives.
-            if pos in ("noun", "adv") and chat < 3:
+            if pos in ("noun", "adv") and chat < args.min_chat:
                 continue
             key = (word, pos)
             if key not in rows:

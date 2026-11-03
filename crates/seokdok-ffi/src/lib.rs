@@ -303,6 +303,24 @@ pub unsafe extern "C" fn seokdok_mode(ime: *mut Ime) -> i32 {
     }
 }
 
+/// Switch to mode 0 釋讀, 1 Hangul or 2 Latin, committing any composition
+/// (read it with [`seokdok_take_commit`]). Other values are ignored.
+///
+/// # Safety
+/// `ime` is a live session.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_set_mode(ime: *mut Ime, mode: i32) {
+    let ime = &mut *ime;
+    let m = match mode {
+        0 => Mode::Seokdok,
+        1 => Mode::Hangul,
+        2 => Mode::Latin,
+        _ => return,
+    };
+    let fx = ime.session.set_mode(m);
+    ime.apply(fx);
+}
+
 /// The jamo a 두벌식 key types (`key` is a Latin letter, upper case for the
 /// Shift layer), or 0. For labelling on-screen keys.
 #[no_mangle]
@@ -354,6 +372,16 @@ mod tests {
             assert!(seokdok_key(ime, SK_TOGGLE, 0, false));
             assert_eq!(seokdok_mode(ime), 2);
             assert!(!seokdok_key(ime, SK_LETTER, 'g' as u32, false));
+            seokdok_set_mode(ime, 1);
+            assert_eq!(seokdok_mode(ime), 1);
+            for k in "gksmf".chars() {
+                assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
+            }
+            seokdok_set_mode(ime, 0);
+            let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
+            assert_eq!(c, "하늘");
+            assert_eq!(seokdok_mode(ime), 0);
+            assert_eq!(seokdok_preedit_len(ime), 0);
             seokdok_free(ime);
         }
     }

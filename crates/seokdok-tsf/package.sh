@@ -1,44 +1,38 @@
 #!/usr/bin/env bash
-# Build the Windows IME on Linux (cargo-xwin) and stage a release zip:
-#   target/stage/seokdok-<version>-x86_64-windows/
-#     seokdok.dll  install.ps1  dict/*.tsv  LICENSE  README.txt
-# Usage: crates/seokdok-tsf/package.sh
+# Build the Windows IME on Linux (cargo-xwin) and its installer:
+#   target/stage/seokdok-<version>-x86_64-windows-setup.exe
+# The installer is compiled by Inno Setup 6.7+ on the Windows side of WSL
+# (winget install JRSoftware.InnoSetup). Usage: crates/seokdok-tsf/package.sh
 set -euo pipefail
 cd "$(dirname "$0")/../.."
+root="$PWD"
 version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name=="seokdok-tsf") | .version')
 cargo xwin build --release --target x86_64-pc-windows-msvc -p seokdok-tsf
-name="seokdok-${version}-x86_64-windows"
-stage="target/stage/${name}"
+
+# Files the installer carries.
+stage="target/stage/windows"
 rm -rf "$stage"
 mkdir -p "$stage/dict"
 cp target/x86_64-pc-windows-msvc/release/seokdok.dll "$stage/"
-cp crates/seokdok-tsf/install.ps1 "$stage/"
 cp LICENSE "$stage/LICENSE"
 for f in dict/*.tsv; do
   case "$(basename "$f")" in user*.tsv) ;; *) cp "$f" "$stage/dict/" ;; esac
 done
 cp dict/README.md dict/LICENSE-fusion.txt "$stage/dict/"
-cat > "$stage/README.txt" <<'TXT'
-釋讀 seokdok — Windows input method
 
-Install:   right-click install.ps1 > Run with PowerShell (asks for administrator rights)
-Uninstall: powershell -ExecutionPolicy Bypass -File install.ps1 -Uninstall
-Then choose 釋讀 (seokdok) with Win+Space. Korean must be in Windows' language list.
-
-Keys: type 두벌식 Hangul; Space converts, Space again opens the candidates;
-1-9 pick, Tab/PgDn page, ←→ move between words, Shift+←→ resize a word,
-Enter confirms, Esc closes / reverts. Han/Eng key or a tap of Alt: 釋讀 ↔ A.
-
-Old Hangul: Shift+K ㆍ, Shift+A ㅿ, Shift+D ㆁ, Shift+G ㆆ, Shift+Z X C V B N ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ.
-Clusters from modern letters (ㅅㄱ → ᄭ, ㅂㅇ → ㅸ) need old_clusters = true in config.toml.
-Guide: https://seokdok.mkpo.li/#old
-
-Settings: %APPDATA%\seokdok\config.toml (or the language-bar menu).
-Own words and rules: export them from https://seokdok.mkpo.li/#custom and save
-the file as %APPDATA%\seokdok\custom.json. Switch input method away and back to reload.
-
-Code: MIT. Dictionaries: see dict\README.md (libhangul BSD-3, FusionIME GPL-3.0,
-JMdict CC BY-SA 4.0, 釋讀會 community dictionary).
-TXT
-(cd target/stage && rm -f "${name}.zip" && python3 -c "import shutil,sys; shutil.make_archive(sys.argv[1], 'zip', '.', sys.argv[1])" "$name")
-ls -la "target/stage/${name}.zip"
+# Compile on Windows: copy the script, artwork and stage to its temp folder.
+wintemp=$(cmd.exe /c 'echo %TEMP%' 2>/dev/null | tr -d '\r')
+work="$(wslpath "$wintemp")/seokdok-installer"
+rm -rf "$work"
+mkdir -p "$work"
+cp -r crates/seokdok-tsf/installer/. "$work/"
+cp -r "$stage" "$work/stage"
+iscc=$(powershell.exe -NoProfile -Command '
+  @("$env:LOCALAPPDATA\Programs\Inno Setup 6\ISCC.exe",
+    "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe",
+    "$env:ProgramFiles\Inno Setup 6\ISCC.exe") | Where-Object { Test-Path $_ } | Select-Object -First 1' | tr -d '\r')
+[ -n "$iscc" ] || { echo "Inno Setup not found: winget install JRSoftware.InnoSetup" >&2; exit 1; }
+(cd /tmp && powershell.exe -NoProfile -Command "& '$iscc' /Q /DMyAppVersion=$version /DStage=stage '/O$wintemp\\seokdok-installer\\out' '$wintemp\\seokdok-installer\\seokdok.iss'; exit \$LASTEXITCODE")
+out="seokdok-${version}-x86_64-windows-setup.exe"
+cp "$work/out/$out" "target/stage/$out"
+ls -la "$root/target/stage/$out"

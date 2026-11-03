@@ -1,5 +1,5 @@
 /target/
-/data/private/
+/data/private
 __pycache__/
 *.pyc
 .venv/

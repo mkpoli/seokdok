@@ -1,0 +1,59 @@
+# XcodeGen spec: `brew install xcodegen && cd ios && xcodegen` writes
+# Seokdok.xcodeproj. Run ios/build-rust.sh first for SeokdokCore.xcframework.
+# Set DEVELOPMENT_TEAM (Signing) before building for a device.
+name: Seokdok
+options:
+  bundleIdPrefix: li.mkpo
+  deploymentTarget:
+    iOS: "16.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  Seokdok:
+    type: application
+    platform: iOS
+    sources: [App]
+    info:
+      path: App/Info.plist
+      properties:
+        CFBundleDisplayName: 釋讀
+        UILaunchScreen: {}
+    entitlements:
+      path: App/Seokdok.entitlements
+      properties:
+        com.apple.security.application-groups: [group.li.mkpo.seokdok]
+    dependencies:
+      - target: SeokdokKeyboard
+        embed: true
+  SeokdokKeyboard:
+    type: app-extension
+    platform: iOS
+    sources:
+      - Keyboard
+      - path: ../dict
+        type: folder
+        buildPhase: resources
+        excludes: ["user*.tsv"]
+    info:
+      path: Keyboard/Info.plist
+      properties:
+        CFBundleDisplayName: 釋讀
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.keyboard-service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
+          NSExtensionAttributes:
+            PrimaryLanguage: ko-KR
+            IsASCIICapable: false
+            PrefersRightToLeft: false
+            # Needed to read the settings the app writes to the shared container.
+            RequestsOpenAccess: true
+    entitlements:
+      path: Keyboard/SeokdokKeyboard.entitlements
+      properties:
+        com.apple.security.application-groups: [group.li.mkpo.seokdok]
+    dependencies:
+      - framework: SeokdokCore.xcframework
+        embed: false

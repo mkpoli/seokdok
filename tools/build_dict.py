@@ -55,7 +55,8 @@ def corpus_texts():
 
 
 def lexicon():
-    """Headword → set of POS from Wiktionary (existence check only)."""
+    """Headword → set of POS from Wiktionary (existence checks only).
+    Words Wiktionary gives a hanja form are marked with the tag "sino"."""
     lex = collections.defaultdict(set)
     for p in (SRC / "kaikki-korean").glob("*.jsonl"):
         with p.open(encoding="utf-8") as f:
@@ -64,6 +65,8 @@ def lexicon():
                 pos = d.get("pos")
                 if pos in ("noun", "verb", "adj", "adv", "pron", "num"):
                     lex[d["word"]].add(pos)
+                    if any("hanja" in (f.get("tags") or []) for f in d.get("forms") or []):
+                        lex[d["word"]].add("sino")
     return lex
 
 
@@ -183,7 +186,7 @@ def build_gloss(lex, sino_readings):
             for lemma, pos in gloss_lemmas(word, lex):
                 # A Sino-Korean gloss (비유하다, 향낭) is already converted by sound.
                 base = lemma[:-2] if lemma.endswith("하다") else (lemma[:-1] if pos in ("verb", "adj") else lemma)
-                if len(base) >= 2 and base in sino_readings:
+                if len(base) >= 2 and base in sino_readings and (lemma.endswith("하다") or "sino" in lex.get(base, ())):
                     continue
                 written = han + ("다" if pos in ("verb", "adj") else "")
                 key = (lemma, written)

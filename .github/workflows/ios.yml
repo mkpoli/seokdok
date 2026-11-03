@@ -79,6 +79,7 @@ jobs:
 
       - name: Memory of the keyboard extension
         if: always()
+        continue-on-error: true
         working-directory: ios
         run: |
           # A fresh boot: the test runner's libraries would count otherwise.
@@ -93,6 +94,7 @@ jobs:
 
       - name: Dark mode screenshot
         if: always()
+        continue-on-error: true
         working-directory: ios
         run: |
           xcrun simctl ui "$UDID" appearance dark

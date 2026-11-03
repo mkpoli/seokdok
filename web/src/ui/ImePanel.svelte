@@ -101,7 +101,7 @@
 
   /** "讀 읽다 +아/어 · 訓讀 community" → readable, with the source named. */
   function noteHtml(note) {
-    const m = note.match(/^(.*) · (訓讀|音讀)(?: (\w+))?$/)
+    const m = note.match(/^(.*) · (訓讀|音讀)(?: ([\w-]+))?$/)
     if (!m) return r(note)
     const [, what, kind, src] = m
     const k = kind === '音讀' ? t().ime.src.sino : t().ime.src.kun

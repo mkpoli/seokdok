@@ -12,7 +12,6 @@ import android.text.style.BackgroundColorSpan
 import android.text.style.UnderlineSpan
 import android.view.KeyEvent
 import android.view.View
-import android.view.WindowInsets
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
 
@@ -50,12 +49,6 @@ class SeokdokService : InputMethodService(), KeyboardListener {
 
     override fun onCreateInputView(): View {
         val view = KeyboardView(this, this)
-        view.setOnApplyWindowInsetsListener { v, insets ->
-            // Keep the keys above a navigation bar drawn over the keyboard.
-            val bottom = if (Build.VERSION.SDK_INT >= 30) insets.getInsets(WindowInsets.Type.navigationBars()).bottom else 0
-            v.setPadding(0, 0, 0, bottom)
-            insets
-        }
         keyboard = view
         return view
     }

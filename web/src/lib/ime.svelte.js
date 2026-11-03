@@ -48,8 +48,10 @@ export class Ime {
   focus = $state(0)
   /** The candidate window is open. */
   open = $state(false)
-  /** 'sim': QWERTY letters type 두벌식; 'os': letters pass through. */
-  mode = $state('sim')
+  /** 'hangul': QWERTY letters type 두벌식; 'ascii': keys pass through as typed
+   *  (Latin text, or the reader's own Korean IME). Alt tapped alone or the
+   *  한/영 key switches. */
+  mode = $state('hangul')
   /** Key last pressed, for the on-screen keyboard. */
   lastKey = $state('')
   busy = $state(false)
@@ -262,6 +264,12 @@ export class Ime {
     return c.some((x) => x.text === text) ? c : [...c, { text, note: '' }]
   }
 
+  /** Switch 韓 ↔ A, confirming whatever is being composed. */
+  toggleMode() {
+    if (this.segs || this.pre) this.commit()
+    this.mode = this.mode === 'hangul' ? 'ascii' : 'hangul'
+  }
+
   /** Text from the reader's own IME (composition end, paste). */
   insertText(s) {
     if (this.segs) this.commit()
@@ -282,6 +290,10 @@ export class Ime {
     this.lastKey = key
     if (this.busy) {
       this.#queue.push(k)
+      return true
+    }
+    if (key === 'HangulMode' || key === 'Lang1' || key === 'KanaMode') {
+      this.toggleMode()
       return true
     }
     if (this.segs) return this.#converting(k)
@@ -350,7 +362,7 @@ export class Ime {
         return true
     }
     if (key.length !== 1) return false
-    if (this.mode === 'sim' && /[a-zA-Z]/.test(key)) {
+    if (this.mode === 'hangul' && /[a-zA-Z]/.test(key)) {
       if (brk && !this.pre) this.#space()
       this.composer.input(key)
       this.#sync()

@@ -197,3 +197,16 @@ test('keys typed while converting are queued, not lost', async () => {
   expect(m.doc).toBe('天 ')
   expect(m.pre).toBe('ㅎㅏ')
 })
+
+test('the 한/영 key switches mode and confirms the composition', async () => {
+  const m = ime()
+  m.insertText('하늘')
+  m.key({ key: 'HangulMode' })
+  expect(m.mode).toBe('ascii')
+  expect(m.doc).toBe('하늘')
+  m.key({ key: 'g' })
+  expect(m.doc).toBe('하늘g')
+  m.toggleMode()
+  m.key({ key: 'g' })
+  expect(m.pre).toBe('ㅎ')
+})

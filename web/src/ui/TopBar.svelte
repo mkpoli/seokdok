@@ -37,9 +37,9 @@
   </nav>
   <div class="tools">
     <div class="mode" title={plain(t().options.sinoTip)}>
-      <button class="side" aria-pressed={!options.sinoOnly} onclick={() => (options.sinoOnly = false)}>{@html r(t().options.seokdokSide)}</button>
-      <input class="ui-switch" type="checkbox" role="switch" bind:checked={options.sinoOnly} aria-label={plain(t().options.sinoSwitch)} />
       <button class="side" aria-pressed={options.sinoOnly} onclick={() => (options.sinoOnly = true)}>{@html r(t().options.sinoSwitch)}</button>
+      <input class="ui-switch" type="checkbox" role="switch" checked={!options.sinoOnly} onchange={(e) => (options.sinoOnly = !e.currentTarget.checked)} aria-label={plain(t().options.seokdokSide)} />
+      <button class="side" aria-pressed={!options.sinoOnly} onclick={() => (options.sinoOnly = false)}>{@html r(t().options.seokdokSide)}</button>
     </div>
     <div class="seg" role="group" aria-label="language">
       {#each langs as [code, label, lang]}

@@ -226,17 +226,20 @@ struct SinoEntry {
     reading: (u32, u16),
     hanja: (u32, u16),
     cost: f32,
+    /// Counts summed over the files, to break ties between the readings of
+    /// one Hanja word (sino.tsv credits the chat count to each reading).
+    count: u32,
 }
 
 impl SinoTable {
-    fn push(&mut self, reading: &str, hanja: &str, cost: f32) {
+    fn push(&mut self, reading: &str, hanja: &str, cost: f32, count: u32) {
         let mut put = |s: &str| {
             let at = self.text.len() as u32;
             self.text.push_str(s);
             (at, s.len() as u16)
         };
         let (reading, hanja) = (put(reading), put(hanja));
-        self.entries.push(SinoEntry { reading, hanja, cost });
+        self.entries.push(SinoEntry { reading, hanja, cost, count });
     }
     fn str(&self, (at, len): (u32, u16)) -> &str {
         &self.text[at as usize..at as usize + len as usize]
@@ -318,10 +321,11 @@ impl Builder {
                         Some(i) if self.sinos.reading(i) == &*e.reading && self.sinos.hanja(i) == &*e.hanja => {
                             let kept = &mut self.sinos.entries[i];
                             kept.cost = kept.cost.min(e.cost);
+                            kept.count = kept.count.saturating_add(e.count);
                         }
                         _ => {
                             self.index.entry(key).or_insert(self.sinos.len() as u32);
-                            self.sinos.push(&e.reading, &e.hanja, e.cost);
+                            self.sinos.push(&e.reading, &e.hanja, e.cost, e.count);
                         }
                     }
                 }
@@ -948,14 +952,15 @@ fn is_hangulish(c: char) -> bool {
 impl Engine {
     fn reverse(&self) -> &Reverse {
         self.reverse.get_or_init(|| {
-            let mut sino: HashMap<String, (String, f32)> = HashMap::new();
+            let mut sino: HashMap<String, (String, f32, u32)> = HashMap::new();
             let mut max_sino = 1;
             for i in 0..self.sinos.len() {
                 let (hanja, reading, cost) = (self.sinos.hanja(i), self.sinos.reading(i), self.sinos.cost(i));
+                let count = self.sinos.entries[i].count;
                 max_sino = max_sino.max(hanja.chars().count());
-                let e = sino.entry(hanja.to_string()).or_insert((reading.to_string(), f32::MAX));
-                if cost < e.1 {
-                    *e = (reading.to_string(), cost);
+                let e = sino.entry(hanja.to_string()).or_insert((reading.to_string(), f32::MAX, 0));
+                if cost < e.1 || (cost == e.1 && count > e.2) {
+                    *e = (reading.to_string(), cost, count);
                 }
             }
             let mut native: HashMap<String, Vec<usize>> = HashMap::new();
@@ -968,7 +973,7 @@ impl Engine {
                 v.sort_by(|&a, &b| self.native_cost(&self.natives[a]).partial_cmp(&self.native_cost(&self.natives[b])).unwrap());
             }
             let compounds = native.keys().filter(|k| k.chars().any(is_syllable)).cloned().collect();
-            Reverse { sino, native, max_sino, compounds }
+            Reverse { sino: sino.into_iter().map(|(k, (r, c, _))| (k, (r, c))).collect(), native, max_sino, compounds }
         })
     }
 
@@ -1024,8 +1029,10 @@ impl Engine {
             let written = written_tail(k);
             for &i in entries {
                 let n = &self.natives[i];
+                // Hand-made 訓讀 spellings win a tie with a whole-word 音讀
+                // reading (一番 = 한번, not 일번).
                 let tier = match n.source {
-                    Source::User | Source::Corpus | Source::Editorial => 0.0,
+                    Source::User | Source::Corpus | Source::Editorial => -0.5,
                     Source::Community => 0.5,
                     Source::Suggested => 2.0,
                     Source::Gloss | Source::Japanese | Source::Lexicon => 3.0,

@@ -74,3 +74,12 @@ fn etymology_comes_before_homophones_but_after_kun() {
     // A native word's 訓讀 still wins over its etymological Sino spelling.
     assert_eq!(first("사랑"), "愛");
 }
+
+#[test]
+fn reading_back_prefers_the_usual_reading() {
+    let e = engine(Options::default());
+    // sino.tsv credits 先生 with the chat count under both 선생 and 선상.
+    assert_eq!(e.read("先生님"), "선생님");
+    // The chat writes 一番 for 한번 (editorial.tsv).
+    assert_eq!(e.read("一番씩"), "한번씩");
+}

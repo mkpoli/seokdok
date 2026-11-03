@@ -64,3 +64,13 @@ fn coda_options() {
     check(Options { resyllabify: true, ..Options::default() }, &[("있으면", "在쓰면"), ("있어서", "在써서")]);
     check(Options { hada_kun: true, ..Options::default() }, &[("안녕하세요", "安寧爲세요"), ("공부하다", "工夫爲다")]);
 }
+
+#[test]
+fn etymology_comes_before_homophones_but_after_kun() {
+    let e = engine(Options::default());
+    let first = |s: &str| e.convert(s)[0].text.clone();
+    // 대충 is nativised from 大總 (Wiktionary); 代充 is an unrelated homophone.
+    assert_eq!(first("대충"), "大總");
+    // A native word's 訓讀 still wins over its etymological Sino spelling.
+    assert_eq!(first("사랑"), "愛");
+}

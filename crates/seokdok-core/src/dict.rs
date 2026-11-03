@@ -296,7 +296,12 @@ pub fn parse_sino(fields: &[&str]) -> Result<Sino, String> {
     // "hangul": the chat writes this reading in Hangul and never this Hanja
     // form, so it is most likely a native word (사랑 ≠ 舍廊).
     let native_homophone = get(3) == "hangul";
-    let cost = sino_cost(&reading, source, count) + if native_homophone { 4.0 } else { 0.0 };
+    let mut cost = sino_cost(&reading, source, count) + if native_homophone { 4.0 } else { 0.0 };
+    // The word's own etymology (etym.tsv: 대충 ← 大總, 김치 ← 沉菜) comes
+    // before Sino-Korean homophones (代充), still after 訓讀 entries.
+    if matches!(get(3), "nativised" | "coined") {
+        cost = cost.min(3.6);
+    }
     Ok(Sino { reading: reading.into(), hanja: hanja.into(), source, count, cost })
 }
 

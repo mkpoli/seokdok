@@ -1,0 +1,170 @@
+//! `seokdok`: try the 釋讀 converter from the command line.
+//!
+//! seokdok [options] convert TEXT…   whole-phrase candidates
+//! seokdok [options] segments TEXT…  best segmentation with alternatives
+//! seokdok [options] check           load the dictionaries and list errors
+//! seokdok [options] forms           dump written forms of 訓讀 entries (TSV)
+//!
+//! Options: --dict DIR (default ./dict), --morpheme, --letter, --coda,
+//! --resyllabify, --hada. Without TEXT, lines are read from stdin.
+
+use seokdok_core::{Engine, Fragment, Options, Style};
+use std::io::BufRead;
+use std::path::PathBuf;
+
+fn main() {
+    let mut args: Vec<String> = std::env::args().skip(1).collect();
+    let mut dir = PathBuf::from("dict");
+    let mut o = Options::default();
+    let mut rest = Vec::new();
+    let mut i = 0;
+    while i < args.len() {
+        match args[i].as_str() {
+            "--dict" => {
+                dir = PathBuf::from(args.get(i + 1).expect("--dict DIR"));
+                i += 1;
+            }
+            "--morpheme" => o.style = Style::Morpheme,
+            "--letter" => o.fragment = Fragment::Letter,
+            "--coda" => o.coda_always = true,
+            "--resyllabify" => o.resyllabify = true,
+            "--hada" => o.hada_kun = true,
+            _ => rest.push(std::mem::take(&mut args[i])),
+        }
+        i += 1;
+    }
+    let cmd = if rest.is_empty() { "convert".to_string() } else { rest.remove(0) };
+    let t = std::time::Instant::now();
+    let (eng, errors) = Engine::from_dir(&dir, o).unwrap_or_else(|e| panic!("{}: {e}", dir.display()));
+    let texts: Vec<String> = if rest.is_empty() && !matches!(cmd.as_str(), "check" | "forms" | "attest") {
+        std::io::stdin().lock().lines().map_while(Result::ok).collect()
+    } else {
+        vec![rest.join(" ")]
+    };
+    match cmd.as_str() {
+        "check" => {
+            for e in &errors {
+                println!("{e}");
+            }
+            eprintln!(
+                "{} native, {} sino entries, {} errors, loaded in {:?}",
+                eng.natives.len(),
+                eng.sinos.len(),
+                errors.len(),
+                t.elapsed()
+            );
+        }
+        "convert" => {
+            for line in texts {
+                for (k, c) in eng.convert(&line).iter().enumerate() {
+                    println!("{k:>2}. {}\t{}", c.text, c.note);
+                }
+            }
+        }
+        "segments" => {
+            for line in texts {
+                for s in eng.segments(&line) {
+                    let alts: Vec<&str> = s.candidates.iter().map(|c| c.text.as_str()).collect();
+                    println!("[{}] {}", s.reading, alts.join(" | "));
+                }
+            }
+        }
+        "attest" => attest(&eng, &rest),
+        "forms" => {
+            for (written, surface, lemma) in eng.written_forms() {
+                println!("{written}\t{surface}\t{lemma}");
+            }
+        }
+        other => {
+            eprintln!("unknown command {other}");
+            std::process::exit(2);
+        }
+    }
+}
+
+fn is_hanja(c: char) -> bool {
+    matches!(c as u32, 0x3400..=0x4DBF | 0x4E00..=0x9FFF | 0xF900..=0xFAFF | 0x20000..=0x3134F)
+}
+fn is_hangul(c: char) -> bool {
+    matches!(c as u32, 0xAC00..=0xD7A3 | 0x3131..=0x318E)
+}
+
+/// Tokens of the form Hanja+ (Hangul|jamo)*, as 釋讀 words appear in text.
+fn tokens(text: &str) -> Vec<String> {
+    let mut out = Vec::new();
+    let mut cur = String::new();
+    let mut in_tail = false;
+    for c in text.chars() {
+        if is_hanja(c) {
+            if in_tail {
+                out.push(std::mem::take(&mut cur));
+                in_tail = false;
+            }
+            cur.push(c);
+        } else if is_hangul(c) && !cur.is_empty() {
+            cur.push(c);
+            in_tail = true;
+        } else {
+            if !cur.is_empty() {
+                out.push(std::mem::take(&mut cur));
+            }
+            in_tail = false;
+        }
+    }
+    if !cur.is_empty() {
+        out.push(cur);
+    }
+    out
+}
+
+/// seokdok attest CORPUS.txt OUT.tsv UNEXPLAINED.tsv
+/// Count corpus tokens matching each 訓讀 entry's written forms.
+fn attest(eng: &Engine, args: &[String]) {
+    use std::collections::{HashMap, HashSet};
+    let corpus = std::fs::read_to_string(&args[0]).expect("corpus");
+    let mut counts: HashMap<String, u32> = HashMap::new();
+    for line in corpus.lines() {
+        for t in tokens(line) {
+            *counts.entry(t).or_default() += 1;
+        }
+    }
+    // Written form → entries producing it; credit goes to the most trusted.
+    let mut producers: HashMap<String, Vec<usize>> = HashMap::new();
+    for i in 0..eng.natives.len() {
+        let mut seen = HashSet::new();
+        for (w, _) in eng.forms_of(i) {
+            if counts.contains_key(&w) && seen.insert(w.clone()) {
+                producers.entry(w).or_default().push(i);
+            }
+        }
+    }
+    let mut credit = vec![0u32; eng.natives.len()];
+    let mut explained: HashSet<String> = HashSet::new();
+    for (w, ps) in &producers {
+        let best = ps.iter().map(|&i| eng.natives[i].source.rank()).min().unwrap();
+        for &i in ps {
+            if eng.natives[i].source.rank() == best {
+                credit[i] += counts[w];
+            }
+        }
+        explained.insert(w.clone());
+    }
+    let mut out = String::from("file\tline\tlemma\twritten\tcount\n");
+    for (i, n) in eng.natives.iter().enumerate() {
+        if credit[i] > 0 {
+            out.push_str(&format!("{}\t{}\t{}\t{}\t{}\n", n.origin.0, n.origin.1, n.lemma, n.hanja, credit[i]));
+        }
+    }
+    std::fs::write(&args[1], out).expect("write");
+    // Tokens no entry explains, excluding pure Hanja runs (Sino words).
+    let mut un: Vec<(&String, &u32)> = counts
+        .iter()
+        .filter(|(t, _)| !explained.contains(*t) && t.chars().any(is_hangul))
+        .collect();
+    un.sort_by(|a, b| b.1.cmp(a.1).then(a.0.cmp(b.0)));
+    let mut s = String::from("token\tcount\n");
+    for (t, c) in un.iter().take(3000) {
+        s.push_str(&format!("{t}\t{c}\n"));
+    }
+    std::fs::write(&args[2], s).expect("write");
+}

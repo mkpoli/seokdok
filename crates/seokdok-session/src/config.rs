@@ -1,4 +1,5 @@
 //! TOML configuration: `%APPDATA%\seokdok\config.toml` on Windows,
+//! `~/Library/Application Support/seokdok/config.toml` on macOS,
 //! `$XDG_CONFIG_HOME/seokdok/config.toml` (default `~/.config/seokdok`) elsewhere.
 //!
 //! The file and the settings dialog edit the same [`Config`]. Every field has
@@ -111,7 +112,8 @@ pub struct Config {
 impl Config {
     /// The folder holding config.toml and custom.json: $SEOKDOK_CONFIG_DIR
     /// when set (the iOS app and keyboard share an App Group container),
-    /// else %APPDATA%\seokdok on Windows and $XDG_CONFIG_HOME/seokdok or
+    /// else %APPDATA%\seokdok on Windows, ~/Library/Application
+    /// Support/seokdok on macOS, and $XDG_CONFIG_HOME/seokdok or
     /// ~/.config/seokdok elsewhere.
     pub fn user_dir() -> Option<PathBuf> {
         if let Some(d) = std::env::var_os("SEOKDOK_CONFIG_DIR").map(PathBuf::from).filter(|p| p.is_absolute()) {
@@ -119,6 +121,9 @@ impl Config {
         }
         if cfg!(windows) {
             return Some(PathBuf::from(std::env::var_os("APPDATA")?).join("seokdok"));
+        }
+        if cfg!(target_os = "macos") {
+            return Some(PathBuf::from(std::env::var_os("HOME")?).join("Library/Application Support/seokdok"));
         }
         let base = std::env::var_os("XDG_CONFIG_HOME")
             .map(PathBuf::from)
@@ -183,7 +188,10 @@ impl Config {
         };
         format!(
             "\
-# seokdok configuration (Windows: %APPDATA%\\seokdok\\config.toml; Linux: ~/.config/seokdok/config.toml)
+# seokdok configuration
+#   Windows: %APPDATA%\\seokdok\\config.toml
+#   macOS:   ~/Library/Application Support/seokdok/config.toml
+#   Linux:   ~/.config/seokdok/config.toml
 #
 # Re-activate the input method (switch away and back) to apply changes.
 # Delete this file to regenerate it with the defaults.

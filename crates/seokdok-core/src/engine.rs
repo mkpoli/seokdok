@@ -808,7 +808,7 @@ impl Engine {
     /// are read by sound, 訓讀 words through the dictionary entries that
     /// produce them; anything unknown is left as written.
     pub fn read(&self, text: &str) -> String {
-        let cs: Vec<char> = text.chars().collect();
+        let cs: Vec<char> = crate::dict::unify(text).chars().collect();
         let mut out = String::new();
         let mut i = 0;
         while i < cs.len() {

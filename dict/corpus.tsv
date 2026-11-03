@@ -52,7 +52,7 @@ lemma	written	pos	class	source	count	note
 너무	超무	adv		corpus	8	
 반갑다	歡갑다	adj		corpus	17	歡갑습니다
 놀랍다	驚랍다	adj		corpus	11	驚랍네요
-즐겁다	樂겁다	adj		corpus	11	樂거운
+즐겁다	樂겁다	adj		corpus	17	樂거운
 새롭다	新롭다	adj		corpus	10	新로운
 새로	新로	adv		corpus	4	
 재밌다	滋味ㅆ다	adj		corpus	32	滋味ㅆ네요: 재미있다 contracted
@@ -80,12 +80,12 @@ lemma	written	pos	class	source	count	note
 흩어지다	散어지다	verb		corpus	9	散어진
 힘들다	難다	adj		corpus	62	難ㄴ (힘든)
 어렵다	難다	adj		corpus	52	難네요; 難어요 in the morpheme style
-쉽다	易다	adj		corpus	43	易게
+쉽다	易다	adj		corpus	46	易게
 맞다	適다	verb		corpus	135	適는, 適네요
 남다	殘다	verb		corpus	17	殘아
 시키다	使다	verb		corpus	29	使는
 않다	不ㅎ다	verb		corpus	104	不ㅎ은, 不ㅎ네요: 아니하다 contracted
-아니	不니	adv		corpus	13	
+아니	不니	adv		corpus	21	
 아니다	非다	adj	ani	corpus	135	非ㄴ, 非라
 말	言	noun		corpus	93	
 말씀	言씀	noun		corpus	5	

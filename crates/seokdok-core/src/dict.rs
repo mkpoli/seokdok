@@ -163,6 +163,13 @@ fn sino_cost(reading: &str, source: Source, count: u32) -> f32 {
     (base - 0.35 * ((count as f32) + 1.0).ln()).max(0.3)
 }
 
+/// Map CJK compatibility ideographs (豈 U+F900 …, emitted by Korean IMEs
+/// for alternative readings) to their unified ideographs (NFC).
+pub fn unify(s: &str) -> String {
+    use unicode_normalization::UnicodeNormalization;
+    s.nfc().collect()
+}
+
 /// Han ideographs, including extensions and compatibility ideographs.
 pub fn is_han(c: char) -> bool {
     matches!(c as u32, 0x2E80..=0x2FDF | 0x3005 | 0x3007 | 0x3400..=0x4DBF | 0x4E00..=0x9FFF | 0xF900..=0xFAFF | 0x20000..=0x3FFFF)
@@ -171,7 +178,7 @@ pub fn is_han(c: char) -> bool {
 pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
     let get = |i: usize| fields.get(i).map(|s| s.trim()).unwrap_or("");
     let lemma = get(0).to_string();
-    let written = get(1).to_string();
+    let written = unify(get(1));
     let pos = Pos::parse(get(2)).ok_or_else(|| format!("unknown pos {:?}", get(2)))?;
     let source = Source::parse(get(4));
     let count: u32 = get(5).parse().unwrap_or(0);
@@ -246,7 +253,7 @@ pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
 pub fn parse_sino(fields: &[&str]) -> Result<Sino, String> {
     let get = |i: usize| fields.get(i).map(|s| s.trim()).unwrap_or("");
     let reading = get(0).to_string();
-    let hanja = get(1).to_string();
+    let hanja = unify(get(1));
     if reading.is_empty() || !reading.chars().all(is_syllable) || hanja.is_empty() {
         return Err(format!("bad sino line {fields:?}"));
     }

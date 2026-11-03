@@ -331,7 +331,7 @@ lemma	written	pos	class	source	count	note
 모기	蚊	명사		community	2	
 모래	砂	명사		community		
 모르다	䚳르다	동사		community	1	
-모르다	不知다	동사		community	127	
+모르다	不知다	동사		community	164	
 모시다	侍시다	동사		community		
 모으다	會으다	동사		community	2	
 모이다	會이다	동사		community	9	
@@ -386,7 +386,7 @@ lemma	written	pos	class	source	count	note
 밝다	明다	형용사		community	9	
 밟다	踏다	동사		community	1	
 밤	夜	명사		community	18	
-밤	栗	명사		community	1	
+밤	栗	명사		community	3	
 밥	食	명사		community	27	
 밭	田	명사		community	6	
 밭두둑	田畛	명사		community		
@@ -594,7 +594,7 @@ lemma	written	pos	class	source	count	note
 어리다	幼리다	형용사		community	1	
 어리석다	愚다	형용사		community	2	
 어리석음	蒙음	명사		community		
-어지럽다	亂다	형용사		community	1	
+어지럽다	亂다	형용사		community	3	
 언덕	丘	명사		community		
 얻다	得다	동사		community		
 얼굴	顔	명사		community	7	
@@ -807,5 +807,5 @@ lemma	written	pos	class	source	count	note
 흐리다	曇다	형용사		community	3	
 흙	土	명사		community	5	
 흩다	散다	동사		community		
-힘	力	명사		community	14	
+힘	力	명사		community	15	
 힘줄	筋	명사		community	2	

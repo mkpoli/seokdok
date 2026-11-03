@@ -147,7 +147,7 @@ fn attest(eng: &Engine, args: &[String]) {
     let corpus = std::fs::read_to_string(&args[0]).expect("corpus");
     let mut counts: HashMap<String, u32> = HashMap::new();
     for line in corpus.lines() {
-        for t in tokens(line) {
+        for t in tokens(&seokdok_core::dict::unify(line)) {
             *counts.entry(t).or_default() += 1;
         }
     }

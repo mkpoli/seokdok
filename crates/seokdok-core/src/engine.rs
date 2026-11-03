@@ -951,6 +951,14 @@ lemma\twritten\tpos\tclass\tsource\tcount
     }
 
     #[test]
+    fn compound_verb() {
+        let (e, errs) = Engine::new(&[("t", "빼앗아가다\t奪아去다\tverb\n일어나다\t起어出다\tverb\n")], &[], Options::default());
+        assert!(errs.is_empty(), "{errs:?}");
+        assert_eq!(first(&e, "빼앗아갔다"), "奪아去ㅆ다");
+        assert_eq!(first(&e, "일어났어요"), "起어出ㅆ어요");
+    }
+
+    #[test]
     fn read_back() {
         let e = eng(Options::default());
         assert_eq!(e.read("天을 見ㅆ다"), "하늘을 봤다");

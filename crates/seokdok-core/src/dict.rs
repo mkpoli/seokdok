@@ -192,19 +192,33 @@ pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
     if stem_str.is_empty() || !stem_str.chars().all(is_syllable) {
         return Err(format!("lemma {lemma:?} must be Hangul syllables"));
     }
+    // The Hanja part runs to the last Han character, so a compound verb's
+    // written form (奪아去다 for 빼앗아가다) keeps its inner Hangul there.
     let split = wstem
         .char_indices()
-        .find(|(_, c)| is_syllable(*c) || ('\u{3131}'..='\u{3163}').contains(c))
-        .map(|(i, _)| i)
-        .unwrap_or(wstem.len());
+        .filter(|(_, c)| is_han(*c))
+        .last()
+        .map(|(i, c)| i + c.len_utf8())
+        .unwrap_or(0);
     let (hanja, tail_s) = wstem.split_at(split);
     let stem = decompose(&stem_str);
     let tail_c = decompose(tail_s);
     if hanja.is_empty() && tail_s != stem_str {
         return Err(format!("{written:?}: no Hanja"));
     }
-    if let Some(c) = hanja.chars().find(|&c| !is_han(c)) {
+    if let Some(c) = hanja.chars().next().filter(|&c| !is_han(c)) {
         return Err(format!("{written:?}: {c:?} is not a Han character"));
+    }
+    if let Some(c) = hanja.chars().find(|&c| !is_han(c) && !is_syllable(c)) {
+        return Err(format!("{written:?}: {c:?} is not a Han character"));
+    }
+    // Inner Hangul (the 아 of 奪아去) must appear in the lemma, in order.
+    let mut rest = stem_str.as_str();
+    for seg in hanja.split(|c: char| is_han(c)).filter(|s| !s.is_empty()) {
+        match rest.find(seg) {
+            Some(i) if i > 0 => rest = &rest[i + seg.len()..],
+            _ => return Err(format!("{written:?}: {seg:?} is not inside {stem_str:?}")),
+        }
     }
     if !stem.ends_with(&tail_c) {
         return Err(format!("{written:?}: tail {tail_s:?} does not end {stem_str:?}"));
@@ -296,5 +310,8 @@ mod tests {
         assert_eq!(e.tail, Tail::None);
         assert!(parse_native(&["읽다", "讀어다", "verb"]).is_err());
         assert!(parse_native(&["잘못", "X", "noun"]).is_err());
+        let e = parse_native(&["빼앗아가다", "奪아去다", "verb"]).unwrap();
+        assert_eq!((e.hanja.as_str(), &e.tail), ("奪아去", &Tail::None));
+        assert!(parse_native(&["빼앗아가다", "奪어去다", "verb"]).is_err());
     }
 }

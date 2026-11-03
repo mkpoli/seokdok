@@ -38,6 +38,10 @@ cover:
 - **Whole stem with its final consonant written out** (末音添記): 있다 =
   在ㅆ다, 것 = 事ㅅ, 그렇다 = 然ㅎ다, 좀 = 少ㅁ.
 
+- **Two characters in a compound verb**, with the Hangul between them:
+  빼앗아가다 = 奪아去다, 일어나다 = 起어出다 (community dictionary). Only the
+  last part inflects: 奪아去ㅆ다.
+
 One word may have several entries (있다 = 有다, 在다, 在ㅆ다), and one
 character may serve several words (見 = 보다, 보이다 as 見이다).
 
@@ -184,9 +188,6 @@ alternative candidates, so a writer can switch for a single word.
 
 ## 8. Not yet covered
 
-- **Compound verbs with two characters** (빼앗아가다 = 奪아去다, 일어나다 =
-  起어出다) are in the community dictionary but cannot be expressed in the
-  entry format yet; they are skipped with a warning.
 - **Archaic Hangul** (ᄒᆞ옵니다, 讀了ᄒᆞ엿ᄉᆞ옵니다) is used by some members as
   a separate stylistic layer. seokdok outputs modern Hangul only.
 - **Gugyeol letters for bare jamo** (用ㅂ니다 → 用邑니다) were proposed once

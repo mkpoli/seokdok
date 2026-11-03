@@ -26,7 +26,8 @@ lemma	written	pos	class	source	count	note
 
 - `written` is the 釋讀 dictionary form. Leading Hanja cover the start of the
   lemma; trailing Hangul repeats what they leave uncovered (初음, 囚두다); a
-  trailing lone consonant (在ㅆ다, 事ㅅ) is always written out. See
+  trailing lone consonant (在ㅆ다, 事ㅅ) is always written out. A compound
+  verb keeps its inner Hangul between the characters (奪아去다). See
   [docs/orthography.md](../docs/orthography.md) §2.
 - `pos`: noun pron num bound adv det interj verb adj, or the Korean names
   (명사, 동사 …).
@@ -74,8 +75,9 @@ with `source` set to `user`. Check a file with
   https://docs.google.com/spreadsheets/d/1J7bPuQ4buOM17hvLR6UHLfcrERfYhaVVj1H-3szh7J0,
   compiled by 釋讀會 members from June 2022, fetched 2026-11-03. No licence is
   stated. Publishing this repository with `community.tsv` requires the
-  editors' consent. Seven rows are skipped with a warning (compound verbs
-  such as 奪아去다, rows with lemma/written mismatches).
+  editors' consent. Five rows are skipped with a warning because lemma and
+  written form disagree (가득한 = 滿하다, 거리 = 街다 as a verb, 끼다 = 介이다,
+  말 = 言하다, 사랑 = 살다).
 - **釋讀會 chat corpus** (t.me/pimsdh), export to 2026-10-29: used for counts
   and for choosing `corpus.tsv` spellings. The messages themselves are not in
   this repository.

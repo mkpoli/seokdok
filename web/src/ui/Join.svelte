@@ -38,6 +38,8 @@
     margin-top: var(--s-7);
     background: var(--c-accent);
     color: var(--c-on-accent);
+    /* Ruby on the accent band takes the band's text colour. */
+    --c-ruby: color-mix(in srgb, var(--c-on-accent) 80%, transparent);
   }
   .inner {
     display: grid;

@@ -47,7 +47,7 @@ a {
 }
 
 rt {
-  font: 500 0.42em/1 var(--f-sans);
+  font: 500 max(0.55em, 10.5px)/1 var(--f-sans);
   color: var(--c-ruby);
   letter-spacing: 0.02em;
 }

@@ -153,7 +153,7 @@ mod tests {
     fn loads_the_shipped_dictionaries() {
         let (engine, _errors) = load_engine(&dict_dir(), None, Options::default());
         assert!(!engine.natives.is_empty());
-        assert!(!engine.sinos.is_empty());
+        assert!(engine.sino_count() > 0);
         let segs = engine.segments("안녕하세요");
         assert!(!segs.is_empty());
     }

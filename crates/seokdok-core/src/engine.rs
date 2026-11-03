@@ -3,7 +3,7 @@
 //! style.
 
 use crate::conj::{ending_label, ending_surfaces, morph_ending, Ctx};
-use crate::dict::{parse_native, parse_sino, tsv_lines, Native, Pos, Sino, Source, Tail};
+use crate::dict::{parse_native, parse_sino, tsv_lines, Native, Pos, Source, Tail};
 use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify};
 use crate::particles::{allowed, particles, Particle};
 use std::collections::HashMap;
@@ -57,50 +57,105 @@ impl Default for Options {
     }
 }
 
-struct Node<T> {
-    next: Vec<(char, u32)>,
-    items: Vec<T>,
-}
+const NONE: u32 = u32::MAX;
 
+/// A prefix trie over jamo, flat from the start: each node is its key and
+/// two links (first child, next sibling), with no allocation of its own; the
+/// dictionaries hold hundreds of thousands of nodes. `freeze` gathers each
+/// node's items into one contiguous slice.
 struct Trie<T> {
-    nodes: Vec<Node<T>>,
+    key: Vec<char>,
+    first_child: Vec<u32>,
+    next_sibling: Vec<u32>,
+    /// While building: (node, item). After `freeze`: sorted by node.
+    pending: Vec<(u32, T)>,
+    /// Node n's items are items[item_start[n]..item_start[n + 1]].
+    item_start: Vec<u32>,
+    items: Vec<T>,
 }
 
 impl<T> Trie<T> {
     fn new() -> Self {
-        Trie { nodes: vec![Node { next: Vec::new(), items: Vec::new() }] }
+        Trie {
+            key: vec!['\0'],
+            first_child: vec![NONE],
+            next_sibling: vec![NONE],
+            pending: Vec::new(),
+            item_start: Vec::new(),
+            items: Vec::new(),
+        }
     }
+
+    fn child(&self, n: usize, c: char) -> Option<usize> {
+        let mut i = self.first_child[n];
+        while i != NONE {
+            if self.key[i as usize] == c {
+                return Some(i as usize);
+            }
+            i = self.next_sibling[i as usize];
+        }
+        None
+    }
+
     fn insert(&mut self, key: &[char], item: T) {
+        debug_assert!(self.item_start.is_empty(), "insert after freeze");
         let mut n = 0usize;
         for &c in key {
-            let found = self.nodes[n].next.iter().find(|(k, _)| *k == c).map(|(_, i)| *i as usize);
-            n = match found {
+            n = match self.child(n, c) {
                 Some(i) => i,
                 None => {
-                    self.nodes.push(Node { next: Vec::new(), items: Vec::new() });
-                    let i = self.nodes.len() - 1;
-                    self.nodes[n].next.push((c, i as u32));
+                    let i = self.key.len();
+                    self.key.push(c);
+                    self.first_child.push(NONE);
+                    self.next_sibling.push(self.first_child[n]);
+                    self.first_child[n] = i as u32;
                     i
                 }
             };
         }
-        self.nodes[n].items.push(item);
+        self.pending.push((n as u32, item));
     }
+
+    fn freeze(&mut self) {
+        let mut pending = std::mem::take(&mut self.pending);
+        // Stable: items of a node keep their insertion order.
+        pending.sort_by_key(|(n, _)| *n);
+        let nodes = self.key.len();
+        self.item_start = Vec::with_capacity(nodes + 1);
+        self.items = Vec::with_capacity(pending.len());
+        let mut it = pending.into_iter().peekable();
+        for n in 0..nodes as u32 {
+            self.item_start.push(self.items.len() as u32);
+            while let Some((_, item)) = it.next_if(|(m, _)| *m == n) {
+                self.items.push(item);
+            }
+        }
+        self.item_start.push(self.items.len() as u32);
+        self.key.shrink_to_fit();
+        self.first_child.shrink_to_fit();
+        self.next_sibling.shrink_to_fit();
+    }
+
+    fn node_items(&self, n: usize) -> &[T] {
+        &self.items[self.item_start[n] as usize..self.item_start[n + 1] as usize]
+    }
+
     /// Every (end position, items) for keys that are prefixes of `input[from..]`.
     fn prefixes<'a>(&'a self, input: &[char], from: usize) -> Vec<(usize, &'a [T])> {
         let mut out = Vec::new();
         let mut n = 0usize;
         let mut pos = from;
         loop {
-            if !self.nodes[n].items.is_empty() && pos > from {
-                out.push((pos, self.nodes[n].items.as_slice()));
+            let items = self.node_items(n);
+            if !items.is_empty() && pos > from {
+                out.push((pos, items));
             }
             if pos >= input.len() {
                 break;
             }
-            match self.nodes[n].next.iter().find(|(k, _)| *k == input[pos]) {
-                Some((_, i)) => {
-                    n = *i as usize;
+            match self.child(n, input[pos]) {
+                Some(i) => {
+                    n = i;
                     pos += 1;
                 }
                 None => break,
@@ -144,7 +199,7 @@ pub struct Segment {
 
 pub struct Engine {
     pub natives: Vec<Native>,
-    pub sinos: Vec<Sino>,
+    sinos: SinoTable,
     pub options: Options,
     stems: Trie<(u32, u16)>,
     nominals: Trie<u32>,
@@ -157,6 +212,47 @@ pub struct Engine {
     particle_trie: Trie<u16>,
     /// Reverse indexes for [`Engine::read`], built on first use.
     reverse: std::sync::OnceLock<Reverse>,
+}
+
+/// The Sino-Korean entries, packed: every reading and Hanja form lives in one
+/// string, so an entry costs a dozen bytes and no allocation of its own.
+#[derive(Default)]
+struct SinoTable {
+    text: String,
+    entries: Vec<SinoEntry>,
+}
+
+struct SinoEntry {
+    reading: (u32, u16),
+    hanja: (u32, u16),
+    cost: f32,
+}
+
+impl SinoTable {
+    fn push(&mut self, reading: &str, hanja: &str, cost: f32) {
+        let mut put = |s: &str| {
+            let at = self.text.len() as u32;
+            self.text.push_str(s);
+            (at, s.len() as u16)
+        };
+        let (reading, hanja) = (put(reading), put(hanja));
+        self.entries.push(SinoEntry { reading, hanja, cost });
+    }
+    fn str(&self, (at, len): (u32, u16)) -> &str {
+        &self.text[at as usize..at as usize + len as usize]
+    }
+    fn reading(&self, i: usize) -> &str {
+        self.str(self.entries[i].reading)
+    }
+    fn hanja(&self, i: usize) -> &str {
+        self.str(self.entries[i].hanja)
+    }
+    fn cost(&self, i: usize) -> f32 {
+        self.entries[i].cost
+    }
+    fn len(&self) -> usize {
+        self.entries.len()
+    }
 }
 
 struct Reverse {
@@ -178,32 +274,68 @@ const EDGE_COST: f32 = 1.0;
 /// default and 爲 comes from the dictionary as an alternative.
 const BUILTIN: &str = "하다\t하다\tverb\t\teditorial\t\n";
 
-impl Engine {
-    /// Build an engine from TSV texts. Returns the engine and the parse
-    /// errors (file label, line, message), which are skipped.
-    pub fn new(native_tsvs: &[(&str, &str)], sino_tsvs: &[(&str, &str)], options: Options) -> (Engine, Vec<String>) {
-        let mut errors = Vec::new();
-        let mut natives = Vec::new();
-        for (label, text) in std::iter::once(&("builtin", BUILTIN)).chain(native_tsvs.iter()) {
-            for (line, f) in tsv_lines(text) {
-                match parse_native(&f) {
-                    Ok(mut e) => {
-                        e.origin = (label.to_string(), line);
-                        natives.push(e)
+/// Collects dictionary files one at a time, then builds the [`Engine`].
+pub struct Builder {
+    natives: Vec<Native>,
+    sinos: SinoTable,
+    /// Hash of a (reading, Hanja) pair → its entry; the Sino files overlap
+    /// (fusion.tsv and sino.tsv share most words).
+    index: HashMap<u64, u32>,
+    errors: Vec<String>,
+}
+
+impl Builder {
+    pub fn new() -> Builder {
+        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), index: HashMap::new(), errors: Vec::new() };
+        b.native("builtin", BUILTIN);
+        b
+    }
+
+    /// Add a 訓讀 dictionary (`native.tsv` format).
+    pub fn native(&mut self, label: &str, text: &str) {
+        for (line, f) in tsv_lines(text) {
+            match parse_native(&f) {
+                Ok(mut e) => {
+                    e.origin = (label.to_string(), line);
+                    self.natives.push(e)
+                }
+                Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
+            }
+        }
+    }
+
+    /// Add a 音讀 dictionary (`sino.tsv` format). A pair already present
+    /// keeps its first entry, with the lowest cost any file gives it.
+    pub fn sino(&mut self, label: &str, text: &str) {
+        use std::hash::{BuildHasher, Hash, Hasher};
+        for (line, f) in tsv_lines(text) {
+            match parse_sino(&f) {
+                Ok(e) => {
+                    let mut h = self.index.hasher().build_hasher();
+                    (&*e.reading, &*e.hanja).hash(&mut h);
+                    let key = h.finish();
+                    match self.index.get(&key).map(|&i| i as usize) {
+                        Some(i) if self.sinos.reading(i) == &*e.reading && self.sinos.hanja(i) == &*e.hanja => {
+                            let kept = &mut self.sinos.entries[i];
+                            kept.cost = kept.cost.min(e.cost);
+                        }
+                        _ => {
+                            self.index.entry(key).or_insert(self.sinos.len() as u32);
+                            self.sinos.push(&e.reading, &e.hanja, e.cost);
+                        }
                     }
-                    Err(m) => errors.push(format!("{label}:{line}: {m}")),
                 }
+                Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
             }
         }
-        let mut sinos = Vec::new();
-        for (label, text) in sino_tsvs {
-            for (line, f) in tsv_lines(text) {
-                match parse_sino(&f) {
-                    Ok(e) => sinos.push(e),
-                    Err(m) => errors.push(format!("{label}:{line}: {m}")),
-                }
-            }
-        }
+    }
+
+    /// The engine and the parse errors (file label, line, message).
+    pub fn build(self, options: Options) -> (Engine, Vec<String>) {
+        let Builder { natives, mut sinos, index, errors } = self;
+        drop(index);
+        sinos.text.shrink_to_fit();
+        sinos.entries.shrink_to_fit();
         let mut eng = Engine {
             natives,
             sinos,
@@ -220,28 +352,50 @@ impl Engine {
         eng.index();
         (eng, errors)
     }
+}
+
+impl Default for Builder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl Engine {
+    /// Build an engine from TSV texts. Returns the engine and the parse
+    /// errors (file label, line, message), which are skipped.
+    pub fn new(native_tsvs: &[(&str, &str)], sino_tsvs: &[(&str, &str)], options: Options) -> (Engine, Vec<String>) {
+        let mut b = Builder::new();
+        for (label, text) in native_tsvs {
+            b.native(label, text);
+        }
+        for (label, text) in sino_tsvs {
+            b.sino(label, text);
+        }
+        b.build(options)
+    }
 
     /// Native dictionaries loaded by [`Engine::from_dir`], in order.
     pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
     pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv"];
 
     /// Load every known dictionary file present in `dir`.
+    /// One file is read at a time and dropped once parsed, which keeps the
+    /// peak low (the iOS keyboard extension has little memory).
     pub fn from_dir(dir: &std::path::Path, options: Options) -> std::io::Result<(Engine, Vec<String>)> {
-        let read = |names: &[&str]| -> std::io::Result<Vec<(String, String)>> {
-            let mut v = Vec::new();
-            for n in names {
-                let p = dir.join(n);
-                if p.exists() {
-                    v.push((n.to_string(), std::fs::read_to_string(&p)?));
-                }
+        let mut b = Builder::new();
+        for n in Self::NATIVE_FILES {
+            let p = dir.join(n);
+            if p.exists() {
+                b.native(n, &std::fs::read_to_string(&p)?);
             }
-            Ok(v)
-        };
-        let nat = read(Self::NATIVE_FILES)?;
-        let sin = read(Self::SINO_FILES)?;
-        let nat_ref: Vec<(&str, &str)> = nat.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
-        let sin_ref: Vec<(&str, &str)> = sin.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
-        Ok(Engine::new(&nat_ref, &sin_ref, options))
+        }
+        for n in Self::SINO_FILES {
+            let p = dir.join(n);
+            if p.exists() {
+                b.sino(n, &std::fs::read_to_string(&p)?);
+            }
+        }
+        Ok(b.build(options))
     }
 
     fn index(&mut self) {
@@ -259,6 +413,7 @@ impl Engine {
                                 t.insert(&comps, idx as u16);
                             }
                         }
+                        t.freeze();
                         self.endings.insert(al.ctx, t);
                         self.zero_endings.insert(al.ctx, zero);
                     }
@@ -267,12 +422,16 @@ impl Engine {
                 self.nominals.insert(&n.stem, i as u32);
             }
         }
-        for (i, s) in self.sinos.iter().enumerate() {
-            self.sino.insert(&decompose(&s.reading), i as u32);
+        for i in 0..self.sinos.len() {
+            self.sino.insert(&decompose(self.sinos.reading(i)), i as u32);
         }
         for (i, p) in self.particles.iter().enumerate() {
             self.particle_trie.insert(&p.comps, i as u16);
         }
+        self.stems.freeze();
+        self.nominals.freeze();
+        self.sino.freeze();
+        self.particle_trie.freeze();
     }
 
     fn native_cost(&self, n: &Native) -> f32 {
@@ -340,7 +499,7 @@ impl Engine {
                 }
                 for &i in items {
                     let short = if crate::jamo::syllable_count(&comps[s..q]) == 1 { SHORT_COST } else { 0.0 };
-                    let base = EDGE_COST + self.sinos[i as usize].cost + short;
+                    let base = EDGE_COST + self.sinos.cost(i as usize) + short;
                     edges.push(Edge { start: s, end: q, cost: base, kind: Kind::Sino { entry: i, particle: None } });
                     for (r, pis) in self.particle_trie.prefixes(comps, q) {
                         if !boundary(r) {
@@ -472,12 +631,12 @@ impl Engine {
         match &e.kind {
             Kind::Raw => vec![raw()],
             Kind::Sino { entry, particle } => {
-                let s = &self.sinos[*entry as usize];
-                let mut t = s.hanja.clone();
+                let (hanja, reading) = (self.sinos.hanja(*entry as usize), self.sinos.reading(*entry as usize));
+                let mut t = hanja.to_string();
                 if let Some(p) = particle {
                     t.push_str(&compose(&self.particles[*p as usize].comps));
                 }
-                vec![Candidate { text: t, note: format!("{} {} · 音讀", s.hanja, s.reading) }]
+                vec![Candidate { text: t, note: format!("{hanja} {reading} · 音讀") }]
             }
             Kind::Nominal { entry, particle } => {
                 let n = &self.natives[*entry as usize];
@@ -678,6 +837,11 @@ impl Engine {
     }
 
     /// Whole-input candidates, best first. Non-Hangul text passes through.
+    /// Number of Sino-Korean (reading, Hanja) pairs loaded.
+    pub fn sino_count(&self) -> usize {
+        self.sinos.len()
+    }
+
     pub fn convert(&self, input: &str) -> Vec<Candidate> {
         let mut per_run: Vec<Vec<Candidate>> = Vec::new();
         for (is_h, run) in runs(input) {
@@ -786,11 +950,12 @@ impl Engine {
         self.reverse.get_or_init(|| {
             let mut sino: HashMap<String, (String, f32)> = HashMap::new();
             let mut max_sino = 1;
-            for s in &self.sinos {
-                max_sino = max_sino.max(s.hanja.chars().count());
-                let e = sino.entry(s.hanja.clone()).or_insert((s.reading.clone(), f32::MAX));
-                if s.cost < e.1 {
-                    *e = (s.reading.clone(), s.cost);
+            for i in 0..self.sinos.len() {
+                let (hanja, reading, cost) = (self.sinos.hanja(i), self.sinos.reading(i), self.sinos.cost(i));
+                max_sino = max_sino.max(hanja.chars().count());
+                let e = sino.entry(hanja.to_string()).or_insert((reading.to_string(), f32::MAX));
+                if cost < e.1 {
+                    *e = (reading.to_string(), cost);
                 }
             }
             let mut native: HashMap<String, Vec<usize>> = HashMap::new();

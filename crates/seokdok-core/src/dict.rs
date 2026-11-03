@@ -135,8 +135,8 @@ pub struct Native {
 
 #[derive(Clone, Debug)]
 pub struct Sino {
-    pub reading: String,
-    pub hanja: String,
+    pub reading: Box<str>,
+    pub hanja: Box<str>,
     pub source: Source,
     pub count: u32,
     pub cost: f32,
@@ -297,7 +297,7 @@ pub fn parse_sino(fields: &[&str]) -> Result<Sino, String> {
     // form, so it is most likely a native word (사랑 ≠ 舍廊).
     let native_homophone = get(3) == "hangul";
     let cost = sino_cost(&reading, source, count) + if native_homophone { 4.0 } else { 0.0 };
-    Ok(Sino { reading, hanja, source, count, cost })
+    Ok(Sino { reading: reading.into(), hanja: hanja.into(), source, count, cost })
 }
 
 /// Read a TSV file's data lines (skipping blanks, `#` comments and a header

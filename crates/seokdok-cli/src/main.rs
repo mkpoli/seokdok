@@ -51,7 +51,7 @@ fn main() {
             eprintln!(
                 "{} native, {} sino entries, {} errors, loaded in {:?}",
                 eng.natives.len(),
-                eng.sinos.len(),
+                eng.sino_count(),
                 errors.len(),
                 t.elapsed()
             );

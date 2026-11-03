@@ -9,6 +9,7 @@ comments; the header line names the columns.
 | `corpus.tsv` | 訓讀 spellings attested in the 釋讀會 chat | project editors | MIT (this repository) |
 | `editorial.tsv` | 訓讀 entries added by the editors, with reasons | project editors | MIT |
 | `community.tsv` | 標準國語釋讀辭典 | 釋讀會 members | none stated; see below |
+| `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested | language model, unreviewed | MIT |
 | `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
 | `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
 | `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
@@ -60,6 +61,16 @@ with `source` set to `user`. Check a file with
   frequencies are damped to `round(cbrt(frequency))` because they come from a
   different corpus than the chat counts. `fusion.tsv` stays under GPL-3.0
   wherever it is distributed; the code remains MIT.
+- **Machine suggestions** (`suggested.tsv`, 2026-11-03): native verbs,
+  adjectives, adverbs and nouns that English Wiktionary lists without a hanja
+  form (kaikki.org extract) and that no hand-made dictionary covers were given
+  to a language model with their English sense and the libhangul characters
+  whose 訓音 gloss names them; it proposed one to three characters by meaning
+  and skipped words it was unsure of. Every row passed the engine's parser;
+  none was reviewed by a person, so the tier ranks below the chat corpus,
+  editorial and community entries and is labelled as unreviewed in the IME.
+  The word list came from `tools/native_candidates.py`; no Wiktionary text is
+  included.
 - **Chat-attested Sino-Korean words** in `sino.tsv` (source `corpus`): Hanja
   runs used at least five times in the chat that no lexicon lists (釋讀,
   釋讀會, 末音添記). Readings are each character's most common reading at

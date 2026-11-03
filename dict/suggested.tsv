@@ -1,0 +1,889 @@
+# 訓讀 suggestions for native words with no hand-made entry, proposed by a language model
+# from Wiktionary senses and libhangul 訓音 glosses (2026-11-03). Unreviewed: this tier ranks
+# below the chat corpus, editorial and community entries. Validated by the engine's parser only.
+lemma	written	pos	class	source	count	note
+잘다	細다	adj		suggested		thin, fine
+입다	衣다	verb		suggested		clothe
+입다	服다	verb		suggested	1	gloss
+때다	燒다	verb		suggested	3	burn
+신다	履다	verb		suggested	6	gloss
+걸다	掛다	verb		suggested		gloss
+걸다	懸다	verb		suggested	1	hang
+개다	晴다	verb		suggested	4	gloss
+재다	測다	verb		suggested	4	measure
+사람	人	noun		suggested	136	person
+두다	置다	verb		suggested	14	gloss
+두다	措다	verb		suggested	1	gloss
+새다	漏다	verb		suggested		gloss
+새다	洩다	verb		suggested		gloss
+그리다	描다	verb		suggested	2	gloss
+메다	肩다	verb		suggested		gloss
+아이	兒	noun		suggested	13	child
+아이	童	noun		suggested	1	gloss
+매다	繫다	verb		suggested	1	gloss
+업다	負다	verb		suggested		carry on back
+몰다	驅다	verb		suggested		gloss
+붙다	附다	verb		suggested	23	gloss
+붙다	貼다	verb		suggested		gloss
+들이다	納다	verb		suggested		gloss
+검다	黑다	adj		suggested	6	gloss
+검다	玄다	adj		suggested		gloss
+벌다	稼다	verb		suggested		earn
+나무	木	noun		suggested	20	gloss
+나무	樹	noun		suggested	1	gloss
+모두	皆	adv		suggested	57	gloss
+모두	悉	adv		suggested	3	gloss
+갈다	磨다	verb		suggested	4	gloss
+다시	更	adv		suggested	10	gloss
+다시	復	adv		suggested	9	gloss
+아래	下	noun		suggested	32	gloss
+막다	防다	verb		suggested		gloss
+막다	拒다	verb		suggested		gloss
+접다	摺다	verb		suggested	1	gloss
+찌다	蒸다	verb		suggested	4	gloss
+오래다	久다	adj		suggested	5	gloss
+식다	冷다	verb		suggested		cool
+빨다	吮다	verb		suggested		gloss
+가르다	分다	verb		suggested		divide
+가르다	析다	verb		suggested		gloss
+가마	釜	noun		suggested	7	gloss
+갑자기	猝	adv		suggested		gloss
+갑자기	忽	adv		suggested	10	suddenly
+놓다	置다	verb		suggested	6	gloss
+놓다	放다	verb		suggested	9	gloss
+늘다	增다	verb		suggested	3	increase
+젊다	少다	adj		suggested		gloss
+짓다	作다	verb		suggested	6	gloss
+짓다	造다	verb		suggested	3	gloss
+짓다	製다	verb		suggested	14	gloss
+듣다	聽다	verb		suggested	11	gloss
+듣다	聞다	verb		suggested	52	gloss
+다만	但	adv		suggested	12	gloss
+다만	只	adv		suggested	10	gloss
+올리다	昇다	verb		suggested	5	raise
+올리다	升다	verb		suggested		gloss
+함께	共	adv		suggested	11	gloss
+함께	俱	adv		suggested	7	gloss
+담다	盛다	verb		suggested		gloss
+먼저	先	adv		suggested	11	gloss
+곧다	直다	adj		suggested	1	gloss
+들어가다	入어去다	verb		suggested		enter
+이르다	早다	adj		suggested	24	early
+이르다	到다	verb		suggested	1	arrive
+이르다	至다	verb		suggested	19	arrive
+희다	白다	adj		suggested	4	gloss
+희다	素다	adj		suggested		gloss
+가끔	時	adv		suggested	2	sometimes
+길이	長이	noun		suggested	1	length
+붉다	赤다	adj		suggested	5	gloss
+붉다	紅다	adj		suggested	4	gloss
+붉다	丹다	adj		suggested		gloss
+어제	昨	noun		suggested	1	gloss
+오르다	登다	verb		suggested	8	gloss
+오르다	昇다	verb		suggested	5	gloss
+오르다	上다	verb		suggested		ascend
+오얏	李	noun		suggested	37	gloss
+나이	齡	noun		suggested	2	gloss
+나이	年	noun		suggested	142	gloss
+나이	歲	noun		suggested	17	age
+닫다	閉다	verb		suggested	1	gloss
+누르다	壓다	verb		suggested		gloss
+누르다	押다	verb		suggested	12	gloss
+덜다	減다	verb		suggested	1	gloss
+덜다	省다	verb		suggested	1	gloss
+곱다	麗다	adj		suggested	5	gloss
+곱다	美다	adj		suggested		beautiful
+근심	憂	noun		suggested	7	gloss
+근심	愁	noun		suggested		gloss
+이끌다	導다	verb		suggested		gloss
+이끌다	牽다	verb		suggested		gloss
+이끌다	引다	verb		suggested		gloss
+펴다	伸다	verb		suggested	5	gloss
+펴다	舒다	verb		suggested		gloss
+펴다	展다	verb		suggested	1	spread
+고을	邑	noun		suggested	6	town
+나쁘다	惡다	adj		suggested	7	gloss
+두루	遍	adv		suggested		gloss
+두루	周	adv		suggested	2	gloss
+붙이다	貼이다	verb		suggested	1	gloss
+붙이다	附이다	verb		suggested	17	attach
+빠르다	速다	adj		suggested	7	gloss
+빠르다	迅다	adj		suggested	1	gloss
+빠르다	疾다	adj		suggested	2	swift
+오랑캐	蠻	noun		suggested		gloss
+오랑캐	胡	noun		suggested	8	gloss
+지나다	過다	verb		suggested	14	gloss
+터럭	毛	noun		suggested		gloss
+터럭	髮	noun		suggested		gloss
+걱정	憂	noun		suggested	7	worry
+과일	果	noun		suggested		fruit
+과일	菓	noun		suggested		gloss
+더욱	尤	adv		suggested	1	gloss
+더욱	愈	adv		suggested	2	gloss
+덥다	熱다	adj		suggested		gloss
+덥다	暑다	adj		suggested	23	gloss
+품다	抱다	verb		suggested		gloss
+품다	懷다	verb		suggested	1	gloss
+일찍	早	adv		suggested	15	early
+멀리	遠	adv		suggested	4	far
+묵다	宿다	verb		suggested	3	lodge
+어미	母	noun		suggested	14	mother
+아비	父	noun		suggested	10	father
+노르다	黃다	adj		suggested	2	yellow
+놀라다	驚다	verb		suggested	10	gloss
+놀라다	愕다	verb		suggested	2	gloss
+쏟다	瀉다	verb		suggested		gloss
+저녁	夕	noun		suggested	10	gloss
+젓가락	箸	noun		suggested	15	gloss
+춥다	寒다	adj		suggested	4	cold
+푸르다	靑다	adj		suggested	3	gloss
+푸르다	碧다	adj		suggested		gloss
+푸르다	蒼다	adj		suggested		gloss
+누이	妹	noun		suggested	1	gloss
+어질다	仁다	adj		suggested	1	gloss
+어질다	賢다	adj		suggested		gloss
+오직	唯	adv		suggested	15	gloss
+오직	惟	adv		suggested		gloss
+외치다	叫다	verb		suggested		shout
+쪼다	啄다	verb		suggested		gloss
+거짓	僞	noun		suggested		gloss
+거짓	虛	noun		suggested	2	gloss
+거짓	假	noun		suggested	3	gloss
+골짜기	谷	noun		suggested	5	gloss
+나타나다	現다	verb		suggested	12	gloss
+나타나다	顯다	verb		suggested	1	gloss
+돌아오다	歸다	verb		suggested	8	gloss
+돌아오다	還다	verb		suggested	2	gloss
+닿다	觸다	verb		suggested	1	touch
+장마	霖	noun		suggested	8	gloss
+잦다	頻다	adj		suggested	3	frequent
+부럽다	羨다	adj		suggested	1	envy
+부리	嘴	noun		suggested	2	gloss
+부리	喙	noun		suggested		gloss
+부리다	役다	verb		suggested	1	gloss
+빗다	梳다	verb		suggested		comb
+빗다	刷다	verb		suggested		gloss
+삶다	煮다	verb		suggested		gloss
+삶다	烹다	verb		suggested		gloss
+새집	巢	noun		suggested	1	gloss
+성내다	怒다	verb		suggested	1	gloss
+성내다	憤다	verb		suggested		angry
+손가락	指	noun		suggested	4	gloss
+차라리	寧	adv		suggested	8	gloss
+태어나다	生다	verb		suggested	22	be born
+가물다	旱다	verb		suggested		gloss
+갈비	肋	noun		suggested		gloss
+거북	龜	noun		suggested		gloss
+굽다	曲다	adj		suggested	6	gloss
+굽다	屈다	adj		suggested		gloss
+굽다	燒다	verb		suggested	1	bake
+굽다	炙다	verb		suggested		roast
+그립다	戀다	adj		suggested	2	long for
+기뻐하다	悅하다	verb		suggested		gloss
+기뻐하다	喜하다	verb		suggested	1	gloss
+기와	瓦	noun		suggested	5	gloss
+다하다	盡하다	verb		suggested	2	gloss
+다하다	窮하다	verb		suggested		gloss
+머리털	髮	noun		suggested		hair
+미르	龍	noun		suggested	8	dragon
+바치다	獻다	verb		suggested		gloss
+바치다	貢다	verb		suggested		gloss
+베끼다	寫다	verb		suggested	15	gloss
+베끼다	謄다	verb		suggested		gloss
+베끼다	抄다	verb		suggested		gloss
+빛나다	耀다	verb		suggested		gloss
+싫어하다	嫌하다	verb		suggested	1	gloss
+아들	子	noun		suggested	30	gloss
+오른쪽	右쪽	noun		suggested		gloss
+잉어	鯉	noun		suggested		gloss
+자라다	育다	verb		suggested	2	gloss
+잠깐	暫	adv		suggested	1	moment
+잠깐	乍	adv		suggested		gloss
+잣다	紡다	verb		suggested		gloss
+물들다	染들다	verb		suggested	1	dye
+춤추다	舞다	verb		suggested		gloss
+가람	江	noun		suggested	7	river
+가볍다	輕다	adj		suggested	10	gloss
+구슬	珠	noun		suggested	1	gloss
+구슬	玉	noun		suggested	4	gloss
+긋다	劃다	verb		suggested	12	gloss
+긋다	畫다	verb		suggested	1	gloss
+끄다	滅다	verb		suggested	1	extinguish
+들어오다	入어來다	verb		suggested		enter
+맞이하다	迎하다	verb		suggested		receive
+먹이다	飼다	verb		suggested		gloss
+먹이다	餧다	verb		suggested		gloss
+몸소	親	adv		suggested	2	gloss
+몸소	身	adv		suggested		gloss
+무릎	膝	noun		suggested		gloss
+비록	雖	adv		suggested	2	although
+사라지다	消다	verb		suggested	9	gloss
+상어	鮫	noun		suggested		gloss
+서쪽	西쪽	noun		suggested		west
+왼쪽	左쪽	noun		suggested	1	gloss
+울타리	籬	noun		suggested	4	gloss
+울타리	藩	noun		suggested		gloss
+원숭이	猿	noun		suggested	6	gloss
+원숭이	猴	noun		suggested		gloss
+잔나비	猿	noun		suggested	6	gloss
+자르다	切다	verb		suggested	12	gloss
+자르다	折다	verb		suggested	2	gloss
+천둥	雷	noun		suggested		thunder
+좇다	從다	verb		suggested	3	gloss
+좇다	追다	verb		suggested	1	pursue
+즐기다	樂다	verb		suggested	17	gloss
+지아비	夫	noun		suggested	7	gloss
+짐승	獸	noun		suggested	3	gloss
+해치다	害다	verb		suggested	1	harm
+해치다	賊다	verb		suggested		gloss
+헤아리다	量다	verb		suggested	7	gloss
+헤아리다	測다	verb		suggested	4	gloss
+헤아리다	數다	verb		suggested	6	gloss
+홀로	獨	adv		suggested	5	gloss
+홀로	單	adv		suggested	1	gloss
+겨우	僅	adv		suggested	1	gloss
+골목	巷	noun		suggested	1	gloss
+굵다	太다	adj		suggested		gloss
+기침	咳	noun		suggested		gloss
+깨우치다	悟다	verb		suggested	5	gloss
+꺼지다	消다	verb		suggested	9	gloss
+냄새	臭	noun		suggested	1	gloss
+녹다	溶다	verb		suggested	3	gloss
+녹다	銷다	verb		suggested		gloss
+느리다	遲다	adj		suggested	1	slow
+다락	樓	noun		suggested	2	gloss
+도둑	盜	noun		suggested	1	gloss
+도둑	賊	noun		suggested		gloss
+도마	俎	noun		suggested		gloss
+마디	節	noun		suggested	5	gloss
+맛보다	嘗다	verb		suggested	5	gloss
+매달다	懸다	verb		suggested	1	gloss
+머무르다	留다	verb		suggested	7	gloss
+머무르다	停다	verb		suggested		gloss
+머무르다	住다	verb		suggested	5	gloss
+바깥	外	noun		suggested	23	gloss
+바라보다	眺다	verb		suggested		gloss
+방귀	屁	noun		suggested	1	gloss
+배추	菘	noun		suggested		gloss
+받들다	奉다	verb		suggested		gloss
+받들다	承다	verb		suggested		gloss
+남쪽	南쪽	noun		suggested		south
+동쪽	東쪽	noun		suggested	2	east
+돌이키다	返다	verb		suggested	4	gloss
+뱁새	鷦	noun		suggested	1	gloss
+본받다	倣다	verb		suggested		gloss
+본받다	效다	verb		suggested	1	gloss
+북쪽	北쪽	noun		suggested		north
+붕어	鮒	noun		suggested		gloss
+비치다	照다	verb		suggested		gloss
+비치다	映다	verb		suggested		gloss
+세우다	建다	verb		suggested	2	gloss
+세우다	立다	verb		suggested		stand up
+소나무	松	noun		suggested	5	gloss
+손님	客	noun		suggested	2	gloss
+송곳	錐	noun		suggested	1	gloss
+시루	甑	noun		suggested		gloss
+어금니	牙	noun		suggested	2	gloss
+아버지	父	noun		suggested	10	father
+어머니	母	noun		suggested	14	mother
+잠기다	沈다	verb		suggested	2	gloss
+잠자다	眠다	verb		suggested		gloss
+잠자다	寢다	verb		suggested	3	gloss
+쟁기	耒	noun		suggested		gloss
+주리다	飢다	verb		suggested	2	gloss
+주리다	餓다	verb		suggested		gloss
+코끼리	象	noun		suggested	5	gloss
+황새	鸛	noun		suggested	1	gloss
+이무기	蟒	noun		suggested		gloss
+오래되다	久되다	verb		suggested	6	long time
+일찍이	早이	adv		suggested		early
+하얗다	白다	adj		suggested	11	white
+가난하다	貧하다	adj		suggested		poor
+갖추다	具추다	verb		suggested		gloss
+갖추다	備추다	verb		suggested		prepare
+괴롭다	苦롭다	adj		suggested	1	gloss
+괴롭다	困롭다	adj		suggested		gloss
+구입하다	購하다	verb		suggested		buy
+귀하다	貴하다	adj		suggested	3	gloss
+그리워하다	慕워하다	verb		suggested	1	gloss
+그치다	止치다	verb		suggested	1	stop
+그치다	息치다	verb		suggested		cease
+기대다	憑대다	verb		suggested		gloss
+기대다	倚대다	verb		suggested		lean
+기리다	讚리다	verb		suggested		gloss
+기리다	頌리다	verb		suggested		gloss
+기울다	傾울다	verb		suggested	1	tilt
+까맣다	黑맣다	adj		suggested		black
+꾸짖다	責짖다	verb		suggested		gloss
+꾸짖다	叱짖다	verb		suggested	2	gloss
+끝내다	終내다	verb		suggested	4	gloss
+끝내다	畢내다	verb		suggested		finish
+나르다	運르다	verb		suggested		carry
+나르다	搬르다	verb		suggested		carry
+날리다	飛리다	verb		suggested		fly
+날리다	颺리다	verb		suggested		gloss
+내려가다	下려가다	verb		suggested		descend
+내려가다	降려가다	verb		suggested	5	descend
+노하다	怒하다	verb		suggested		anger
+다물다	閉물다	verb		suggested		close
+달래다	慰래다	verb		suggested		comfort
+달래다	撫래다	verb		suggested		soothe
+달이다	煎이다	verb		suggested	2	gloss
+더하다	加하다	verb		suggested	5	gloss
+더하다	增하다	verb		suggested	2	gloss
+돌아보다	顧아보다	verb		suggested		gloss
+둥글다	圓글다	adj		suggested		gloss
+둥글다	丸글다	adj		suggested		gloss
+따뜻하다	溫하다	adj		suggested	1	gloss
+따뜻하다	暖하다	adj		suggested		gloss
+떠나다	離나다	verb		suggested	2	gloss
+떠나다	去나다	verb		suggested		leave
+마땅하다	宜하다	adj		suggested	4	gloss
+마땅하다	當하다	adj		suggested	7	gloss
+마주하다	對하다	verb		suggested	26	face
+멈추다	止추다	verb		suggested	1	stop
+무겁다	重겁다	adj		suggested		gloss
+묶다	束다	verb		suggested	1	gloss
+묶다	縛다	verb		suggested		gloss
+묽다	淡다	adj		suggested		gloss
+바쁘다	忙다	adj		suggested	15	gloss
+번역하다	譯하다	verb		suggested	9	translate
+상하다	傷하다	verb		suggested	3	gloss
+솟다	聳다	verb		suggested		gloss
+시집가다	嫁가다	verb		suggested		gloss
+썰다	切다	verb		suggested	7	cut
+아깝다	惜다	adj		suggested	2	regret
+아우르다	兼우르다	verb		suggested		gloss
+아우르다	倂우르다	verb		suggested		gloss
+올라오다	上라오다	verb		suggested		ascend
+읊다	詠다	verb		suggested		gloss
+읊다	吟다	verb		suggested		gloss
+이어지다	連어지다	verb		suggested		continue
+일으키다	起으키다	verb		suggested		raise
+일컫다	稱컫다	verb		suggested		gloss
+잠그다	鎖다	verb		suggested	1	lock
+저물다	暮다	verb		suggested		gloss
+지나가다	過나가다	verb		suggested		pass
+쫓다	追다	verb		suggested	1	gloss
+쫓다	逐다	verb		suggested		gloss
+채우다	滿우다	verb		suggested	1	fill
+함께하다	偕하다	verb		suggested		gloss
+지니다	持니다	verb		suggested		hold
+놓아두다	置두다	verb		suggested	2	place
+깨지다	破지다	verb		suggested	3	break
+드러나다	露러나다	verb		suggested		reveal
+따라가다	隨라가다	verb		suggested		follow
+가득하다	滿득하다	adj		suggested	1	full
+가멸다	富다	adj		suggested	1	gloss
+갇히다	囚히다	verb		suggested	1	gloss
+갈아입다	換입다	verb		suggested		change
+갈아타다	換타다	verb		suggested		change
+감싸다	護싸다	verb		suggested		gloss
+겪다	歷다	verb		suggested		gloss
+겪다	經다	verb		suggested	1	experience
+곱하다	乘하다	verb		suggested		gloss
+공경하다	敬하다	verb		suggested		respect
+권하다	勸하다	verb		suggested	1	gloss
+그르다	非다	adj		suggested	33	wrong
+그릇되다	誤되다	verb		suggested	5	err
+급하다	急하다	adj		suggested	1	gloss
+기름지다	肥지다	adj		suggested		fat
+기울이다	傾울이다	verb		suggested	1	tilt
+긷다	汲다	verb		suggested	1	draw water
+깃들다	棲들다	verb		suggested		dwell
+꺾다	折다	verb		suggested		gloss
+꺾다	摧다	verb		suggested		gloss
+끓이다	沸이다	verb		suggested		boil
+끝맺다	終맺다	verb		suggested		end
+나부끼다	飄부끼다	verb		suggested		gloss
+낡다	舊다	verb		suggested		old
+넘치다	溢치다	verb		suggested		gloss
+넘치다	盈치다	verb		suggested		gloss
+노닐다	遊닐다	verb		suggested	1	wander
+노랗다	黃랗다	adj		suggested	5	yellow
+누렇다	黃렇다	adj		suggested	2	yellow
+늘리다	增리다	verb		suggested	2	increase
+닦다	拭다	verb		suggested		wipe
+닦다	磨다	verb		suggested	4	polish
+달려가다	走려가다	verb		suggested		run
+답하다	答하다	verb		suggested	2	answer
+더듬다	探듬다	verb		suggested		gloss
+데리다	率리다	verb		suggested		lead
+돌려주다	返주다	verb		suggested		return
+돌보다	顧보다	verb		suggested		care
+둘러싸다	圍싸다	verb		suggested		surround
+드러눕다	臥눕다	verb		suggested		lie down
+드럽다	汚럽다	adj		suggested	1	dirty
+떨치다	振치다	verb		suggested		gloss
+떨치다	奮치다	verb		suggested		gloss
+뜨겁다	熱겁다	adj		suggested		gloss
+막히다	塞히다	verb		suggested	2	gloss
+머금다	含금다	verb		suggested		gloss
+모자라다	乏라다	verb		suggested		gloss
+무서워하다	怯워하다	verb		suggested		gloss
+무성하다	茂성하다	adj		suggested		lush
+물리치다	退치다	verb		suggested		gloss
+물리치다	斥치다	verb		suggested		gloss
+미끄럽다	滑럽다	adj		suggested		gloss
+미끄러지다	滑러지다	verb		suggested		slip
+바로잡다	矯잡다	verb		suggested		gloss
+바로잡다	正잡다	verb		suggested		correct
+반기다	歡기다	verb		suggested	1	welcome
+발갛다	赤갛다	adj		suggested	1	red
+벌리다	開리다	verb		suggested		open
+보호하다	護하다	verb		suggested		protect
+부러지다	折러지다	verb		suggested		break
+부서지다	碎서지다	verb		suggested		shatter
+부유하다	富유하다	adj		suggested		rich
+부추기다	唆추기다	verb		suggested	1	gloss
+불사르다	燒사르다	verb		suggested		gloss
+불사르다	焚사르다	verb		suggested		gloss
+불타다	燃타다	verb		suggested		gloss
+비끼다	斜끼다	verb		suggested	1	gloss
+비웃다	嗤다	verb		suggested		gloss
+비웃다	哂다	verb		suggested		gloss
+빚다	釀다	verb		suggested		brew
+빨갛다	紅갛다	adj		suggested	3	red
+사르다	燒다	verb		suggested	3	burn
+사모하다	慕하다	verb		suggested		yearn
+살펴보다	察보다	verb		suggested		observe
+선택하다	選하다	verb		suggested		choose
+섬기다	仕기다	verb		suggested		serve
+스미다	滲미다	verb		suggested		seep
+시끄럽다	鬧럽다	adj		suggested		gloss
+시끄럽다	囂럽다	adj		suggested		gloss
+싹트다	芽트다	verb		suggested	5	sprout
+쓰러지다	倒러지다	verb		suggested		fall
+안전하다	安전하다	adj		suggested		safe
+앞서다	先서다	verb		suggested		precede
+얇다	薄다	adj		suggested		thin
+얼리다	凍리다	verb		suggested		freeze
+연하다	軟하다	adj		suggested		gloss
+옅다	淺다	adj		suggested		shallow
+올바르다	正바르다	adj		suggested		upright
+움트다	芽트다	verb		suggested	5	sprout
+일어서다	起서다	verb		suggested		stand up
+자라나다	長라나다	verb		suggested		grow
+자랑하다	誇하다	verb		suggested		gloss
+전하다	傳하다	verb		suggested	1	gloss
+접하다	接하다	verb		suggested	1	touch
+정답다	情답다	adj		suggested	2	affection
+쪼개다	割개다	verb		suggested		split
+쪼개다	剖개다	verb		suggested		gloss
+차갑다	冷갑다	adj		suggested		gloss
+추리다	擇리다	verb		suggested		gloss
+키우다	養우다	verb		suggested		raise
+토하다	吐하다	verb		suggested		gloss
+파랗다	靑랗다	adj		suggested	2	blue
+편하다	便하다	adj		suggested	24	gloss
+펼치다	展치다	verb		suggested		gloss
+펼치다	演치다	verb		suggested		gloss
+흔들다	搖다	verb		suggested		gloss
+흔들다	撼다	verb		suggested		gloss
+흘러가다	流러가다	verb		suggested		flow
+흘리다	流리다	verb		suggested	1	flow
+흩뿌리다	散뿌리다	verb		suggested		scatter
+허물다	毀물다	verb		suggested		demolish
+가느다랗다	細다랗다	adj		suggested		thin
+가라앉다	沈앉다	verb		suggested		gloss
+가맣다	黑맣다	adj		suggested		black
+가엽다	哀엽다	adj		suggested		gloss
+가엾다	哀엾다	adj		suggested		pity
+가파르다	峭파르다	adj		suggested		gloss
+갈라지다	破라지다	verb		suggested		gloss
+갚다	報다	verb		suggested	2	gloss
+갚다	償다	verb		suggested		gloss
+갈아들다	換들다	verb		suggested		replace
+거꾸러지다	倒러지다	verb		suggested		gloss
+거느리다	領느리다	verb		suggested		lead
+거느리다	率느리다	verb		suggested		gloss
+거두다	收두다	verb		suggested		harvest
+거스르다	逆스르다	verb		suggested		gloss
+겁내다	怯내다	verb		suggested	1	gloss
+겁내다	畏내다	verb		suggested		gloss
+겨루다	競루다	verb		suggested		gloss
+견주다	比주다	verb		suggested		gloss
+견주다	較주다	verb		suggested		gloss
+걸터앉다	蹲앉다	verb		suggested		gloss
+겸하다	兼하다	verb		suggested	1	gloss
+건너가다	渡너가다	verb		suggested		cross
+건너오다	渡너오다	verb		suggested		cross
+곤하다	困하다	adj		suggested		gloss
+굳세다	堅세다	adj		suggested		gloss
+굳세다	剛세다	adj		suggested		gloss
+굳어지다	固어지다	verb		suggested		harden
+굳히다	固히다	verb		suggested		harden
+구부리다	屈부리다	verb		suggested		bend
+구부러지다	屈러지다	verb		suggested		bend
+굴리다	轉리다	verb		suggested	1	gloss
+굶기다	餓기다	verb		suggested		starve
+굶주리다	餓주리다	verb		suggested		starve
+굽히다	屈히다	verb		suggested		bend
+그르치다	誤치다	verb		suggested	5	ruin
+금하다	禁하다	verb		suggested	1	gloss
+기다랗다	長다랗다	adj		suggested		long
+기나길다	長나길다	adj		suggested		long
+기르다	養르다	verb		suggested		gloss
+기르다	育르다	verb		suggested	1	gloss
+기울어지다	傾어지다	verb		suggested	1	gloss
+깊숙하다	深숙하다	adj		suggested		deep
+깔보다	蔑보다	verb		suggested		despise
+깨끗하다	淨하다	adj		suggested		clean
+깨끗하다	潔하다	adj		suggested		clean
+깨뜨리다	破뜨리다	verb		suggested	1	gloss
+깨어나다	覺어나다	verb		suggested		awaken
+깨치다	悟치다	verb		suggested		realize
+깨트리다	破트리다	verb		suggested		break
+꺼리다	忌다	verb		suggested		gloss
+꺼리다	憚다	verb		suggested		gloss
+꺼멓다	黑멓다	adj		suggested		black
+꾸리다	包리다	verb		suggested		gloss
+꿈꾸다	夢꾸다	verb		suggested		dream
+꿰매다	縫매다	verb		suggested		gloss
+끊어지다	絶어지다	verb		suggested		cut
+끊이다	絶이다	verb		suggested		cease
+끌어당기다	引당기다	verb		suggested		pull
+끌어안다	抱안다	verb		suggested		embrace
+끌어들이다	引들이다	verb		suggested		draw in
+끼치다	遺치다	verb		suggested		gloss
+날아가다	飛아가다	verb		suggested		fly
+날아오다	飛아오다	verb		suggested		fly
+날아오르다	飛아오르다	verb		suggested		fly
+날카롭다	銳롭다	adj		suggested		gloss
+남기다	殘기다	verb		suggested	1	leave
+낮추다	低추다	verb		suggested	2	lower
+내려오다	下려오다	verb		suggested		descend
+내뱉다	吐뱉다	verb		suggested		spit
+내버리다	棄버리다	verb		suggested		discard
+내치다	斥치다	verb		suggested		gloss
+너르다	廣르다	adj		suggested	1	wide
+넉넉하다	足하다	adj		suggested	1	足
+넉넉하다	裕하다	adj		suggested		裕
+넓히다	廣히다	verb		suggested	1	廣
+넓히다	擴히다	verb		suggested		擴
+넘기다	越기다	verb		suggested	1	越
+넘어지다	倒어지다	verb		suggested		倒
+넘어지다	躓어지다	verb		suggested		躓
+넘어서다	越어서다	verb		suggested		越
+노려보다	睨보다	verb		suggested		睨
+노려보다	眈보다	verb		suggested		眈
+녹이다	溶이다	verb		suggested		溶
+녹이다	鎔이다	verb		suggested		鎔
+녹이다	銷이다	verb		suggested		銷
+놀래다	驚래다	verb		suggested		驚
+놓치다	失치다	verb		suggested	3	失
+놓이다	置이다	verb		suggested	2	置
+놓아주다	放주다	verb		suggested	1	放
+느슨하다	緩하다	adj		suggested	1	緩
+느슨하다	紓하다	adj		suggested		紓
+늘어놓다	陳놓다	verb		suggested		陳
+늘푸르다	常푸르다	adj		suggested		常
+늦추다	緩추다	verb		suggested	1	緩
+늦추다	弛추다	verb		suggested		弛
+다다르다	到다르다	verb		suggested		到
+다다르다	屆다르다	verb		suggested		屆
+닥치다	迫치다	verb		suggested	1	迫
+단단하다	堅하다	adj		suggested		堅
+단단하다	硬하다	adj		suggested		硬
+달아나다	逃아나다	verb		suggested	1	逃
+달아나다	遁아나다	verb		suggested		遁
+달아나다	逸아나다	verb		suggested		逸
+달콤하다	甘콤하다	adj		suggested		甘
+담그다	漬그다	verb		suggested		漬
+담그다	淹그다	verb		suggested		淹
+더럽히다	汚럽히다	verb		suggested		汚
+더위잡다	攀잡다	verb		suggested		攀
+눋다	焦다	verb		suggested		焦
+덮이다	覆이다	verb		suggested		覆
+데우다	溫우다	verb		suggested		溫
+도탑다	篤탑다	adj		suggested		篤
+도탑다	敦탑다	adj		suggested		敦
+돋우다	挑우다	verb		suggested		挑
+두껍다	厚껍다	adj		suggested		厚
+두텁다	厚텁다	adj		suggested		厚
+두텁다	篤텁다	adj		suggested		篤
+두텁다	敦텁다	adj		suggested		敦
+두툼하다	厚툼하다	adj		suggested		厚
+두근거리다	悸거리다	verb		suggested		悸
+두려워하다	懼워하다	verb		suggested		懼
+두려워하다	恐워하다	verb		suggested	1	恐
+뒤집히다	覆히다	verb		suggested		覆
+뒤쫓다	追쫓다	verb		suggested		追
+뒤섞다	混섞다	verb		suggested		混
+뒤섞다	雜섞다	verb		suggested		雜
+뒤엎다	覆엎다	verb		suggested		覆
+뒤처지다	後처지다	verb		suggested	1	後
+드러내다	現내다	verb		suggested		現
+드러내다	露내다	verb		suggested		露
+드러내다	呈내다	verb		suggested	2	呈
+드리우다	垂리우다	verb		suggested		垂
+들끓다	沸끓다	verb		suggested		沸
+들뜨다	浮뜨다	verb		suggested		浮
+들이마시다	吸마시다	verb		suggested		吸
+등지다	背지다	verb		suggested	1	背
+디디다	踏디다	verb		suggested		踏
+딱딱하다	硬하다	adj		suggested		硬
+딱딱하다	堅하다	adj		suggested		堅
+떨구다	落구다	verb		suggested		落
+떨리다	顫리다	verb		suggested		顫
+떫다	澁다	adj		suggested	1	澁
+뚫리다	穿리다	verb		suggested		穿
+뚫리다	通리다	verb		suggested		通
+뛰어나다	卓어나다	adj		suggested		卓
+뛰어나다	秀어나다	adj		suggested		秀
+뛰어나다	傑어나다	adj		suggested		傑
+뛰어넘다	超넘다	verb		suggested		超
+마중하다	迎하다	verb		suggested		迎
+마중하다	迓하다	verb		suggested		迓
+말미암다	由미암다	verb		suggested		由
+망하다	亡하다	verb		suggested	8	亡
+매달리다	懸달리다	verb		suggested		懸
+맺히다	結히다	verb		suggested		結
+멀어지다	遠어지다	verb		suggested	5	遠
+메우다	填우다	verb		suggested		填
+메꾸다	填꾸다	verb		suggested		填
+목마르다	渴마르다	adj		suggested		渴
+목메다	哽메다	verb		suggested		哽
+목메다	咽메다	verb		suggested		咽
+똑바르다	直바르다	adj		suggested		直
+못나다	劣나다	adj		suggested		劣
+무너뜨리다	潰뜨리다	verb		suggested		潰
+무너뜨리다	隳뜨리다	verb		suggested		隳
+무디다	鈍디다	adj		suggested		鈍
+무릅쓰다	冒릅쓰다	verb		suggested		冒
+묶이다	束이다	verb		suggested		束
+묶이다	縛이다	verb		suggested		縛
+문드러지다	爛드러지다	verb		suggested		爛
+문지르다	擦지르다	verb		suggested		擦
+물들이다	染들이다	verb		suggested		染
+물러서다	退서다	verb		suggested		退
+물려주다	傳주다	verb		suggested		傳
+미덥다	信덥다	adj		suggested		信
+미워하다	憎워하다	verb		suggested		憎
+미워하다	惡워하다	verb		suggested	1	惡
+밀치다	排치다	verb		suggested		排
+밀치다	推치다	verb		suggested		推
+박차다	蹴차다	verb		suggested		蹴
+밝히다	明히다	verb		suggested	2	明
+밝아지다	明아지다	verb		suggested		明
+받아들이다	受들이다	verb		suggested	2	受
+받잡다	受잡다	verb		suggested		受
+배부르다	飽부르다	adj		suggested		飽
+뱉다	吐다	verb		suggested	2	吐
+번거롭다	煩거롭다	adj		suggested		煩
+번거롭다	擾거롭다	adj		suggested		擾
+번갈다	替갈다	verb		suggested		替
+번갈다	更갈다	verb		suggested		更
+벌거벗다	裸벗다	verb		suggested		裸
+벌주다	罰주다	verb		suggested		罰
+범하다	犯하다	verb		suggested		犯
+범하다	侵하다	verb		suggested		侵
+베풀다	施풀다	verb		suggested	1	施
+베어물다	咬물다	verb		suggested		咬
+병들다	病들다	verb		suggested	2	病
+보드랍다	軟드랍다	adj		suggested		軟
+보드랍다	柔드랍다	adj		suggested		柔
+부끄러워하다	羞워하다	verb		suggested		羞
+부끄러워하다	愧워하다	verb		suggested		愧
+부드럽다	軟드럽다	adj		suggested		軟
+부드럽다	柔드럽다	adj		suggested		柔
+부드럽다	溫드럽다	adj		suggested		溫
+부딪치다	突치다	verb		suggested		突
+부딪히다	突히다	verb		suggested		突
+부러뜨리다	折뜨리다	verb		suggested		折
+부르짖다	叫짖다	verb		suggested		叫
+부르짖다	號짖다	verb		suggested		號
+부릅뜨다	瞋뜨다	verb		suggested		瞋
+부스러지다	碎스러지다	verb		suggested		碎
+부스러뜨리다	碎스러뜨리다	verb		suggested		碎
+부지런하다	勤하다	adj		suggested	1	勤
+부치다	寄치다	verb		suggested		寄
+부풀다	脹풀다	verb		suggested		脹
+북돋다	培돋다	verb		suggested		培
+북돋우다	培돋우다	verb		suggested		培
+불까다	騸까다	verb		suggested		騸
+불러들이다	召들이다	verb		suggested		召
+불어나다	增어나다	verb		suggested	2	增
+불태우다	燒태우다	verb		suggested		燒
+붉어지다	紅어지다	verb		suggested		紅
+붉어지다	赤어지다	verb		suggested	1	赤
+붉히다	紅히다	verb		suggested		紅
+붉히다	赤히다	verb		suggested	1	赤
+붙들다	執들다	verb		suggested		執
+붙잡다	執잡다	verb		suggested		執
+붙잡다	捉잡다	verb		suggested		捉
+붙잡히다	捕잡히다	verb		suggested		捕
+비뚤어지다	斜뚤어지다	verb		suggested		斜
+비뚤어지다	歪뚤어지다	verb		suggested		歪
+비스듬하다	斜하다	adj		suggested		斜
+비우다	空우다	verb		suggested		空
+비추다	照추다	verb		suggested		照
+비추이다	照추이다	verb		suggested		照
+빠뜨리다	陷뜨리다	verb		suggested		陷
+빠뜨리다	落뜨리다	verb		suggested		落
+빼앗기다	奪앗기다	verb		suggested		奪
+빽빽하다	密하다	adj		suggested		密
+빽빽하다	稠하다	adj		suggested		稠
+뾰족하다	尖족하다	adj		suggested		尖
+사냥하다	獵하다	verb		suggested		獵
+사랑스럽다	愛스럽다	adj		suggested		愛
+사로잡다	擒잡다	verb		suggested		擒
+사로잡다	捕잡다	verb		suggested		捕
+살찌다	肥찌다	verb		suggested		肥
+살찌우다	肥찌우다	verb		suggested		肥
+살피다	察피다	verb		suggested	1	察
+살피다	審피다	verb		suggested		審
+살피다	省피다	verb		suggested		省
+삼키다	呑키다	verb		suggested		呑
+설익다	生익다	verb		suggested		生
+성나다	怒나다	verb		suggested		怒
+성글다	疏글다	adj		suggested		疏
+성기다	疏기다	adj		suggested		疏
+세지다	強지다	verb		suggested		強
+빗기다	梳기다	verb		suggested		梳
+수놓다	繡놓다	verb		suggested		繡
+숙이다	低이다	verb		suggested	1	低
+숙이다	俯이다	verb		suggested		俯
+순하다	順하다	adj		suggested		順
+순하다	柔하다	adj		suggested		柔
+숨쉬다	息쉬다	verb		suggested	1	息
+슬퍼하다	悲퍼하다	verb		suggested		悲
+식히다	冷히다	verb		suggested		冷
+싱겁다	淡겁다	adj		suggested	1	淡
+쌓이다	積이다	verb		suggested	1	積
+써넣다	書넣다	verb		suggested		書
+써두다	書두다	verb		suggested		書
+쏠리다	傾리다	verb		suggested	1	傾
+쓰다듬다	撫다듬다	verb		suggested		撫
+씌우다	覆우다	verb		suggested		覆
+쓸쓸하다	寂하다	adj		suggested		寂
+쇠하다	衰하다	verb		suggested		衰
+솟구치다	湧구치다	verb		suggested		湧
+씻기다	洗기다	verb		suggested		wash
+아둔하다	鈍하다	adj		suggested	1	dull
+아득하다	遙하다	adj		suggested		distant
+아득하다	邈하다	adj		suggested		gloss; remote
+아물다	癒다	verb		suggested		heal
+아물리다	癒리다	verb		suggested		heal
+안기다	抱기다	verb		suggested		embrace
+알리다	告리다	verb		suggested	1	gloss; inform
+알리다	知리다	verb		suggested	1	make known
+얕다	淺다	adj		suggested	1	shallow
+얕보다	輕보다	verb		suggested	3	belittle
+어기다	違다	verb		suggested	1	gloss; violate
+어루만지다	撫다	verb		suggested	2	gloss; stroke
+억누르다	抑누르다	verb		suggested		suppress
+엎다	覆다	verb		suggested		overturn
+엎드리다	伏드리다	verb		suggested		gloss; prostrate
+얼어붙다	凍붙다	verb		suggested		freeze
+엷다	薄다	adj		suggested		gloss; thin
+엿듣다	竊듣다	verb		suggested		secretly
+엿보다	窺보다	verb		suggested		gloss; peep
+얽매다	縛다	verb		suggested		bind
+얽매이다	縛이다	verb		suggested		be bound
+엮이다	編이다	verb		suggested		weave
+여물다	熟다	verb		suggested		ripen
+옮겨가다	移가다	verb		suggested		move
+옮겨오다	移오다	verb		suggested		move
+옮겨심다	移심다	verb		suggested		transplant
+옮아가다	移가다	verb		suggested		move
+옮아오다	移오다	verb		suggested		move
+옳바르다	正바르다	adj		suggested		right
+우러르다	仰다	verb		suggested		gloss; look up
+우러러보다	仰보다	verb		suggested		gloss; look up
+움켜쥐다	握쥐다	verb		suggested		grasp
+움키다	握다	verb		suggested		grasp
+열어젖히다	開젖히다	verb		suggested		open
+오그라들다	縮들다	verb		suggested		shrink
+오글다	縮다	verb		suggested		shrink
+야위다	瘦다	verb		suggested		grow thin
+에우다	圍다	verb		suggested	1	encircle
+아로새기다	刻새기다	verb		suggested		engrave
+오목하다	凹하다	adj		suggested	1	concave
+어눌하다	訥하다	adj		suggested		inarticulate
+으깨다	碎다	verb		suggested		crush
+으스러뜨리다	碎뜨리다	verb		suggested		crush
+으스러지다	碎지다	verb		suggested		be crushed
+읊조리다	詠다	verb		suggested	1	recite
+읊조리다	吟다	verb		suggested	1	chant
+이롭다	利롭다	adj		suggested		gloss; beneficial
+의롭다	義롭다	adj		suggested	1	righteous
+이바지하다	貢하다	verb		suggested		contribute
+이바지하다	供하다	verb		suggested		gloss
+이울다	萎다	verb		suggested		wither
+이웃하다	隣하다	verb		suggested		neighbor
+일구다	墾다	verb		suggested		cultivate
+잃어버리다	失버리다	verb		suggested	3	lose
+잊어버리다	忘버리다	verb		suggested		forget
+잊히다	忘히다	verb		suggested		be forgotten
+입히다	着히다	verb		suggested		clothe
+입히다	衣히다	verb		suggested		clothe
+잇달다	連달다	verb		suggested		follow in a chain
+잇달다	續달다	verb		suggested	1	continue
+잇따르다	連따르다	verb		suggested		follow in a chain
+자잘하다	細하다	adj		suggested		fine, small
+잘라내다	切내다	verb		suggested	1	cut out
+잘리다	切리다	verb		suggested	1	be cut
+잠들다	眠들다	verb		suggested		sleep
+잡아당기다	引당기다	verb		suggested		pull
+재촉하다	催하다	verb		suggested		gloss; urge
+재촉하다	促하다	verb		suggested		gloss; urge
+적시다	濡시다	verb		suggested		wet
+적시다	潤시다	verb		suggested	1	moisten
+점치다	占치다	verb		suggested	1	gloss; divine
+점치다	卜치다	verb		suggested		gloss; divine
+조르다	絞다	verb		suggested		tighten
+좁다랗다	狹다랗다	adj		suggested		narrow
+좀먹다	蝕먹다	verb		suggested		gloss; eat away
+주무르다	揉다	verb		suggested		knead
+줍다	拾다	verb		suggested	1	gloss; pick up
+줄어들다	減들다	verb		suggested		decrease
+줄어들다	縮들다	verb		suggested		gloss; shrink
+짊어지다	負다	verb		suggested	4	carry on back
+짓밟다	蹂밟다	verb		suggested		gloss; trample
+짜지다	鹹지다	verb		suggested		salty
+짤따랗다	短따랗다	adj		suggested		short
+쫓기다	追기다	verb		suggested		be chased
+쫓아가다	追가다	verb		suggested		chase
+쫓아내다	逐내다	verb		suggested		drive out
+쫓아오다	追오다	verb		suggested		chase
+찌푸리다	顰다	verb		suggested		frown
+찔리다	刺리다	verb		suggested		be pierced
+찢어지다	裂어지다	verb		suggested	2	gloss; be torn
+찾아가다	訪가다	verb		suggested		visit
+찾아오다	訪오다	verb		suggested		visit
+참아내다	忍아내다	verb		suggested		endure
+착하다	善하다	adj		suggested	1	gloss; good
+조그맣다	小그맣다	adj		suggested		small
+쳐다보다	仰보다	verb		suggested		look up
+쳐다보다	望보다	verb		suggested		gaze
+쳐부수다	破부수다	verb		suggested		smash
+축이다	潤이다	verb		suggested		moisten
+축이다	濕이다	verb		suggested		wet
+축축하다	濕하다	adj		suggested	8	damp
+치우다	除우다	verb		suggested		remove
+치우치다	偏치다	verb		suggested		gloss; be biased
+치켜들다	擧들다	verb		suggested		raise
+칠하다	塗하다	verb		suggested		paint
+커다랗다	大다랗다	adj		suggested		huge
+타오르다	燃오르다	verb		suggested		burn up
+타이르다	諭이르다	verb		suggested		admonish
+핥다	舐다	verb		suggested		gloss; lick
+헛되다	虛되다	adj		suggested	1	gloss; vain
+훔치다	盜치다	verb		suggested		steal
+훔치다	偸치다	verb		suggested		gloss; steal
+훔쳐보다	窺보다	verb		suggested		peep
+흔들리다	搖들리다	verb		suggested		shake
+흩뜨리다	散뜨리다	verb		suggested	1	scatter
+흩날리다	散날리다	verb		suggested		scatter
+흩이다	散이다	verb		suggested		be scattered
+휘두르다	揮두르다	verb		suggested		gloss; wield
+휘젓다	攪젓다	verb		suggested		stir
+힘쓰다	努쓰다	verb		suggested		gloss; exert
+힘쓰다	勉쓰다	verb		suggested		gloss; exert
+헹구다	濯구다	verb		suggested		rinse
+팔아넘기다	賣아넘기다	verb		suggested		sell off
+펴내다	刊내다	verb		suggested		publish
+튕기다	彈기다	verb		suggested		flick
+하많다	多많다	adj		suggested		numerous
+환하다	明하다	adj		suggested	1	bright

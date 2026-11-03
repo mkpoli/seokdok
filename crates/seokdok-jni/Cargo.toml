@@ -1,0 +1,18 @@
+[package]
+name = "seokdok-jni"
+description = "釋讀 (seokdok) input method: JNI bindings for the Android keyboard"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[lib]
+name = "seokdok_jni"
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+jni = { version = "0.21", default-features = false }
+seokdok-ffi = { path = "../seokdok-ffi" }
+seokdok-session = { path = "../seokdok-session" }
+toml = "0.8"

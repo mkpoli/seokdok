@@ -7,7 +7,7 @@
   let shift = $state(false)
 
   const rows = ['qwertyuiop', 'asdfghjkl', 'zxcvbnm']
-  const label = (k) => keyToJamo(shift ? k.toUpperCase() : k) || k
+  const label = (k) => (ime.mode === 'hangul' ? keyToJamo(shift ? k.toUpperCase() : k) : '') || (shift ? k.toUpperCase() : k)
 
   function press(key) {
     ime.key({ key, shift })
@@ -39,6 +39,7 @@
   {/each}
   <div class="row">
     <button class="key wide" onclick={() => press('Escape')}>Esc</button>
+    <button class="key wide mode" aria-label="韓 / A" onclick={() => { ime.toggleMode(); focus() }}>{ime.mode === 'hangul' ? '韓' : 'A'}</button>
     <button class="key space" onclick={() => press(' ')}>{@html r(t().ime.convert)}</button>
     <button class="key wide" onclick={() => ime.key({ key: ' ', shift: true }) || focus()}>␣</button>
     <button class="key wide accent" onclick={() => press('Enter')}>{@html r(t().ime.commit)}</button>
@@ -99,6 +100,10 @@
   .space {
     flex: 1 1 280px;
     font: 700 14px/1 var(--f-sans);
+  }
+  .mode {
+    font: 800 17px/1 var(--f-serif);
+    color: var(--c-accent);
   }
   .accent {
     background: var(--c-accent);

@@ -97,7 +97,23 @@
     })
   })
 
+  // Alt pressed and released on its own switches 韓 ↔ A, like a 한/영 key.
+  let altAlone = false
+  function onkeyup(e) {
+    if (e.key === 'Alt' && altAlone) {
+      e.preventDefault()
+      ime.toggleMode()
+    }
+    altAlone = false
+  }
+
   function onkeydown(e) {
+    if (e.key === 'Alt') {
+      altAlone = !e.repeat
+      e.preventDefault()
+      return
+    }
+    altAlone = false
     if (e.isComposing || e.key === 'Process' || e.keyCode === 229) return
     if (ime.key({ key: e.key, shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey })) {
       e.preventDefault()
@@ -162,8 +178,8 @@
   <div class="panel card" use:reveal={3}>
     <div class="toolbar">
       <div class="seg" role="group" aria-label="input">
-        <button aria-pressed={ime.mode === 'sim'} title={plain(t().ime.simTip)} onclick={() => (ime.mode = 'sim')}>{@html r(t().ime.sim)}</button>
-        <button aria-pressed={ime.mode === 'os'} title={plain(t().ime.osTip)} onclick={() => (ime.mode = 'os')}>{@html r(t().ime.os)}</button>
+        <button aria-pressed={ime.mode === 'hangul'} title={plain(t().ime.hangulTip)} onclick={() => ime.mode !== 'hangul' && ime.toggleMode()}>{@html r(t().ime.hangul)}</button>
+        <button aria-pressed={ime.mode === 'ascii'} title={plain(t().ime.asciiTip)} onclick={() => ime.mode !== 'ascii' && ime.toggleMode()}>{@html r(t().ime.ascii)}</button>
       </div>
       <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" bind:checked={showRuby} />{@html r(t().ime.ruby)}</label>
       <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" bind:checked={showKeys} />{@html r(t().ime.keyboard)}</label>
@@ -201,6 +217,7 @@
         autocomplete="off"
         spellcheck="false"
         {onkeydown}
+        {onkeyup}
         {oncompositionupdate}
         {oncompositionend}
         {oninput}
@@ -208,7 +225,7 @@
         onfocus={() => (focused = true)}
         onblur={() => (focused = false)}
       ></textarea>
-      <div class="text" lang="ko" bind:this={textEl}>{#if empty}<span class="placeholder">{@html r(t().ime.placeholder)}</span>{/if}<span class="doc" data-part="before">{#if showRuby}<Ruby text={ime.before} />{:else}{ime.before}{/if}</span>{#if ime.segs}{#each ime.segs as s, i}<span
+      <span class="mode" aria-live="polite" title={plain(ime.mode === 'hangul' ? t().ime.hangulTip : t().ime.asciiTip)}>{ime.mode === 'hangul' ? '韓' : 'A'}</span><div class="text" lang="ko" bind:this={textEl}>{#if empty}<span class="placeholder">{@html r(t().ime.placeholder)}</span>{/if}<span class="doc" data-part="before">{#if showRuby}<Ruby text={ime.before} />{:else}{ime.before}{/if}</span>{#if ime.segs}{#each ime.segs as s, i}<span
               class="segment"
               class:focus={i === ime.focus}
               class:multi={s.candidates.length > 1}
@@ -247,14 +264,12 @@
 
     <div class="foot">
       <ul class="hints">
-        <li>{@html r(t().ime.keys.space)}</li>
-        <li>{@html r(t().ime.keys.tab)}</li>
-        <li>{@html r(t().ime.keys.digits)}</li>
-        <li>{@html r(t().ime.keys.arrows)}</li>
-        <li>{@html r(t().ime.keys.resize)}</li>
-        <li>{@html r(t().ime.keys.enter)}</li>
-        <li>{@html r(t().ime.keys.esc)}</li>
-        <li>{@html r(t().ime.keys.shiftSpace)}</li>
+        {#each t().ime.hints as [keys, label]}
+          <li>
+            {#each keys.split('|') as alt, ai}{#if ai}<span class="or">/</span>{/if}{#each alt.split('+') as k, ki}{#if ki}<span class="plus">+</span>{/if}<kbd>{k}</kbd>{/each}{/each}
+            <span>{@html r(label)}</span>
+          </li>
+        {/each}
       </ul>
       <div class="actions">
         {#if !status.ready}
@@ -503,6 +518,35 @@
     justify-content: space-between;
     gap: var(--s-3);
     margin-top: var(--s-4);
+  }
+  .mode {
+    position: absolute;
+    top: var(--s-2);
+    right: var(--s-2);
+    z-index: 2;
+    display: grid;
+    place-items: center;
+    min-width: 28px;
+    height: 28px;
+    padding: 0 6px;
+    border-radius: var(--r-1);
+    background: var(--c-accent);
+    color: var(--c-on-accent);
+    font: 800 14px/1 var(--f-serif);
+    transition: background var(--t-fast);
+  }
+  .hints li {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .hints li > span:last-child {
+    margin-left: 4px;
+  }
+  .or,
+  .plus {
+    color: var(--c-muted);
+    font-size: 11px;
   }
   .hints {
     display: flex;

@@ -68,6 +68,9 @@
     <input class="ui-input" placeholder="Search" aria-label="search" />
   </div>
 
+  <h2>Keys</h2>
+  <p class="row"><kbd>Space</kbd> <span><kbd>Shift</kbd>+<kbd>Space</kbd></span> <kbd>Tab</kbd> <kbd>PgDn</kbd> <kbd>Alt</kbd> <kbd>한/영</kbd> <kbd>Esc</kbd> <kbd>Enter</kbd></p>
+
   <h2>Scrollbar</h2>
   <div class="scroll card">{'訓讀 '.repeat(400)}</div>
 </main>

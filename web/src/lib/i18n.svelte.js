@@ -79,6 +79,8 @@ const ko = {
     lede: '{釋讀文|석독문}을 {貼|붙여} {入|넣}으면 {讀|읽}는 {音|소리}를 {上|위}에 {添|달}아 {見|보}여 {授|주}ㅂ니다.',
     sample: '會의 規則을 一番씩 讀어 授시면 感謝하겠습니다',
     reading: '{讀|읽}기',
+    ruby: '{讀|읽}는 {音|소리}를 {上|위}에',
+    plain: '{韓㐎|한글}로만',
   },
   rules: {
     eyebrow: '{表記|표기}',
@@ -289,6 +291,8 @@ const en = {
     lede: 'Paste 釋讀 text to see its reading above each word.',
     sample: '會의 規則을 一番씩 讀어 授시면 感謝하겠습니다',
     reading: 'Reading',
+    ruby: 'With readings above',
+    plain: 'Hangul only',
   },
   rules: {
     eyebrow: 'Spelling',

@@ -29,6 +29,11 @@ struct ContentView: View {
     var body: some View {
         NavigationStack {
             Form {
+                Section("試驗 · Try it") {
+                    TextField("여기에 입력 · Type here", text: $trial, axis: .vertical)
+                        .focused($trialFocused)
+                        .accessibilityIdentifier("trial")
+                }
                 Section("켜기 · Turn on") {
                     Text("설정 → 일반 → 키보드 → 키보드 → 새로운 키보드 추가 → 釋讀. 아래 設定을 쓰려면 「전체 접근 허용」을 켭니다. 켜지 않아도 기본 設定으로 動作합니다.")
                     Text("Settings → General → Keyboard → Keyboards → Add New Keyboard → 釋讀. Turn on Allow Full Access for the keyboard to use the settings below; without it the keyboard works with the defaults.")
@@ -38,11 +43,6 @@ struct ContentView: View {
                             UIApplication.shared.open(url)
                         }
                     }
-                }
-                Section("試驗 · Try it") {
-                    TextField("여기에 입력 · Type here", text: $trial, axis: .vertical)
-                        .focused($trialFocused)
-                        .accessibilityIdentifier("trial")
                 }
                 Section("入力 · Input") {
                     Picker("始作 모드 · Start in", selection: $defaultMode) {

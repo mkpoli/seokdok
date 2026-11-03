@@ -163,6 +163,11 @@ fn sino_cost(reading: &str, source: Source, count: u32) -> f32 {
     (base - 0.35 * ((count as f32) + 1.0).ln()).max(0.3)
 }
 
+/// Han ideographs, including extensions and compatibility ideographs.
+pub fn is_han(c: char) -> bool {
+    matches!(c as u32, 0x2E80..=0x2FDF | 0x3005 | 0x3007 | 0x3400..=0x4DBF | 0x4E00..=0x9FFF | 0xF900..=0xFAFF | 0x20000..=0x3FFFF)
+}
+
 pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
     let get = |i: usize| fields.get(i).map(|s| s.trim()).unwrap_or("");
     let lemma = get(0).to_string();
@@ -190,6 +195,9 @@ pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
     let tail_c = decompose(tail_s);
     if hanja.is_empty() && tail_s != stem_str {
         return Err(format!("{written:?}: no Hanja"));
+    }
+    if let Some(c) = hanja.chars().find(|&c| !is_han(c)) {
+        return Err(format!("{written:?}: {c:?} is not a Han character"));
     }
     if !stem.ends_with(&tail_c) {
         return Err(format!("{written:?}: tail {tail_s:?} does not end {stem_str:?}"));
@@ -280,5 +288,6 @@ mod tests {
         let e = parse_native(&["읽다", "讀다", "동사"]).unwrap();
         assert_eq!(e.tail, Tail::None);
         assert!(parse_native(&["읽다", "讀어다", "verb"]).is_err());
+        assert!(parse_native(&["잘못", "X", "noun"]).is_err());
     }
 }

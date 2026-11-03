@@ -66,6 +66,7 @@ impl TextService_Impl {
             let mut state = self.inner_mut();
             state.session.set_space_converts(cfg.input.space_converts);
             state.session.set_horizontal(cfg.input.candidate_layout == crate::config::Layout::Horizontal);
+            state.session.set_old_clusters(cfg.input.old_clusters);
             let requested = state.mode.take_request();
             let effects = requested.map(|m| state.session.set_mode(m)).unwrap_or_default();
             (requested, effects)

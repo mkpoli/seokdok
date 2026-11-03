@@ -199,7 +199,13 @@ impl Composer {
     /// Replace the buffer (for example after editing the text elsewhere).
     #[wasm_bindgen(js_name = setText)]
     pub fn set_text(&mut self, s: &str) {
-        self.inner = dubeolsik::Composer::from_text(s);
+        self.inner.set_text(s);
+    }
+
+    /// Let modern letters form old-Hangul clusters (ㅅ+ㄱ → ᄭ, ㅂ+ㅇ → ㅸ).
+    #[wasm_bindgen(js_name = setOld)]
+    pub fn set_old(&mut self, old: bool) {
+        self.inner.set_old(old);
     }
 
     pub fn clear(&mut self) {

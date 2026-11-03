@@ -29,6 +29,10 @@ Keys: type 두벌식 Hangul; Space converts, Space again opens the candidates;
 1-9 pick, Tab/PgDn page, ←→ move between words, Shift+←→ resize a word,
 Enter confirms, Esc closes / reverts. Han/Eng key or a tap of Alt: 釋讀 ↔ A.
 
+Old Hangul: Shift+K ㆍ, Shift+A ㅿ, Shift+D ㆁ, Shift+G ㆆ, Shift+Z X C V B N ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ.
+Clusters from modern letters (ㅅㄱ → ᄭ, ㅂㅇ → ㅸ) need old_clusters = true in config.toml.
+Guide: https://seokdok.mkpo.li/#old
+
 Settings: %APPDATA%\seokdok\config.toml (or the language-bar menu).
 Own words and rules: export them from https://seokdok.mkpo.li/#custom and save
 the file as %APPDATA%\seokdok\custom.json. Switch input method away and back to reload.

@@ -84,6 +84,7 @@ impl Ime {
         let cfg: Config = config::reload();
         self.session.set_space_converts(cfg.input.space_converts);
         self.session.set_horizontal(cfg.input.candidate_layout == Layout::Horizontal);
+        self.session.set_old_clusters(cfg.input.old_clusters);
         let key = format!("{:?}", cfg.conversion);
         if key != self.options_key || !HOST.started() {
             self.options_key = key;

@@ -176,6 +176,11 @@ impl Session {
         self.horizontal = v;
     }
 
+    /// Let modern letters form old-Hangul clusters (ㅅ+ㄱ → ᄭ, ㅂ+ㅇ → ㅸ).
+    pub fn set_old_clusters(&mut self, v: bool) {
+        self.composer.set_old(v);
+    }
+
     /// True while a composition exists.
     pub fn is_composing(&self) -> bool {
         self.conv.is_some() || !self.composer.is_empty()
@@ -401,7 +406,7 @@ impl Session {
             return;
         }
         fx.push(Effect::Commit(text));
-        self.composer = Composer::from_text(&left);
+        self.composer.set_text(&left);
         let segs = rest.to_vec();
         let focus = segs.iter().position(focusable).unwrap_or(0);
         self.conv = Some(Conv { segs, focus, open: false, spaced: c.spaced });

@@ -59,11 +59,20 @@ pub struct Input {
     pub alt_toggles: bool,
     /// Candidate window direction; horizontal lets ← → walk the candidates.
     pub candidate_layout: Layout,
+    /// Modern letters typed in a row form old-Hangul clusters: ㅅ+ㄱ → ᄭ,
+    /// ㅂ+ㅇ → ㅸ. The old letters on the Shift layer work either way.
+    pub old_clusters: bool,
 }
 
 impl Default for Input {
     fn default() -> Self {
-        Input { default_mode: InputMode::Seokdok, space_converts: true, alt_toggles: true, candidate_layout: Layout::Vertical }
+        Input {
+            default_mode: InputMode::Seokdok,
+            space_converts: true,
+            alt_toggles: true,
+            candidate_layout: Layout::Vertical,
+            old_clusters: false,
+        }
     }
 }
 
@@ -187,6 +196,10 @@ alt_toggles = {alt}
 #   vertical   = a column
 #   horizontal = a row; ← → move through the candidates
 candidate_layout = \"{layout}\"
+# Old Hangul: Shift+A D G K give ㅿ ㆁ ㆆ ㆍ, Shift+Z X C V B N the sibilants
+# ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ.  With this on, modern letters typed in a row also join into
+# old clusters: ㅅ ㄱ → ᄭ, ㅂ ㅇ → ㅸ, ㅎ ㅎ → ᅘ.  (true | false)
+old_clusters = {old}
 
 # Own words, phrases and rewrite rules: export them from
 # https://seokdok.mkpo.li/#custom and save the file as
@@ -213,6 +226,7 @@ max_candidates = {max}
             mode = mode,
             space = self.input.space_converts,
             alt = self.input.alt_toggles,
+            old = self.input.old_clusters,
             layout = match self.input.candidate_layout {
                 Layout::Vertical => "vertical",
                 Layout::Horizontal => "horizontal",
@@ -279,7 +293,13 @@ mod tests {
 
     fn non_default() -> Config {
         Config {
-            input: Input { default_mode: InputMode::Hangul, space_converts: false, alt_toggles: false, candidate_layout: Layout::Horizontal },
+            input: Input {
+                default_mode: InputMode::Hangul,
+                space_converts: false,
+                alt_toggles: false,
+                candidate_layout: Layout::Horizontal,
+                old_clusters: true,
+            },
             conversion: Conversion {
                 style: StyleOpt::Morpheme,
                 fragment: FragmentOpt::Letter,

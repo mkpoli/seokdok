@@ -35,6 +35,10 @@ Keys: type 두벌식 Hangul; Space converts, Space again opens the candidates;
 Enter confirms, Esc closes / reverts. Hangul key or a tap of Alt: 釋讀 ↔ A.
 Hanja key or F7 converts.
 
+Old Hangul: Shift+K ㆍ, Shift+A ㅿ, Shift+D ㆁ, Shift+G ㆆ, Shift+Z X C V B N ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ.
+Clusters from modern letters (ㅅㄱ → ᄭ, ㅂㅇ → ㅸ) need old_clusters = true in config.toml.
+Guide: https://seokdok.mkpo.li/#old
+
 Settings: ~/.config/seokdok/config.toml.
 Own words and rules: export them from https://seokdok.mkpo.li/#custom and save
 the file as ~/.config/seokdok/custom.json. Switch input method away and back to reload.

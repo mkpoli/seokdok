@@ -32,6 +32,7 @@ const ID_MODE: i32 = 1001; // input.default_mode (3-way)
 const ID_SPACE: i32 = 1002; // input.space_converts
 const ID_ALT: i32 = 1003; // input.alt_toggles
 const ID_LAYOUT: i32 = 1004; // input.candidate_layout (2-way)
+const ID_OLD: i32 = 1005; // input.old_clusters
 const ID_STYLE: i32 = 1010; // conversion.style (2-way)
 const ID_FRAGMENT: i32 = 1011; // conversion.fragment (2-way)
 const ID_CODA: i32 = 1012; // conversion.coda_always
@@ -71,7 +72,7 @@ pub fn show(parent: HWND) {
         .encode_utf16()
         .collect();
 
-    let (w, h) = (470, 500);
+    let (w, h) = (470, 526);
     // SAFETY: GetSystemMetrics is always safe.
     let (sx, sy) = unsafe { (GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)) };
     let (x, y) = ((sx - w).max(0) / 2, (sy - h).max(0) / 2);
@@ -255,7 +256,7 @@ unsafe fn build_controls(hwnd: HWND) {
     let mut y = 8;
 
     // --- Input ---
-    group(w!("入力 / Input"), y, 146);
+    group(w!("入力 / Input"), y, 172);
     label(w!("始作 模式 / Start in:"), gx, y + 28, 150);
     combo(hwnd, ID_MODE, (gx + 160, y + 24, 220, 200), &MODE_ITEMS, cfg.input.default_mode);
     label(w!("候補 窓 / Candidates:"), gx, y + 62, 150);
@@ -267,7 +268,8 @@ unsafe fn build_controls(hwnd: HWND) {
         cfg.input.space_converts,
     );
     check(ID_ALT, w!("Alt 한 番으로 韓/A 轉換 / Tap Alt to switch"), y + 116, cfg.input.alt_toggles);
-    y += 158;
+    check(ID_OLD, w!("옛한글 겹자모 (ㅅㄱ→ᄭ, ㅂㅇ→ㅸ) / Old Hangul clusters"), y + 142, cfg.input.old_clusters);
+    y += 184;
 
     // --- Conversion ---
     group(w!("表記 / Spelling"), y, 210);
@@ -337,6 +339,7 @@ unsafe fn apply(hwnd: HWND) {
     }
     cfg.input.space_converts = checked(ID_SPACE);
     cfg.input.alt_toggles = checked(ID_ALT);
+    cfg.input.old_clusters = checked(ID_OLD);
     if let Some((_, v)) = selected(hwnd, ID_LAYOUT).and_then(|i| LAYOUT_ITEMS.get(i)) {
         cfg.input.candidate_layout = *v;
     }

@@ -1,6 +1,7 @@
 <script>
   import { reveal } from '../lib/reveal.js'
   import { t, r } from '../lib/i18n.svelte.js'
+  import Keyboard from './Keyboard.svelte'
 
   // Keys as on Microsoft Old Hangul; every example is checked by the
   // composer's tests (crates/seokdok-core/src/dubeolsik.rs).
@@ -37,6 +38,11 @@
   <h2 class="h2" use:reveal={1}>{@html r(t().old.title)}</h2>
   <p class="lede" use:reveal={2}>{@html r(t().old.lede)}</p>
 
+  <figure class="map" use:reveal={3}>
+    <Keyboard map />
+    <figcaption>{@html r(t().old.mapCaption)}</figcaption>
+  </figure>
+
   <div class="grid">
     <div class="card block" use:reveal={3}>
       <h3>{@html r(t().old.shift)}</h3>
@@ -66,6 +72,15 @@
 </section>
 
 <style>
+  .map {
+    max-width: 720px;
+    margin: 0 0 var(--s-6);
+  }
+  .map figcaption {
+    margin-top: var(--s-2);
+    color: var(--c-soft);
+    font-size: 14px;
+  }
   .grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));

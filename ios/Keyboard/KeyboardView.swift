@@ -343,7 +343,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         for (i, run) in s.runs.enumerated() {
             let b = UIButton(type: .system)
             b.setTitle(run.text, for: .normal)
-            b.titleLabel?.font = .systemFont(ofSize: 16)
+            b.titleLabel?.font = OldHangul.font(ofSize: 16)
             b.tintColor = run.attr == 0 ? .secondaryLabel : .label
             b.backgroundColor = run.attr == 2 ? UIColor.systemBlue.withAlphaComponent(0.22) : .clear
             b.layer.cornerRadius = 4
@@ -371,12 +371,12 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             conf.titleAlignment = .center
             conf.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var out = incoming
-                out.font = UIFont.systemFont(ofSize: 19)
+                out.font = OldHangul.font(ofSize: 19)
                 return out
             }
             conf.subtitleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
                 var out = incoming
-                out.font = UIFont.systemFont(ofSize: 10)
+                out.font = OldHangul.font(ofSize: 10)
                 out.foregroundColor = UIColor.secondaryLabel
                 return out
             }
@@ -428,7 +428,7 @@ final class KeyButton: UIButton {
         layer.shadowRadius = 0
         backgroundColor = accent ? .systemBlue : .secondarySystemBackground
         setTitleColor(accent ? .white : .label, for: .normal)
-        titleLabel?.font = .systemFont(ofSize: title == nil ? 22 : 15, weight: .medium)
+        titleLabel?.font = OldHangul.font(ofSize: title == nil ? 22 : 15, weight: .medium)
         titleLabel?.adjustsFontSizeToFitWidth = true
         if let title { setTitle(title, for: .normal) }
         if let symbol {
@@ -437,7 +437,7 @@ final class KeyButton: UIButton {
             tintColor = .label
         }
         heightAnchor.constraint(equalToConstant: 42).isActive = true
-        hint.font = .systemFont(ofSize: 11, weight: .medium)
+        hint.font = OldHangul.font(ofSize: 11, weight: .medium)
         hint.textColor = .secondaryLabel
         hint.translatesAutoresizingMaskIntoConstraints = false
         addSubview(hint)

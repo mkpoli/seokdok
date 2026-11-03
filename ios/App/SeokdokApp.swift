@@ -51,7 +51,10 @@ struct ContentView: View {
                         Text("A · Latin").tag("latin")
                     }
                     Toggle("Space로 變換 · Space converts", isOn: $spaceConverts)
-                    Toggle("옛한글 겹자모 · Old Hangul clusters (ㅅㄱ→ᄭ)", isOn: $oldClusters)
+                    Toggle(isOn: $oldClusters) {
+                        Text("옛한글 겹자모 · Old Hangul clusters (ㅅㄱ→ᄭ\u{1160})")
+                            .font(Font(OldHangul.font(ofSize: 17)))
+                    }
                 }
                 Section {
                     if AppGroup.containerURL == nil {

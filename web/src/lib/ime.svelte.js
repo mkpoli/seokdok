@@ -37,8 +37,12 @@ export class Ime {
   doc = $state('')
   /** Caret position in `doc`, in code points. */
   cursor = $state(0)
+  /** The other end of the selection, or null when nothing is selected. */
+  anchor = $state(null)
   /** 'convert': Space converts (Japanese style); 'space': Space types a space. */
   spaceMode = $state('convert')
+  /** Candidate window layout; horizontal lets ← → walk the candidates. */
+  layout = $state('vertical')
   /** Hangul being composed. */
   pre = $state('')
   /** Text the reader's own IME is still composing. */
@@ -84,8 +88,44 @@ export class Ime {
     return [...this.doc].slice(this.cursor).join('')
   }
 
+  /** The selected range [start, end), or null. */
+  get selection() {
+    if (this.anchor === null || this.anchor === this.cursor) return null
+    return [Math.min(this.anchor, this.cursor), Math.max(this.anchor, this.cursor)]
+  }
+
+  get selectedText() {
+    const s = this.selection
+    return s ? [...this.doc].slice(s[0], s[1]).join('') : ''
+  }
+
+  /** Select [a, b) with the caret at b. */
+  setSelection(a, b) {
+    if (this.segs || this.pre) this.commit()
+    const n = [...this.doc].length
+    this.anchor = Math.max(0, Math.min(n, a))
+    this.cursor = Math.max(0, Math.min(n, b))
+  }
+
+  selectAll() {
+    this.setSelection(0, [...this.doc].length)
+  }
+
+  /** Delete the selection; true when there was one. */
+  deleteSelection() {
+    const s = this.selection
+    this.anchor = null
+    if (!s) return false
+    const a = [...this.doc]
+    a.splice(s[0], s[1] - s[0])
+    this.doc = a.join('')
+    this.cursor = s[0]
+    return true
+  }
+
   /** Insert text at the caret. */
   #insert(text) {
+    this.deleteSelection()
     const a = [...this.doc]
     const t = [...text]
     a.splice(this.cursor, 0, ...t)
@@ -96,6 +136,7 @@ export class Ime {
   /** Replace the whole document (clear, paste into the editor). */
   setDoc(text) {
     this.doc = text
+    this.anchor = null
     this.cursor = [...text].length
   }
 
@@ -103,6 +144,7 @@ export class Ime {
   setCursor(i) {
     if (this.segs || this.pre) this.commit()
     this.cursor = Math.max(0, Math.min([...this.doc].length, i))
+    this.anchor = null
     this.#wordBreak = false
   }
 
@@ -320,6 +362,8 @@ export class Ime {
         if (this.pre) {
           this.composer.backspace()
           this.#sync()
+        } else if (this.deleteSelection()) {
+          // removed the selection
         } else if (this.cursor > 0) {
           const a = [...this.doc]
           a.splice(this.cursor - 1, 1)
@@ -329,6 +373,7 @@ export class Ime {
         return true
       case 'Delete':
         if (this.pre) return true
+        if (this.deleteSelection()) return true
         if (this.cursor < [...this.doc].length) {
           const a = [...this.doc]
           a.splice(this.cursor, 1)
@@ -342,6 +387,15 @@ export class Ime {
         if (this.pre) this.commit()
         const n = [...this.doc].length
         const b = this.before
+        const sel = this.selection
+        if (k.shift) {
+          if (this.anchor === null) this.anchor = this.cursor
+        } else {
+          this.anchor = null
+          // Without Shift, ← → collapse a selection to its edge.
+          if (sel && key === 'ArrowLeft') return (this.cursor = sel[0]), true
+          if (sel && key === 'ArrowRight') return (this.cursor = sel[1]), true
+        }
         if (key === 'ArrowLeft') this.cursor = Math.max(0, this.cursor - 1)
         else if (key === 'ArrowRight') this.cursor = Math.min(n, this.cursor + 1)
         else if (key === 'Home') this.cursor = [...b.slice(0, b.lastIndexOf('\n') + 1)].length
@@ -408,10 +462,12 @@ export class Ime {
         return true
       case 'ArrowRight':
         if (shift) this.resize(1)
+        else if (this.open && this.layout === 'horizontal') this.cycle(1)
         else this.move(1)
         return true
       case 'ArrowLeft':
         if (shift) this.resize(-1)
+        else if (this.open && this.layout === 'horizontal') this.cycle(-1)
         else this.move(-1)
         return true
       case 'Enter':

@@ -14,7 +14,8 @@ use jni::sys::{jboolean, jint, jintArray, jlong, jobjectArray, jstring, JNI_FALS
 use jni::JNIEnv;
 use seokdok_ffi as ffi;
 use seokdok_ffi::Ime;
-use seokdok_session::config::Config;
+use seokdok_session::config::{self, Config};
+use seokdok_session::engine_host::HOST;
 
 fn ime(h: jlong) -> *mut Ime {
     h as *mut Ime
@@ -211,6 +212,17 @@ pub extern "system" fn Java_li_mkpo_seokdok_Native_saveConfig<'l>(
 ) -> jboolean {
     let (Some(dir), Some(t)) = (get(&mut env, &dir), get(&mut env, &toml)) else { return JNI_FALSE };
     jbool(save_config(Path::new(&dir), &t).is_ok())
+}
+
+/// Reload the dictionaries and custom.json if the keyboard has loaded them
+/// in this process (after custom.json changed); settings changes reload on
+/// their own.
+#[no_mangle]
+pub extern "system" fn Java_li_mkpo_seokdok_Native_reload<'l>(mut env: JNIEnv<'l>, _: JClass<'l>, dict_dir: JString<'l>) {
+    let Some(dict) = get(&mut env, &dict_dir) else { return };
+    if HOST.started() {
+        HOST.start_load(PathBuf::from(dict), Config::user_dir(), config::reload().engine_options());
+    }
 }
 
 #[cfg(test)]

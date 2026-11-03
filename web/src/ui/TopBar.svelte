@@ -1,5 +1,6 @@
 <script>
   import { i18n, setLang, t, r, plain } from '../lib/i18n.svelte.js'
+  import { options } from '../lib/options.svelte.js'
 
   let theme = $state(document.documentElement.dataset.theme ?? 'auto')
 
@@ -35,6 +36,11 @@
     <a href="#join">{@html r(t().nav.join)}</a>
   </nav>
   <div class="tools">
+    <div class="mode" title={plain(t().options.sinoTip)}>
+      <button class="side" aria-pressed={!options.sinoOnly} onclick={() => (options.sinoOnly = false)}>{@html r(t().options.seokdokSide)}</button>
+      <input class="ui-switch" type="checkbox" role="switch" bind:checked={options.sinoOnly} aria-label={plain(t().options.sinoSwitch)} />
+      <button class="side" aria-pressed={options.sinoOnly} onclick={() => (options.sinoOnly = true)}>{@html r(t().options.sinoSwitch)}</button>
+    </div>
     <div class="seg" role="group" aria-label="language">
       {#each langs as [code, label, lang]}
         <button aria-pressed={i18n.lang === code} onclick={() => setLang(code)} {lang}>{label}</button>
@@ -100,6 +106,27 @@
     align-items: center;
     gap: var(--s-2);
   }
+  .mode {
+    display: flex;
+    align-items: center;
+    gap: var(--s-2);
+    margin-right: var(--s-2);
+  }
+  .side {
+    padding: 4px 0 0;
+    border: 0;
+    background: none;
+    color: var(--c-muted);
+    font: 600 14px/2.1 var(--f-sans);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .side[aria-pressed='true'] {
+    color: var(--c-accent);
+  }
+  .side :global(rt) {
+    font-size: 0.5em;
+  }
   .theme {
     display: grid;
     place-items: center;
@@ -133,6 +160,26 @@
     }
     .mark-latn {
       display: none;
+    }
+    .bar {
+      gap: var(--s-2);
+    }
+    .mark-han {
+      white-space: nowrap;
+    }
+    .mode {
+      gap: 6px;
+      margin-right: 0;
+    }
+    .side {
+      padding: 0;
+      font-size: 13px;
+    }
+    .side :global(rt) {
+      display: none;
+    }
+    .tools :global(.seg button) {
+      padding: 0 var(--s-2);
     }
   }
 </style>

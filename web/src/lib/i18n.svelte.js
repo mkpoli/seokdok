@@ -5,7 +5,7 @@ const ko = {
   nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '낱{言|말}', install: '{設置|설치}', join: '{會|모임}' },
   theme: { light: '{明|밝}게', dark: '{暗|어둡}게', auto: '{自動|자동}' },
   hero: {
-    kicker: '풀어읽기모임 {釋讀會|석독회}의 {入力器|입력기}',
+    kicker: '{釋讀會|풀어읽기모임} {御製|어제}',
     title1: '{韓㐎|한글}로 {打|치}면',
     title2: '{漢字|한자}로 {解|풀}어 {記|적}는다',
     lede: '{漢字語|한자어}는 {音|소리}로, {固有語|고유어}는 {意|뜻}으로. {韓國語|한국어}를 {其|그}대로 {打|치}고 Space를 {押|누르}면 {音讀|음독}・{訓讀|훈독}・{送韓字|송한자}가 한꺼번에 {出|나}옵니다. {入力器|입력기}가 {無|없}어도 {此|이} 페이지에서 바로 {書|써} {見|보}ㄹ 수 {有|있}습니다.',
@@ -191,7 +191,7 @@ const en = {
   nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', install: 'Install', join: 'Group' },
   theme: { light: 'Light', dark: 'Dark', auto: 'Auto' },
   hero: {
-    kicker: 'The input method of 풀어읽기모임 釋讀會',
+    kicker: '釋讀會 御製: royally composed by 풀어읽기모임',
     title1: 'Type Hangul,',
     title2: 'write it out in Hanja',
     lede: 'Sino-Korean words by sound, native words by meaning. Type Korean as usual, press Space, and get 音讀, 訓讀 and 送韓字 at once. No input method to install: try it on this page.',

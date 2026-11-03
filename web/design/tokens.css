@@ -67,3 +67,8 @@
 
   --w-page: 1120px;
 }
+
+:root {
+  /* Selected text, visible on every surface. */
+  --c-select: light-dark(#b9cbff, #34478f);
+}

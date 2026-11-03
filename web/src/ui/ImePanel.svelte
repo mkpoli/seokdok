@@ -30,28 +30,74 @@
     })
   })
 
-  /** A click puts the caret where it lands in the committed text. */
-  function place(e) {
-    const hit = document.caretPositionFromPoint?.(e.clientX, e.clientY)
-    const range = hit ? null : document.caretRangeFromPoint?.(e.clientX, e.clientY)
-    const node = hit?.offsetNode ?? range?.startContainer
-    const offset = hit?.offset ?? range?.startOffset ?? 0
-    const part = node?.parentElement?.closest('[data-part]')?.dataset.part
-    if (part && node.nodeType === Node.TEXT_NODE && !showRuby) {
-      const before = [...ime.before].length
-      const n = [...node.textContent.slice(0, offset)].length
-      // Text nodes inside a part: count the code points before this node.
-      let pre = 0
-      for (const t of node.parentElement.closest('[data-part]').childNodes) {
-        if (t === node) break
-        pre += [...(t.textContent ?? '')].length
-      }
-      ime.setCursor(part === 'before' ? pre + n : before + pre + n)
-    } else if (e.target === e.currentTarget || !part) {
-      if (!ime.pre && !ime.segs) ime.setCursor([...ime.doc].length)
+  /** Doc offset (code points) of a DOM point inside a [data-off] span, or null. */
+  function offsetOf(node, offset) {
+    const el = (node?.nodeType === Node.TEXT_NODE ? node.parentElement : node)?.closest?.('[data-off]')
+    if (!el || !textEl?.contains(el)) return null
+    let n = Number(el.dataset.off)
+    if (node === el) {
+      for (const c of [...el.childNodes].slice(0, offset)) n += [...(c.textContent ?? '')].length
+      return n
     }
-    sink.focus()
+    for (const c of el.childNodes) {
+      if (c === node) break
+      n += [...(c.textContent ?? '')].length
+    }
+    return n + [...(node.textContent ?? '').slice(0, offset)].length
   }
+
+  function pointOffset(x, y) {
+    const hit = document.caretPositionFromPoint?.(x, y)
+    if (hit) return offsetOf(hit.offsetNode, hit.offset)
+    const range = document.caretRangeFromPoint?.(x, y)
+    return range ? offsetOf(range.startContainer, range.startOffset) : null
+  }
+
+  // A drag selects; a click places the caret. Readings (ruby) add text the
+  // offsets cannot see, so with them on a click goes to the end.
+  function onmouseup(e) {
+    if (e.button !== 0) return
+    const sel = window.getSelection()
+    if (!showRuby && sel && !sel.isCollapsed && textEl?.contains(sel.anchorNode)) {
+      const a = offsetOf(sel.anchorNode, sel.anchorOffset)
+      const f = offsetOf(sel.focusNode, sel.focusOffset)
+      if (a !== null && f !== null) ime.setSelection(a, f)
+      sel.removeAllRanges()
+    } else if (!ime.segs && !ime.pre) {
+      const at = showRuby ? null : pointOffset(e.clientX, e.clientY)
+      if (at !== null) ime.setCursor(at)
+      else if (e.target === e.currentTarget || e.target === textEl) ime.setCursor([...ime.doc].length)
+    }
+    sink.focus({ preventScroll: true })
+  }
+
+  function ondblclick(e) {
+    if (showRuby || ime.segs || ime.pre) return
+    const at = pointOffset(e.clientX, e.clientY)
+    if (at === null) return
+    const chars = [...ime.doc]
+    const word = (c) => c && !/[\s.,!?、。，！？]/.test(c)
+    let a = at
+    let b = at
+    while (a > 0 && word(chars[a - 1])) a--
+    while (b < chars.length && word(chars[b])) b++
+    ime.setSelection(a, b)
+    sink.focus({ preventScroll: true })
+  }
+
+  // The committed text in pieces around the selection and the caret.
+  const pieces = $derived.by(() => {
+    const chars = [...ime.doc]
+    const n = chars.length
+    const sel = ime.selection
+    const cut = (a, b, selected = false) => ({ text: chars.slice(a, b).join(''), off: a, selected })
+    if (!sel) return { head: [cut(0, ime.cursor)], tail: [cut(ime.cursor, n)] }
+    const [a, b] = sel
+    const mid = cut(a, b, true)
+    return ime.cursor === a
+      ? { head: [cut(0, a)], tail: [mid, cut(b, n)] }
+      : { head: [cut(0, a), mid], tail: [cut(b, n)] }
+  })
 
   /** "讀 읽다 +아/어 · 訓讀 community" → readable, with the source named. */
   function noteHtml(note) {
@@ -87,6 +133,7 @@
 
   $effect(() => {
     ime.spaceMode = options.spaceMode
+    ime.layout = options.layout
   })
 
   // Options go to the engine; an open conversion is redone under them.
@@ -116,6 +163,18 @@
     }
     altAlone = false
     if (e.isComposing || e.key === 'Process' || e.keyCode === 229) return
+    const mod = e.ctrlKey || e.metaKey
+    if (mod && !e.altKey && (e.key === 'a' || e.key === 'A')) {
+      e.preventDefault()
+      ime.selectAll()
+      return
+    }
+    if (mod && (e.key === 'c' || e.key === 'x') && ime.selection) {
+      e.preventDefault()
+      navigator.clipboard.writeText(ime.selectedText)
+      if (e.key === 'x') ime.deleteSelection()
+      return
+    }
     if (ime.key({ key: e.key, shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey })) {
       e.preventDefault()
     }
@@ -188,6 +247,11 @@
         <summary class="btn" data-size="sm">{@html r(t().options.title)}</summary>
         <div class="opts-body card">
           <fieldset>
+            <legend>{@html r(t().options.layout)}</legend>
+            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.layout} value="vertical" />{@html r(t().options.vertical)}</label>
+            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.layout} value="horizontal" />{@html r(t().options.horizontal)}</label>
+          </fieldset>
+          <fieldset>
             <legend>{@html r(t().options.spaceKey)}</legend>
             <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.spaceMode} value="convert" />{@html r(t().options.spaceConvert)}</label>
             <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.spaceMode} value="space" />{@html r(t().options.spaceSpace)}</label>
@@ -209,7 +273,7 @@
       </details>
     </div>
 
-    <div class="editor" class:focused role="presentation" onclick={place}>
+    <div class="editor" class:focused role="presentation" {onmouseup} {ondblclick}>
       <textarea
         class="sink"
         bind:this={sink}
@@ -226,15 +290,15 @@
         onfocus={() => (focused = true)}
         onblur={() => (focused = false)}
       ></textarea>
-      <span class="mode" aria-live="polite" title={plain(ime.mode === 'hangul' ? t().ime.hangulTip : t().ime.asciiTip)}>{ime.mode === 'hangul' ? '韓' : 'A'}</span><div class="text" lang="ko" bind:this={textEl}>{#if empty}<span class="placeholder">{@html r(t().ime.placeholder)}</span>{/if}<span class="doc" data-part="before">{#if showRuby}<Ruby text={ime.before} />{:else}{ime.before}{/if}</span>{#if ime.segs}{#each ime.segs as s, i}<span
+      <span class="mode" aria-live="polite" title={plain(ime.mode === 'hangul' ? t().ime.hangulTip : t().ime.asciiTip)}>{ime.mode === 'hangul' ? '韓' : 'A'}</span><div class="text" lang="ko" bind:this={textEl}>{#if empty}<span class="placeholder">{@html r(t().ime.placeholder)}</span>{/if}{#each pieces.head as pc}<span class="doc" class:selected={pc.selected} data-off={pc.off}>{#if showRuby}<Ruby text={pc.text} />{:else}{pc.text}{/if}</span>{/each}{#if ime.segs}{#each ime.segs as s, i}<span
               class="segment"
               class:focus={i === ime.focus}
               class:multi={s.candidates.length > 1}
-              data-seg={i}>{s.candidates[s.pick]?.text ?? s.reading}</span>{/each}{:else}<span class="pre">{ime.pre}{ime.osComposing}</span>{/if}{#if focused}<span class="caret"></span>{/if}<span class="doc" data-part="after">{#if showRuby}<Ruby text={ime.after} />{:else}{ime.after}{/if}</span></div>
+              data-seg={i}>{s.candidates[s.pick]?.text ?? s.reading}</span>{/each}{:else}<span class="pre">{ime.pre}{ime.osComposing}</span>{/if}{#if focused}{#key ime.cursor}<span class="caret" aria-hidden="true"></span>{/key}{/if}{#each pieces.tail as pc}<span class="doc" class:selected={pc.selected} data-off={pc.off}>{#if showRuby}<Ruby text={pc.text} />{:else}{pc.text}{/if}</span>{/each}</div>
       {#if ime.segs && ime.current && ime.open}
         {@const start = ime.pageStart}
         {@const all = ime.current.candidates}
-        <div class="win card" role="listbox" aria-label={ime.current.reading} style:left="{pos.left}px" style:top="{pos.top}px">
+        <div class="win card" class:horizontal={options.layout === 'horizontal'} role="listbox" aria-orientation={options.layout} aria-label={ime.current.reading} style:left="{pos.left}px" style:top="{pos.top}px">
           {#each all.slice(start, start + PAGE) as c, i (start + i)}
             <button
               class="cand"
@@ -411,14 +475,27 @@
     color: var(--c-on-accent);
     border-radius: 4px 4px 0 0;
   }
+  /* The caret takes no width, so moving it never shifts the text. */
   .caret {
+    position: relative;
     display: inline-block;
-    width: 2px;
+    width: 0;
     height: 1.1em;
-    margin-left: 1px;
     vertical-align: -0.15em;
+  }
+  .caret::after {
+    content: '';
+    position: absolute;
+    left: -1px;
+    top: 0;
+    width: 2px;
+    height: 100%;
     background: var(--c-accent);
-    animation: blink 1s steps(1) infinite;
+    animation: blink 1.06s steps(1) infinite;
+  }
+  .doc.selected {
+    background: var(--c-select);
+    border-radius: 2px;
   }
   @keyframes blink {
     50% {
@@ -443,6 +520,15 @@
       opacity: 0;
       transform: translateY(-4px) scale(0.98);
     }
+  }
+  .win.horizontal {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    max-width: min(640px, 92%);
+  }
+  .win.horizontal .win-foot {
+    flex-basis: 100%;
   }
   .cand {
     display: flex;

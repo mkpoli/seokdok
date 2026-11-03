@@ -55,6 +55,9 @@ const ko = {
   },
   options: {
     title: '{表記|표기} {設定|설정}',
+    layout: '{候補|후보} {窓|창}',
+    vertical: '{縱|세로}',
+    horizontal: '{橫|가로} (←→로 {候補|후보} {移動|이동})',
     spaceKey: 'Space {鍵|키}',
     spaceConvert: '{變換|변환} (Tab: {變換|변환})',
     spaceSpace: '띄어{書|쓰}기 (Tab·↓: {變換|변환})',
@@ -219,6 +222,9 @@ const en = {
   },
   options: {
     title: 'Spelling options',
+    layout: 'Candidate list',
+    vertical: 'Vertical',
+    horizontal: 'Horizontal (← → move through candidates)',
     spaceKey: 'Space key',
     spaceConvert: 'Converts (Japanese style)',
     spaceSpace: 'Types a space (Tab or ↓ converts)',

@@ -1,5 +1,5 @@
 // Spelling options, remembered per browser.
-const DEFAULTS = { spaceMode: 'convert', style: 'surface', fragment: 'absorb', codaAlways: false, resyllabify: false, hadaKun: false }
+const DEFAULTS = { spaceMode: 'convert', layout: 'vertical', style: 'surface', fragment: 'absorb', codaAlways: false, resyllabify: false, hadaKun: false }
 
 function load() {
   try {

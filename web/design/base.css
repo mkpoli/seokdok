@@ -43,7 +43,7 @@ a {
 }
 
 ::selection {
-  background: var(--c-accent-soft);
+  background: var(--c-select);
 }
 
 rt {

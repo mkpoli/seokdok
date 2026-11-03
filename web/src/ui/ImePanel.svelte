@@ -249,36 +249,42 @@
         <button aria-pressed={ime.mode === 'ascii'} title={plain(t().ime.asciiTip)} onclick={() => ime.mode !== 'ascii' && ime.toggleMode()}>{@html r(t().ime.ascii)}</button>
       </div>
       <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" bind:checked={showRuby} />{@html r(t().ime.ruby)}</label>
-      <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" bind:checked={showKeys} />{@html r(t().ime.keyboard)}</label>
-      <div class="seg" role="group" aria-label={plain(t().options.layout)} title={plain(t().options.layoutTip)}>
-        <button aria-pressed={options.layout === 'vertical'} onclick={() => (options.layout = 'vertical')}>{@html r(t().options.vertical)}</button>
-        <button aria-pressed={options.layout === 'horizontal'} onclick={() => (options.layout = 'horizontal')}>{@html r(t().options.horizontal)}</button>
-      </div>
-      <label class="ui-field" title={plain(t().options.spaceTip)}>
-        <input class="ui-switch" type="checkbox" role="switch" checked={options.spaceMode === 'convert'} onchange={(e) => (options.spaceMode = e.currentTarget.checked ? 'convert' : 'space')} />{@html r(t().options.spaceSwitch)}
-      </label>
-      <label class="ui-field" title={plain(t().options.oldTip)}>
-        <input class="ui-switch" type="checkbox" role="switch" bind:checked={options.oldClusters} />{@html r(t().options.oldSwitch)}
-      </label>
-      <label class="ui-field" title={plain(t().options.sinoTip)}>
-        <input class="ui-switch" type="checkbox" role="switch" bind:checked={options.sinoOnly} />{@html r(t().options.sinoSwitch)}
-      </label>
       <details class="opts">
-        <summary class="btn" data-size="sm">{@html r(t().options.title)}</summary>
+        <summary class="btn" data-size="sm">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h10M18 7h2M4 17h4M12 17h8" /><circle cx="16" cy="7" r="2" /><circle cx="10" cy="17" r="2" /></svg>
+          {@html r(t().ime.settings)}
+        </summary>
         <div class="opts-body card">
           <fieldset>
-            <legend>{@html r(t().options.style)}</legend>
-            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.style} value="surface" />{@html r(t().options.surface)}</label>
-            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.style} value="morpheme" />{@html r(t().options.morpheme)}</label>
+            <legend>{@html r(t().options.input)}</legend>
+            <div class="row" title={plain(t().options.layoutTip)}>
+              <span>{@html r(t().options.layout)}</span>
+              <div class="seg" role="group" aria-label={plain(t().options.layout)}>
+                <button aria-pressed={options.layout === 'vertical'} onclick={() => (options.layout = 'vertical')}>{@html r(t().options.vertical)}</button>
+                <button aria-pressed={options.layout === 'horizontal'} onclick={() => (options.layout = 'horizontal')}>{@html r(t().options.horizontal)}</button>
+              </div>
+            </div>
+            <label class="ui-field" title={plain(t().options.spaceTip)}>
+              <input class="ui-switch" type="checkbox" role="switch" checked={options.spaceMode === 'convert'} onchange={(e) => (options.spaceMode = e.currentTarget.checked ? 'convert' : 'space')} />{@html r(t().options.spaceSwitch)}
+            </label>
+            <label class="ui-field" title={plain(t().options.oldTip)}>
+              <input class="ui-switch" type="checkbox" role="switch" bind:checked={options.oldClusters} />{@html r(t().options.oldSwitch)}
+            </label>
           </fieldset>
           <fieldset>
-            <legend>{@html r(t().options.fragment)}</legend>
-            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.fragment} value="absorb" />{@html r(t().options.absorb)}</label>
-            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.fragment} value="letter" />{@html r(t().options.letter)}</label>
+            <legend>{@html r(t().options.spelling)}</legend>
+            <div class="pair">
+              <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.style} value="surface" />{@html r(t().options.surface)}</label>
+              <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.style} value="morpheme" />{@html r(t().options.morpheme)}</label>
+            </div>
+            <div class="pair">
+              <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.fragment} value="absorb" />{@html r(t().options.absorb)}</label>
+              <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.fragment} value="letter" />{@html r(t().options.letter)}</label>
+            </div>
+            <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.codaAlways} />{@html r(t().options.coda)}</label>
+            <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.resyllabify} />{@html r(t().options.resyllabify)}</label>
+            <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.hadaKun} />{@html r(t().options.hada)}</label>
           </fieldset>
-          <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.codaAlways} />{@html r(t().options.coda)}</label>
-          <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.resyllabify} />{@html r(t().options.resyllabify)}</label>
-          <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.hadaKun} />{@html r(t().options.hada)}</label>
         </div>
       </details>
     </div>
@@ -338,14 +344,23 @@
     {/if}
 
     <div class="foot">
-      <ul class="hints">
-        {#each t().ime.hints as [keys, label]}
-          <li>
-            {#each keys.split('|') as alt, ai}{#if ai}<span class="or">/</span>{/if}{#each alt.split('+') as k, ki}{#if ki}<span class="plus">+</span>{/if}<kbd>{k}</kbd>{/each}{/each}
-            <span>{@html r(label)}</span>
-          </li>
-        {/each}
-      </ul>
+      <div class="tools">
+        <button class="btn kb" aria-pressed={showKeys} onclick={() => (showKeys = !showKeys)}>
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2" /><path d="M6 10h1M10 10h1M14 10h1M18 10h0M7 14h10" /></svg>
+          {@html r(t().ime.keyboard)}
+        </button>
+        <details class="help">
+          <summary class="btn">{@html r(t().ime.keysHelp)}</summary>
+          <ul class="hints">
+            {#each t().ime.hints as [keys, label]}
+              <li>
+                {#each keys.split('|') as alt, ai}{#if ai}<span class="or">/</span>{/if}{#each alt.split('+') as k, ki}{#if ki}<span class="plus">+</span>{/if}<kbd>{k}</kbd>{/each}{/each}
+                <span>{@html r(label)}</span>
+              </li>
+            {/each}
+          </ul>
+        </details>
+      </div>
       <div class="actions">
         {#if !status.ready}
           <span class="loading" title={status.failed || plain(t().ime.loading)}>
@@ -395,8 +410,8 @@
     top: calc(100% + 6px);
     z-index: 10;
     display: grid;
-    gap: var(--s-3);
-    width: min(340px, 86vw);
+    gap: var(--s-4);
+    width: min(360px, 86vw);
     padding: var(--s-4);
     box-shadow: var(--shadow-2);
     font-size: 14px;
@@ -607,6 +622,65 @@
     margin-right: var(--s-2);
     color: var(--c-muted);
     font: 700 12px/1 var(--f-sans);
+  }
+  .opts summary svg,
+  .kb svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+  .opts-body .row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--s-3);
+  }
+  .opts-body .pair {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-1) var(--s-4);
+  }
+  .tools {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--s-2);
+  }
+  .kb[aria-pressed='true'] {
+    border-color: var(--c-accent);
+    color: var(--c-accent);
+  }
+  .help {
+    position: relative;
+  }
+  .help summary {
+    list-style: none;
+  }
+  .help summary::-webkit-details-marker {
+    display: none;
+  }
+  .help summary::after {
+    content: '▾';
+    margin-left: var(--s-1);
+    font-size: 11px;
+  }
+  .help[open] summary::after {
+    content: '▴';
+  }
+  .help .hints {
+    position: absolute;
+    left: 0;
+    bottom: calc(100% + 6px);
+    z-index: 10;
+    width: min(560px, 86vw);
+    padding: var(--s-3) var(--s-4);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-2);
+    background: var(--c-surface);
+    box-shadow: var(--shadow-2);
   }
   .foot {
     display: flex;

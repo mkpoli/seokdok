@@ -1,15 +1,16 @@
 <script>
   import { t, r, plain } from '../lib/i18n.svelte.js'
 
-  // The wall of 訓讀 verbs, after the third 釋讀會 poster: the written form with
-  // its stem above. All are dictionary entries attested in the group's chat.
+  // The wall of 訓讀 verbs, after the third 釋讀會 poster: each Hanja with its
+  // own reading as ruby, then the 送韓字. All are dictionary entries attested
+  // in the group's chat.
   const WALL = [
-    ['爲다', '하'], ['在다', '있'], ['成다', '되'], ['無다', '없'], ['不ㅎ다', '않'], ['非다', '아니'],
-    ['見다', '보'], ['同다', '같'], ['授다', '주'], ['去다', '가'], ['言하다', '말하'], ['來다', '오'],
-    ['知다', '알'], ['然ㅎ다', '그렇'], ['大다', '크'], ['多다', '많'], ['好다', '좋'], ['出다', '나'],
-    ['思하다', '생각하'], ['不知다', '모르'], ['作다', '만들'], ['食다', '먹'], ['何떻다', '어떻'], ['書다', '쓰'],
-    ['讀다', '읽'], ['異다', '다르'], ['新롭다', '새롭'], ['歡갑다', '반갑'], ['樂겁다', '즐겁'], ['難다', '어렵'],
-    ['易다', '쉽'], ['適다', '맞'], ['殘다', '남'], ['用이다', '쓰이'], ['似하다', '비슷하'], ['入다', '들'],
+    ['爲', '다', '하'], ['在', '다', '있'], ['成', '다', '되'], ['無', '다', '없'], ['不', 'ㅎ다', '안'], ['非', '다', '아니'],
+    ['見', '다', '보'], ['同', '다', '같'], ['授', '다', '주'], ['去', '다', '가'], ['言', '하다', '말'], ['來', '다', '오'],
+    ['知', '다', '알'], ['然', 'ㅎ다', '그러'], ['大', '다', '크'], ['多', '다', '많'], ['好', '다', '좋'], ['出', '다', '나'],
+    ['思', '하다', '생각'], ['不知', '다', '모르'], ['作', '다', '만들'], ['食', '다', '먹'], ['何', '떻다', '어'], ['書', '다', '쓰'],
+    ['讀', '다', '읽'], ['異', '다', '다르'], ['新', '롭다', '새'], ['歡', '갑다', '반'], ['樂', '겁다', '즐'], ['難', '다', '어렵'],
+    ['易', '다', '쉽'], ['適', '다', '맞'], ['殘', '다', '남'], ['用', '이다', '쓰'], ['似', '하다', '비슷'], ['入', '다', '들'],
   ]
   const rows = Array.from({ length: 6 }, (_, r) => WALL.slice(r * 6, r * 6 + 6))
 </script>
@@ -41,10 +42,8 @@
   <div class="wall" aria-hidden="true">
     {#each rows as row, r}
       <div class="row" style:--d="{r % 2 ? -1 : 1}" style:--i={r}>
-        {#each [...row, ...row] as [w, reading], c}
-          <span class="tile" style:--size="{1 + ((r * 7 + c * 3) % 5) * 0.12}em">
-            <small>{reading}</small>{w}
-          </span>
+        {#each [...row, ...row] as [han, okuri, reading], c}
+          <span class="tile" style:--size="{1 + ((r * 7 + c * 3) % 5) * 0.12}em"><ruby>{han}<rt>{reading}</rt></ruby>{okuri}</span>
         {/each}
       </div>
     {/each}
@@ -141,15 +140,13 @@
     animation-direction: reverse;
   }
   .tile {
-    display: inline-flex;
-    flex-direction: column;
-    align-items: flex-start;
+    display: inline-block;
     font-size: var(--size);
     color: var(--c-ink);
     white-space: nowrap;
     opacity: 0.86;
   }
-  .tile small {
+  .tile rt {
     font: 500 0.36em/1.3 var(--f-sans);
     color: var(--c-muted);
   }

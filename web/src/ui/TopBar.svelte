@@ -89,6 +89,8 @@
   }
   nav {
     display: flex;
+    /* Links with and without ruby share one baseline (國漢文混用 drops some). */
+    align-items: baseline;
     gap: var(--s-4);
     margin-right: auto;
   }

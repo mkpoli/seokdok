@@ -154,6 +154,29 @@ def existing():
     return pairs
 
 
+def sino_readings():
+    out = set()
+    for line in (DICT / "sino.tsv").open(encoding="utf-8"):
+        c = line.split("\t")
+        if len(c) > 1 and not line.startswith("#"):
+            out.add(c[0])
+    return out
+
+
+def honorific(word, written, natives, sino):
+    """A word in the honorific suffix 님 keeps the suffix in Hangul (부처님 →
+    佛님). When the stem is a Sino-Korean word and no native one (수령님,
+    공주님), the Japanese match is only a translation of the whole: dropped,
+    since the Sino word + 님 already converts. One-syllable stems (장님, 마님)
+    are left as they are."""
+    if not word.endswith("님") or len(word) < 3:
+        return written
+    stem = word[:-1]
+    if stem in sino and stem not in natives:
+        return None
+    return written + "님"
+
+
 def main():
     have = korean_hanja()
     sj = shinjitai()
@@ -162,6 +185,8 @@ def main():
     spread = {k: len(v) for k, v in index.items()}
     words = korean_words()
     seen = existing()
+    natives = {w for w, _ in seen}
+    sino = sino_readings()
     rows = []
     weak_rows = []
     for (word, pos), glosses in sorted(words.items()):
@@ -185,15 +210,15 @@ def main():
         strong = [ch for ch, s in score.most_common(3) if main[ch] and s >= 1.5]
         weak = [ch for ch, s in score.most_common(6) if ch not in strong and s >= 1.0][:3]
         for ch in weak:
-            written = ch + ("다" if pos in ("verb", "adj") else "")
-            if (word, written) in seen:
+            written = honorific(word, ch + ("다" if pos in ("verb", "adj") else ""), natives, sino)
+            if written is None or (word, written) in seen:
                 continue
             seen.add((word, written))
             g = next((g for g, _ in glosses if any(k[1] == ch for k in index.get(g, {}))), "")
             weak_rows.append((word, written, pos, "", "japanese-weak", "", f"“{g}” (JMdict, weak)"))
         for ch in strong:
-            written = ch + ("다" if pos in ("verb", "adj") else "")
-            if (word, written) in seen:
+            written = honorific(word, ch + ("다" if pos in ("verb", "adj") else ""), natives, sino)
+            if written is None or (word, written) in seen:
                 continue
             seen.add((word, written))
             g, ex = why[ch]

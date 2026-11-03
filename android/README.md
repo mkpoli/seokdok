@@ -11,12 +11,12 @@ keys.
 ## Build
 
 Needs a JDK 17 or newer, the Android SDK (platform 35, build tools) and NDK
-27, Rust with the Android targets, and cargo-ndk:
+28, Rust with the Android targets, and cargo-ndk:
 
 ```sh
 rustup target add aarch64-linux-android armv7-linux-androideabi x86_64-linux-android
 cargo install cargo-ndk
-sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;27.2.12479018"
+sdkmanager "platforms;android-35" "build-tools;35.0.0" "ndk;28.0.13004108"
 export ANDROID_HOME=$HOME/Android/Sdk      # where the SDK is
 ```
 

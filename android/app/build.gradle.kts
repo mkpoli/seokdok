@@ -12,7 +12,8 @@ val repoRoot: File = rootProject.projectDir.parentFile
 android {
     namespace = "li.mkpo.seokdok"
     compileSdk = 35
-    ndkVersion = "27.2.12479018"
+    // r28 links with 16 KB pages by default (Android 15 devices).
+    ndkVersion = "28.0.13004108"
 
     defaultConfig {
         applicationId = "li.mkpo.seokdok"

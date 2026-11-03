@@ -900,21 +900,11 @@ fn simple_coda(stem: &[char]) -> bool {
     k == 1
 }
 
+/// What a 訓讀 candidate is: "讀 읽다 +아/어 · 訓讀".
 fn note(n: &Native, ending: Option<usize>) -> String {
-    let src = match n.source {
-        Source::User => "user",
-        Source::Corpus => "corpus",
-        Source::Community => "community",
-        Source::Editorial => "editorial",
-        Source::Suggested => "suggested",
-        Source::Gloss => "gloss",
-        Source::Japanese => "japanese",
-        Source::JapaneseWeak => "japanese-weak",
-        Source::Lexicon => "lexicon",
-    };
     match ending {
-        Some(e) => format!("{} {} +{} · 訓讀 {}", n.hanja, n.lemma, ending_label(e), src),
-        None => format!("{} {} · 訓讀 {}", n.hanja, n.lemma, src),
+        Some(e) => format!("{} {} +{} · 訓讀", n.hanja, n.lemma, ending_label(e)),
+        None => format!("{} {} · 訓讀", n.hanja, n.lemma),
     }
 }
 

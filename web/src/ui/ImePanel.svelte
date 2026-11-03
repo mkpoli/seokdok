@@ -100,14 +100,12 @@
       : { head: [cut(0, a), mid], tail: [cut(b, n)] }
   })
 
-  /** "讀 읽다 +아/어 · 訓讀 community" → readable, with the source named. */
+  /** "讀 읽다 +아/어 · 訓讀" → the word in bold, then how it is read. */
   function noteHtml(note) {
-    const m = note.match(/^(.*) · (訓讀|音讀)(?: ([\w-]+))?$/)
+    const m = note.match(/^(.*) · (訓讀|音讀)$/)
     if (!m) return r(note)
-    const [, what, kind, src] = m
-    const k = kind === '音讀' ? t().ime.src.sino : t().ime.src.kun
-    const from = src ? ' · ' + r(t().ime.src[src] ?? src) : ''
-    return `<b>${r(what)}</b> · ${r(k)}${from}`
+    const [, what, kind] = m
+    return `<b>${r(what)}</b> · ${r(kind === '音讀' ? t().ime.kind.sino : t().ime.kind.kun)}`
   }
   let focused = $state(false)
   let showRuby = $state(false)

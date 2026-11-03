@@ -4,6 +4,7 @@
   import { reveal } from '../lib/reveal.js'
   import { SAMPLES } from '../lib/samples.js'
   import { rubify } from '../lib/rubify.js'
+  import { options } from '../lib/options.svelte.js'
 
   let { onopen } = $props()
   let kind = $state('all')
@@ -17,6 +18,24 @@
 
   // Convert each sample when its card first scrolls into view, then turn the
   // segments over one by one.
+  // Samples already shown are converted again, without the animation, when
+  // the mode changes (釋讀 ⇄ 國漢文混用).
+  let mode = options.sinoOnly
+  $effect(() => {
+    if (options.sinoOnly === mode) return
+    mode = options.sinoOnly
+    // The engine gets the new options first (ImePanel); then convert.
+    setTimeout(() => {
+      for (const id of Object.keys(conv)) {
+        const sample = SAMPLES.find((x) => x.id === id)
+        engine.segments(sample.text).then((segs) => {
+          conv[id] = segs.map((s) => ({ reading: s.reading, text: s.candidates[0]?.text ?? s.reading }))
+          shown[id] = conv[id].length
+        })
+      }
+    }, 50)
+  })
+
   async function play(sample) {
     if (conv[sample.id]) return
     const go = async () => {

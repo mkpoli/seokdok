@@ -2,7 +2,7 @@
   import { reveal } from '../lib/reveal.js'
   import { t, r, plain } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
-  import { options, DEFAULTS } from '../lib/options.svelte.js'
+  import { DEFAULTS } from '../lib/options.svelte.js'
 
   const SAMPLE = '그래서 있으면 봤어요'
   const VARIANTS = [
@@ -16,8 +16,7 @@
 
   $effect(() => {
     if (!status.ready) return
-    const restore = { ...options }
-    Promise.all(VARIANTS.map(([k, o]) => engine.convertWith(SAMPLE, { ...DEFAULTS, ...o }, restore))).then(
+    Promise.all(VARIANTS.map(([k, o]) => engine.convertWith(SAMPLE, { ...DEFAULTS, ...o }))).then(
       (rs) => (rows = rs.map((r, i) => [VARIANTS[i][0], r[0]?.text ?? ''])),
     )
   })

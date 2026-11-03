@@ -41,5 +41,5 @@ export const engine = {
   read: (text) => call('read', text),
   entries: (limit) => call('entries', limit),
   user: (native, sino) => call('user', [native, sino]),
-  convertWith: (text, opts, restore) => call('convertWith', [text, opts, restore]),
+  convertWith: (text, opts) => call('convertWith', [text, opts]),
 }

@@ -69,10 +69,10 @@ const ops = {
   read: (text) => engine.read(text),
   entries: (limit) => JSON.parse(engine.entries(limit)),
   // Convert under other options without changing the current ones.
-  convertWith: ([text, opts, restore]) => {
+  convertWith: ([text, opts]) => {
     engine.setOptions(JSON.stringify(opts))
     const r = JSON.parse(engine.convert(text))
-    engine.setOptions(JSON.stringify(restore))
+    engine.setOptions(JSON.stringify(lastOptions ?? {}))
     return r
   },
 }

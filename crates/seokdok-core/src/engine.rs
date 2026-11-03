@@ -162,6 +162,8 @@ struct Reverse {
     /// Hanja string → native entries written with it, cheapest first.
     native: HashMap<String, Vec<usize>>,
     max_sino: usize,
+    /// Native written keys that contain Hangul between characters.
+    compounds: Vec<String>,
 }
 
 const RAW_COST: f32 = 4.5;
@@ -283,6 +285,13 @@ impl Engine {
         let boundary = |p: usize| p == n || is_l(comps[p]);
         // Particles and endings close a word: inside a run they are misparses.
         let mid = |r: usize| if r == n { 0.0 } else { 8.0 };
+        // Short copula forms after a vowel (라, 다, 고, 야 …) are as often the
+        // end of an unknown word (나라, 바다) as a particle.
+        let weak = |p: &Particle| {
+            let short = crate::jamo::syllable_count(&p.comps) == 1;
+            let common = matches!(compose(&p.comps).as_str(), "가" | "를" | "는" | "와" | "도" | "만" | "의" | "에" | "로" | "랑" | "나" | "요");
+            if p.cond == crate::particles::Cond::Vowel && short && !common { 2.5 } else { 0.0 }
+        };
         let mut edges = Vec::new();
         for s in 0..n {
             if !is_l(comps[s]) {
@@ -296,7 +305,7 @@ impl Engine {
             // The whole run left in Hangul, cheaper than syllable by syllable.
             if s == 0 && crate::jamo::syllable_count(comps) >= 2 {
                 let k = crate::jamo::syllable_count(comps) as f32;
-                edges.push(Edge { start: 0, end: n, cost: RAW_COST + 1.5 * (k - 1.0), kind: Kind::Raw });
+                edges.push(Edge { start: 0, end: n, cost: RAW_COST + 2.5 * (k - 1.0), kind: Kind::Raw });
             }
             // Sino-Korean words, optionally with a particle.
             for (q, items) in self.sino.prefixes(comps, s) {
@@ -356,7 +365,7 @@ impl Engine {
                                 edges.push(Edge {
                                     start: s,
                                     end: r,
-                                    cost: base + 0.2 + mid(r),
+                                    cost: base + 0.2 + mid(r) + weak(p),
                                     kind: Kind::Nominal { entry: i, particle: Some(pi) },
                                 });
                             }
@@ -755,7 +764,8 @@ impl Engine {
             for v in native.values_mut() {
                 v.sort_by(|&a, &b| self.native_cost(&self.natives[a]).partial_cmp(&self.native_cost(&self.natives[b])).unwrap());
             }
-            Reverse { sino, native, max_sino }
+            let compounds = native.keys().filter(|k| k.chars().any(is_syllable)).cloned().collect();
+            Reverse { sino, native, max_sino, compounds }
         })
     }
 
@@ -845,6 +855,11 @@ impl Engine {
             let mut j = i;
             while j < cs.len() && is_hanja(cs[j]) {
                 j += 1;
+            }
+            // A compound verb's written form spans inner Hangul (奪아去).
+            let rest: String = cs[i..].iter().collect();
+            if let Some(key) = self.reverse().compounds.iter().filter(|k| rest.starts_with(k.as_str())).max_by_key(|k| k.len()) {
+                j = i + key.chars().count();
             }
             let mut k = j;
             while k < cs.len() && is_hangulish(cs[k]) {
@@ -981,6 +996,7 @@ lemma\twritten\tpos\tclass\tsource\tcount
         assert!(errs.is_empty(), "{errs:?}");
         assert_eq!(first(&e, "빼앗아갔다"), "奪아去ㅆ다");
         assert_eq!(first(&e, "일어났어요"), "起어出ㅆ어요");
+        assert_eq!(e.read("起어出ㅆ어요"), "일어났어요");
     }
 
     #[test]

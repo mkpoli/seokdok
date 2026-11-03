@@ -196,6 +196,7 @@ const ko = {
   },
   footer: {
     sources: '{辭典|사전}과 {出處|출처}',
+    suggested: '{機械|기계} {提案|제안}: {言語|언어} 모델이 {意|뜻}으로 {付|붙}인 {漢字|한자}, 사람이 {檢討|검토}하지 {不|않}음',
     made: '{作|만드}ㄴ {人|이}',
     licence: '코드는 MIT. {辭典|사전}마다 {許可|허가}가 {異|다르}ㅂ니다.',
   },
@@ -395,6 +396,7 @@ const en = {
     note: 'Settings live in config.toml in the same folder. Switch input method away and back to reload.',
   },
   footer: {
+    suggested: 'Machine suggestions: Hanja assigned by meaning by a language model, not reviewed by a person',
     sources: 'Dictionaries and sources',
     made: 'Made by',
     licence: 'Code under MIT; each dictionary keeps its own licence.',

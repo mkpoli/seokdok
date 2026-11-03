@@ -11,6 +11,11 @@
     </li>
     <li><a href="https://github.com/libhangul/libhangul" rel="noopener">libhangul</a> hanja.txt — BSD-3-Clause, © Choe Hwanjin</li>
     <li><a href="https://github.com/Lee0701/FusionIME" rel="noopener">FusionIME (十八字)</a> — GPL-3.0, Lee0701</li>
+    <li><a href="https://kaikki.org/dictionary/Korean/" rel="noopener">English Wiktionary</a> via kaikki.org (wiktextract) — CC BY-SA 4.0</li>
+    <li><a href="https://www.edrdg.org/jmdict/j_jmdict.html" rel="noopener">JMdict</a> — CC BY-SA 4.0, EDRDG</li>
+    <li><a href="https://github.com/BYVoid/OpenCC" rel="noopener">OpenCC</a> — Apache-2.0</li>
+    <li><a href="https://github.com/notofonts/noto-cjk" rel="noopener">Noto CJK</a> fonts — SIL OFL 1.1</li>
+    <li>{@html r(t().footer.suggested)}</li>
     <li>釋讀會 · 漢字混用 Telegram — 2022–2026</li>
     <li><a href="/dict/NOTICE.txt">NOTICE.txt</a></li>
   </ul>

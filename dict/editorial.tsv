@@ -10,9 +10,6 @@ lemma	written	pos	class	source	count	note
 한번	一番	noun		editorial	16	the chat writes 一番 for 한번 (17 uses, counted under 일번 in sino.tsv): 一番씩 = 한 번씩
 낱말	個言	noun		editorial		낱 個 (community dictionary) + 말 言 (言하다, 言씀)
 하느님	天主	noun		editorial	8	the chat: 天主(하느님), 天主이 保佑하사
-하느님	天	noun		editorial	15	the chat: 天(하느님)이 保佑하사
-하느님	上帝	noun		editorial	1	the chat: 上帝(하느님)이
-하느님	神	noun		editorial	18	the chat: 神(하느님)
 부처님	佛主	noun		editorial	2	the chat: 佛主 來신 日
 손님	客主	noun		editorial	1	the chat: 客主이 有을까
 누님	姉主	noun		editorial	1	the chat: 누님 姉主

@@ -95,6 +95,9 @@ fn reading_back_prefers_the_usual_reading() {
     assert_eq!(e.read("釋讀하면"), "석독하면");
     assert_eq!(e.read("飜譯해서"), "번역해서");
     assert_eq!(e.read("登載되어"), "등재되어");
+    // 天 and 神 alone are 하늘 and 신; 하느님 is 天主.
+    assert_eq!(e.read("天을 見ㅆ다"), "하늘을 봤다");
+    assert_eq!(e.read("神이"), "신이");
 }
 
 #[test]

@@ -1,79 +1,80 @@
 # seokdok 釋讀
 
-An input method for 釋讀, an experimental Korean orthography practised in
-釋讀會 (풀어읽기모임): Sino-Korean words in Hanja by sound (音讀), native
-words in Hanja by meaning (訓讀), and the inflected rest in Hangul (送韓字).
-Type Korean, convert, and get
+An input method for 釋讀, the Korean spelling played with in 釋讀會 (풀어읽기모임): Sino-Korean words in Hanja by sound (音讀), native words in Hanja by meaning (訓讀), and the inflected rest in Hangul (送韓字). It runs in the browser at [seokdok.mkpo.li](https://seokdok.mkpo.li/) and installs as a system input method on Windows and Linux (fcitx5).
 
 ```
-하늘을 봤다            → 天을 見ㅆ다
-처음 오신 것을 환영합니다 → 初음 來신 事ㅅ을 歡迎합니다
-어떻게 읽어요           → 何떻게 讀어요
+하늘을 봤다              → 天을 見ㅆ다
+처음 오신 것을 환영합니다  → 初음 來신 事ㅅ을 歡迎합니다
+옛한글로 양심을 적다       → 古ㅅ韓㐎로 良心을 記다
 ```
 
-The spelling rules and their options are in
-[docs/orthography.md](docs/orthography.md).
+In 國漢文混用 mode only Sino-Korean words become Hanja: 선생님께서 공부하셨다 → 先生님께서 工夫하셨다. The spelling rules and their options are in [docs/orthography.md](docs/orthography.md).
 
-## Layout
+## Install
 
-- `crates/seokdok-core`: the engine. Hangul is decomposed into jamo; a lattice
-  of Sino-Korean words, 訓讀 nominals with particles, and 訓讀 stems with
-  endings is searched for the cheapest analyses, which are then written in the
-  configured style.
-- `crates/seokdok-cli`: `seokdok` command for trying conversions and checking
-  dictionaries.
-- `crates/seokdok-session`: the platform-independent IME: key handling,
-  conversion state, candidates, settings and the user's custom.json.
-- `crates/seokdok-tsf`: the Windows IME (Text Services Framework).
-- `crates/seokdok-ffi`: a C interface to the session (`include/seokdok.h`),
-  used by the fcitx5 addon, the iOS keyboard and the macOS input method.
-- `crates/seokdok-fcitx5`: the Linux IME, an fcitx5 addon. `build.sh` links
-  the Rust core into `libseokdok.so`, `e2e.sh` drives it through a private
-  fcitx5 over D-Bus, `package.sh` stages the release tarball.
-- `ios/`: the iOS keyboard and its app (Swift); see [ios/README.md](ios/README.md).
-- `macos/`: the macOS input method (InputMethodKit, Swift); see
-  [macos/README.md](macos/README.md).
-- `crates/seokdok-jni`: JNI bindings over `seokdok-ffi` for the Android keyboard.
-- `android/`: the Android keyboard and its settings (Kotlin); see
-  [android/README.md](android/README.md).
-- `crates/seokdok-wasm`: WebAssembly bindings (`Engine`, `Composer`) for
-  JavaScript, built with `wasm-pack`.
-- `web/`: https://seokdok.mkpo.li/, an in-browser IME with a 두벌식 keyboard,
-  a reader and the landing page (Svelte, Cloudflare static assets).
-  `bun run build` in `web/` builds the WASM package, packs the dictionaries
-  and builds the site; `bun run deploy` publishes it. `bun run release`
-  packages the Windows and Linux input methods into `web/public/downloads/`
-  (not committed); run it before a deploy that should carry new builds.
-- `dict/`: dictionaries, see [dict/README.md](dict/README.md).
-- `tools/`: scripts that rebuild `dict/` from the sources.
+Downloads are on [seokdok.mkpo.li/#install](https://seokdok.mkpo.li/#install).
 
-## Trying it
+- **Windows**: run the setup, then pick 釋讀 with Win+Space.
+- **Linux**: unpack the tarball and run `install.sh` (per user, no sudo), restart fcitx5 and add 釋讀 in fcitx5-configtool.
+- **iOS, macOS, Android**: the sources are in `ios/`, `macos/` and `android/`. None of them has been built or released yet.
+
+Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc cancels. Settings live in `config.toml`: `%APPDATA%\seokdok\` on Windows, `~/Library/Application Support/seokdok/` on macOS, `~/.config/seokdok/` elsewhere. Your own rules and words go in `custom.json` beside it; the Customize section of the site exports one.
+
+## Usage
 
 ```sh
 cargo run --release -p seokdok-cli -- convert 그렇네요
 cargo run --release -p seokdok-cli -- segments 이런 것도 있네요
-cargo run --release -p seokdok-cli -- --morpheme --resyllabify convert 있으면 어려워요
+cargo run --release -p seokdok-cli -- read 天을 見ㅆ다
+cargo run --release -p seokdok-cli -- add 즐기다 樂기다 verb
 ```
 
-`seokdok read 天을 見ㅆ다` reads 釋讀 text back into Hangul (하늘을 봤다), and
-`seokdok add 즐기다 樂기다 verb` adds a word to `dict/user.tsv`.
+`convert` lists whole-phrase candidates, `segments` the best segmentation with alternatives for each part, `read` reads 釋讀 back into Hangul (하늘을 봤다), and `add` appends a word to `dict/user.tsv`. Options: `--sino` (國漢文混用), `--morpheme` (形態式: 見았다), `--letter` (leftover vowels as letters: 見ㅏ라), `--coda` (末音添記 everywhere), `--resyllabify` (在쓰면), `--hada` (爲 for 하다).
 
-Options: `--morpheme` (形態式), `--letter` (leftover vowels as letters),
-`--coda` (末音添記 everywhere), `--resyllabify` (在쓰면), `--hada` (爲 for
-하다).
+## Layout
 
-## Rebuilding the dictionaries
+- `crates/seokdok-core`: the engine. Hangul is decomposed into jamo, and a lattice of Sino-Korean words, 訓讀 nouns with particles and 訓讀 stems with endings is searched for the cheapest analyses.
+- `crates/seokdok-session`: the platform-independent IME: keys, composition, candidates, `config.toml` and `custom.json`.
+- `crates/seokdok-tsf`: the Windows IME (Text Services Framework) and its installer.
+- `crates/seokdok-fcitx5`: the fcitx5 addon. `build.sh` builds it, `e2e.sh` drives it through a private fcitx5 over D-Bus, `package.sh` stages the tarball.
+- `crates/seokdok-ffi`: a C interface (`include/seokdok.h`) for fcitx5, iOS and macOS. `crates/seokdok-jni` wraps it for Android.
+- `crates/seokdok-wasm`: WebAssembly bindings for the site.
+- `crates/seokdok-cli`: the `seokdok` command above.
+- `ios/`, `macos/`, `android/`: the keyboard, input method and keyboard for each platform, each with its own README.
+- `web/`: the site, with an in-browser IME, a 두벌식 keyboard, a converter and a reader (Svelte).
+- `dict/`: the dictionaries and their licences, see [dict/README.md](dict/README.md).
+- `tools/`: scripts that rebuild `dict/` from the sources in [data/sources/README.md](data/sources/README.md).
+
+## Development
+
+```sh
+cargo test --workspace --exclude seokdok-tsf
+cd web && bun install && bun run build && bun test src
+```
+
+`bun run build` builds the WASM package, packs the dictionaries and builds the site. `bun run deploy` publishes it to Cloudflare, and `bun run release` packages the Windows and Linux input methods into `web/public/downloads/` (not committed).
 
 ```sh
 uv run tools/extract_telegram.py <telegram-export-dir> data/private/telegram.jsonl
-uv run tools/build_dict.py   # community.tsv, gloss.tsv, sino.tsv
-uv run tools/attest.py       # refresh corpus counts in dict/*.tsv
+uv run tools/build_dict.py
+uv run tools/attest.py
 ```
 
-The sources are described in [data/sources/README.md](data/sources/README.md);
-`data/` is not committed except that README.
+These rebuild `community.tsv`, `gloss.tsv` and `sino.tsv` and refresh the usage counts. The chat export stays in `data/private/` and is never committed.
 
-## Licence
+## References
 
-MIT © 2026 mkpoli, except the dictionaries derived from other works; see
-[dict/README.md](dict/README.md).
+- 釋讀會 (풀어읽기모임), Telegram group: https://t.me/pimsdh. Its spellings and usage counts come from the group's chat.
+- 標準國語釋讀辭典, the group's community dictionary (Google Sheets, no licence stated).
+- Choe Hwanjin (2005–2006) [libhangul](https://github.com/libhangul/libhangul) `hanja.txt`.
+- [JMdict](https://www.edrdg.org/jmdict/j_jmdict.html), English Wiktionary via [kaikki.org](https://kaikki.org/), FusionIME and OpenCC; see [dict/README.md](dict/README.md) for what each supplies.
+
+## Sponsor
+
+I build seokdok on my own, with no funding behind it, and it's free for everyone. If it's useful to you, a tip on [Ko-fi](https://ko-fi.com/mkpoli) or [OFUSE](https://ofuse.me/mkpoli) gives me time to keep improving it. Companies interested in sponsoring can write to mkpoli@mkpo.li.
+
+[![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/mkpoli)
+
+## License
+
+Code: MIT © 2026 mkpoli. Each dictionary keeps the licence of the work it comes from (BSD-3-Clause, CC BY-SA 4.0, GPL-3.0, or none stated); see [dict/README.md](dict/README.md).

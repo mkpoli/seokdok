@@ -66,6 +66,15 @@ fn coda_options() {
 }
 
 #[test]
+fn sino_only_leaves_native_words_in_hangul() {
+    check(Options { sino_only: true, ..Options::default() }, &[
+        ("나라를 사랑하는 마음", "나라를 사랑하는 마음"),
+        ("선생님께서 공부하셨다", "先生님께서 工夫하셨다"),
+        ("학교에 가서 친구를 만났다", "學校에 가서 親舊를 만났다"),
+    ]);
+}
+
+#[test]
 fn etymology_comes_before_homophones_but_after_kun() {
     let e = engine(Options::default());
     let first = |s: &str| e.convert(s)[0].text.clone();
@@ -82,4 +91,20 @@ fn reading_back_prefers_the_usual_reading() {
     assert_eq!(e.read("先生님"), "선생님");
     // The chat writes 一番 for 한번 (editorial.tsv).
     assert_eq!(e.read("一番씩"), "한번씩");
+    // 音讀 + 하다/되다 stays 音讀 (not 讀하다 = 구독하다).
+    assert_eq!(e.read("釋讀하면"), "석독하면");
+    assert_eq!(e.read("飜譯해서"), "번역해서");
+    assert_eq!(e.read("登載되어"), "등재되어");
+}
+
+#[test]
+fn honorific_nim() {
+    // Any noun takes 님, written 主 or left in Hangul.
+    check(Options::default(), &[("해님", "日主"), ("선생님께서", "先生主께서"), ("부처님", "佛主"), ("아버님", "父主")]);
+    let e = engine(Options::default());
+    assert!(e.convert("해님").iter().any(|c| c.text == "日님"));
+    assert!(e.convert("선생님").iter().any(|c| c.text == "先生님"));
+    assert_eq!(e.read("佛主"), "부처님");
+    assert_eq!(e.read("兄主"), "형님");
+    assert_eq!(e.read("天主이"), "하느님이");
 }

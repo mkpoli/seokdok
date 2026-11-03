@@ -15,33 +15,53 @@ final class Session {
 
     struct Candidates {
         let items: [(text: String, note: String)]
+        /// Index of the selected candidate within `items`.
         let selected: Int
+        /// 1-based position of the selected candidate among `total`.
         let position: Int
         let total: Int
     }
 
+    /// Input modes, as numbered by `seokdok_mode`.
+    enum Mode: Int32 {
+        case seokdok = 0, hangul = 1, latin = 2
+    }
+
+    /// Key kinds of `seokdok_key`.
     enum Key {
         static let letter = Int32(SK_LETTER)
         static let printable = Int32(SK_PRINTABLE)
         static let space = Int32(SK_SPACE)
         static let enter = Int32(SK_ENTER)
+        static let esc = Int32(SK_ESC)
         static let backspace = Int32(SK_BACKSPACE)
         static let left = Int32(SK_LEFT)
         static let right = Int32(SK_RIGHT)
-        static let toggle = Int32(SK_TOGGLE)
+        static let up = Int32(SK_UP)
+        static let down = Int32(SK_DOWN)
+        static let pageUp = Int32(SK_PAGEUP)
+        static let pageDown = Int32(SK_PAGEDOWN)
+        static let convert = Int32(SK_CONVERT)
     }
 
-    /// `dictDir` holds the *.tsv dictionaries; `configDir`, when given, the
-    /// config.toml and custom.json the app writes (the shared App Group).
-    init(dictDir: String, configDir: String?) {
-        if let configDir {
-            setenv("SEOKDOK_CONFIG_DIR", configDir, 1)
-        }
-        ime = dictDir.withCString { seokdok_new($0) }
+    /// `dictDir` holds the *.tsv dictionaries.
+    init(dictDir: String) {
+        ime = dictDir.withCString { seokdok_new($0)! }
     }
 
     deinit {
         seokdok_free(ime)
+    }
+
+    /// Where config.toml, custom.json and user.tsv are read from: the App
+    /// Group container the app writes, or nil for the keyboard's own
+    /// container (no settings, so the defaults apply).
+    static func setConfigDir(_ dir: String?) {
+        if let dir {
+            setenv("SEOKDOK_CONFIG_DIR", dir, 1)
+        } else {
+            unsetenv("SEOKDOK_CONFIG_DIR")
+        }
     }
 
     /// Re-read the settings.
@@ -66,7 +86,8 @@ final class Session {
     }
 
     func takeCommit() -> String? {
-        seokdok_take_commit(ime).map { String(cString: $0) }
+        guard let p = seokdok_take_commit(ime) else { return nil }
+        return String(cString: p)
     }
 
     func preedit() -> [Run] {
@@ -77,6 +98,7 @@ final class Session {
         }
     }
 
+    /// The candidate page, or nil when the list is closed.
     func candidates() -> Candidates? {
         let n = seokdok_popup_len(ime)
         guard n > 0 else { return nil }
@@ -84,7 +106,8 @@ final class Session {
         for i in 0..<n {
             var note: UnsafePointer<CChar>?
             guard let p = seokdok_popup_item(ime, i, &note) else { continue }
-            items.append((String(cString: p), note.map { String(cString: $0) } ?? ""))
+            let text = String(cString: p)
+            items.append((text, note.map { String(cString: $0) } ?? ""))
         }
         var selected = 0, position = 0, total = 0
         var horizontal = false
@@ -92,18 +115,25 @@ final class Session {
         return Candidates(items: items, selected: selected, position: position, total: total)
     }
 
-    /// 0 釋讀, 1 Hangul, 2 Latin.
-    var mode: Int32 {
-        seokdok_mode(ime)
+    var mode: Mode {
+        get { Mode(rawValue: seokdok_mode(ime)) ?? .seokdok }
+        set { seokdok_set_mode(ime, newValue.rawValue) }
     }
 
     /// The jamo a key types (upper case = Shift layer), for key labels.
     static func jamo(_ key: Character) -> String? {
         guard let v = key.unicodeScalars.first?.value else { return nil }
         let j = seokdok_key_jamo(v)
-        return j == 0 ? nil : UnicodeScalar(j).map { String($0) }
+        guard j != 0, let s = Unicode.Scalar(j) else { return nil }
+        return String(Character(s))
     }
 
+    /// Whether Space converts (a setting); the convert key always does.
+    static var spaceConverts: Bool {
+        seokdok_space_converts()
+    }
+
+    /// Whether the dictionaries have finished loading.
     static var ready: Bool {
         seokdok_ready()
     }

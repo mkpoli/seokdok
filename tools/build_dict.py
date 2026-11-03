@@ -192,6 +192,10 @@ def build_gloss(lex, sino_readings):
                 if len(base) >= 2 and base in sino_readings and (lemma.endswith("하다") or "sino" in lex.get(base, ())):
                     continue
                 written = han + ("다" if pos in ("verb", "adj") else "")
+                # The gloss names the character's own sound (강할 강 强): the
+                # Hanja stands for 강 alone and 하다 stays (强하다).
+                if lemma.endswith("하다") and base == reading:
+                    written = han + "하다"
                 key = (lemma, written)
                 if key in seen:
                     continue

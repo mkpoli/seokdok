@@ -84,6 +84,7 @@ pub struct Conversion {
     pub coda_always: bool,
     pub resyllabify: bool,
     pub hada_kun: bool,
+    pub sino_only: bool,
     pub max_candidates: usize,
 }
 
@@ -96,6 +97,7 @@ impl Default for Conversion {
             coda_always: o.coda_always,
             resyllabify: o.resyllabify,
             hada_kun: o.hada_kun,
+            sino_only: o.sino_only,
             max_candidates: o.max_candidates,
         }
     }
@@ -145,6 +147,7 @@ impl Config {
             coda_always: c.coda_always,
             resyllabify: c.resyllabify,
             hada_kun: c.hada_kun,
+            sino_only: c.sino_only,
             max_candidates: c.max_candidates.max(1),
         }
     }
@@ -227,6 +230,8 @@ coda_always = {coda}
 resyllabify = {resyl}
 # Prefer 爲 for the light verb 하다.  (true | false)
 hada_kun = {hada}
+# 國漢文混用: Hanja for 音讀 words only, native words stay in Hangul.  (true | false)
+sino_only = {sino}
 # Maximum number of whole-phrase candidates.  (integer, 1 or more)
 max_candidates = {max}
 ",
@@ -243,6 +248,7 @@ max_candidates = {max}
             coda = c.coda_always,
             resyl = c.resyllabify,
             hada = c.hada_kun,
+            sino = c.sino_only,
             max = c.max_candidates,
         )
     }
@@ -301,12 +307,18 @@ mod tests {
     #[test]
     fn the_ios_app_partial_file_parses() {
         // What ios/App/SeokdokApp.swift writes; missing keys keep defaults.
-        let c = Config::parse("[input]\ndefault_mode = \"latin\"\nspace_converts = false\nold_clusters = true\n");
+        let c = Config::parse(
+            "[input]\ndefault_mode = \"latin\"\nspace_converts = false\ncandidate_layout = \"vertical\"\nold_clusters = true\n\n\
+             [conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = false\nhada_kun = true\nsino_only = true\nmax_candidates = 20\n",
+        );
         assert_eq!(c.input.default_mode, InputMode::Latin);
         assert!(!c.input.space_converts);
         assert!(c.input.old_clusters);
         assert!(c.input.alt_toggles);
-        assert_eq!(c.conversion, Config::default().conversion);
+        assert_eq!(c.conversion.style, StyleOpt::Morpheme);
+        assert_eq!(c.conversion.fragment, FragmentOpt::Letter);
+        assert!(c.conversion.coda_always && c.conversion.hada_kun && !c.conversion.resyllabify && c.conversion.sino_only);
+        assert_eq!(c.conversion.max_candidates, 20);
     }
 
     fn non_default() -> Config {
@@ -324,6 +336,7 @@ mod tests {
                 coda_always: true,
                 resyllabify: true,
                 hada_kun: true,
+                sino_only: true,
                 max_candidates: 5,
             },
         }
@@ -351,7 +364,7 @@ mod tests {
         let o = non_default().engine_options();
         assert_eq!(o.style, Style::Morpheme);
         assert_eq!(o.fragment, Fragment::Letter);
-        assert!(o.coda_always && o.resyllabify && o.hada_kun);
+        assert!(o.coda_always && o.resyllabify && o.hada_kun && o.sino_only);
         assert_eq!(o.max_candidates, 5);
         let d = Config::default().engine_options();
         assert_eq!(d.style, Style::Surface);

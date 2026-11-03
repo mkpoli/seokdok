@@ -1,0 +1,14 @@
+// seokdok icon resources. Paths are relative to the crate root, where cargo
+// runs the build script.
+//
+// IDs must match src/guids.rs. IDI_ICON has the lowest id, so it is icon
+// index 0, the profile icon.
+#define IDI_ICON         101
+#define IDI_MODE_SEOKDOK 102
+#define IDI_MODE_HANGUL  103
+#define IDI_MODE_LATN    104
+
+IDI_ICON         ICON "assets/icon.ico"
+IDI_MODE_SEOKDOK ICON "assets/mode_seokdok.ico"
+IDI_MODE_HANGUL  ICON "assets/mode_hangul.ico"
+IDI_MODE_LATN    ICON "assets/mode_latn.ico"

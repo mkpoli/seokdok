@@ -8,6 +8,7 @@
 
 use std::ffi::{c_char, CStr, CString};
 use std::path::PathBuf;
+use std::sync::Mutex;
 
 use seokdok_session::config::{self, Config, InputMode, Layout};
 use seokdok_session::engine_host::HOST;
@@ -40,8 +41,12 @@ pub struct Ime {
     // C strings handed out, kept alive until the view changes.
     cstrs: Vec<CString>,
     dict_dir: PathBuf,
-    options_key: String,
 }
+
+/// The dictionary folder and options the shared engine was last loaded with.
+/// Sessions share one engine, so a new session (a new text field, a new
+/// application) reloads only when these change.
+static LOADED: Mutex<Option<(PathBuf, String)>> = Mutex::new(None);
 
 fn mode_of(m: InputMode) -> Mode {
     match m {
@@ -74,7 +79,6 @@ impl Ime {
             popup: None,
             cstrs: Vec::new(),
             dict_dir,
-            options_key: String::new(),
         };
         ime.sync();
         ime
@@ -86,9 +90,10 @@ impl Ime {
         self.session.set_space_converts(cfg.input.space_converts);
         self.session.set_horizontal(cfg.input.candidate_layout == Layout::Horizontal);
         self.session.set_old_clusters(cfg.input.old_clusters);
-        let key = format!("{:?}", cfg.conversion);
-        if key != self.options_key || !HOST.started() {
-            self.options_key = key;
+        let key = (self.dict_dir.clone(), format!("{:?}", cfg.conversion));
+        let mut loaded = LOADED.lock().unwrap_or_else(|e| e.into_inner());
+        if loaded.as_ref() != Some(&key) || !HOST.started() {
+            *loaded = Some(key);
             HOST.start_load(self.dict_dir.clone(), Config::user_dir(), cfg.engine_options());
         }
     }

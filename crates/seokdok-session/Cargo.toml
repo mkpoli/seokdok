@@ -1,0 +1,13 @@
+[package]
+name = "seokdok-session"
+description = "Platform-independent input-method core for 釋讀: key session, engine host, settings"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[dependencies]
+seokdok-core = { path = "../seokdok-core" }
+serde = { version = "1", features = ["derive"] }
+toml = "0.8"

@@ -1,4 +1,5 @@
-//! TOML configuration at `%APPDATA%\seokdok\config.toml`.
+//! TOML configuration: `%APPDATA%\seokdok\config.toml` on Windows,
+//! `$XDG_CONFIG_HOME/seokdok/config.toml` (default `~/.config/seokdok`) elsewhere.
 //!
 //! The file and the settings dialog edit the same [`Config`]. Every field has
 //! a default, so a partial or malformed file still loads.
@@ -100,7 +101,14 @@ pub struct Config {
 
 impl Config {
     pub fn user_dir() -> Option<PathBuf> {
-        Some(PathBuf::from(std::env::var_os("APPDATA")?).join("seokdok"))
+        if cfg!(windows) {
+            return Some(PathBuf::from(std::env::var_os("APPDATA")?).join("seokdok"));
+        }
+        let base = std::env::var_os("XDG_CONFIG_HOME")
+            .map(PathBuf::from)
+            .filter(|p| p.is_absolute())
+            .or_else(|| Some(PathBuf::from(std::env::var_os("HOME")?).join(".config")))?;
+        Some(base.join("seokdok"))
     }
 
     pub fn path() -> Option<PathBuf> {
@@ -159,7 +167,7 @@ impl Config {
         };
         format!(
             "\
-# seokdok configuration: %APPDATA%\\seokdok\\config.toml
+# seokdok configuration (Windows: %APPDATA%\\seokdok\\config.toml; Linux: ~/.config/seokdok/config.toml)
 #
 # Re-activate the input method (switch away and back) to apply changes.
 # Delete this file to regenerate it with the defaults.
@@ -182,7 +190,7 @@ candidate_layout = \"{layout}\"
 
 # Own words, phrases and rewrite rules: export them from
 # https://seokdok.mkpo.li/#custom and save the file as
-# %APPDATA%\\seokdok\\custom.json beside this one.
+# custom.json beside this file.
 
 [conversion]
 # How the Hangul after a 訓讀 stem is written.

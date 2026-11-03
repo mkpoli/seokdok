@@ -179,11 +179,21 @@ dependencies = [
 ]
 
 [[package]]
+name = "seokdok-session"
+version = "0.1.0"
+dependencies = [
+ "seokdok-core",
+ "serde",
+ "toml 0.8.23",
+]
+
+[[package]]
 name = "seokdok-tsf"
 version = "0.1.0"
 dependencies = [
  "embed-resource",
  "seokdok-core",
+ "seokdok-session",
  "serde",
  "toml 0.8.23",
  "windows",

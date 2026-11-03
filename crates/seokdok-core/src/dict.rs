@@ -220,6 +220,10 @@ pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
             _ => return Err(format!("{written:?}: {seg:?} is not inside {stem_str:?}")),
         }
     }
+    // The last character must cover something after the inner Hangul.
+    if hanja.chars().any(is_syllable) && decompose(rest).len() <= tail_c.len() {
+        return Err(format!("{written:?}: the last character covers nothing of {stem_str:?}"));
+    }
     if !stem.ends_with(&tail_c) {
         return Err(format!("{written:?}: tail {tail_s:?} does not end {stem_str:?}"));
     }
@@ -313,5 +317,6 @@ mod tests {
         let e = parse_native(&["빼앗아가다", "奪아去다", "verb"]).unwrap();
         assert_eq!((e.hanja.as_str(), &e.tail), ("奪아去", &Tail::None));
         assert!(parse_native(&["빼앗아가다", "奪어去다", "verb"]).is_err());
+        assert!(parse_native(&["일어나다", "起어出나다", "verb"]).is_err());
     }
 }

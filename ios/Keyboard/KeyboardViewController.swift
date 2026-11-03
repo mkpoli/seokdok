@@ -13,8 +13,6 @@ final class KeyboardViewController: UIInputViewController {
     private var marked: String?
     private var loadTimer: Timer?
 
-    static let appGroup = "group.li.mkpo.seokdok"
-
     override func viewDidLoad() {
         super.viewDidLoad()
         let dict = Bundle.main.bundleURL.appendingPathComponent("dict").path
@@ -42,10 +40,11 @@ final class KeyboardViewController: UIInputViewController {
     }
 
     /// The App Group container holding the app's settings. Reading it needs
-    /// Full Access; without it the keyboard runs on the defaults.
+    /// Full Access and a signature that grants the group; without them the
+    /// keyboard runs on the defaults.
     private func configDir() -> String? {
         guard hasFullAccess else { return nil }
-        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.appGroup)?.path
+        return AppGroup.containerURL?.path
     }
 
     override func viewWillAppear(_ animated: Bool) {

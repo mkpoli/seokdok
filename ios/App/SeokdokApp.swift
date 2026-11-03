@@ -47,6 +47,11 @@ struct ContentView: View {
                     Toggle("옛한글 겹자모 · Old Hangul clusters (ㅅㄱ→ᄭ)", isOn: $oldClusters)
                 }
                 Section {
+                    if AppGroup.containerURL == nil {
+                        Text("이 署名에는 共有 컨테이너가 없어 아래 設定이 키보드에 傳해지지 않습니다. 키보드는 基本 設定으로 動作합니다.")
+                        Text("This signature grants no shared container, so these settings do not reach the keyboard. It runs on the defaults.")
+                            .foregroundStyle(.secondary)
+                    }
                     Toggle("國漢文混用 · Hanja for Sino-Korean words only", isOn: $sinoOnly)
                     Picker("表記 · Style", selection: $style) {
                         Text("表音式 見ㅆ다").tag("surface")
@@ -85,15 +90,16 @@ struct ContentView: View {
 }
 
 enum Settings {
-    static let appGroup = "group.li.mkpo.seokdok"
-    static let store = UserDefaults(suiteName: appGroup)
+    /// Falls back to the app's own defaults, so the toggles still remember
+    /// their state when the signature grants no App Group.
+    static let store = AppGroup.defaults ?? .standard
 
     /// Write config.toml where the keyboard's session reads it. Keys left
     /// out (alt_toggles) keep their defaults; the candidate bar is a row of
     /// its own, so the layout stays vertical and ← → move between segments.
     static func write() {
-        guard let dir = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup),
-              let s = store else { return }
+        guard let dir = AppGroup.containerURL else { return }
+        let s = store
         func bool(_ key: String, _ fallback: Bool) -> Bool { s.object(forKey: key) as? Bool ?? fallback }
         func text(_ key: String, _ fallback: String) -> String { s.string(forKey: key) ?? fallback }
         let toml = """

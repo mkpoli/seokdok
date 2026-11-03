@@ -164,6 +164,13 @@
     altAlone = false
     if (e.isComposing || e.key === 'Process' || e.keyCode === 229) return
     const mod = e.ctrlKey || e.metaKey
+    const k = e.key.toLowerCase()
+    if (mod && !e.altKey && (k === 'z' || k === 'y')) {
+      e.preventDefault()
+      if (k === 'y' || e.shiftKey) ime.redo()
+      else ime.undo()
+      return
+    }
     if (mod && !e.altKey && (e.key === 'a' || e.key === 'A')) {
       e.preventDefault()
       ime.selectAll()

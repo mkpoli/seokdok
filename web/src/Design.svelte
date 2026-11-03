@@ -35,7 +35,7 @@
 
   <h2>Type</h2>
   <p class="display">釋讀</p>
-  <p class="club">풀어읽기모임</p>
+  <p class="club">풀어읽기모임 釋讀會</p>
   <p class="serif"><ruby>音讀<rt>음독</rt></ruby>에<ruby>疲<rt>지치</rt></ruby>ㄴ <ruby>當身<rt>당신</rt></ruby>을<ruby>爲<rt>위</rt></ruby>한、 — --f-serif</p>
   <p>Body text in --f-sans. 本文은 Noto Sans KR로 짭니다.</p>
 

@@ -21,7 +21,7 @@
       <ruby>音讀<rt>음독</rt></ruby>에<ruby>疲<rt>지치</rt></ruby>ㄴ
       <ruby>當身<rt>당신</rt></ruby>을<ruby>爲<rt>위</rt></ruby>한、
     </p>
-    <p class="club">풀어읽기모임</p>
+    <p class="club">{@html r(t().hero.kicker)}</p>
     <h1 class="title" aria-label="釋讀 seokdok">
       <span class="big">釋讀</span>
     </h1>
@@ -81,8 +81,8 @@
   .club {
     margin: var(--s-2) 0 0;
     color: var(--c-accent);
-    font: 700 clamp(28px, 4.4vw, 48px) / 1.1 var(--f-round);
-    letter-spacing: 0.32em;
+    font: 700 clamp(18px, 2.4vw, 28px) / 1.5 var(--f-round);
+    letter-spacing: 0.08em;
   }
   .title {
     margin: 0;

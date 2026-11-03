@@ -46,11 +46,11 @@ const RO: &[(&str, &str)] = &[
 
 /// Contractions after a vowel-final nominal.
 const CONTRACT: &[(&str, Cond)] = &[
-    ("ㄴ", Cond::Vowel), // 저는 → 전
-    ("ㄹ", Cond::Vowel), // 저를 → 절
+    ("ㄴ", Cond::PronVowel), // 저는 → 전
+    ("ㄹ", Cond::PronVowel), // 저를 → 절
     ("ㅣ", Cond::PronVowel), // 나의 → 내, 저의 → 제
     ("ㅣ가", Cond::PronVowel), // 내가, 제가, 네가
-    ("ㄴ데", Cond::Vowel),
+    ("ㄴ데", Cond::PronVowel),
 ];
 
 pub struct Particle {

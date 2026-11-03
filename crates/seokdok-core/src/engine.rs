@@ -281,6 +281,8 @@ impl Engine {
     fn edges(&self, comps: &[char]) -> Vec<Edge> {
         let n = comps.len();
         let boundary = |p: usize| p == n || is_l(comps[p]);
+        // Particles and endings close a word: inside a run they are misparses.
+        let mid = |r: usize| if r == n { 0.0 } else { 8.0 };
         let mut edges = Vec::new();
         for s in 0..n {
             if !is_l(comps[s]) {
@@ -291,6 +293,11 @@ impl Engine {
                 e += 1;
             }
             edges.push(Edge { start: s, end: e, cost: RAW_COST, kind: Kind::Raw });
+            // The whole run left in Hangul, cheaper than syllable by syllable.
+            if s == 0 && crate::jamo::syllable_count(comps) >= 2 {
+                let k = crate::jamo::syllable_count(comps) as f32;
+                edges.push(Edge { start: 0, end: n, cost: RAW_COST + 1.5 * (k - 1.0), kind: Kind::Raw });
+            }
             // Sino-Korean words, optionally with a particle.
             for (q, items) in self.sino.prefixes(comps, s) {
                 if !boundary(q) {
@@ -310,7 +317,7 @@ impl Engine {
                                 edges.push(Edge {
                                     start: s,
                                     end: r,
-                                    cost: base + 0.2,
+                                    cost: base + 0.2 + mid(r),
                                     kind: Kind::Sino { entry: i, particle: Some(pi) },
                                 });
                             }
@@ -333,7 +340,10 @@ impl Engine {
                     };
                     let base = EDGE_COST + self.native_cost(entry) + short;
                     if boundary(q) {
-                        edges.push(Edge { start: s, end: q, cost: base, kind: Kind::Nominal { entry: i, particle: None } });
+                        // A bare native word inside a longer run is usually a misparse
+                        // of an unknown word (나라 ≠ 吾+라).
+                        let inside = if q == n { 0.0 } else if crate::jamo::syllable_count(&entry.stem) == 1 { 5.0 } else { 3.0 };
+                        edges.push(Edge { start: s, end: q, cost: base + inside, kind: Kind::Nominal { entry: i, particle: None } });
                     }
                     let pron = entry.pos == Pos::Pron;
                     for (r, pis) in self.particle_trie.prefixes(comps, q) {
@@ -346,7 +356,7 @@ impl Engine {
                                 edges.push(Edge {
                                     start: s,
                                     end: r,
-                                    cost: base + 0.2,
+                                    cost: base + 0.2 + mid(r),
                                     kind: Kind::Nominal { entry: i, particle: Some(pi) },
                                 });
                             }
@@ -369,7 +379,7 @@ impl Engine {
                             edges.push(Edge {
                                 start: s,
                                 end: r,
-                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs,
+                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs + mid(r),
                                 kind: Kind::Verb { entry: i, allo: a, ending: ei },
                             });
                         }
@@ -443,8 +453,9 @@ impl Engine {
                 let tail = &comps[e.start + al.comps.len()..e.end];
                 let o = &self.options;
                 let mut out: Vec<String> = Vec::new();
-                let surf = |frag: Fragment, coda: bool| self.surface(n, &al.comps, tail, frag, coda);
-                let morph = |coda: bool| self.morpheme(n, *ending as usize, coda);
+                let rs = o.resyllabify;
+                let surf = |frag: Fragment, coda: bool| self.surface(n, &al.comps, tail, frag, coda, rs);
+                let morph = |coda: bool| self.morpheme(n, *ending as usize, coda, rs);
                 let other_frag = if o.fragment == Fragment::Absorb { Fragment::Letter } else { Fragment::Absorb };
                 let order: Vec<Option<String>> = match o.style {
                     Style::Surface => vec![
@@ -462,7 +473,13 @@ impl Engine {
                         Some(surf(o.fragment, !o.coda_always)),
                     ],
                 };
-                for t in order.into_iter().flatten() {
+                // The other resyllabification last, so the reader knows it too.
+                let other_rs = [
+                    Some(self.surface(n, &al.comps, tail, o.fragment, o.coda_always, !rs)),
+                    Some(self.surface(n, &al.comps, tail, o.fragment, !o.coda_always, !rs)),
+                    self.morpheme(n, *ending as usize, o.coda_always, !rs),
+                ];
+                for t in order.into_iter().chain(other_rs).flatten() {
                     if !out.contains(&t) {
                         out.push(t);
                     }
@@ -475,7 +492,7 @@ impl Engine {
 
     /// Surface style: the Hanja stand for the stem as pronounced; what follows
     /// is the rest of the pronounced word.
-    fn surface(&self, n: &Native, allo: &[char], ending: &[char], frag: Fragment, coda_always: bool) -> String {
+    fn surface(&self, n: &Native, allo: &[char], ending: &[char], frag: Fragment, coda_always: bool, resyll: bool) -> String {
         let strip_v = |v: &[char]| -> Vec<char> {
             if frag == Fragment::Absorb {
                 v.iter().copied().skip_while(|&c| is_v(c)).collect()
@@ -518,16 +535,24 @@ impl Engine {
                 }
             }
         };
-        let rest = if written_coda && self.options.resyllabify { resyllabify(&rest) } else { rest };
+        let rest = if written_coda && resyll { resyllabify(&rest) } else { rest };
         format!("{}{}", n.hanja, compose(&rest))
     }
 
     /// Morpheme style: the ending written as attached to the lemma's
     /// underlying final, without contraction.
-    fn morpheme(&self, n: &Native, ending: usize, coda_always: bool) -> Option<String> {
+    fn morpheme(&self, n: &Native, ending: usize, coda_always: bool, resyll: bool) -> Option<String> {
         let e = morph_ending(n.morph?, ending)?;
+        // ㄹ is not pronounced before ᄂ ᄇ ᄉ or a coda ending (아는, 압니다),
+        // and no written consonant goes before a coda ending.
+        let blocked = match e.first() {
+            Some(&c) if is_t(c) => true,
+            Some('ᄂ' | 'ᄇ' | 'ᄉ') => n.stem.last() == Some(&'ᆯ'),
+            _ => false,
+        };
         let mut written_coda = false;
         let prefix: Vec<char> = match n.tail {
+            _ if blocked => Vec::new(),
             Tail::None if coda_always && simple_coda(&n.stem) => {
                 written_coda = true;
                 let k = n.stem.iter().rev().take_while(|&&c| is_t(c)).count();
@@ -542,7 +567,7 @@ impl Engine {
         };
         // A written-out final consonant already carries the 으 slot.
         let rest = [prefix, e].concat();
-        let rest = if written_coda && self.options.resyllabify { resyllabify(&rest) } else { rest };
+        let rest = if written_coda && resyll { resyllabify(&rest) } else { rest };
         Some(format!("{}{}", n.hanja, compose(&rest)))
     }
 
@@ -702,7 +727,7 @@ impl Engine {
 }
 
 fn is_hanja(c: char) -> bool {
-    matches!(c as u32, 0x3400..=0x4DBF | 0x4E00..=0x9FFF | 0xF900..=0xFAFF | 0x20000..=0x3134F)
+    crate::dict::is_han(c)
 }
 
 fn is_hangulish(c: char) -> bool {

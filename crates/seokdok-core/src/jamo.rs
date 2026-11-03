@@ -166,6 +166,11 @@ fn v_to_compat(v: char) -> char {
     ch(0x314F + (v as u32 - VBASE))
 }
 
+/// The compatibility letter of an onset (ᄄ → ㄸ).
+fn l_to_compat(l: char) -> char {
+    "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ".chars().nth((l as u32 - LBASE) as usize).unwrap()
+}
+
 /// The coda that sounds the same as an onset (ᄋ has none).
 pub fn l_to_t(l: char) -> Option<char> {
     let compat = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ".chars().nth((l as u32 - LBASE) as usize)?;
@@ -204,11 +209,7 @@ pub fn compose(comps: &[char]) -> String {
             match vowel {
                 None => {
                     // Onset without a usable vowel: write the letter alone.
-                    out.push(t_to_compat(l_to_t(c).unwrap_or('ᆼ')));
-                    if c == 'ᄋ' {
-                        out.pop();
-                        out.push('ㅇ');
-                    }
+                    out.push(l_to_compat(c));
                     i += 1;
                     continue;
                 }
@@ -246,16 +247,8 @@ pub fn compose(comps: &[char]) -> String {
             }
             i = end;
         } else if is_t(c) {
-            // Orphan coda(s): a complex coda letter if two combine, else one.
-            if i + 1 < comps.len() && is_t(comps[i + 1]) {
-                if let Some(t) = join_t(&comps[i..i + 2]) {
-                    if !split_t(t).is_empty() {
-                        out.push(t_to_compat(t));
-                        i += 2;
-                        continue;
-                    }
-                }
-            }
+            // Orphan coda: each written-out letter stays separate (ㄹㅁ, not ㄻ),
+            // since adjacent letters come from different morphemes.
             out.push(t_to_compat(c));
             i += 1;
         } else {
@@ -270,7 +263,8 @@ pub fn compose(comps: &[char]) -> String {
 /// (ᆻ + 으면 → 쓰면), used for the resyllabified 末音添記 variant.
 pub fn resyllabify(comps: &[char]) -> Vec<char> {
     let mut v = comps.to_vec();
-    if v.len() >= 2 && is_t(v[0]) && v[1] == 'ᄋ' {
+    // A silent ㅎ (然ㅎ + 어서) is not carried over.
+    if v.len() >= 2 && is_t(v[0]) && v[0] != 'ᇂ' && v[1] == 'ᄋ' {
         if let Some(l) = t_to_l(v[0]) {
             v.remove(0);
             v[0] = l;
@@ -322,5 +316,8 @@ mod tests {
     fn compat_tail() {
         assert_eq!(decompose("ㅆ"), vec!['ᆻ']);
         assert_eq!(compose(&resyllabify(&decompose("ㅆ으면"))), "쓰면");
+        assert_eq!(compose(&resyllabify(&decompose("ㅎ어서"))), "ㅎ어서");
+        assert_eq!(compose(&['ᄄ']), "ㄸ");
+        assert_eq!(compose(&['ᆯ', 'ᆸ']), "ㄹㅂ");
     }
 }

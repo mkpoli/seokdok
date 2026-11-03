@@ -51,7 +51,7 @@ impl Class {
 /// override the guess with an explicit class.
 pub fn guess_class(stem: &str, is_adj: bool) -> Class {
     const B_VERBS: &[&str] = &["돕", "굽", "눕", "줍", "깁"];
-    const B_ADJ_REGULAR: &[&str] = &["좁", "굽"];
+    const B_ADJ_REGULAR: &[&str] = &["좁", "굽", "수줍"];
     const D_IRR: &[&str] = &["듣", "걷", "묻", "싣", "깨닫", "붇", "일컫", "긷", "눋", "겯"];
     const S_IRR: &[&str] = &["낫", "짓", "잇", "붓", "긋", "젓", "잣"];
     const REU_REGULAR: &[&str] = &["따르", "치르", "들르", "우러르", "다다르"];
@@ -62,7 +62,7 @@ pub fn guess_class(stem: &str, is_adj: bool) -> Class {
     let c = decompose(stem);
     let last = *c.last().unwrap_or(&' ');
     if stem.ends_with('르') {
-        if REO.contains(&stem) {
+        if is_adj && REO.contains(&stem) {
             return Class::Reo;
         }
         if REU_REGULAR.iter().any(|s| stem.ends_with(s)) {
@@ -71,7 +71,8 @@ pub fn guess_class(stem: &str, is_adj: bool) -> Class {
         return Class::Reu;
     }
     if is_t(last) {
-        let base_is = |list: &[&str]| list.iter().any(|s| stem == *s || stem.ends_with(s) && s.chars().count() > 1);
+        // Compounds inherit the class of their last part (알아듣, 드러눕).
+        let base_is = |list: &[&str]| list.iter().any(|s| stem.ends_with(s));
         match last {
             'ᆸ' if c.len() >= 2 && c[c.len() - 2] != 'ᆯ' => {
                 if is_adj {
@@ -138,11 +139,11 @@ const FINALS: &[Morph] = &[
     m(Kind::K, "더니"), m(Kind::K, "나"), m(Kind::K, "나요"), m(Kind::K, "냐"), m(Kind::K, "느냐"),
     m(Kind::K, "자"), m(Kind::K, "잖아"), m(Kind::K, "잖아요"), m(Kind::K, "다고"), m(Kind::K, "다는"),
     m(Kind::K, "다니"), m(Kind::K, "단"), m(Kind::K, "대요"), m(Kind::K, "대"), m(Kind::K, "고서"),
-    m(Kind::K, "지는"), m(Kind::K, "진"), m(Kind::K, "지도"), m(Kind::K, "네요"), m(Kind::K, "소"),
+    m(Kind::K, "지는"), m(Kind::K, "진"), m(Kind::K, "지도"), m(Kind::K, "소"),
     m(Kind::K, "도다"), m(Kind::K, "노라"),
     // Adverbial -이 (많이, 같이) and -히 is lexical; -이 attaches like K.
     m(Kind::K, "이"), m(Kind::K, "다네요"), m(Kind::K, "다면"), m(Kind::K, "다니까"), m(Kind::K, "기엔"),
-    m(Kind::K, "기는"), m(Kind::K, "긴"), m(Kind::K, "지마는"), m(Kind::K, "든"), m(Kind::K, "든지"),
+    m(Kind::K, "지마는"), m(Kind::K, "더라도"), m(Kind::K, "자마자"), m(Kind::K, "는데도"), m(Kind::K, "든"), m(Kind::K, "든지"),
     // N
     m(Kind::N, "ㄴ다"), m(Kind::N, "ㄴ다고"), m(Kind::N, "ㄴ다는"), m(Kind::N, "ㄴ대요"), m(Kind::N, "ㄴ다면"),
     // E
@@ -154,12 +155,14 @@ const FINALS: &[Morph] = &[
     m(Kind::E, "ㄹ걸"), m(Kind::E, "ㄹ걸요"), m(Kind::E, "ㄹ텐데"), m(Kind::E, "ㄹ듯"), m(Kind::E, "ㄹ수"),
     m(Kind::E, "ㅁ"), m(Kind::E, "러"), m(Kind::E, "려고"), m(Kind::E, "려면"), m(Kind::E, "려"),
     m(Kind::E, "ㅂ시다"), m(Kind::E, "오"), m(Kind::E, "니라"), m(Kind::E, "리라"), m(Kind::E, "세요"),
-    m(Kind::E, "십시오"), m(Kind::E, "소서"), m(Kind::E, "옵소서"),
+    m(Kind::E, "십시오"), m(Kind::E, "소서"), m(Kind::E, "옵소서"), m(Kind::E, "ㄹ지라도"), m(Kind::E, "ㄴ데도"),
     // S
     m(Kind::S, "ㅂ니다"), m(Kind::S, "ㅂ니까"), m(Kind::S, "ㅂ디다"),
     // A
     m(Kind::A, ""), m(Kind::A, "서"), m(Kind::A, "요"), m(Kind::A, "도"), m(Kind::A, "야"),
     m(Kind::A, "라"), m(Kind::A, "야지"), m(Kind::A, "서는"), m(Kind::A, "서도"), m(Kind::A, "다가"),
+    m(Kind::A, "서요"), m(Kind::A, "야겠다"), m(Kind::A, "야겠어요"), m(Kind::A, "야겠네요"),
+    m(Kind::A, "야겠습니다"), m(Kind::A, "야지요"), m(Kind::A, "야죠"),
 ];
 
 const HON: Morph = m(Kind::E, "시");
@@ -387,14 +390,14 @@ fn chains() -> &'static Vec<Ending> {
     CHAINS.get_or_init(|| {
         let mut out = Vec::new();
         for hon in [false, true] {
-            for past in [false, true] {
+            for past in 0..=2 {
                 for fut in [false, true] {
                     for f in FINALS {
                         let mut ch = Vec::new();
                         if hon {
                             ch.push(HON);
                         }
-                        if past {
+                        for _ in 0..past {
                             ch.push(PAST);
                         }
                         if fut {
@@ -597,7 +600,8 @@ pub fn allomorphs(stem: &str, class: Class) -> Vec<Allomorph> {
 pub fn morph_ctx(stem: &str, class: Class) -> Ctx {
     let s = decompose(stem);
     let last = *s.last().unwrap();
-    let bright = bright_vowel(last_vowel(&s));
+    // ㅡ-final stems (다르, 바쁘) take their harmony from the syllable before.
+    let bright = if last == 'ᅳ' { prev_syllable_bright(&s) } else { bright_vowel(last_vowel(&s)) };
     if class == Class::Ani {
         return Ctx::Ani;
     }
@@ -635,7 +639,8 @@ mod tests {
 
     #[test]
     fn regular() {
-        has("읽", Class::Regular, &["읽어", "읽었다", "읽으면", "읽는", "읽습니다", "읽은", "읽으셨습니다", "읽겠네요", "읽는다"]);
+        has("가", Class::Regular, &["갔었다", "가야겠다"]);
+        has("읽", Class::Regular, &["읽었었다", "읽더라도", "읽자마자", "읽을지라도", "읽어", "읽었다", "읽으면", "읽는", "읽습니다", "읽은", "읽으셨습니다", "읽겠네요", "읽는다"]);
         has("좋", Class::Regular, &["좋아", "좋았다", "좋은", "좋네요", "좋겠네요"]);
         has("가", Class::Regular, &["가", "갔다", "가요", "간", "갈", "감", "갑니다", "가셨다", "가세요", "간다"]);
         has("보", Class::Regular, &["봐", "보아", "봤다", "보았는데", "봐서", "볼", "봅니다"]);
@@ -678,5 +683,8 @@ mod tests {
         assert_eq!(guess_class("괜찮", true), Class::Regular);
         assert_eq!(guess_class("다르", true), Class::Reu);
         assert_eq!(guess_class("따르", false), Class::Regular);
+        assert_eq!(guess_class("알아듣", false), Class::D);
+        assert_eq!(guess_class("누르", false), Class::Reu);
+        assert_eq!(guess_class("수줍", true), Class::Regular);
     }
 }

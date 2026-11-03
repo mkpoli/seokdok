@@ -81,7 +81,10 @@ jobs:
         if: always()
         working-directory: ios
         run: |
-          xcrun simctl terminate "$UDID" li.mkpo.seokdok || true
+          # A fresh boot: the test runner's libraries would count otherwise.
+          xcrun simctl shutdown "$UDID"
+          xcrun simctl boot "$UDID"
+          xcrun simctl bootstatus "$UDID" -b
           xcrun simctl launch "$UDID" li.mkpo.seokdok -focusTrial YES
           sleep 15
           pid=$(pgrep -x SeokdokKeyboard)

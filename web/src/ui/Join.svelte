@@ -113,7 +113,8 @@
     border-radius: 999px;
     background: var(--c-on-accent);
     color: var(--c-accent);
-    font: 700 clamp(18px, 2.2vw, 24px) / 1 var(--f-serif);
+    font: 700 clamp(17px, 2vw, 22px) / 1 var(--f-sans);
+    letter-spacing: 0.01em;
     text-decoration: none;
     transition: transform var(--t-fast) var(--ease);
   }

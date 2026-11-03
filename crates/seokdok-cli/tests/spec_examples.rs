@@ -103,7 +103,7 @@ fn reading_back_prefers_the_usual_reading() {
 #[test]
 fn honorific_nim() {
     // Any noun takes 님, written 主 or left in Hangul.
-    check(Options::default(), &[("해님", "日主"), ("선생님께서", "先生主께서"), ("부처님", "佛主"), ("아버님", "父主")]);
+    check(Options::default(), &[("두벌식", "두벌式"), ("해님", "日主"), ("선생님께서", "先生主께서"), ("부처님", "佛主"), ("아버님", "父主")]);
     let e = engine(Options::default());
     assert!(e.convert("해님").iter().any(|c| c.text == "日님"));
     assert!(e.convert("선생님").iter().any(|c| c.text == "先生님"));

@@ -4,22 +4,22 @@ lemma	written	pos	class	source	count	note
 이것저것	此것彼것	pron		editorial		mkpoli's request (2026-11-03): 이것저것 as one word
 이것저것	此件彼件	pron		editorial		mkpoli's request (2026-11-03)
 이것저것	此彼	pron		editorial		mkpoli's request (2026-11-03)
-거	事	bound		editorial		colloquial 것 (事ㅅ in the chat) without its ㅅ: 게 事ㅣ, 건 事ㄴ, 걸 事ㄹ
-거	件	bound		editorial		colloquial 것, as 件 for 것 in the community dictionary
-거	物	bound		editorial		colloquial 것, as 物 for 것 in the community dictionary
-한번	一番	noun		editorial		the chat writes 一番 for 한번 (17 uses, counted under 일번 in sino.tsv): 一番씩 = 한 번씩
+거	事	bound		editorial	35	colloquial 것 (事ㅅ in the chat) without its ㅅ: 게 事ㅣ, 건 事ㄴ, 걸 事ㄹ
+거	件	bound		editorial	21	colloquial 것, as 件 for 것 in the community dictionary
+거	物	bound		editorial	32	colloquial 것, as 物 for 것 in the community dictionary
+한번	一番	noun		editorial	16	the chat writes 一番 for 한번 (17 uses, counted under 일번 in sino.tsv): 一番씩 = 한 번씩
 낱말	個言	noun		editorial		낱 個 (community dictionary) + 말 言 (言하다, 言씀)
-하느님	天主	noun		editorial		the chat: 天主(하느님), 天主이 保佑하사
-하느님	天	noun		editorial		the chat: 天(하느님)이 保佑하사
-하느님	上帝	noun		editorial		the chat: 上帝(하느님)이
-하느님	神	noun		editorial		the chat: 神(하느님)
-부처님	佛主	noun		editorial		the chat: 佛主 來신 日
-손님	客主	noun		editorial		the chat: 客主이 有을까
-누님	姉主	noun		editorial		the chat: 누님 姉主
+하느님	天主	noun		editorial	8	the chat: 天主(하느님), 天主이 保佑하사
+하느님	天	noun		editorial	15	the chat: 天(하느님)이 保佑하사
+하느님	上帝	noun		editorial	1	the chat: 上帝(하느님)이
+하느님	神	noun		editorial	18	the chat: 神(하느님)
+부처님	佛主	noun		editorial	2	the chat: 佛主 來신 日
+손님	客主	noun		editorial	1	the chat: 客主이 有을까
+누님	姉主	noun		editorial	1	the chat: 누님 姉主
 누님	姉님	noun		editorial		누나 姉 + 님
-형님	兄主	noun		editorial		the chat: 兄主 형님/오라버님
-오라버님	兄主	noun		editorial		the chat: 兄主 형님/오라버님
-오라버님	兄님	noun		editorial		오빠 兄 + 님
+형님	兄主	noun		editorial	2	the chat: 兄主 형님/오라버님
+오라버님	兄主	noun		editorial	2	the chat: 兄主 형님/오라버님
+오라버님	兄님	noun		editorial	1	오빠 兄 + 님
 아버님	父主	noun		editorial		the chat: 아버님네 父主徒
 아버님	父님	noun		editorial		아버지 父 + 님
 어머님	母主	noun		editorial		어머니 母 + 主, as 아버님 父主
@@ -32,6 +32,6 @@ lemma	written	pos	class	source	count	note
 따님	娘主	noun		editorial		딸 娘 + 主
 아드님	子님	noun		editorial		아들 子 + 님
 아드님	子主	noun		editorial		아들 子 + 主
-스님	僧主	noun		editorial		the chat: 僧主; 스님 < 僧(승) + 님
-임금님	王님	noun		editorial		the chat: 王님
-임금님	王主	noun		editorial		임금 王 + 主
+스님	僧主	noun		editorial	1	the chat: 僧主; 스님 < 僧(승) + 님
+임금님	王님	noun		editorial	1	the chat: 王님
+임금님	王主	noun		editorial	1	임금 王 + 主

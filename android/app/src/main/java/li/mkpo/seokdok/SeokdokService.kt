@@ -196,7 +196,10 @@ class SeokdokService : InputMethodService(), KeyboardListener {
             val info = currentInputEditorInfo
             val action = info?.let { it.imeOptions and EditorInfo.IME_MASK_ACTION } ?: EditorInfo.IME_ACTION_NONE
             val noAction = info == null || info.imeOptions and EditorInfo.IME_FLAG_NO_ENTER_ACTION != 0
-            if (!noAction && action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
+            if (info?.actionLabel != null) {
+                // The editor's own action, labelled by the editor.
+                currentInputConnection?.performEditorAction(info.actionId)
+            } else if (!noAction && action != EditorInfo.IME_ACTION_NONE && action != EditorInfo.IME_ACTION_UNSPECIFIED) {
                 currentInputConnection?.performEditorAction(action)
             } else {
                 sendKeyChar('\n')

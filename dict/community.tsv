@@ -24,7 +24,7 @@ lemma	written	pos	class	source	count	note
 가장	最	부사		community	5	
 가죽	皮	명사		community	2	
 가지	枝	명사		community	1	
-가지다	持지다	동사		community	1	
+가지다	持지다	동사		community	3	
 갈고리	鉤	명사		community	1	
 갈대	葦	명사		community		
 갈래	派	명사		community	6	
@@ -36,7 +36,7 @@ lemma	written	pos	class	source	count	note
 값	價	명사		community		複數登載
 값	値	명사		community	2	複數登載
 갓	笠	명사		community	2	
-같다	如다	형용사		community	137	
+같다	如다	형용사		community	138	
 개	犬	명사		community	16	
 개구리	蛙	명사		community	3	
 개미	蟻	명사		community	3	
@@ -69,7 +69,7 @@ lemma	written	pos	class	source	count	note
 고등어	鯖	명사		community	3	
 고랑	瀆	명사		community		
 고래	鯨	명사		community	1	
-고르다	選르다	동사		community		
+고르다	選르다	동사		community	1	
 고름	膿	명사		community		
 고리	環	명사		community	1	
 고뿔	感氣	명사		community	1	
@@ -78,7 +78,7 @@ lemma	written	pos	class	source	count	note
 고양이	猫	명사		community	11	
 고요하다	寂하다	형용사		community		
 고치	繭	명사		community		
-고치다	改다	동사		community	10	
+고치다	改다	동사		community	11	
 곰	熊	명사		community	8	
 곳	處	명사		community	31	
 광나무	楨木	명사		community		
@@ -100,7 +100,7 @@ lemma	written	pos	class	source	count	note
 귀뚜라미	蟋	명사		community		複數登載
 귀뚜라미	蟀	명사		community		複數登載
 귀찮다	煩다	형용사		community		
-그	其	대명사		community	63	
+그	其	대명사		community	62	
 그네	韆	명사		community		
 그러하다	然하다	동사		community	16	
 그릇	器	명사		community	6	
@@ -117,9 +117,9 @@ lemma	written	pos	class	source	count	note
 기둥	柱	명사		community	2	
 기러기	雁	명사		community	1	
 기름	油	명사		community	5	
-기쁘다	喜다	형용사		community	5	
+기쁘다	喜다	형용사		community	6	
 길	道	명사		community	25	
-길다	長다	형용사		community	21	
+길다	長다	형용사		community	22	
 김	汽	명사		community	1	
 깁다	繕다	동사		community		
 깃	羽	명사		community	1	
@@ -197,7 +197,7 @@ lemma	written	pos	class	source	count	note
 놀이	遊이	명사		community	8	
 놈	者	명사		community	54	
 높다	高다	형용사		community	25	
-누구	誰	명사		community	23	
+누구	誰	명사		community	22	
 누룩	麴	명사		community	1	
 누리	世	명사		community	20	
 누리다	享리다	동사		community		
@@ -219,14 +219,14 @@ lemma	written	pos	class	source	count	note
 님	主	의존명사		community	162	複數登載
 님	恁	의존명사		community	9	複數登載
 다니다	行다	동사		community		
-다르다	異다	형용사		community	114	
+다르다	異다	형용사		community	116	
 다리	橋	명사		community	6	
 다리	脚	명사		community	3	
 다리미	鈷	명사		community		
 다목	枋	명사		community	1	
 다스리다	治다	동사		community	5	
 다치다	傷다	동사		community		
-다투다	爭투다	동사		community		
+다투다	爭투다	동사		community	1	
 닫히다	閉히다	동사		community		
 달	月	명사		community	74	
 달구다	鍊다	동사		community		
@@ -248,7 +248,7 @@ lemma	written	pos	class	source	count	note
 독	甕	명사		community		
 돈	錢	명사		community	12	
 돌	石	명사		community	11	
-돌다	回다	동사		community	11	
+돌다	回다	동사		community	13	
 돕다	助다	동사		community	4	
 돛	帆	명사		community		
 돼지	豚	명사		community	14	
@@ -275,7 +275,7 @@ lemma	written	pos	class	source	count	note
 땅	地	명사		community	10	
 땋다	辮다	동사		community		
 때	垢	명사		community		
-때	時	명사		community	155	
+때	時	명사		community	152	
 때리다	毆리다	동사		community		
 땔감	薪	명사		community	1	
 땔감	柴	명사		community		
@@ -303,7 +303,7 @@ lemma	written	pos	class	source	count	note
 말	馬	명사		community	21	
 말	言하다	명사		community		
 말다	捲다	동사		community		
-말다	勿다	동사		community	21	
+말다	勿다	동사		community	27	
 말하다	言하다	동사		community		
 맑다	淡다	형용사		community	1	
 맛	味	명사		community	13	
@@ -317,9 +317,9 @@ lemma	written	pos	class	source	count	note
 머리	頭	명사		community	16	
 머리	頭	명사		community	16	
 머리카락	髮	명사		community	6	
-먹다	食다	동사		community	61	
-먹다	食다	동사		community	61	
-멀다	遠다	형용사		community	11	
+먹다	食다	동사		community	62	
+먹다	食다	동사		community	62	
+멀다	遠다	형용사		community	12	
 멀다	盲다	동사		community		
 멋	趣	명사		community	4	
 멍	瘀	명사		community		
@@ -333,8 +333,8 @@ lemma	written	pos	class	source	count	note
 모르다	䚳르다	동사		community	1	
 모르다	不知다	동사		community	164	
 모시다	侍시다	동사		community		
-모으다	會으다	동사		community	2	
-모이다	會이다	동사		community	9	
+모으다	會으다	동사		community	3	
+모이다	會이다	동사		community	10	
 모질다	虐다	형용사		community		
 목	頸	명사		community	3	
 목숨	命	명사		community	2	
@@ -359,8 +359,8 @@ lemma	written	pos	class	source	count	note
 물다	咬다	동사		community		
 뭍	陸	명사		community	4	
 미끼	餌	명사		community	1	
-미치다	狂치다	형용사		community		
-믿다	信다	동사		community	9	
+미치다	狂치다	형용사		community	2	
+믿다	信다	동사		community	10	
 밀다	推다	동사		community	4	
 밉다	憎다	형용사		community		
 바꾸다	替다	동사		community	16	
@@ -419,18 +419,18 @@ lemma	written	pos	class	source	count	note
 벼슬	爵	명사		community	1	
 별	星	명사		community	14	
 보내다	送다	동사		community	17	
-보다	見다	동사		community	291	
+보다	見다	동사		community	245	
 보리	麥	명사		community	5	
 볶다	炒다	동사		community	3	
 봄	春	명사		community	8	
 부끄럽다	恥다	동사		community		
-부르다	招르다	동사		community		
-부르다	呼르다	동사		community	6	
+부르다	招르다	동사		community	1	
+부르다	呼르다	동사		community	8	
 부수다	碎다	동사		community	2	
 북	鼓	명사		community	2	
 불	火	명사		community	21	
 불다	吹다	동사		community	5	
-불리다	招리다	동사		community		
+불리다	招리다	동사		community	1	
 불쌍하다	憐하다	형용사		community		
 비	雨	명사		community		
 비녀	簪	명사		community		複數登載
@@ -552,9 +552,9 @@ lemma	written	pos	class	source	count	note
 쏘다	射다	동사		community	1	
 쏘이다	射이다	동사		community		
 쑥	艾	명사		community		
-쓰다	書다	동사		community	233	
+쓰다	書다	동사		community	234	
 쓰다	苦다	형용사		community	5	
-쓰다	用다	형용사		community	258	
+쓰다	用다	형용사		community	220	
 쓸개	膽	명사		community	2	
 쓸다	掃다	동사		community		
 씨	種	명사		community		
@@ -591,7 +591,7 @@ lemma	written	pos	class	source	count	note
 어둡다	暗다	형용사		community	1	
 어렵다	難다	형용사		community		
 어른	丈	명사		community	3	
-어리다	幼리다	형용사		community	1	
+어리다	幼리다	형용사		community	6	
 어리석다	愚다	형용사		community	2	
 어리석음	蒙음	명사		community		
 어지럽다	亂다	형용사		community	3	
@@ -611,8 +611,8 @@ lemma	written	pos	class	source	count	note
 여울	湍	명사		community		
 여위다	瘦다	동사		community		
 엮다	編다	동사		community		
-열다	開다	동사		community	4	
-열리다	開리다	동사		community	7	
+열다	開다	동사		community	6	
+열리다	開리다	동사		community	8	
 열매	果	명사		community	4	
 열쇠	鍵	명사		community	2	
 엿	糖	명사		community		
@@ -646,7 +646,7 @@ lemma	written	pos	class	source	count	note
 웃음	笑음	명사		community	3	
 이	齒	명사		community	8	
 이	虱	명사		community		
-이	此	대명사		community	129	
+이	此	대명사		community	126	
 이기다	勝다	동사		community	9	
 이끼	苔	명사		community	2	
 이루다	成다	동사		community		
@@ -691,7 +691,7 @@ lemma	written	pos	class	source	count	note
 저	彼	대명사		community	19	
 저리다	痲리다	동사		community		
 저미다	剉다	동사		community	1	
-적다	記다	동사		community	90	
+적다	記다	동사		community	91	
 적다	少다	형용사		community		
 전나무	檜木	명사		community		
 절	拜	명사		community		
@@ -752,7 +752,7 @@ lemma	written	pos	class	source	count	note
 차다	寒다	형용사		community	16	
 차다	蹴다	동사		community		
 차다	佩다	동사		community		
-참다	忍다	동사		community	2	
+참다	忍다	동사		community	7	
 참새	雀	명사		community		
 찾다	探다	동사		community	15	
 추다	舞다	동사		community	10	
@@ -783,11 +783,11 @@ lemma	written	pos	class	source	count	note
 푸닥거리	儺	명사		community		
 풀	草	명사		community	14	
 풀	糊	명사		community		
-풀다	解다	동사		community	10	
+풀다	解다	동사		community	11	
 피	血	명사		community	6	
 하늘	天	명사		community	14	
 하다	爲다	동사		community	98	
-해	日	명사		community	107	
+해	日	명사		community	106	
 해오라기	鷺	명사		community	2	
 허리	腰	명사		community	2	
 허수아비	傀	명사		community	1	

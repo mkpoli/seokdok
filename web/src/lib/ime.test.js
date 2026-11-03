@@ -112,6 +112,16 @@ test('shift+arrows resize the focused segment', async () => {
   expect(m.segs.map((s) => s.reading)).toEqual(['하늘'])
 })
 
+test('a resized word keeps its full candidate list', async () => {
+  // Whole-phrase conversion stops after one candidate, as the engine's does.
+  const m = new Ime(composer(), segment, async (text) => cands(text).slice(0, 1))
+  m.insertText('하늘')
+  await m.convert()
+  m.key({ key: 'ArrowLeft', shift: true })
+  await tick()
+  expect(m.segs[0].candidates.map((c) => c.text)).toEqual(['夏', '下', '하'])
+})
+
 test('typing on after a Space conversion inserts the word break', async () => {
   const m = ime()
   m.insertText('하늘')

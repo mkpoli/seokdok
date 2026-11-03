@@ -365,7 +365,10 @@ export class Ime {
   }
 
   async #span(text) {
-    const c = await this.whole(text)
+    // Whole-phrase readings first; a single word also brings its full
+    // candidate list, which the phrase list cuts short.
+    const [c, segs] = await Promise.all([this.whole(text), this.segment(text)])
+    if (segs.length === 1) for (const k of segs[0].candidates) if (!c.some((x) => x.text === k.text)) c.push(k)
     return c.some((x) => x.text === text) ? c : [...c, { text, note: '' }]
   }
 

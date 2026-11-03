@@ -422,7 +422,16 @@ impl Session {
             (cur.iter().copied().chain(std::iter::once(next[0])).collect(), next[1..].iter().collect())
         };
         let span = |t: &str| {
+            // Whole-phrase readings first; a single word also brings its
+            // full candidate list, which the phrase list cuts short.
             let mut v = conv.whole(t);
+            if let [seg] = conv.segments(t).as_slice() {
+                for k in &seg.candidates {
+                    if !v.iter().any(|x| x.text == k.text) {
+                        v.push(k.clone());
+                    }
+                }
+            }
             if !v.iter().any(|k| k.text == t) {
                 v.push(Candidate { text: t.to_string(), note: String::new() });
             }
@@ -753,6 +762,32 @@ mod tests {
         let o = s.handle(Key::Right { shift: true }, &Stub(3));
         let texts: Vec<String> = preedit_of(&o).unwrap().into_iter().map(|r| r.text).collect();
         assert_eq!(texts, ["한가1"]);
+    }
+
+    #[test]
+    fn a_resized_word_keeps_its_full_candidate_list() {
+        // Whole-phrase conversion stops after one candidate, as the engine's
+        // stops after max_candidates.
+        struct Short(Stub);
+        impl Converter for Short {
+            fn segments(&self, input: &str) -> Vec<Segment> {
+                self.0.segments(input)
+            }
+            fn whole(&self, input: &str) -> Vec<Candidate> {
+                self.0.segments(input).into_iter().flat_map(|s| s.candidates).take(1).collect()
+            }
+        }
+        let c = Short(Stub(5));
+        let mut s = seokdok();
+        for ch in "gksrk".chars() {
+            s.handle(letter(ch), &c);
+        }
+        s.handle(Key::Space { shift: false }, &c);
+        s.handle(Key::Left { shift: true }, &c);
+        s.handle(Key::Space { shift: false }, &c);
+        let o = s.handle(Key::Space { shift: false }, &c);
+        let p = popup_of(&o).unwrap().unwrap();
+        assert_eq!(p.total, 6, "{:?}", p.items);
     }
 
     #[test]

@@ -145,7 +145,12 @@ fn native_cost(source: Source, count: u32) -> f32 {
     }
     // Attested entries rank by corpus frequency, whatever their tier.
     let attested = (3.2 - 0.45 * ((count as f32) + 1.0).ln()).max(0.2);
-    attested.min(base)
+    match source {
+        // Gloss entries share characters with better entries, so their
+        // credited counts are noisy: never rank them above the community tier.
+        Source::Gloss | Source::Lexicon => attested.max(3.0),
+        _ => attested.min(base),
+    }
 }
 
 fn sino_cost(reading: &str, source: Source, count: u32) -> f32 {

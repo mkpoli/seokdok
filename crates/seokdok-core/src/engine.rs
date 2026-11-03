@@ -255,7 +255,8 @@ impl Engine {
     }
 
     fn native_cost(&self, n: &Native) -> f32 {
-        let mut c = n.cost;
+        // Hangul-only helper entries (the light verb 하다) are cheap.
+        let mut c = if n.hanja.is_empty() { 0.5 } else { n.cost };
         if n.lemma == "하다" {
             if n.hanja.is_empty() && self.options.hada_kun {
                 c += 5.0;
@@ -357,7 +358,7 @@ impl Engine {
                             edges.push(Edge {
                                 start: s,
                                 end: r,
-                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.15 * morphs,
+                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs,
                                 kind: Kind::Verb { entry: i, allo: a, ending: ei },
                             });
                         }

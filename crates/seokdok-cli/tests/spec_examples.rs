@@ -108,3 +108,11 @@ fn honorific_nim() {
     assert_eq!(e.read("兄主"), "형님");
     assert_eq!(e.read("天主이"), "하느님이");
 }
+
+#[test]
+fn determiners_attach_to_the_next_noun() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("옛한글")[0].text, "古ㅅ韓㐎");
+    assert_eq!(e.convert("첫사랑")[0].text, "初ㅅ愛");
+}
+

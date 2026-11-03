@@ -551,8 +551,9 @@ impl Engine {
                     if boundary(q) {
                         // A bare native word inside a longer run is usually a misparse
                         // of an unknown word (나라 ≠ 吾+라).
-                        // The honorific suffix 님 attaches to any noun (해님, 달님).
-                        let inside = if q == n || comps[q..].starts_with(&NIM) {
+                        // The honorific suffix 님 attaches to any noun (해님, 달님), and
+                        // a determiner always precedes one (옛한글, 첫사랑).
+                        let inside = if q == n || comps[q..].starts_with(&NIM) || entry.pos == Pos::Det {
                             0.0
                         } else if crate::jamo::syllable_count(&entry.stem) == 1 {
                             5.0

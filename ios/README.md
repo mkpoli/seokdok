@@ -27,7 +27,8 @@ steps use Sideloadly on Windows.
    [iOS workflow](https://github.com/mkpoli/seokdok/actions/workflows/ios.yml)
    while signed in to GitHub, choose the newest green run on `main`, download
    the `Seokdok-unsigned-ipa` artifact and unzip it to get
-   `Seokdok-unsigned.ipa`.
+   `Seokdok-unsigned.ipa`. Artifacts expire; with none left, the repository's
+   owner can start a new build with **Run workflow** on that page.
 5. Drag the IPA onto Sideloadly, enter your Apple ID and press **Start**. Keep
    the app extensions: removing them removes the keyboard.
 6. On the iPhone, open Settings → General → VPN & Device Management, tap your
@@ -45,13 +46,15 @@ two App IDs; neither Sideloadly nor
 figure.
 
 Sideloadly's documentation does not say how it treats App Groups. The app
-shows a note in its Conversion section when the signature grants no shared
-container; the keyboard then runs on the defaults.
+shows a note above its settings when its signature grants no shared container;
+the keyboard then runs on the defaults. The note cannot see the keyboard's
+signature: if settings have no effect with Full Access on, the keyboard may
+have no group of its own.
 
 If the keyboard disappears while loading or typing and the system keyboard
 returns, iOS has probably ended it for its memory use (see Memory). Look for
 `JetsamEvent` entries in Settings → Privacy & Security → Analytics &
-Improvements → Analytics Data.
+Improvements → Analytics Data; they may need Share iPhone Analytics turned on.
 
 ## Build (macOS with Xcode)
 
@@ -66,11 +69,10 @@ cd ios && xcodegen                # → ios/Seokdok.xcodeproj, Info.plists, enti
 open Seokdok.xcodeproj
 ```
 
-In Xcode, choose your team under Signing & Capabilities for both targets,
-and change the bundle IDs (`li.mkpo.seokdok`, `li.mkpo.seokdok.keyboard`)
-and the App Group (`group.li.mkpo.seokdok`, in `project.yml`) to ones your team
-can register. The code reads the group from the embedded provisioning profile,
-then from Info.plist. Run the `Seokdok` scheme on a device or simulator, then
+In `project.yml`, set `DEVELOPMENT_TEAM` (`xcodegen` overwrites a team chosen in
+Xcode) and change the bundle IDs and every `group.li.mkpo.seokdok` to ones your
+team can register. The code reads the group from Info.plist, then from the
+embedded provisioning profile. Run the `Seokdok` scheme on a device or simulator, then
 enable the keyboard: Settings → General → Keyboard → Keyboards → Add New
 Keyboard → 釋讀.
 
@@ -133,8 +135,9 @@ about 48 to 60 MB ([React Native docs archive](https://reactnative-archive-augus
 all read 2026-11-04; none cites Apple, and the figures disagree).
 
 The extension's physical footprint is 66 MB once loaded, with a 68.5 MB peak
-(`footprint` and `vmmap` on an iPhone simulator in CI, 2026-11-04; each iOS run
-records it in the `simulator-screenshots` artifact). A simulator applies no
+(`footprint` and `vmmap` on a Debug build on an iPhone simulator in CI,
+2026-11-04; the Rust library is a release build either way, and each iOS run
+records this in the `simulator-screenshots` artifact). A simulator applies no
 such limit, and its figures differ from a device's, so this has to be tried on
 an iPhone. It is above those published estimates, so a device may end the
 keyboard.

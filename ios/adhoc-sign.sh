@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Ad-hoc sign a built Seokdok.app with its entitlements, extension first. A
-# simulator needs some signature to run it; a sideloading tool reads the
-# entitlements from it before re-signing with the user's Apple ID.
+# Ad-hoc sign a device build of Seokdok.app with its entitlements, extension
+# first. A sideloading tool reads them before re-signing with the user's
+# Apple ID.
 #
 #   ios/adhoc-sign.sh path/to/Seokdok.app
 set -euo pipefail

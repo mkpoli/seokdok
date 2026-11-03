@@ -218,7 +218,7 @@ impl Engine {
     }
 
     /// Native dictionaries loaded by [`Engine::from_dir`], in order.
-    pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv"];
+    pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
     pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "fusion.tsv", "sino.tsv"];
 
     /// Load every known dictionary file present in `dir`.
@@ -360,7 +360,7 @@ impl Engine {
                         0.0
                     } else {
                         match entry.source {
-                            Source::Gloss | Source::Japanese | Source::Lexicon | Source::Suggested => SHORT_COST,
+                            Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon | Source::Suggested => SHORT_COST,
                             Source::Community => 1.0,
                             _ => 0.0,
                         }
@@ -844,6 +844,7 @@ impl Engine {
                     Source::Community => 0.5,
                     Source::Suggested => 2.0,
                     Source::Gloss | Source::Japanese | Source::Lexicon => 3.0,
+                    Source::JapaneseWeak => 3.5,
                 };
                 let cost = 1.0 + tier - 0.1 * ((n.count as f32) + 1.0).ln();
                 let (pre, pc) = self.read_sino(&cs[..k].iter().collect::<String>());
@@ -908,6 +909,7 @@ fn note(n: &Native, ending: Option<usize>) -> String {
         Source::Suggested => "suggested",
         Source::Gloss => "gloss",
         Source::Japanese => "japanese",
+        Source::JapaneseWeak => "japanese-weak",
         Source::Lexicon => "lexicon",
     };
     match ending {

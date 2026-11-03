@@ -67,6 +67,8 @@ pub enum Source {
     Gloss,
     /// Found through a Japanese 訓読み word with the same English gloss.
     Japanese,
+    /// A weaker Japanese link (no main-sense match on both sides).
+    JapaneseWeak,
     /// A Sino-Korean dictionary (libhangul).
     Lexicon,
 }
@@ -79,7 +81,7 @@ impl Source {
             Source::Corpus | Source::Editorial => 1,
             Source::Community => 2,
             Source::Suggested => 3,
-            Source::Gloss | Source::Japanese | Source::Lexicon => 4,
+            Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon => 4,
         }
     }
 
@@ -92,6 +94,7 @@ impl Source {
             "suggested" => Source::Suggested,
             "gloss" => Source::Gloss,
             "japanese" => Source::Japanese,
+            "japanese-weak" => Source::JapaneseWeak,
             _ => Source::Lexicon,
         }
     }
@@ -148,6 +151,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
         Source::Suggested => 4.5,
         Source::Gloss => 6.0,
         Source::Japanese => 6.2,
+        Source::JapaneseWeak => 7.2,
         Source::Lexicon => 6.0,
     };
     if count == 0 {
@@ -160,6 +164,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
         // credited counts are noisy: never rank them above the community tier.
         Source::Suggested => attested.max(2.5),
         Source::Gloss | Source::Japanese | Source::Lexicon => attested.max(3.0),
+        Source::JapaneseWeak => attested.max(4.0),
         _ => attested.min(base),
     }
 }

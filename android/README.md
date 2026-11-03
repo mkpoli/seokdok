@@ -80,5 +80,6 @@ for `aarch64-linux-android`, `armv7-linux-androideabi` and
 `x86_64-linux-android`. Its native methods were exercised from a JVM
 (`java -Xcheck:jni`) through a Java mirror of `Native.kt`: typing, converting,
 the candidate page, picking, committing, Latin mode, and reading and writing
-config.toml. The Kotlin code and the Gradle build have not been compiled
-yet, and nothing has run on a device: that needs the Android SDK.
+config.toml. The APK builds on GitHub Actions
+(`.github/workflows/android.yml`, artifact `seokdok-debug-apk`). Nothing has
+run on a device yet.

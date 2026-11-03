@@ -152,6 +152,16 @@ pub struct Engine {
     endings: HashMap<Ctx, Trie<u16>>,
     particles: Vec<Particle>,
     particle_trie: Trie<u16>,
+    /// Reverse indexes for [`Engine::read`], built on first use.
+    reverse: std::sync::OnceLock<Reverse>,
+}
+
+struct Reverse {
+    /// Hanja word → (reading, cost) of its best Sino-Korean entry.
+    sino: HashMap<String, (String, f32)>,
+    /// Hanja string → native entries written with it, cheapest first.
+    native: HashMap<String, Vec<usize>>,
+    max_sino: usize,
 }
 
 const RAW_COST: f32 = 4.5;
@@ -199,6 +209,7 @@ impl Engine {
             endings: HashMap::new(),
             particles: particles(),
             particle_trie: Trie::new(),
+            reverse: std::sync::OnceLock::new(),
         };
         eng.index();
         (eng, errors)
@@ -690,6 +701,139 @@ impl Engine {
     }
 }
 
+fn is_hanja(c: char) -> bool {
+    matches!(c as u32, 0x3400..=0x4DBF | 0x4E00..=0x9FFF | 0xF900..=0xFAFF | 0x20000..=0x3134F)
+}
+
+fn is_hangulish(c: char) -> bool {
+    is_syllable(c) || ('\u{3131}'..='\u{318E}').contains(&c)
+}
+
+impl Engine {
+    fn reverse(&self) -> &Reverse {
+        self.reverse.get_or_init(|| {
+            let mut sino: HashMap<String, (String, f32)> = HashMap::new();
+            let mut max_sino = 1;
+            for s in &self.sinos {
+                max_sino = max_sino.max(s.hanja.chars().count());
+                let e = sino.entry(s.hanja.clone()).or_insert((s.reading.clone(), f32::MAX));
+                if s.cost < e.1 {
+                    *e = (s.reading.clone(), s.cost);
+                }
+            }
+            let mut native: HashMap<String, Vec<usize>> = HashMap::new();
+            for (i, n) in self.natives.iter().enumerate() {
+                if !n.hanja.is_empty() {
+                    native.entry(n.hanja.clone()).or_default().push(i);
+                }
+            }
+            for v in native.values_mut() {
+                v.sort_by(|&a, &b| self.native_cost(&self.natives[a]).partial_cmp(&self.native_cost(&self.natives[b])).unwrap());
+            }
+            Reverse { sino, native, max_sino }
+        })
+    }
+
+    /// Read Hanja by sound with the fewest dictionary words; returns the
+    /// reading and its cost (1 per word, 0.8 more for one character, 5 for
+    /// a character with no reading).
+    fn read_sino(&self, han: &str) -> (String, f32) {
+        let r = self.reverse();
+        let cs: Vec<char> = han.chars().collect();
+        let n = cs.len();
+        let mut best: Vec<Option<(f32, String)>> = vec![None; n + 1];
+        best[0] = Some((0.0, String::new()));
+        for i in 0..n {
+            let Some((c0, s0)) = best[i].clone() else { continue };
+            let relax = |j: usize, cost: f32, text: &str, best: &mut Vec<Option<(f32, String)>>| {
+                let c = c0 + cost;
+                if best[j].as_ref().map_or(true, |(bc, _)| c < *bc) {
+                    best[j] = Some((c, format!("{s0}{text}")));
+                }
+            };
+            relax(i + 1, 5.0, &cs[i].to_string(), &mut best);
+            for len in 1..=r.max_sino.min(n - i) {
+                let w: String = cs[i..i + len].iter().collect();
+                if let Some((reading, _)) = r.sino.get(&w) {
+                    relax(i + len, if len == 1 { 1.8 } else { 1.0 }, reading, &mut best);
+                }
+            }
+        }
+        let (c, t) = best[n].clone().unwrap();
+        (t, c)
+    }
+
+    fn is_particle_tail(&self, tail: &str) -> bool {
+        if tail.is_empty() {
+            return true;
+        }
+        let comps = decompose(tail);
+        self.particles.iter().any(|p| p.comps == comps && !is_t(p.comps[0]) && !is_v(p.comps[0]))
+    }
+
+    /// One token: a Hanja run and the Hangul that follows it. The reading
+    /// is either all 音讀 (tail = particles), or 音讀 for a prefix and a
+    /// 訓讀 entry for the rest, whichever costs less.
+    fn read_token(&self, han: &str, tail: &str) -> String {
+        let r = self.reverse();
+        let (sino, sc) = self.read_sino(han);
+        let mut best = (sc + if self.is_particle_tail(tail) { 0.0 } else { 4.0 }, format!("{sino}{tail}"));
+        let cs: Vec<char> = han.chars().collect();
+        let written_tail = |k: usize| format!("{}{tail}", cs[k..].iter().collect::<String>());
+        for k in 0..cs.len() {
+            let suffix: String = cs[k..].iter().collect();
+            let Some(entries) = r.native.get(&suffix) else { continue };
+            let written = written_tail(k);
+            for &i in entries {
+                let n = &self.natives[i];
+                let tier = match n.source {
+                    Source::User | Source::Corpus | Source::Editorial => 0.0,
+                    Source::Community => 0.5,
+                    Source::Gloss | Source::Lexicon => 3.0,
+                };
+                let cost = 1.0 + tier - 0.1 * ((n.count as f32) + 1.0).ln();
+                let (pre, pc) = self.read_sino(&cs[..k].iter().collect::<String>());
+                if pc + cost >= best.0 {
+                    continue;
+                }
+                if let Some((_, surface)) = self.forms_of(i).into_iter().find(|(w, _)| *w == written) {
+                    best = (pc + cost, format!("{pre}{surface}"));
+                }
+            }
+        }
+        best.1
+    }
+
+    /// Read 釋讀 text back into Hangul (釋讀文 → 한글). Sino-Korean words
+    /// are read by sound, 訓讀 words through the dictionary entries that
+    /// produce them; anything unknown is left as written.
+    pub fn read(&self, text: &str) -> String {
+        let cs: Vec<char> = text.chars().collect();
+        let mut out = String::new();
+        let mut i = 0;
+        while i < cs.len() {
+            if !is_hanja(cs[i]) {
+                out.push(cs[i]);
+                i += 1;
+                continue;
+            }
+            let mut j = i;
+            while j < cs.len() && is_hanja(cs[j]) {
+                j += 1;
+            }
+            let mut k = j;
+            while k < cs.len() && is_hangulish(cs[k]) {
+                k += 1;
+            }
+            let han: String = cs[i..j].iter().collect();
+            let tail: String = cs[j..k].iter().collect();
+            out.push_str(&self.read_token(&han, &tail));
+            i = k;
+        }
+        out
+    }
+}
+
 /// A stem ending in exactly one coda component (있, 그렇; not 읽, 않).
 fn simple_coda(stem: &[char]) -> bool {
     let k = stem.iter().rev().take_while(|&&c| is_t(c)).count();
@@ -804,6 +948,15 @@ lemma\twritten\tpos\tclass\tsource\tcount
         let e = eng(Options { resyllabify: true, ..Options::default() });
         any(&e, "있으면", "在쓰면");
         any(&e, "있어서", "在써서");
+    }
+
+    #[test]
+    fn read_back() {
+        let e = eng(Options::default());
+        assert_eq!(e.read("天을 見ㅆ다"), "하늘을 봤다");
+        assert_eq!(e.read("規則을 讀었다"), "규칙을 읽었다");
+        assert_eq!(e.read("自ㄴ 在ㅆ으면 好겠어요"), "전 있으면 好겠어요");
+        assert_eq!(e.read("安寧爲요"), "안녕해요");
     }
 
     #[test]

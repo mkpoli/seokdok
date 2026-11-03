@@ -4,6 +4,8 @@
 //! seokdok [options] segments TEXT…  best segmentation with alternatives
 //! seokdok [options] check           load the dictionaries and list errors
 //! seokdok [options] forms           dump written forms of 訓讀 entries (TSV)
+//! seokdok [options] read TEXT…      read 釋讀 text back into Hangul
+//! seokdok [options] add LEMMA WRITTEN POS [CLASS]   add to DIR/user.tsv
 //!
 //! Options: --dict DIR (default ./dict), --morpheme, --letter, --coda,
 //! --resyllabify, --hada. Without TEXT, lines are read from stdin.
@@ -36,7 +38,7 @@ fn main() {
     let cmd = if rest.is_empty() { "convert".to_string() } else { rest.remove(0) };
     let t = std::time::Instant::now();
     let (eng, errors) = Engine::from_dir(&dir, o).unwrap_or_else(|e| panic!("{}: {e}", dir.display()));
-    let texts: Vec<String> = if rest.is_empty() && !matches!(cmd.as_str(), "check" | "forms" | "attest") {
+    let texts: Vec<String> = if rest.is_empty() && !matches!(cmd.as_str(), "check" | "forms" | "attest" | "add") {
         std::io::stdin().lock().lines().map_while(Result::ok).collect()
     } else {
         vec![rest.join(" ")]
@@ -70,6 +72,27 @@ fn main() {
             }
         }
         "attest" => attest(&eng, &rest),
+        "read" => {
+            for line in texts {
+                println!("{}", eng.read(&line));
+            }
+        }
+        "add" => {
+            // seokdok add LEMMA WRITTEN POS [CLASS]: append to DIR/user.tsv
+            let get = |i: usize| rest.get(i).map(String::as_str).unwrap_or("");
+            let line = format!("{}\t{}\t{}\t{}\tuser\t\t", get(0), get(1), get(2), get(3));
+            let fields: Vec<&str> = line.split('\t').collect();
+            if let Err(e) = seokdok_core::dict::parse_native(&fields) {
+                eprintln!("not added: {e}");
+                std::process::exit(1);
+            }
+            let p = dir.join("user.tsv");
+            let mut text = std::fs::read_to_string(&p).unwrap_or_else(|_| "lemma\twritten\tpos\tclass\tsource\tcount\tnote\n".into());
+            text.push_str(&line);
+            text.push('\n');
+            std::fs::write(&p, text).expect("write user.tsv");
+            println!("added to {}: {} = {}", p.display(), get(0), get(1));
+        }
         "forms" => {
             for (written, surface, lemma) in eng.written_forms() {
                 println!("{written}\t{surface}\t{lemma}");

@@ -34,6 +34,9 @@ cargo run --release -p seokdok-cli -- segments 이런 것도 있네요
 cargo run --release -p seokdok-cli -- --morpheme --resyllabify convert 있으면 어려워요
 ```
 
+`seokdok read 天을 見ㅆ다` reads 釋讀 text back into Hangul (하늘을 봤다), and
+`seokdok add 즐기다 樂기다 verb` adds a word to `dict/user.tsv`.
+
 Options: `--morpheme` (形態式), `--letter` (leftover vowels as letters),
 `--coda` (末音添記 everywhere), `--resyllabify` (在쓰면), `--hada` (爲 for
 하다).

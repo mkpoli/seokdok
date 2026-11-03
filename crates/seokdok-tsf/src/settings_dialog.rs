@@ -39,6 +39,7 @@ const ID_CODA: i32 = 1012; // conversion.coda_always
 const ID_RESYL: i32 = 1013; // conversion.resyllabify
 const ID_HADA: i32 = 1014; // conversion.hada_kun
 const ID_MAXCAND: i32 = 1015; // conversion.max_candidates (edit)
+const ID_SINO: i32 = 1016; // conversion.sino_only
 
 const MODE_ITEMS: [(PCWSTR, InputMode); 3] = [
     (w!("釋讀 / Seokdok"), InputMode::Seokdok),
@@ -72,7 +73,7 @@ pub fn show(parent: HWND) {
         .encode_utf16()
         .collect();
 
-    let (w, h) = (470, 526);
+    let (w, h) = (470, 552);
     // SAFETY: GetSystemMetrics is always safe.
     let (sx, sy) = unsafe { (GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)) };
     let (x, y) = ((sx - w).max(0) / 2, (sy - h).max(0) / 2);
@@ -272,7 +273,7 @@ unsafe fn build_controls(hwnd: HWND) {
     y += 184;
 
     // --- Conversion ---
-    group(w!("表記 / Spelling"), y, 210);
+    group(w!("表記 / Spelling"), y, 236);
     let mut cy = y + 24;
     label(w!("送韓字 / Style:"), gx, cy + 4, 150);
     combo(hwnd, ID_STYLE, (gx + 160, cy, 220, 200), &STYLE_ITEMS, cfg.conversion.style);
@@ -281,6 +282,7 @@ unsafe fn build_controls(hwnd: HWND) {
     combo(hwnd, ID_FRAGMENT, (gx + 160, cy, 220, 200), &FRAGMENT_ITEMS, cfg.conversion.fragment);
     cy += 34;
     for (id, text, on) in [
+        (ID_SINO, w!("國漢文混用 (音讀만 漢字로) / Hanja for Sino-Korean words only"), cfg.conversion.sino_only),
         (ID_CODA, w!("末音添記 늘 / Always write the final consonant  (有ㅆ다)"), cfg.conversion.coda_always),
         (ID_RESYL, w!("받침 넘기기 / Resyllabify  (在쓰면)"), cfg.conversion.resyllabify),
         (ID_HADA, w!("하다를 爲로 / Prefer 爲 for 하다"), cfg.conversion.hada_kun),
@@ -298,7 +300,7 @@ unsafe fn build_controls(hwnd: HWND) {
         (gx + 200, cy + 2, 56, 22),
         ID_MAXCAND,
     );
-    y += 222;
+    y += 248;
 
     // --- Buttons ---
     child(
@@ -352,6 +354,7 @@ unsafe fn apply(hwnd: HWND) {
     cfg.conversion.coda_always = checked(ID_CODA);
     cfg.conversion.resyllabify = checked(ID_RESYL);
     cfg.conversion.hada_kun = checked(ID_HADA);
+    cfg.conversion.sino_only = checked(ID_SINO);
     // Keep the existing value if the field is blank, zero or garbage.
     if let Some(n) = read_number(hwnd, ID_MAXCAND) {
         if n >= 1 {

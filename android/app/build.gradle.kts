@@ -81,9 +81,7 @@ abstract class CargoNdk : DefaultTask() {
             // dictionaries many times slower.
             args += listOf("build", "--release", "-p", "seokdok-jni")
             commandLine(args)
-            if (ndkDirectory.isPresent && System.getenv("ANDROID_NDK_HOME") == null) {
-                environment("ANDROID_NDK_HOME", ndkDirectory.get().asFile.path)
-            }
+            environment("ANDROID_NDK_HOME", ndkDirectory.get().asFile.path)
             // 16 KB pages (Android 15 devices): align the library's segments.
             val pages = "-C link-arg=-Wl,-z,max-page-size=16384"
             environment("CARGO_TARGET_AARCH64_LINUX_ANDROID_RUSTFLAGS", pages)
@@ -127,7 +125,9 @@ androidComponents {
                 repoRoot.resolve("Cargo.lock"),
             )
             workspace.set(repoRoot)
-            ndkDirectory.set(sdkComponents.ndkDirectory)
+            // The pinned NDK; sdkComponents.ndkDirectory has no value without an
+            // externalNativeBuild block.
+            ndkDirectory.set(sdkComponents.sdkDirectory.map { it.dir("ndk/${android.ndkVersion}") })
             abis.set(listOf("arm64-v8a", "armeabi-v7a", "x86_64"))
             platform.set(26)
             outputDir.set(layout.buildDirectory.dir("generated/seokdok/jniLibs/${variant.name}"))

@@ -45,9 +45,7 @@ jobs:
 
       - name: Build the debug APK
         working-directory: android
-        run: |
-          export ANDROID_NDK_HOME="$ANDROID_HOME/ndk/28.0.13004108"
-          gradle assembleDebug --stacktrace
+        run: gradle assembleDebug --stacktrace
 
       - uses: actions/upload-artifact@v4
         with:

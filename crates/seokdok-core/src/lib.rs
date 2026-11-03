@@ -5,6 +5,7 @@
 pub mod conj;
 pub mod jamo;
 pub mod dict;
+pub mod dubeolsik;
 pub mod engine;
 pub mod particles;
 

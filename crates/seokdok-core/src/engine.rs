@@ -64,6 +64,9 @@ impl Default for Options {
 
 const NONE: u32 = u32::MAX;
 
+/// The honorific suffix 님 as conjoining jamo.
+const NIM: [char; 3] = ['\u{1102}', '\u{1175}', '\u{11B7}'];
+
 /// A prefix trie over jamo, flat from the start: each node is its key and
 /// two links (first child, next sibling), with no allocation of its own; the
 /// dictionaries hold hundreds of thousands of nodes. `freeze` gathers each
@@ -545,7 +548,14 @@ impl Engine {
                     if boundary(q) {
                         // A bare native word inside a longer run is usually a misparse
                         // of an unknown word (나라 ≠ 吾+라).
-                        let inside = if q == n { 0.0 } else if crate::jamo::syllable_count(&entry.stem) == 1 { 5.0 } else { 3.0 };
+                        // The honorific suffix 님 attaches to any noun (해님, 달님).
+                        let inside = if q == n || comps[q..].starts_with(&NIM) {
+                            0.0
+                        } else if crate::jamo::syllable_count(&entry.stem) == 1 {
+                            5.0
+                        } else {
+                            3.0
+                        };
                         edges.push(Edge { start: s, end: q, cost: base + inside, kind: Kind::Nominal { entry: i, particle: None } });
                     }
                     // Pronouns and bound nouns contract with a following particle:

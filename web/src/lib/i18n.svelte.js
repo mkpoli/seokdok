@@ -2,7 +2,7 @@
 // browser, and the choice is remembered.
 
 const ko = {
-  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '낱{言|말}', old: '옛{韓㐎|한글}', install: '{設置|설치}', join: '{會|모임}' },
+  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '낱{言|말}', convert: '{變換|변환}', old: '옛{韓㐎|한글}', install: '{設置|설치}', join: '{會|모임}' },
   theme: { light: '{明|밝}게', dark: '{暗|어둡}게', auto: '{自動|자동}' },
   hero: {
     kicker: '{釋讀會|풀어읽기모임} {御製|어제}',
@@ -64,6 +64,14 @@ const ko = {
     coda: '{末音添記|말음첨기} 늘 {書|쓰}기 (有ㅆ다)',
     resyllabify: '받침 {移|넘기}기 (在쓰면)',
     hada: '하다를 爲로 (安寧爲세요)',
+  },
+  convert: {
+    eyebrow: '{變換|변환}',
+    title: '{韓㐎|한글}을 {釋讀文|석독문}으로',
+    lede: '{韓㐎|한글} {文|글}을 {貼|붙여} {入|넣}으면 낱{言|말}마다 {變換|변환}합니다. 낱{言|말}에 마우스를 {置|올리}거나 {押|누르}면 {他|다른} {候補|후보}를 {選|고를} 수 {有|있}습니다.',
+    sample: '하늘을 보며 이것저것 생각하는 게 좋아요\n대충 사 주세요',
+    input: '{韓㐎|한글} {入力|입력}',
+    result: '{變換|변환} {結果|결과}',
   },
   reader: {
     eyebrow: '{讀|읽}기',
@@ -204,7 +212,7 @@ const ko = {
 }
 
 const en = {
-  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', old: 'Old Hangul', install: 'Install', join: 'Group' },
+  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', convert: 'Convert', old: 'Old Hangul', install: 'Install', join: 'Group' },
   theme: { light: 'Light', dark: 'Dark', auto: 'Auto' },
   hero: {
     kicker: '釋讀會 御製: royally composed by 풀어읽기모임',
@@ -266,6 +274,14 @@ const en = {
     coda: 'Always write the final consonant (有ㅆ다)',
     resyllabify: 'Carry it to the next syllable (在쓰면)',
     hada: '爲 for 하다 (安寧爲세요)',
+  },
+  convert: {
+    eyebrow: 'Convert',
+    title: 'Hangul text to 釋讀',
+    lede: 'Paste Hangul text and every word is converted. Hover over a word, or tap it, to pick another candidate.',
+    sample: '하늘을 보며 이것저것 생각하는 게 좋아요\n대충 사 주세요',
+    input: 'Hangul input',
+    result: 'Result',
   },
   reader: {
     eyebrow: 'Reading',

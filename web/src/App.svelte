@@ -6,6 +6,7 @@
   import Hero from './ui/Hero.svelte'
   import ImePanel from './ui/ImePanel.svelte'
   import Reader from './ui/Reader.svelte'
+  import Convert from './ui/Convert.svelte'
   import Rules from './ui/Rules.svelte'
   import Words from './ui/Words.svelte'
   import Join from './ui/Join.svelte'
@@ -46,6 +47,7 @@
   <Samples onopen={tryWord} />
   <Rules />
   <Words onpick={tryWord} />
+  <Convert />
   <Reader />
   <Install />
   <Join />

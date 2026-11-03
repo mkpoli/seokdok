@@ -1,0 +1,69 @@
+/* seokdok design tokens.
+
+   Navy ink on pale blue-grey paper, after the 釋讀會 posters. Every colour is a
+   light-dark() pair: `color-scheme` picks the side, and the theme switch sets
+   data-theme="light" | "dark" on the root.
+
+   Text tokens clear 4.5:1 on the surfaces they sit on; control borders 3:1. */
+
+:root {
+  color-scheme: light dark;
+}
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+:root {
+  --c-canvas: light-dark(#eef1f7, #0c1124);
+  --c-canvas-2: light-dark(#dfe7f8, #111a38);
+  --c-surface: light-dark(#ffffff, #141b34);
+  --c-sunken: light-dark(#e6ebf5, #0a0f20);
+  --c-hover: light-dark(#e3e9f7, #1c2546);
+  --c-ink: light-dark(#141a33, #e8ebf7);
+  --c-soft: light-dark(#3c4566, #bfc6e0);
+  --c-muted: light-dark(#5d6688, #8e97b8);
+  --c-border: light-dark(#d3dbec, #263055);
+  --c-border-strong: light-dark(#9eabcc, #3d4a7a);
+
+  /* The poster blue, and its tints. */
+  --c-accent: light-dark(#24348c, #9db0ff);
+  --c-accent-hover: light-dark(#1b2870, #b9c7ff);
+  --c-accent-soft: light-dark(#dfe5fa, #1d2856);
+  --c-on-accent: light-dark(#ffffff, #0c1124);
+  /* Reading aids (ruby, notes) sit a step quieter than the text. */
+  --c-ruby: light-dark(#4c5a9a, #a9b6e6);
+  /* The underline under text still being composed. */
+  --c-preedit: light-dark(#c0392b, #ff9a8b);
+  --c-telegram: #229ed9;
+
+  --f-serif: 'Noto Serif KR', 'Noto Serif CJK KR', 'Source Han Serif K', 'Batang', serif;
+  --f-sans: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --f-round: 'Gowun Batang', var(--f-serif);
+  --f-mono: 'JetBrains Mono', ui-monospace, monospace;
+
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 72px;
+  --s-9: 112px;
+
+  --r-1: 6px;
+  --r-2: 10px;
+  --r-3: 16px;
+
+  --shadow-1: 0 1px 2px light-dark(rgb(20 26 51 / 0.08), rgb(0 0 0 / 0.4));
+  --shadow-2: 0 8px 28px light-dark(rgb(36 52 140 / 0.14), rgb(0 0 0 / 0.5));
+
+  --ease: cubic-bezier(0.2, 0.7, 0.2, 1);
+  --t-fast: 120ms;
+  --t-med: 260ms;
+
+  --w-page: 1120px;
+}

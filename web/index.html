@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>釋讀 입력기 · seokdok</title>
+    <meta name="description" content="한글로 치면 漢字로 풀어 적는 입력기. 音讀・訓讀・送韓字를 한꺼번에. 풀어읽기모임 釋讀會." />
+    <meta property="og:title" content="釋讀 입력기 · seokdok" />
+    <meta property="og:description" content="한글로 치면 漢字로 풀어 적는 입력기. 풀어읽기모임 釋讀會." />
+    <meta property="og:url" content="https://seokdok.mkpo.li/" />
+    <meta property="og:type" content="website" />
+    <meta name="theme-color" content="#24348c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@700&family=Noto+Sans+KR:wght@400;600;700&family=Noto+Serif+KR:wght@500;700;900&display=swap"
+    />
+    <script>
+      try {
+        const t = localStorage.getItem('seokdok:theme')
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/main.js"></script>
+  </body>
+</html>

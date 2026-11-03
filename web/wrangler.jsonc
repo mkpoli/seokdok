@@ -1,0 +1,12 @@
+{
+  "name": "seokdok",
+  "compatibility_date": "2026-11-01",
+  // A static site: every request is an asset, and an unknown path opens the page.
+  "assets": {
+    "directory": "./dist",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [{ "pattern": "seokdok.mkpo.li", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": true
+}

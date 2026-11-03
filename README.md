@@ -33,7 +33,9 @@ The spelling rules and their options are in
 - `web/`: https://seokdok.mkpo.li/, an in-browser IME with a 두벌식 keyboard,
   a reader and the landing page (Svelte, Cloudflare static assets).
   `bun run build` in `web/` builds the WASM package, packs the dictionaries
-  and builds the site; `bun run deploy` publishes it.
+  and builds the site; `bun run deploy` publishes it. `bun run release`
+  packages the Windows and Linux input methods into `web/public/downloads/`
+  (not committed); run it before a deploy that should carry new builds.
 - `dict/`: dictionaries, see [dict/README.md](dict/README.md).
 - `tools/`: scripts that rebuild `dict/` from the sources.
 

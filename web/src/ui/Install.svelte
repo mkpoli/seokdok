@@ -13,7 +13,7 @@
       file: downloads.windows.file,
       size: downloads.windows.size,
       system: null,
-      remove: 'powershell -ExecutionPolicy Bypass -File install.ps1 -Uninstall',
+      remove: '設定 › 앱 › 釋讀 seokdok',
       where: '%APPDATA%\\seokdok\\custom.json',
     },
     {

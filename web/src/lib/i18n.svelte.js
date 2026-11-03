@@ -191,7 +191,7 @@ const ko = {
     lede: '{此|이} {頁|쪽}과 {同|같}은 엔진과 {辭典|사전}을 {用|쓰}는 {入力器|입력기}입니다. Windows와 Linux(fcitx5)를 {支援|지원}합니다.',
     download: '{內|내}려받기',
     windows: [
-      '{壓縮|압축}을 {解|풀}고 install.ps1을 {右|오른}쪽 클릭 → 「PowerShell에서 {實行|실행}」. {管理者|관리자} {權限|권한}을 {求|구}합니다.',
+      '{內|내}려받은 {設置|설치} 파일을 {實行|실행}합니다. {管理者|관리자} {權限|권한}을 {求|구}합니다.',
       'Win+Space로 釋讀을 {選|고르}ㅂ니다. {韓國語|한국어}가 {言語|언어} {目錄|목록}에 {無|없}으면 {自動|자동}으로 {加|더}합니다.',
     ],
     linux: [
@@ -403,7 +403,7 @@ const en = {
     lede: 'A system input method with the same engine and dictionaries as this page, for Windows and for Linux (fcitx5).',
     download: 'Download',
     windows: [
-      'Unzip, right-click install.ps1 and choose “Run with PowerShell”. It asks for administrator rights.',
+      'Run the downloaded setup. It asks for administrator rights.',
       'Pick 釋讀 with Win+Space. Korean is added to your language list if it is missing.',
     ],
     linux: [

@@ -156,7 +156,12 @@ fn attest(eng: &Engine, args: &[String]) {
     let mut producers: HashMap<String, Vec<usize>> = HashMap::new();
     for i in 0..eng.natives.len() {
         let mut seen = HashSet::new();
+        // A bare Hanja token is a Sino-Korean word, never a verb stem (右 in 左右).
+        let inflects = eng.natives[i].pos.inflects();
         for (w, _) in eng.forms_of(i) {
+            if inflects && !w.chars().any(is_hangul) {
+                continue;
+            }
             if counts.contains_key(&w) && seen.insert(w.clone()) {
                 producers.entry(w).or_default().push(i);
             }
@@ -166,8 +171,11 @@ fn attest(eng: &Engine, args: &[String]) {
     let mut explained: HashSet<String> = HashSet::new();
     for (w, ps) in &producers {
         let best = ps.iter().map(|&i| eng.natives[i].source.rank()).min().unwrap();
+        // A noun with a particle (右와 = 오른쪽 + 와) beats a verb form that
+        // happens to be spelled the same.
+        let noun = ps.iter().any(|&i| eng.natives[i].source.rank() == best && !eng.natives[i].pos.inflects());
         for &i in ps {
-            if eng.natives[i].source.rank() == best {
+            if eng.natives[i].source.rank() == best && !(noun && eng.natives[i].pos.inflects()) {
                 credit[i] += counts[w];
             }
         }

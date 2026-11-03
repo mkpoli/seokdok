@@ -5,6 +5,7 @@ Usage: uv run tools/build_dict.py
 Inputs (see data/sources/README.md for provenance and licences):
   data/private/sheet/gid0.csv          標準國語釋讀辭典 (community sheet export)
   data/private/telegram.jsonl          釋讀會 chat corpus (counts only)
+  data/private/telegram-hanja.jsonl    漢字混用 chat (Sino-Korean counts only)
   data/sources/libhangul/hanja.txt     Sino-Korean words and 訓音 glosses (BSD-3)
   data/sources/unihan/unihan_kHangul_kKorean.tsv  readings (Unicode licence)
   data/sources/kaikki-korean/*.jsonl   Wiktionary headwords, used only to check
@@ -47,11 +48,13 @@ def make(l, v, t):
 T_RIEUL, T_BIEUP, T_SIOS, T_NIEUN = 8, 17, 19, 4
 
 
-def corpus_texts():
-    p = PRIV / "telegram.jsonl"
-    if not p.exists():
-        return []
-    return [json.loads(l)["text"] for l in p.open(encoding="utf-8")]
+def corpus_texts(names=("telegram.jsonl",)):
+    out = []
+    for name in names:
+        p = PRIV / name
+        if p.exists():
+            out.extend(json.loads(l)["text"] for l in p.open(encoding="utf-8"))
+    return out
 
 
 def lexicon():
@@ -329,7 +332,8 @@ def main():
     lex = lexicon()
     for r in comm:
         lex[r[0]].add("verb" if r[2] == "동사" else "adj" if r[2] == "형용사" else "noun")
-    sino = build_sino(texts)
+    # Sino-Korean counts also draw on the 漢字混用 group (FusionIME author's chat).
+    sino = build_sino(corpus_texts(("telegram.jsonl", "telegram-hanja.jsonl")))
     sino_readings = {r[0] for r in sino}
     gl = build_gloss(lex, sino_readings)
     write(DICT / "gloss.tsv", ["lemma", "written", "pos", "class", "source", "count", "note"], gl, [
@@ -347,7 +351,8 @@ def main():
     write(DICT / "sino.tsv", ["reading", "hanja", "count", "source"], sino, [
         "Sino-Korean words and characters from libhangul hanja.txt (BSD-3-Clause,",
         "Copyright (c) 2005,2006 Choe Hwanjin; see dict/README.md).",
-        "count: occurrences in the 釋讀會 chat corpus (Telegram export to 2026-10-29).",
+        "count: occurrences in two Telegram chats: 釋讀會 (export to 2026-10-29) and",
+        "漢字混用 (export to 2026-11-03).",
     ])
 
 

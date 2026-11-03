@@ -2,50 +2,76 @@ import UIKit
 
 protocol KeyboardViewDelegate: AnyObject {
     func letter(_ key: Character)
+    func symbol(_ ch: Character)
     func space()
     func enter()
     func backspace()
     func toggleShift()
-    func toggleMode()
+    func cycleMode()
     func pick(_ index: Int)
+    func convert()
+    func page(_ step: Int)
+    func focus(run: Int)
+    func resize(_ step: Int)
 }
 
-/// The keys and the candidate bar. Each letter key shows the jamo it types
-/// and, in its corner, the one on the other Shift layer; old letters
-/// (ㆍ ㅿ ㆁ ㆆ ᄼ …) are tinted.
-final class KeyboardView: UIView {
+/// What the keys and the bars show; built by the controller from the session.
+struct KeyboardState {
+    var shift: Shift = .off
+    var mode: Session.Mode = .seokdok
+    var composing = false
+    var spaceConverts = true
+    var runs: [Session.Run] = []
+    var candidates: Session.Candidates?
+    var loading = false
+
+    enum Shift { case off, once, locked }
+}
+
+/// The keyboard: a strip with the text being composed (tap the Hangul to
+/// convert it, a converted segment to focus it),
+/// the candidate bar, and 두벌식 keys with the Shift layer in each key's
+/// corner (old letters tinted). A symbols layer replaces the letters.
+final class KeyboardView: UIView, UIInputViewAudioFeedback {
     weak var delegate: KeyboardViewDelegate?
     /// The input-mode switch key, when the system asks for one.
     private(set) var globe: UIButton?
 
+    private let strip = UIStackView()
+    private let stripScroll = UIScrollView()
+    private let resizeKeys = UIStackView()
     private let bar = UIStackView()
     private let barScroll = UIScrollView()
+    private let pageKeys = UIStackView()
+    private let letters = UIStackView()
+    private let symbols = UIStackView()
     private var letterKeys: [(Character, KeyButton)] = []
+    private var symbolKeys: [KeyButton] = []
+    private var symbolPage = 0
     private var shiftKey: KeyButton!
+    private var symbolPageKey: KeyButton!
     private var modeKey: KeyButton!
+    private var layerKey: KeyButton!
+    private var spaceKey: KeyButton!
+    private var enterKey: KeyButton!
+    private var repeatTimer: Timer?
 
     private static let rows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
+    /// Two pages of symbols, three rows each, as on the system keyboard.
+    private static let symbolRows: [[String]] = [
+        ["1234567890", "-/:;()₩&@\"", ".,?!'"],
+        ["[]{}#%^*+=", "_\\|~<>$€£·", ".,?!'"],
+    ]
+
+    var enableInputClicksWhenVisible: Bool { true }
 
     init(globe needsGlobe: Bool) {
         super.init(frame: .zero)
         backgroundColor = .clear
 
-        barScroll.showsHorizontalScrollIndicator = false
-        bar.axis = .horizontal
-        bar.spacing = 4
-        bar.translatesAutoresizingMaskIntoConstraints = false
-        barScroll.addSubview(bar)
-        NSLayoutConstraint.activate([
-            bar.leadingAnchor.constraint(equalTo: barScroll.contentLayoutGuide.leadingAnchor, constant: 6),
-            bar.trailingAnchor.constraint(equalTo: barScroll.contentLayoutGuide.trailingAnchor, constant: -6),
-            bar.topAnchor.constraint(equalTo: barScroll.contentLayoutGuide.topAnchor),
-            bar.bottomAnchor.constraint(equalTo: barScroll.contentLayoutGuide.bottomAnchor),
-            bar.heightAnchor.constraint(equalTo: barScroll.frameLayoutGuide.heightAnchor),
-        ])
-
         let column = UIStackView()
         column.axis = .vertical
-        column.spacing = 8
+        column.spacing = 6
         column.translatesAutoresizingMaskIntoConstraints = false
         addSubview(column)
         NSLayoutConstraint.activate([
@@ -53,114 +79,325 @@ final class KeyboardView: UIView {
             column.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -3),
             column.topAnchor.constraint(equalTo: topAnchor, constant: 2),
             column.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
-            barScroll.heightAnchor.constraint(equalToConstant: 40),
         ])
-        column.addArrangedSubview(barScroll)
 
-        for (r, row) in Self.rows.enumerated() {
-            let line = UIStackView()
-            line.axis = .horizontal
-            line.spacing = 5
-            line.distribution = .fillEqually
-            var keys: [UIView] = []
-            for ch in row {
-                let k = KeyButton()
-                k.addAction(UIAction { [weak self] _ in self?.delegate?.letter(ch) }, for: .touchUpInside)
-                letterKeys.append((ch, k))
-                keys.append(k)
-            }
-            if r == 2 {
-                shiftKey = KeyButton(symbol: "shift")
-                shiftKey.addAction(UIAction { [weak self] _ in self?.delegate?.toggleShift() }, for: .touchUpInside)
-                let back = KeyButton(symbol: "delete.left")
-                back.addAction(UIAction { [weak self] _ in self?.delegate?.backspace() }, for: .touchUpInside)
-                keys = [shiftKey] + keys + [back]
-            }
-            keys.forEach(line.addArrangedSubview)
-            if r == 1 {
-                // The middle row is set in by half a key, as on a real keyboard.
-                let wrap = UIStackView(arrangedSubviews: [line])
-                wrap.isLayoutMarginsRelativeArrangement = true
-                wrap.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 18, bottom: 0, trailing: 18)
-                column.addArrangedSubview(wrap)
-            } else {
-                column.addArrangedSubview(line)
-            }
-        }
+        column.addArrangedSubview(scrolling(strip, in: stripScroll, trailing: resizeKeys, height: 26))
+        column.addArrangedSubview(scrolling(bar, in: barScroll, trailing: pageKeys, height: 44))
+        column.setCustomSpacing(8, after: column.arrangedSubviews[1])
+        resizeKeys.addArrangedSubview(smallKey("−", label: "Shorter segment") { $0.resize(-1) })
+        resizeKeys.addArrangedSubview(smallKey("+", label: "Longer segment") { $0.resize(1) })
+        pageKeys.addArrangedSubview(smallKey("‹", label: "Previous page") { $0.page(-1) })
+        pageKeys.addArrangedSubview(smallKey("›", label: "Next page") { $0.page(1) })
 
-        let bottom = UIStackView()
-        bottom.axis = .horizontal
-        bottom.spacing = 5
-        if needsGlobe {
-            let g = KeyButton(symbol: "globe")
-            globe = g
-            bottom.addArrangedSubview(g)
-            g.widthAnchor.constraint(equalToConstant: 44).isActive = true
-        }
-        modeKey = KeyButton(title: "韓")
-        modeKey.addAction(UIAction { [weak self] _ in self?.delegate?.toggleMode() }, for: .touchUpInside)
-        modeKey.widthAnchor.constraint(equalToConstant: 52).isActive = true
-        let space = KeyButton(title: "變換")
-        space.addAction(UIAction { [weak self] _ in self?.delegate?.space() }, for: .touchUpInside)
-        let enter = KeyButton(title: "確定", accent: true)
-        enter.addAction(UIAction { [weak self] _ in self?.delegate?.enter() }, for: .touchUpInside)
-        enter.widthAnchor.constraint(equalToConstant: 84).isActive = true
-        bottom.addArrangedSubview(modeKey)
-        bottom.addArrangedSubview(space)
-        bottom.addArrangedSubview(enter)
-        column.addArrangedSubview(bottom)
-        update(shift: false, mode: 0)
+        letters.axis = .vertical
+        letters.spacing = 10
+        symbols.axis = .vertical
+        symbols.spacing = 10
+        column.addArrangedSubview(letters)
+        column.addArrangedSubview(symbols)
+        buildLetters()
+        buildSymbols()
+        symbols.isHidden = true
+        column.addArrangedSubview(bottomRow(needsGlobe))
+        render(KeyboardState())
     }
 
     required init?(coder: NSCoder) {
         fatalError("not used")
     }
 
-    /// Relabel the keys for the Shift state and the input mode (2 = Latin).
-    func update(shift: Bool, mode: Int32) {
-        let latin = mode == 2
+    private func scrolling(_ stack: UIStackView, in scroll: UIScrollView, trailing: UIStackView, height: CGFloat) -> UIView {
+        scroll.showsHorizontalScrollIndicator = false
+        stack.axis = .horizontal
+        stack.spacing = 4
+        stack.alignment = .center
+        stack.translatesAutoresizingMaskIntoConstraints = false
+        scroll.addSubview(stack)
+        NSLayoutConstraint.activate([
+            stack.leadingAnchor.constraint(equalTo: scroll.contentLayoutGuide.leadingAnchor, constant: 6),
+            stack.trailingAnchor.constraint(equalTo: scroll.contentLayoutGuide.trailingAnchor, constant: -6),
+            stack.topAnchor.constraint(equalTo: scroll.contentLayoutGuide.topAnchor),
+            stack.bottomAnchor.constraint(equalTo: scroll.contentLayoutGuide.bottomAnchor),
+            stack.heightAnchor.constraint(equalTo: scroll.frameLayoutGuide.heightAnchor),
+        ])
+        trailing.axis = .horizontal
+        trailing.spacing = 4
+        trailing.setContentHuggingPriority(.required, for: .horizontal)
+        trailing.setContentCompressionResistancePriority(.required, for: .horizontal)
+        let row = UIStackView(arrangedSubviews: [scroll, trailing])
+        row.axis = .horizontal
+        row.spacing = 4
+        row.heightAnchor.constraint(equalToConstant: height).isActive = true
+        return row
+    }
+
+    private func smallKey(_ title: String, label: String, _ act: @escaping (KeyboardViewDelegate) -> Void) -> UIButton {
+        let b = UIButton(type: .system)
+        b.setTitle(title, for: .normal)
+        b.titleLabel?.font = .systemFont(ofSize: 20, weight: .medium)
+        b.tintColor = .label
+        b.accessibilityLabel = label
+        b.widthAnchor.constraint(equalToConstant: 34).isActive = true
+        b.addAction(UIAction { [weak self] _ in
+            guard let self, let d = self.delegate else { return }
+            UIDevice.current.playInputClick()
+            act(d)
+        }, for: .touchUpInside)
+        return b
+    }
+
+    private func buildLetters() {
+        for (r, row) in Self.rows.enumerated() {
+            var keys: [UIView] = []
+            for ch in row {
+                let k = KeyButton()
+                k.addAction(UIAction { [weak self] _ in self?.tap { $0.letter(ch) } }, for: .touchUpInside)
+                letterKeys.append((ch, k))
+                keys.append(k)
+            }
+            if r == 2 {
+                shiftKey = KeyButton(symbol: "shift")
+                shiftKey.accessibilityLabel = "Shift"
+                shiftKey.addAction(UIAction { [weak self] _ in self?.tap { $0.toggleShift() } }, for: .touchDown)
+                keys = [shiftKey!] + keys + [backspaceKey()]
+            }
+            letters.addArrangedSubview(line(keys, inset: r == 1 ? 18 : 0, edgeKeys: r == 2))
+        }
+    }
+
+    private func buildSymbols() {
+        for r in 0..<3 {
+            var keys: [UIView] = []
+            for i in 0..<Self.symbolRows[0][r].count {
+                let k = KeyButton()
+                k.addAction(UIAction { [weak self] _ in
+                    guard let self else { return }
+                    let row = Array(Self.symbolRows[self.symbolPage][r])
+                    if i < row.count { self.tap { $0.symbol(row[i]) } }
+                }, for: .touchUpInside)
+                symbolKeys.append(k)
+                keys.append(k)
+            }
+            if r == 2 {
+                symbolPageKey = KeyButton(title: "#+=")
+                symbolPageKey.addAction(UIAction { [weak self] _ in
+                    guard let self else { return }
+                    UIDevice.current.playInputClick()
+                    self.symbolPage = 1 - self.symbolPage
+                    self.labelSymbols()
+                }, for: .touchUpInside)
+                keys = [symbolPageKey!] + keys + [backspaceKey()]
+            }
+            symbols.addArrangedSubview(line(keys, inset: 0, edgeKeys: r == 2))
+        }
+        labelSymbols()
+    }
+
+    private func labelSymbols() {
+        let chars = Self.symbolRows[symbolPage].flatMap { Array($0) }
+        for (k, ch) in zip(symbolKeys, chars) {
+            k.set(main: String(ch), hint: nil, old: false)
+        }
+        symbolPageKey.setTitle(symbolPage == 0 ? "#+=" : "123", for: .normal)
+    }
+
+    /// A row of keys; `edgeKeys` makes the first and last (Shift, Backspace)
+    /// wider and keeps the letters between them equal.
+    private func line(_ keys: [UIView], inset: CGFloat, edgeKeys: Bool) -> UIView {
+        let row = UIStackView()
+        row.axis = .horizontal
+        row.spacing = 5
+        if edgeKeys, let first = keys.first, let last = keys.last {
+            let middle = UIStackView(arrangedSubviews: Array(keys.dropFirst().dropLast()))
+            middle.axis = .horizontal
+            middle.spacing = 5
+            middle.distribution = .fillEqually
+            [first, middle, last].forEach(row.addArrangedSubview)
+            first.widthAnchor.constraint(equalToConstant: 46).isActive = true
+            last.widthAnchor.constraint(equalToConstant: 46).isActive = true
+            row.spacing = 10
+        } else {
+            row.distribution = .fillEqually
+            keys.forEach(row.addArrangedSubview)
+        }
+        guard inset > 0 else { return row }
+        // The middle letter row is set in by half a key, as on a real keyboard.
+        let wrap = UIStackView(arrangedSubviews: [row])
+        wrap.isLayoutMarginsRelativeArrangement = true
+        wrap.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: inset, bottom: 0, trailing: inset)
+        return wrap
+    }
+
+    /// Backspace repeats while held.
+    private func backspaceKey() -> KeyButton {
+        let k = KeyButton(symbol: "delete.left")
+        k.accessibilityLabel = "Delete"
+        k.addAction(UIAction { [weak self] _ in
+            guard let self else { return }
+            self.tap { $0.backspace() }
+            self.repeatTimer?.invalidate()
+            self.repeatTimer = Timer.scheduledTimer(withTimeInterval: 0.45, repeats: false) { [weak self] _ in
+                self?.repeatTimer = Timer.scheduledTimer(withTimeInterval: 0.08, repeats: true) { [weak self] _ in
+                    self?.delegate?.backspace()
+                }
+            }
+        }, for: .touchDown)
+        k.addAction(UIAction { [weak self] _ in
+            self?.repeatTimer?.invalidate()
+            self?.repeatTimer = nil
+        }, for: [.touchUpInside, .touchUpOutside, .touchCancel])
+        return k
+    }
+
+    private func bottomRow(_ needsGlobe: Bool) -> UIView {
+        let bottom = UIStackView()
+        bottom.axis = .horizontal
+        bottom.spacing = 5
+        layerKey = KeyButton(title: "123")
+        layerKey.addAction(UIAction { [weak self] _ in
+            guard let self else { return }
+            UIDevice.current.playInputClick()
+            self.symbolPage = 0
+            self.labelSymbols()
+            self.letters.isHidden.toggle()
+            self.symbols.isHidden = !self.letters.isHidden
+            self.relabelLayerKey()
+        }, for: .touchUpInside)
+        layerKey.widthAnchor.constraint(equalToConstant: 46).isActive = true
+        bottom.addArrangedSubview(layerKey)
+        if needsGlobe {
+            let g = KeyButton(symbol: "globe")
+            g.accessibilityLabel = "Next keyboard"
+            globe = g
+            bottom.addArrangedSubview(g)
+            g.widthAnchor.constraint(equalToConstant: 40).isActive = true
+        }
+        modeKey = KeyButton(title: "釋")
+        modeKey.accessibilityLabel = "Input mode"
+        modeKey.addAction(UIAction { [weak self] _ in self?.tap { $0.cycleMode() } }, for: .touchUpInside)
+        modeKey.widthAnchor.constraint(equalToConstant: 46).isActive = true
+        spaceKey = KeyButton(title: "띄어쓰기")
+        spaceKey.addAction(UIAction { [weak self] _ in self?.tap { $0.space() } }, for: .touchUpInside)
+        enterKey = KeyButton(title: "改行", accent: true)
+        enterKey.addAction(UIAction { [weak self] _ in self?.tap { $0.enter() } }, for: .touchUpInside)
+        enterKey.widthAnchor.constraint(equalToConstant: 84).isActive = true
+        for k in [modeKey!, spaceKey!, enterKey!] {
+            bottom.addArrangedSubview(k)
+        }
+        return bottom
+    }
+
+    private func tap(_ act: (KeyboardViewDelegate) -> Void) {
+        UIDevice.current.playInputClick()
+        if let d = delegate { act(d) }
+    }
+
+    private var lettersShown: Bool { !letters.isHidden }
+    private var lastMode: Session.Mode = .seokdok
+
+    private func relabelLayerKey() {
+        layerKey.setTitle(lettersShown ? "123" : (lastMode == .latin ? "ABC" : "가"), for: .normal)
+    }
+
+    /// Show the keyboard state: key labels, the strip and the candidate bar.
+    func render(_ s: KeyboardState) {
+        lastMode = s.mode
+        relabelLayerKey()
+        let shifted = s.shift != .off
+        let latin = s.mode == .latin
         for (ch, key) in letterKeys {
             let up = Character(ch.uppercased())
             if latin {
-                key.set(main: String(shift ? up : ch), hint: nil, old: false)
+                key.set(main: String(shifted ? up : ch), hint: nil, old: false)
                 continue
             }
-            let main = Session.jamo(shift ? up : ch) ?? String(ch)
-            let other = Session.jamo(shift ? ch : up)
+            let main = Session.jamo(shifted ? up : ch) ?? String(ch)
+            let other = Session.jamo(shifted ? ch : up)
             let hint = other == main ? nil : other
             key.set(main: shown(main), hint: hint.map(shown), old: isOld(main) || isOld(hint ?? ""))
         }
-        shiftKey.isSelected = shift
-        modeKey.setTitle(latin ? "A" : "韓", for: .normal)
+        shiftKey.isSelected = shifted
+        shiftKey.setImage(UIImage(systemName: s.shift == .locked ? "capslock.fill" : "shift.fill"), for: .selected)
+        modeKey.setTitle(["釋", "한", "A"][Int(s.mode.rawValue)], for: .normal)
+        let converts = s.composing && s.mode == .seokdok && (s.spaceConverts || s.candidates != nil)
+        spaceKey.setTitle(converts ? "變換" : "띄어쓰기", for: .normal)
+        enterKey.setTitle(s.composing ? "確定" : "改行", for: .normal)
+        showStrip(s)
+        showBar(s)
     }
 
-    /// Fill the candidate bar: the candidates when the list is open, else the
-    /// text being composed.
-    func show(candidates: Session.Candidates?, preedit: [Session.Run], loading: Bool) {
-        bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        if let c = candidates {
-            for (i, item) in c.items.enumerated() {
-                let b = UIButton(type: .system)
-                b.setTitle(item.text, for: .normal)
-                b.titleLabel?.font = .systemFont(ofSize: 20)
-                b.tintColor = .label
-                b.contentEdgeInsets = UIEdgeInsets(top: 0, left: 10, bottom: 0, right: 10)
-                b.backgroundColor = i == c.selected ? UIColor.systemBlue.withAlphaComponent(0.18) : .clear
-                b.layer.cornerRadius = 6
-                b.addAction(UIAction { [weak self] _ in self?.delegate?.pick(i) }, for: .touchUpInside)
-                bar.addArrangedSubview(b)
-            }
-            let count = UILabel()
-            count.text = "\(c.position)/\(c.total)"
-            count.font = .systemFont(ofSize: 12)
-            count.textColor = .secondaryLabel
-            bar.addArrangedSubview(count)
-        } else {
+    /// The text being composed. Tapping the Hangul converts it (in 釋讀
+    /// mode); tapping a converted segment focuses it.
+    private func showStrip(_ s: KeyboardState) {
+        strip.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        let converted = s.runs.contains { $0.attr != 0 }
+        resizeKeys.isHidden = !converted
+        if s.runs.isEmpty {
             let label = UILabel()
-            label.font = .systemFont(ofSize: 18)
+            label.font = .systemFont(ofSize: 14)
             label.textColor = .secondaryLabel
-            label.text = loading && preedit.isEmpty ? "辭典 讀는 中…" : preedit.map(\.text).joined()
-            bar.addArrangedSubview(label)
+            label.text = s.loading ? "辭典 讀는 中…" : nil
+            strip.addArrangedSubview(label)
+            return
+        }
+        for (i, run) in s.runs.enumerated() {
+            let b = UIButton(type: .system)
+            b.setTitle(run.text, for: .normal)
+            b.titleLabel?.font = .systemFont(ofSize: 16)
+            b.tintColor = run.attr == 0 ? .secondaryLabel : .label
+            b.backgroundColor = run.attr == 2 ? UIColor.systemBlue.withAlphaComponent(0.22) : .clear
+            b.layer.cornerRadius = 4
+            b.isUserInteractionEnabled = run.attr != 0 || s.mode == .seokdok
+            b.addAction(UIAction { [weak self] _ in
+                self?.tap { run.attr == 0 ? $0.convert() : $0.focus(run: i) }
+            }, for: .touchUpInside)
+            strip.addArrangedSubview(b)
+        }
+    }
+
+    /// The candidates of the focused segment with their notes, and the page
+    /// position.
+    private func showBar(_ s: KeyboardState) {
+        bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        guard let c = s.candidates else {
+            pageKeys.isHidden = true
+            return
+        }
+        pageKeys.isHidden = c.total <= c.items.count
+        for (i, item) in c.items.enumerated() {
+            var conf = UIButton.Configuration.plain()
+            conf.title = item.text
+            conf.subtitle = item.note.isEmpty ? nil : item.note
+            conf.titleAlignment = .center
+            conf.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+                var out = incoming
+                out.font = UIFont.systemFont(ofSize: 19)
+                return out
+            }
+            conf.subtitleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
+                var out = incoming
+                out.font = UIFont.systemFont(ofSize: 10)
+                out.foregroundColor = UIColor.secondaryLabel
+                return out
+            }
+            conf.baseForegroundColor = .label
+            conf.contentInsets = NSDirectionalEdgeInsets(top: 2, leading: 8, bottom: 2, trailing: 8)
+            conf.background.cornerRadius = 6
+            conf.background.backgroundColor = i == c.selected ? UIColor.systemBlue.withAlphaComponent(0.18) : .clear
+            let b = UIButton(configuration: conf)
+            b.addAction(UIAction { [weak self] _ in self?.tap { $0.pick(i) } }, for: .touchUpInside)
+            bar.addArrangedSubview(b)
+        }
+        let count = UILabel()
+        count.text = "\(c.position)/\(c.total)"
+        count.font = .systemFont(ofSize: 12)
+        count.textColor = .secondaryLabel
+        bar.addArrangedSubview(count)
+        // Keep the selected candidate in view.
+        layoutIfNeeded()
+        if c.items.indices.contains(c.selected) {
+            let v = bar.arrangedSubviews[c.selected]
+            barScroll.scrollRectToVisible(v.convert(v.bounds, to: barScroll), animated: false)
         }
     }
 
@@ -191,14 +428,15 @@ final class KeyButton: UIButton {
         layer.shadowRadius = 0
         backgroundColor = accent ? .systemBlue : .secondarySystemBackground
         setTitleColor(accent ? .white : .label, for: .normal)
-        titleLabel?.font = .systemFont(ofSize: title == nil ? 22 : 16, weight: .medium)
+        titleLabel?.font = .systemFont(ofSize: title == nil ? 22 : 15, weight: .medium)
+        titleLabel?.adjustsFontSizeToFitWidth = true
         if let title { setTitle(title, for: .normal) }
         if let symbol {
             setImage(UIImage(systemName: symbol), for: .normal)
             setImage(UIImage(systemName: symbol + ".fill"), for: .selected)
             tintColor = .label
         }
-        heightAnchor.constraint(equalToConstant: 44).isActive = true
+        heightAnchor.constraint(equalToConstant: 42).isActive = true
         hint.font = .systemFont(ofSize: 11, weight: .medium)
         hint.textColor = .secondaryLabel
         hint.translatesAutoresizingMaskIntoConstraints = false

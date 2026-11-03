@@ -2,99 +2,170 @@ import UIKit
 
 /// The 釋讀 keyboard: 두벌식 keys feed the Rust session; the text being
 /// composed is the document's marked text (as azooKey does), confirmed text
-/// is inserted, and the candidates show in the bar above the keys.
+/// is inserted, and the focused segment's candidates show in the bar above
+/// the keys.
 final class KeyboardViewController: UIInputViewController {
     private var session: Session!
     private var keys: KeyboardView!
-    private var shift = false
-    /// Marked text is in the document.
-    private var marked = false
+    private var shift = KeyboardState.Shift.off
+    private var lastShiftTap = Date.distantPast
+    /// The marked text this keyboard last wrote into the document, if any.
+    private var marked: String?
+    private var loadTimer: Timer?
 
     static let appGroup = "group.li.mkpo.seokdok"
 
     override func viewDidLoad() {
         super.viewDidLoad()
-        let dict = Bundle.main.resourceURL!.appendingPathComponent("dict").path
-        let shared = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.appGroup)?.path
-        session = Session(dictDir: dict, configDir: shared)
+        let dict = Bundle.main.bundleURL.appendingPathComponent("dict").path
+        Session.setConfigDir(configDir())
+        session = Session(dictDir: dict)
 
         keys = KeyboardView(globe: needsInputModeSwitchKey)
         keys.delegate = self
         keys.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(keys)
+        let height = keys.heightAnchor.constraint(equalToConstant: 284)
+        // Below required, so it gives way to the system's own height while
+        // the keyboard is being set up.
+        height.priority = UILayoutPriority(999)
         NSLayoutConstraint.activate([
             keys.leadingAnchor.constraint(equalTo: view.leadingAnchor),
             keys.trailingAnchor.constraint(equalTo: view.trailingAnchor),
             keys.topAnchor.constraint(equalTo: view.topAnchor),
             keys.bottomAnchor.constraint(equalTo: view.bottomAnchor),
-            keys.heightAnchor.constraint(equalToConstant: 268),
+            height,
         ])
         if let globe = keys.globe {
             globe.addTarget(self, action: #selector(handleInputModeList(from:with:)), for: .allTouchEvents)
         }
     }
 
+    /// The App Group container holding the app's settings. Reading it needs
+    /// Full Access; without it the keyboard runs on the defaults.
+    private func configDir() -> String? {
+        guard hasFullAccess else { return nil }
+        return FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: Self.appGroup)?.path
+    }
+
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
+        Session.setConfigDir(configDir())
         session.sync()
-        keys.update(shift: shift, mode: session.mode)
         refresh()
+        waitForDictionaries()
     }
 
     override func viewWillDisappear(_ animated: Bool) {
         session.flush()
         apply()
+        loadTimer?.invalidate()
         super.viewWillDisappear(animated)
     }
 
-    /// Write the session's view into the document and the candidate bar.
+    /// The text changed outside the keyboard (the cursor moved, the app
+    /// cleared the field): the document now holds the marked text as plain
+    /// text, so drop the composition instead of writing it again.
+    override func textDidChange(_ textInput: UITextInput?) {
+        super.textDidChange(textInput)
+        guard let m = marked else { return }
+        let before = textDocumentProxy.documentContextBeforeInput ?? ""
+        if !before.hasSuffix(m) {
+            session.reset()
+            marked = nil
+            refresh()
+        }
+    }
+
+    /// Until the dictionaries load, the strip says so; refresh once they have.
+    private func waitForDictionaries() {
+        guard !Session.ready, loadTimer == nil else { return }
+        loadTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] t in
+            guard Session.ready else { return }
+            t.invalidate()
+            self?.loadTimer = nil
+            self?.refresh()
+        }
+    }
+
+    /// Write the session's view into the document and the keyboard.
     private func apply() {
         let proxy = textDocumentProxy
         if let commit = session.takeCommit() {
             // Replaces the marked text, if any.
             proxy.insertText(commit)
-            marked = false
+            marked = nil
         }
-        let runs = session.preedit()
-        let text = runs.map(\.text).joined()
+        // Keep the focused segment's candidates in the bar while converting.
+        if session.candidates() == nil, session.preedit().contains(where: { $0.attr == 2 }) {
+            session.key(Session.Key.down)
+            session.key(Session.Key.up)
+        }
+        let text = session.preedit().map(\.text).joined()
         if !text.isEmpty {
             proxy.setMarkedText(text, selectedRange: NSRange(location: (text as NSString).length, length: 0))
-            marked = true
-        } else if marked {
+            marked = text
+        } else if marked != nil {
             proxy.setMarkedText("", selectedRange: NSRange(location: 0, length: 0))
             proxy.unmarkText()
-            marked = false
+            marked = nil
         }
-        refresh(runs)
+        refresh()
     }
 
-    private func refresh(_ runs: [Session.Run]? = nil) {
-        keys.show(candidates: session.candidates(), preedit: runs ?? session.preedit(), loading: !Session.ready)
+    private func refresh() {
+        let runs = session.preedit()
+        var s = KeyboardState()
+        s.shift = shift
+        s.mode = session.mode
+        s.composing = !runs.isEmpty
+        s.spaceConverts = Session.spaceConverts
+        s.runs = runs
+        s.candidates = session.candidates()
+        s.loading = !Session.ready
+        keys.render(s)
+    }
+
+    /// Insert text the session did not take.
+    private func insert(_ text: String) {
+        textDocumentProxy.insertText(text)
     }
 }
 
 extension KeyboardViewController: KeyboardViewDelegate {
     func letter(_ key: Character) {
-        if !session.key(Session.Key.letter, key, shift: shift) {
-            textDocumentProxy.insertText(String(shift ? Character(key.uppercased()) : key))
+        let shifted = shift != .off
+        if !session.key(Session.Key.letter, key, shift: shifted) {
+            insert(String(shifted ? Character(key.uppercased()) : key))
         }
-        if shift {
-            shift = false
-            keys.update(shift: false, mode: session.mode)
+        if shift == .once {
+            shift = .off
+        }
+        apply()
+    }
+
+    func symbol(_ ch: Character) {
+        // Digits pick candidates while the list is open; close it first so a
+        // digit confirms the conversion and is typed after it.
+        if session.candidates() != nil, ch.isNumber {
+            session.key(Session.Key.esc)
+        }
+        if !session.key(Session.Key.printable, ch) {
+            insert(String(ch))
         }
         apply()
     }
 
     func space() {
         if !session.key(Session.Key.space) {
-            textDocumentProxy.insertText(" ")
+            insert(" ")
         }
         apply()
     }
 
     func enter() {
         if !session.key(Session.Key.enter) {
-            textDocumentProxy.insertText("\n")
+            insert("\n")
         }
         apply()
     }
@@ -106,21 +177,62 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
+    /// Tap: Shift for one letter; double tap: locked until tapped again.
     func toggleShift() {
-        shift.toggle()
-        keys.update(shift: shift, mode: session.mode)
+        let now = Date()
+        switch shift {
+        case .off:
+            shift = .once
+        case .once:
+            shift = now.timeIntervalSince(lastShiftTap) < 0.35 ? .locked : .off
+        case .locked:
+            shift = .off
+        }
+        lastShiftTap = now
+        refresh()
     }
 
-    func toggleMode() {
-        session.key(Session.Key.toggle)
+    /// 釋讀 → Hangul → Latin → 釋讀; what is being composed is committed.
+    func cycleMode() {
+        switch session.mode {
+        case .seokdok: session.mode = .hangul
+        case .hangul: session.mode = .latin
+        case .latin: session.mode = .seokdok
+        }
         apply()
-        keys.update(shift: shift, mode: session.mode)
     }
 
     /// Candidate `index` on the shown page, picked as its digit key.
     func pick(_ index: Int) {
         guard (0..<9).contains(index) else { return }
         session.key(Session.Key.printable, Character(String(index + 1)))
+        apply()
+    }
+
+    func convert() {
+        session.key(Session.Key.convert)
+        apply()
+    }
+
+    func page(_ step: Int) {
+        session.key(step < 0 ? Session.Key.pageUp : Session.Key.pageDown)
+        apply()
+    }
+
+    /// Move the focus to segment `run`, one segment at a time (the session
+    /// skips segments with nothing to choose).
+    func focus(run target: Int) {
+        for _ in 0..<session.preedit().count {
+            guard let at = session.preedit().firstIndex(where: { $0.attr == 2 }), at != target else { break }
+            session.key(target < at ? Session.Key.left : Session.Key.right)
+            if session.preedit().firstIndex(where: { $0.attr == 2 }) == at { break }
+        }
+        apply()
+    }
+
+    /// Shorten (-1) or lengthen (+1) the focused segment by a syllable.
+    func resize(_ step: Int) {
+        session.key(step < 0 ? Session.Key.left : Session.Key.right, shift: true)
         apply()
     }
 }

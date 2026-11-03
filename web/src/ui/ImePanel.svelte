@@ -1,14 +1,43 @@
 <script>
+  import { reveal } from '../lib/reveal.js'
   import { t, r, p } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
   import { options, saveOptions } from '../lib/options.svelte.js'
   import Keyboard from './Keyboard.svelte'
   import Ruby from './Ruby.svelte'
+  import { PAGE } from '../lib/ime.svelte.js'
 
   /** @type {{ ime: import('../lib/ime.svelte.js').Ime }} */
   let { ime } = $props()
 
   let sink = $state()
+  let textEl = $state()
+  let pos = $state({ left: 0, top: 0 })
+
+  // The candidate window sits under the focused segment.
+  $effect(() => {
+    if (!ime.open || !ime.segs) return
+    void ime.focus
+    void ime.converted
+    queueMicrotask(() => {
+      const el = textEl?.querySelector(`[data-seg="${ime.focus}"]`)
+      if (!el || !textEl) return
+      const host = textEl.parentElement.getBoundingClientRect()
+      const r = el.getBoundingClientRect()
+      const left = Math.min(r.left - host.left, host.width - 240)
+      pos = { left: Math.max(8, left), top: r.bottom - host.top + 6 }
+    })
+  })
+
+  /** "讀 읽다 +아/어 · 訓讀 community" → readable, with the source named. */
+  function noteHtml(note) {
+    const m = note.match(/^(.*) · (訓讀|音讀)(?: (\w+))?$/)
+    if (!m) return r(note)
+    const [, what, kind, src] = m
+    const k = kind === '音讀' ? t().ime.src.sino : t().ime.src.kun
+    const from = src ? ' · ' + r(t().ime.src[src] ?? src) : ''
+    return `<b>${r(what)}</b> · ${r(k)}${from}`
+  }
   let focused = $state(false)
   let showRuby = $state(false)
   let showKeys = $state(matchMedia('(pointer: coarse)').matches)
@@ -99,34 +128,34 @@
 </script>
 
 <section class="section" id="ime">
-  <p class="eyebrow">{@html r(t().ime.eyebrow)}</p>
-  <h2 class="h2">{@html r(t().ime.title)}</h2>
-  <p class="lede">{@html r(t().ime.lede)}</p>
+  <p class="eyebrow" use:reveal>{@html r(t().ime.eyebrow)}</p>
+  <h2 class="h2" use:reveal={1}>{@html r(t().ime.title)}</h2>
+  <p class="lede" use:reveal={2}>{@html r(t().ime.lede)}</p>
 
-  <div class="panel card">
+  <div class="panel card" use:reveal={3}>
     <div class="toolbar">
       <div class="seg" role="group" aria-label="input">
-        <button aria-pressed={ime.mode === 'sim'} onclick={() => (ime.mode = 'sim')}>{@html r(t().ime.sim)}</button>
-        <button aria-pressed={ime.mode === 'os'} onclick={() => (ime.mode = 'os')}>{@html r(t().ime.os)}</button>
+        <button aria-pressed={ime.mode === 'sim'} title={p(t().ime.simTip)} onclick={() => (ime.mode = 'sim')}>{@html r(t().ime.sim)}</button>
+        <button aria-pressed={ime.mode === 'os'} title={p(t().ime.osTip)} onclick={() => (ime.mode = 'os')}>{@html r(t().ime.os)}</button>
       </div>
-      <label class="switch"><input type="checkbox" bind:checked={showRuby} />{@html r(t().ime.ruby)}</label>
-      <label class="switch"><input type="checkbox" bind:checked={showKeys} />{@html r(t().ime.keyboard)}</label>
+      <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" bind:checked={showRuby} />{@html r(t().ime.ruby)}</label>
+      <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" bind:checked={showKeys} />{@html r(t().ime.keyboard)}</label>
       <details class="opts">
         <summary class="btn" data-size="sm">{@html r(t().options.title)}</summary>
         <div class="opts-body card">
           <fieldset>
             <legend>{@html r(t().options.style)}</legend>
-            <label><input type="radio" bind:group={options.style} value="surface" />{@html r(t().options.surface)}</label>
-            <label><input type="radio" bind:group={options.style} value="morpheme" />{@html r(t().options.morpheme)}</label>
+            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.style} value="surface" />{@html r(t().options.surface)}</label>
+            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.style} value="morpheme" />{@html r(t().options.morpheme)}</label>
           </fieldset>
           <fieldset>
             <legend>{@html r(t().options.fragment)}</legend>
-            <label><input type="radio" bind:group={options.fragment} value="absorb" />{@html r(t().options.absorb)}</label>
-            <label><input type="radio" bind:group={options.fragment} value="letter" />{@html r(t().options.letter)}</label>
+            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.fragment} value="absorb" />{@html r(t().options.absorb)}</label>
+            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.fragment} value="letter" />{@html r(t().options.letter)}</label>
           </fieldset>
-          <label class="switch"><input type="checkbox" bind:checked={options.codaAlways} />{@html r(t().options.coda)}</label>
-          <label class="switch"><input type="checkbox" bind:checked={options.resyllabify} />{@html r(t().options.resyllabify)}</label>
-          <label class="switch"><input type="checkbox" bind:checked={options.hadaKun} />{@html r(t().options.hada)}</label>
+          <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.codaAlways} />{@html r(t().options.coda)}</label>
+          <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.resyllabify} />{@html r(t().options.resyllabify)}</label>
+          <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.hadaKun} />{@html r(t().options.hada)}</label>
         </div>
       </details>
     </div>
@@ -147,50 +176,50 @@
         onfocus={() => (focused = true)}
         onblur={() => (focused = false)}
       ></textarea>
-      <div class="text" lang="ko">
-        {#if empty}
-          <span class="placeholder">{@html r(t().ime.placeholder)}</span>
-        {/if}
-        {#if showRuby}<Ruby text={ime.doc} />{:else}{ime.doc}{/if}
-        {#if ime.segs}
-          {#each ime.segs as s, i}
-            <span class="segment" class:focus={i === ime.focus && s.candidates.length > 1} class:multi={s.candidates.length > 1}
-              >{s.candidates[s.pick]?.text ?? s.reading}</span
+      <div class="text" lang="ko" bind:this={textEl}>{#if empty}<span class="placeholder">{@html r(t().ime.placeholder)}</span>{/if}<span class="doc">{#if showRuby}<Ruby text={ime.doc} />{:else}{ime.doc}{/if}</span>{#if ime.segs}{#each ime.segs as s, i}<span
+              class="segment"
+              class:focus={i === ime.focus}
+              class:multi={s.candidates.length > 1}
+              data-seg={i}>{s.candidates[s.pick]?.text ?? s.reading}</span>{/each}{:else}<span class="pre">{ime.pre}{ime.osComposing}</span>{/if}{#if focused}<span class="caret"></span>{/if}</div>
+      {#if ime.segs && ime.current && ime.open}
+        {@const start = ime.pageStart}
+        {@const all = ime.current.candidates}
+        <div class="win card" role="listbox" aria-label={ime.current.reading} style:left="{pos.left}px" style:top="{pos.top}px">
+          {#each all.slice(start, start + PAGE) as c, i (start + i)}
+            <button
+              class="cand"
+              role="option"
+              aria-selected={start + i === ime.current.pick}
+              onmousedown={(e) => e.preventDefault()}
+              onclick={() => {
+                ime.pick(start + i)
+                sink.focus()
+              }}
             >
+              <span class="num">{i + 1}</span><span class="ct">{c.text}</span>
+            </button>
           {/each}
-        {:else}
-          <span class="pre">{ime.pre}{ime.osComposing}</span>
-        {/if}
-        {#if focused}<span class="caret"></span>{/if}
-      </div>
+          <div class="win-foot">
+            <span class="why">{@html noteHtml(all[ime.current.pick]?.note ?? '')}</span>
+            <span class="count">{ime.current.pick + 1}/{all.length}</span>
+          </div>
+        </div>
+      {/if}
     </div>
 
-    {#if ime.segs && ime.current}
-      <div class="cands" role="listbox" aria-label={ime.current.reading}>
-        {#each ime.current.candidates.slice(Math.floor(ime.current.pick / 9) * 9, Math.floor(ime.current.pick / 9) * 9 + 9) as c, i}
-          {@const idx = Math.floor(ime.current.pick / 9) * 9 + i}
-          <button
-            class="cand"
-            role="option"
-            aria-selected={idx === ime.current.pick}
-            onclick={() => {
-              ime.pick(idx)
-              sink.focus()
-            }}
-          >
-            <span class="num">{i + 1}</span>{c.text}
-          </button>
-        {/each}
-      </div>
-      <p class="note">{ime.current.candidates[ime.current.pick]?.note}</p>
-    {:else if preview && preview !== ime.pre}
+    {#if ime.segs && ime.current && !ime.open}
+      <p class="note">{@html noteHtml(ime.current.candidates[ime.current.pick]?.note ?? '')}</p>
+    {:else if !ime.segs && preview && preview !== ime.pre}
       <p class="preview"><span>{@html r(t().ime.preview)}</span> {preview}</p>
     {/if}
 
     <div class="foot">
       <ul class="hints">
         <li>{@html r(t().ime.keys.space)}</li>
+        <li>{@html r(t().ime.keys.tab)}</li>
+        <li>{@html r(t().ime.keys.digits)}</li>
         <li>{@html r(t().ime.keys.arrows)}</li>
+        <li>{@html r(t().ime.keys.resize)}</li>
         <li>{@html r(t().ime.keys.enter)}</li>
         <li>{@html r(t().ime.keys.esc)}</li>
         <li>{@html r(t().ime.keys.shiftSpace)}</li>
@@ -300,9 +329,12 @@
   .text {
     position: relative;
     pointer-events: none;
-    white-space: pre-wrap;
     word-break: break-word;
     font: 500 clamp(22px, 2.6vw, 28px) / 2.1 var(--f-serif);
+  }
+  .doc,
+  .pre {
+    white-space: pre-wrap;
   }
   .placeholder {
     color: var(--c-muted);
@@ -314,8 +346,12 @@
     text-underline-offset: 6px;
   }
   .segment {
+    white-space: pre-wrap;
     border-bottom: 2px solid var(--c-border-strong);
-    padding-inline: 1px;
+    margin-right: 2px;
+    transition:
+      background var(--t-fast),
+      color var(--t-fast);
   }
   .segment.multi {
     border-bottom-color: var(--c-accent);
@@ -323,7 +359,7 @@
   .segment.focus {
     background: var(--c-accent);
     color: var(--c-on-accent);
-    border-radius: 4px;
+    border-radius: 4px 4px 0 0;
   }
   .caret {
     display: inline-block;
@@ -340,38 +376,81 @@
     }
   }
 
-  .cands {
-    display: flex;
-    flex-wrap: wrap;
-    gap: var(--s-1);
-    margin-top: var(--s-3);
+  /* The candidate window: a numbered vertical list under the focused segment. */
+  .win {
+    position: absolute;
+    z-index: 15;
+    display: grid;
+    min-width: 200px;
+    max-width: min(360px, 90%);
+    padding: 4px;
+    box-shadow: var(--shadow-2);
+    animation: pop 140ms var(--ease);
+    transform-origin: top left;
+  }
+  @keyframes pop {
+    from {
+      opacity: 0;
+      transform: translateY(-4px) scale(0.98);
+    }
   }
   .cand {
-    display: inline-flex;
+    display: flex;
     align-items: baseline;
-    gap: var(--s-2);
-    padding: var(--s-1) var(--s-3);
-    border: 1px solid var(--c-border);
+    gap: var(--s-3);
+    padding: 3px var(--s-3);
+    border: 0;
     border-radius: var(--r-1);
-    background: var(--c-surface);
+    background: none;
     color: var(--c-ink);
-    font: 500 20px/1.5 var(--f-serif);
+    text-align: left;
     cursor: pointer;
   }
+  .cand:hover {
+    background: var(--c-hover);
+  }
   .cand[aria-selected='true'] {
-    border-color: var(--c-accent);
-    background: var(--c-accent-soft);
-    color: var(--c-accent);
+    background: var(--c-accent);
+    color: var(--c-on-accent);
+  }
+  .cand[aria-selected='true'] .num {
+    color: inherit;
+    opacity: 0.8;
   }
   .num {
+    width: 1ch;
     color: var(--c-muted);
     font: 700 12px/1 var(--f-sans);
+  }
+  .ct {
+    font: 500 20px/1.5 var(--f-serif);
+    white-space: nowrap;
+  }
+  .win-foot {
+    display: flex;
+    justify-content: space-between;
+    gap: var(--s-3);
+    margin-top: 4px;
+    padding: 4px var(--s-2) 2px;
+    border-top: 1px solid var(--c-border);
+    color: var(--c-muted);
+    font-size: 11.5px;
+    line-height: 1.5;
+  }
+  .count {
+    flex: none;
+    font-variant-numeric: tabular-nums;
   }
   .note {
     min-height: 1.5em;
     margin: var(--s-2) 0 0;
     color: var(--c-muted);
     font-size: 13px;
+  }
+  .note :global(b),
+  .why :global(b) {
+    color: var(--c-soft);
+    font-weight: 600;
   }
   .preview {
     margin: var(--s-3) 0 0;

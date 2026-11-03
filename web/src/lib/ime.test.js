@@ -1,13 +1,12 @@
 import { test, expect } from 'bun:test'
 
-// A stand-in composer and segmenter, so the state machine runs without wasm.
 // Runes are compiled by Svelte; under bun, $state is shimmed as identity.
 globalThis.$state = (v) => v
 const { Ime } = await import('./ime.svelte.js')
 
 function composer() {
   let t = ''
-  const map = { g: 'ㅎ', k: 'ㅏ', s: 'ㄴ', f: 'ㄹ', r: 'ㄱ', m: 'ㅡ', d: 'ㅇ' }
+  const map = { g: 'ㅎ', k: 'ㅏ', s: 'ㄴ' }
   return {
     input: (k) => (map[k] ? ((t += map[k]), true) : false),
     backspace: () => ((t = [...t].slice(0, -1).join('')), true),
@@ -18,60 +17,116 @@ function composer() {
   }
 }
 
-const seg = async (text) => [
-  { reading: text, candidates: [{ text: '天', note: '' }, { text: '乾', note: '' }, { text: text, note: '' }] },
-]
+const cands = (text) =>
+  ({ 하늘: ['天', '乾', '하늘'], 하: ['夏', '下', '하'], 늘: ['늘'], 하늘을: ['天을', '하늘을'], 봤다: ['見ㅆ다', '봤다'] })[text]?.map(
+    (t) => ({ text: t, note: '' }),
+  ) ?? [{ text, note: '' }]
+// One segment per space-separated word.
+const segment = async (text) => text.split(/( )/).filter(Boolean).map((w) => ({ reading: w, candidates: cands(w) }))
+const whole = async (text) => cands(text)
+const tick = () => new Promise((r) => setTimeout(r))
 
-test('space converts, cycles, enter commits', async () => {
-  const ime = new Ime(composer(), seg)
-  ime.insertText('하늘')
-  expect(ime.pre).toBe('하늘')
-  ime.key({ key: ' ' })
-  await new Promise((r) => setTimeout(r))
-  expect(ime.converted).toBe('天')
-  ime.key({ key: ' ' })
-  expect(ime.converted).toBe('乾')
-  expect(ime.open).toBe(true)
-  ime.key({ key: 'Enter' })
-  expect(ime.doc).toBe('乾')
-  expect(ime.pre).toBe('')
+function ime() {
+  return new Ime(composer(), segment, whole)
+}
+
+test('space converts; a second space opens the window on the next candidate', async () => {
+  const m = ime()
+  m.insertText('하늘')
+  m.key({ key: ' ' })
+  await tick()
+  expect(m.converted).toBe('天')
+  expect(m.open).toBe(false)
+  m.key({ key: ' ' })
+  expect(m.open).toBe(true)
+  expect(m.converted).toBe('乾')
+  m.key({ key: ' ', shift: true })
+  expect(m.converted).toBe('天')
 })
 
-test('escape returns to hangul, digit picks and commits', async () => {
-  const ime = new Ime(composer(), seg)
-  ime.insertText('하늘')
-  await ime.convert()
-  ime.key({ key: 'Escape' })
-  expect(ime.segs).toBe(null)
-  expect(ime.pre).toBe('하늘')
-  await ime.convert()
-  ime.key({ key: 'ArrowDown' })
-  ime.key({ key: '3' })
-  expect(ime.doc).toBe('하늘')
+test('digits only act with the window open, and pick and confirm', async () => {
+  const m = ime()
+  m.insertText('하늘')
+  await m.convert()
+  m.key({ key: '2' })
+  expect(m.doc).toBe('天2')
+  m.insertText('하늘')
+  await m.convert()
+  m.key({ key: ' ' })
+  m.key({ key: '2' })
+  expect(m.doc).toBe('天2乾')
+  expect(m.segs).toBe(null)
 })
 
-test('typing while converted commits and continues', async () => {
-  const ime = new Ime(composer(), seg)
-  ime.insertText('하늘')
-  await ime.convert()
-  ime.key({ key: 'g' })
-  expect(ime.doc).toBe('天')
-  expect(ime.pre).toBe('ㅎ')
+test('a digit confirms through the focused segment and leaves the rest converting', async () => {
+  const m = ime()
+  m.insertText('하늘을 봤다')
+  await m.convert()
+  m.key({ key: 'ArrowDown' })
+  m.key({ key: '1' })
+  expect(m.doc).toBe('天을')
+  expect(m.segs.map((s) => s.reading).join('')).toBe(' 봤다')
+  expect(m.current.reading).toBe('봤다')
+  m.key({ key: 'Enter' })
+  expect(m.doc).toBe('天을 見ㅆ다')
 })
 
-test('backspace edits preedit, then the document', () => {
-  const ime = new Ime(composer(), seg)
-  ime.doc = 'ab'
-  ime.key({ key: 'g' })
-  ime.key({ key: 'Backspace' })
-  expect(ime.pre).toBe('')
-  ime.key({ key: 'Backspace' })
-  expect(ime.doc).toBe('a')
+test('enter confirms everything; esc closes the window, then returns to Hangul', async () => {
+  const m = ime()
+  m.insertText('하늘')
+  await m.convert()
+  m.key({ key: ' ' })
+  m.key({ key: 'Escape' })
+  expect(m.open).toBe(false)
+  expect(m.segs).not.toBe(null)
+  m.key({ key: 'Escape' })
+  expect(m.segs).toBe(null)
+  expect(m.pre).toBe('하늘')
+  await m.convert()
+  m.key({ key: 'Enter' })
+  expect(m.doc).toBe('天')
 })
 
-test('os mode passes letters through', () => {
-  const ime = new Ime(composer(), seg)
-  ime.mode = 'os'
-  ime.key({ key: 'g' })
-  expect(ime.doc).toBe('g')
+test('tab pages through candidates', async () => {
+  const many = Array.from({ length: 20 }, (_, i) => ({ text: 'c' + i, note: '' }))
+  const m = new Ime(composer(), async (t) => [{ reading: t, candidates: many }], async () => many)
+  m.insertText('하')
+  await m.convert()
+  m.key({ key: 'Tab' })
+  expect(m.open).toBe(true)
+  expect(m.current.pick).toBe(9)
+  m.key({ key: '3' })
+  expect(m.doc).toBe('c11')
+})
+
+test('shift+arrows resize the focused segment', async () => {
+  const m = ime()
+  m.insertText('하늘')
+  await m.convert()
+  m.key({ key: 'ArrowLeft', shift: true })
+  await tick()
+  expect(m.segs.map((s) => s.reading)).toEqual(['하', '늘'])
+  expect(m.converted).toBe('夏늘')
+  m.key({ key: 'ArrowRight', shift: true })
+  await tick()
+  expect(m.segs.map((s) => s.reading)).toEqual(['하늘'])
+})
+
+test('typing while converting confirms and continues', async () => {
+  const m = ime()
+  m.insertText('하늘')
+  await m.convert()
+  m.key({ key: 'g' })
+  expect(m.doc).toBe('天')
+  expect(m.pre).toBe('ㅎ')
+})
+
+test('backspace edits the preedit, then the document', () => {
+  const m = ime()
+  m.doc = 'ab'
+  m.key({ key: 'g' })
+  m.key({ key: 'Backspace' })
+  expect(m.pre).toBe('')
+  m.key({ key: 'Backspace' })
+  expect(m.doc).toBe('a')
 })

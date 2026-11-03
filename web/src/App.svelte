@@ -10,8 +10,13 @@
   import Words from './ui/Words.svelte'
   import Join from './ui/Join.svelte'
   import Footer from './ui/Footer.svelte'
+  import Samples from './ui/Samples.svelte'
 
-  const ime = new Ime(new Composer(), (text) => engine.segments(text))
+  const ime = new Ime(
+    new Composer(),
+    (text) => engine.segments(text),
+    (text) => engine.convert(text),
+  )
 
   /** Put a word into the input method and convert it (from the word grid). */
   async function tryWord(word) {
@@ -25,10 +30,12 @@
   }
 </script>
 
+<div class="progress" aria-hidden="true"></div>
 <TopBar />
 <main>
   <Hero />
   <ImePanel {ime} />
+  <Samples onopen={tryWord} />
   <Rules />
   <Words onpick={tryWord} />
   <Reader />

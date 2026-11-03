@@ -30,9 +30,16 @@ if (-not $isAdmin) {
 $installDir = Join-Path $env:ProgramFiles 'seokdok'
 $dst        = Join-Path $installDir 'seokdok.dll'
 
+# regsvr32 is a GUI program: PowerShell's `&` does not wait for it, and an
+# unregistration still running would undo the registration that follows.
+function Invoke-Regsvr32([string[]]$arguments) {
+    $p = Start-Process regsvr32.exe -ArgumentList $arguments -Wait -PassThru -WindowStyle Hidden
+    return $p.ExitCode
+}
+
 function Move-LockedAside([string]$path) {
     if (-not (Test-Path $path)) { return }
-    & regsvr32.exe /u /s $path
+    Invoke-Regsvr32 @('/u', '/s', "`"$path`"") | Out-Null
     $old = Join-Path (Split-Path $path) ("seokdok-old-{0}.dll" -f (Get-Random))
     try {
         Rename-Item $path $old -Force
@@ -72,9 +79,9 @@ New-Item -ItemType Directory -Force -Path $dictDst | Out-Null
 Copy-Item (Join-Path $dict '*.tsv') $dictDst -Exclude 'user.tsv', 'user-sino.tsv'
 Write-Host "Installed -> $installDir (seokdok.dll, dict\)"
 
-& regsvr32.exe /s $dst
-if ($LASTEXITCODE -ne 0) {
-    throw "regsvr32 failed to register $dst (exit $LASTEXITCODE). Sign out and in, or reboot once, then retry."
+$code = Invoke-Regsvr32 @('/s', "`"$dst`"")
+if ($code -ne 0) {
+    throw "regsvr32 failed to register $dst (exit $code). Sign out and in, or reboot once, then retry."
 }
 Write-Host "Registered."
 

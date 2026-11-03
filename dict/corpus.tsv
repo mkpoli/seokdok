@@ -30,9 +30,9 @@ lemma	written	pos	class	source	count	note
 저런	彼런	det		corpus	4	
 저것	彼것	pron		corpus	2	
 저거	彼거	pron		corpus		
-그렇다	然다	adj		corpus	370	然네요, 然ㄴ (그런)
-그렇다	然ㅎ다	adj		corpus	298	然ㅎ네요, 然ㅎ죠: final ㅎ written out
-것	事ㅅ	bound		corpus	17	事ㅅ을; also the 釋讀會 welcome message
+그렇다	然다	adj		corpus	372	然네요, 然ㄴ (그런)
+그렇다	然ㅎ다	adj		corpus	299	然ㅎ네요, 然ㅎ죠: final ㅎ written out
+것	事ㅅ	bound		corpus	18	事ㅅ을; also the 釋讀會 welcome message
 저	自	pron		corpus	295	自도, 自ㄴ (전)
 저	僕	pron		corpus	36	僕는
 나	吾	pron		corpus	80	吾ㅣ (내)
@@ -56,14 +56,14 @@ lemma	written	pos	class	source	count	note
 새롭다	新롭다	adj		corpus	10	新로운
 새로	新로	adv		corpus	4	
 재밌다	滋味ㅆ다	adj		corpus	32	滋味ㅆ네요: 재미있다 contracted
-비슷하다	似하다	adj		corpus	39	似한, 似하네요
+비슷하다	似하다	adj		corpus	40	似한, 似하네요
 생각하다	思하다	verb		corpus	68	思해, 思합니다
 생각	思	noun		corpus	38	
 좋아하다	好아하다	verb		corpus	41	好아하는
 쓰이다	用이다	verb		corpus	180	用이는, 用인
 읽히다	讀히다	verb		corpus	32	讀히는
 보이다	見이다	verb		corpus	116	見이는, 見이네요
-되다	成다	verb		corpus	106	成ㄹ까요, 成면
+되다	成다	verb		corpus	107	成ㄹ까요, 成면
 다르다	他다	adj		corpus	47	他ㄴ
 같다	同다	adj		corpus	47	同은
 있다	在다	adj		corpus	148	在는, 在네요
@@ -71,7 +71,7 @@ lemma	written	pos	class	source	count	note
 주다	給다	verb		corpus	10	給세요
 주다	賜다	verb		corpus	12	賜시니: honorific giving
 가다	行다	verb		corpus	53	行ㅆ다
-만들다	作다	verb		corpus	56	作어, 作ㄴ
+만들다	作다	verb		corpus	57	作어, 作ㄴ
 나다	出다	verb		corpus	57	出면
 내다	出ㅣ다	verb		corpus	18	出ㅣ다
 나오다	出오다	verb		corpus	13	出오네요

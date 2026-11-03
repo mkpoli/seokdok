@@ -36,7 +36,7 @@ lemma	written	pos	class	source	count	note
 값	價	명사		community		複數登載
 값	値	명사		community	2	複數登載
 갓	笠	명사		community	2	
-같다	如다	형용사		community	138	
+같다	如다	형용사		community	139	
 개	犬	명사		community	16	
 개구리	蛙	명사		community	3	
 개미	蟻	명사		community	3	
@@ -104,7 +104,7 @@ lemma	written	pos	class	source	count	note
 그네	韆	명사		community		
 그러하다	然하다	동사		community	16	
 그릇	器	명사		community	6	
-그림	圖	명사		community	11	
+그림	圖	명사		community	12	
 그림자	影	명사		community	2	
 그물	網	명사		community	1	
 그믐	晦	명사		community	1	
@@ -155,9 +155,9 @@ lemma	written	pos	class	source	count	note
 끓다	沸다	동사		community		
 끼다	介이다	동사		community		
 나	我	대명사		community	119	
-나가다	出去다	동사		community	9	
+나가다	出去다	동사		community	10	
 나누다	分다	동사		community	34	
-나라	國	명사		community	36	
+나라	國	명사		community	37	
 나란하다	並하다	형용사		community		
 나루	津	명사		community	2	
 나무라다	責다	동사		community		
@@ -216,7 +216,7 @@ lemma	written	pos	class	source	count	note
 늑대	狼	명사		community		
 늙다	老다	동사		community	2	
 능	常	부사		community	6	
-님	主	의존명사		community	162	複數登載
+님	主	의존명사		community	164	複數登載
 님	恁	의존명사		community	9	複數登載
 다니다	行다	동사		community		
 다르다	異다	형용사		community	116	
@@ -385,7 +385,7 @@ lemma	written	pos	class	source	count	note
 발톱	足爪	명사		community		
 밝다	明다	형용사		community	9	
 밟다	踏다	동사		community	1	
-밤	夜	명사		community	18	
+밤	夜	명사		community	19	
 밤	栗	명사		community	3	
 밥	食	명사		community	27	
 밭	田	명사		community	6	
@@ -554,7 +554,7 @@ lemma	written	pos	class	source	count	note
 쑥	艾	명사		community		
 쓰다	書다	동사		community	234	
 쓰다	苦다	형용사		community	5	
-쓰다	用다	형용사		community	220	
+쓰다	用다	형용사		community	221	
 쓸개	膽	명사		community	2	
 쓸다	掃다	동사		community		
 씨	種	명사		community		
@@ -604,7 +604,7 @@ lemma	written	pos	class	source	count	note
 얽다	構다	동사		community	1	
 얽히다	構히다	동사		community		
 업신여기다	侮다	동사		community	3	
-없다	無다	형용사		community	328	
+없다	無다	형용사		community	329	
 엉기다	凝다	동사		community	1	
 엉덩이	尻	명사		community		
 여름	夏	명사		community	16	
@@ -618,7 +618,7 @@ lemma	written	pos	class	source	count	note
 엿	糖	명사		community		
 옆	傍	명사		community	9	
 예쁘다	姚쁘다	형용사		community		
-오다	來다	동사		community	210	
+오다	來다	동사		community	211	
 오리	鴨	명사		community	2	
 오이	瓜	명사		community	6	
 오줌	尿	명사		community		
@@ -664,12 +664,12 @@ lemma	written	pos	class	source	count	note
 일	事	명사		community	46	
 일다	起다	동사		community	2	
 일어나다	起어出다	동사		community		
-읽다	讀다	동사		community	293	
+읽다	讀다	동사		community	294	
 잃다	失다	동사		community	4	
 입	口	명사		community	24	
 입술	脣	명사		community	2	
 잇다	續다	동사		community	2	
-있다	有다	동사		community	592	
+있다	有다	동사		community	593	
 잊다	忘다	동사		community	5	
 잎	葉	명사		community	4	
 자다	眠다	동사		community	10	

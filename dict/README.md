@@ -10,6 +10,7 @@ comments; the header line names the columns.
 | `editorial.tsv` | 訓讀 entries added by the editors, with reasons | project editors | MIT |
 | `community.tsv` | 標準國語釋讀辭典 | 釋讀會 members | none stated; see below |
 | `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested | language model, unreviewed | MIT |
+| `kun-ja.tsv` | 訓讀 found through Japanese 訓読み words with the same English gloss | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
 | `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
 | `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
@@ -71,6 +72,15 @@ with `source` set to `user`. Check a file with
   editorial and community entries and is labelled as unreviewed in the IME.
   The word list came from `tools/native_candidates.py`; no Wiktionary text is
   included.
+- **Through Japanese** (`kun-ja.tsv`, `tools/japanese_kun.py`): a Korean
+  native word and a Japanese word spelled with one kanji (plus okurigana) in
+  JMdict that share an English gloss in their main senses are linked, and the
+  kanji, converted to its Korean form with OpenCC's `JPShinjitaiCharacters`
+  (Apache-2.0), becomes a candidate: 태어나다 ↔ 産まれる → 產다. JMdict is by
+  the Electronic Dictionary Research and Development Group, CC BY-SA 4.0,
+  https://www.edrdg.org/edrdg/licence.html (fetched 2026-11-03), so this file
+  is under CC BY-SA 4.0. Homonyms make some links wrong (무섭다 → 侘 through
+  "worried"); the tier ranks with the glosses.
 - **Chat-attested Sino-Korean words** in `sino.tsv` (source `corpus`): Hanja
   runs used at least five times in the chat that no lexicon lists (釋讀,
   釋讀會, 末音添記). Readings are each character's most common reading at

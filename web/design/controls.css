@@ -216,3 +216,40 @@
     transform: none;
   }
 }
+
+/* Select: the native element with the palette and a drawn chevron. */
+.ui-select-wrap {
+  position: relative;
+  display: inline-flex;
+}
+.ui-select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 11px;
+  top: 50%;
+  width: 7px;
+  height: 7px;
+  border: solid var(--c-muted);
+  border-width: 0 1.5px 1.5px 0;
+  transform: translateY(-70%) rotate(45deg);
+  pointer-events: none;
+}
+.ui-select {
+  appearance: none;
+  -webkit-appearance: none;
+  height: 34px;
+  padding: 0 30px 0 var(--s-3);
+  border: 1px solid var(--c-border-strong);
+  border-radius: var(--r-1);
+  background: var(--c-surface);
+  color: var(--c-ink);
+  font: 500 13.5px var(--f-sans);
+  cursor: pointer;
+}
+.ui-select:hover {
+  border-color: var(--c-accent);
+}
+.ui-select:focus-visible {
+  outline: 2px solid var(--c-accent);
+  outline-offset: 1px;
+}

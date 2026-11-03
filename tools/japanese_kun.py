@@ -163,24 +163,35 @@ def main():
     words = korean_words()
     seen = existing()
     rows = []
+    weak_rows = []
     for (word, pos), glosses in sorted(words.items()):
         cls = "noun" if pos == "noun" else ("adj" if pos == "adj" else "verb")
         score = collections.Counter()
         why = {}
         main = collections.Counter()
         for g, kmain in glosses:
-            if spread.get(g, 0) > 8:
+            wide = spread.get(g, 0)
+            if wide > 24:
                 continue
             for (c, ch, jmain), w in index.get(g, {}).items():
                 # Korean adjectives often gloss as Japanese verbs and the reverse.
                 if c == cls or {c, cls} <= {"verb", "adj"}:
-                    score[ch] += w * (1.0 if kmain else 0.5)
-                    if kmain and jmain:
+                    score[ch] += w * (1.0 if kmain else 0.5) * (1.0 if wide <= 8 else 0.6)
+                    if kmain and jmain and wide <= 8:
                         main[ch] += 1
                         why.setdefault(ch, (g, example.get((c, ch, g), "")))
-        # A pick needs a main-sense match on both sides and enough weight.
-        picks = [(ch, s) for ch, s in score.most_common(3) if main[ch] and s >= 1.5]
-        for ch, s in picks:
+        # Strong: a main-sense match on both sides and enough weight. Weak: the
+        # rest that still share a gloss; kept, ranked lower.
+        strong = [ch for ch, s in score.most_common(3) if main[ch] and s >= 1.5]
+        weak = [ch for ch, s in score.most_common(6) if ch not in strong and s >= 1.0][:3]
+        for ch in weak:
+            written = ch + ("다" if pos in ("verb", "adj") else "")
+            if (word, written) in seen:
+                continue
+            seen.add((word, written))
+            g = next((g for g, _ in glosses if any(k[1] == ch for k in index.get(g, {}))), "")
+            weak_rows.append((word, written, pos, "", "japanese-weak", "", f"“{g}” (JMdict, weak)"))
+        for ch in strong:
             written = ch + ("다" if pos in ("verb", "adj") else "")
             if (word, written) in seen:
                 continue
@@ -195,7 +206,13 @@ def main():
         f.write("lemma\twritten\tpos\tclass\tsource\tcount\tnote\n")
         for r in rows:
             f.write("\t".join(r) + "\n")
-    print(f"{len(rows)} rows for {len({r[0] for r in rows})} words", file=sys.stderr)
+    with (DICT / "kun-ja-weak.tsv").open("w", encoding="utf-8") as f:
+        f.write("# Weaker links through Japanese 訓読み: a shared English gloss without a main-sense match on\n")
+        f.write("# both sides. Kept so no plausible candidate is lost; ranks below kun-ja.tsv. JMdict CC BY-SA 4.0.\n")
+        f.write("lemma\twritten\tpos\tclass\tsource\tcount\tnote\n")
+        for r in weak_rows:
+            f.write("\t".join(r) + "\n")
+    print(f"{len(rows)} strong rows, {len(weak_rows)} weak rows", file=sys.stderr)
 
 
 if __name__ == "__main__":

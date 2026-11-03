@@ -33,7 +33,7 @@
     {#each cards as [head, sub, ex], i}
       <article class="card kind" use:reveal={i}>
         <span class="n">{i + 1}</span>
-        <h3>{head}</h3>
+        <h3>{@html r(head)}</h3>
         <p class="sub">{@html r(sub)}</p>
         <p class="ex" lang="ko">{ex}</p>
       </article>

@@ -1,6 +1,6 @@
 //! A C interface over the shared input-method session, declared in
-//! `include/seokdok.h`: used by the fcitx5 addon (crates/seokdok-fcitx5) and
-//! the iOS keyboard (ios/).
+//! `include/seokdok.h`: used by the fcitx5 addon (crates/seokdok-fcitx5), the
+//! iOS keyboard (ios/) and the macOS input method (macos/).
 //!
 //! The addon feeds keys in and reads back a view: text to commit, the preedit
 //! runs and the candidate page. Strings returned by the getters stay valid
@@ -8,6 +8,7 @@
 
 use std::ffi::{c_char, CStr, CString};
 use std::path::PathBuf;
+use std::sync::Mutex;
 
 use seokdok_session::config::{self, Config, InputMode, Layout};
 use seokdok_session::engine_host::HOST;
@@ -40,8 +41,12 @@ pub struct Ime {
     // C strings handed out, kept alive until the view changes.
     cstrs: Vec<CString>,
     dict_dir: PathBuf,
-    options_key: String,
 }
+
+/// The dictionary folder and options the shared engine was last loaded with.
+/// Sessions share one engine, so a new session (a new text field, a new
+/// application) reloads only when these change.
+static LOADED: Mutex<Option<(PathBuf, String)>> = Mutex::new(None);
 
 fn mode_of(m: InputMode) -> Mode {
     match m {
@@ -74,7 +79,6 @@ impl Ime {
             popup: None,
             cstrs: Vec::new(),
             dict_dir,
-            options_key: String::new(),
         };
         ime.sync();
         ime
@@ -86,9 +90,10 @@ impl Ime {
         self.session.set_space_converts(cfg.input.space_converts);
         self.session.set_horizontal(cfg.input.candidate_layout == Layout::Horizontal);
         self.session.set_old_clusters(cfg.input.old_clusters);
-        let key = format!("{:?}", cfg.conversion);
-        if key != self.options_key || !HOST.started() {
-            self.options_key = key;
+        let key = (self.dict_dir.clone(), format!("{:?}", cfg.conversion));
+        let mut loaded = LOADED.lock().unwrap_or_else(|e| e.into_inner());
+        if loaded.as_ref() != Some(&key) || !HOST.started() {
+            *loaded = Some(key);
             HOST.start_load(self.dict_dir.clone(), Config::user_dir(), cfg.engine_options());
         }
     }
@@ -348,12 +353,63 @@ pub extern "C" fn seokdok_space_converts() -> bool {
     config::current().input.space_converts
 }
 
+fn owned(s: String) -> *mut c_char {
+    CString::new(s.replace('\0', "")).unwrap().into_raw()
+}
+
+/// The settings as JSON (the fields of config.toml, by section). Free the
+/// result with [`seokdok_string_free`].
+#[no_mangle]
+pub extern "C" fn seokdok_config_json() -> *mut c_char {
+    owned(serde_json::to_string(&config::reload()).unwrap_or_default())
+}
+
+/// Write settings given as JSON to config.toml (missing fields take their
+/// defaults) and refresh the cached copy. Sessions pick the change up on
+/// their next [`seokdok_sync`]. False when the JSON is invalid or the file
+/// could not be written.
+///
+/// # Safety
+/// `json` is a NUL-terminated UTF-8 string.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_config_save_json(json: *const c_char) -> bool {
+    if json.is_null() {
+        return false;
+    }
+    let Ok(cfg) = serde_json::from_str::<Config>(&CStr::from_ptr(json).to_string_lossy()) else { return false };
+    let saved = cfg.save().is_ok();
+    config::reload();
+    saved
+}
+
+/// The folder holding config.toml and custom.json, or NULL when there is
+/// none. Free the result with [`seokdok_string_free`].
+#[no_mangle]
+pub extern "C" fn seokdok_config_dir() -> *mut c_char {
+    Config::user_dir().map_or(std::ptr::null_mut(), |d| owned(d.to_string_lossy().into_owned()))
+}
+
+/// Free a string returned by `seokdok_config_json` or `seokdok_config_dir`.
+///
+/// # Safety
+/// `s` is NULL or came from one of those functions and is not used again.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_string_free(s: *mut c_char) {
+    if !s.is_null() {
+        drop(CString::from_raw(s));
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
 
+    /// The tests share the process environment and the cached settings.
+    static SERIAL: Mutex<()> = Mutex::new(());
+
     #[test]
     fn typing_and_converting_through_the_c_interface() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
         let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
         let c = CString::new(dict.to_str().unwrap()).unwrap();
         unsafe {
@@ -391,5 +447,30 @@ mod tests {
             assert_eq!(seokdok_preedit_len(ime), 0);
             seokdok_free(ime);
         }
+    }
+
+    #[test]
+    fn settings_round_trip_as_json() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let dir = std::env::temp_dir().join(format!("seokdok-ffi-cfg-{}", std::process::id()));
+        std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+        unsafe {
+            let d = seokdok_config_dir();
+            assert_eq!(CStr::from_ptr(d).to_str().unwrap(), dir.to_str().unwrap());
+            seokdok_string_free(d);
+            let json = CString::new(r#"{"input":{"space_converts":false},"conversion":{"style":"morpheme"}}"#).unwrap();
+            assert!(seokdok_config_save_json(json.as_ptr()));
+            assert!(!seokdok_config_save_json(CString::new("{").unwrap().as_ptr()));
+            let j = seokdok_config_json();
+            let back: Config = serde_json::from_str(CStr::from_ptr(j).to_str().unwrap()).unwrap();
+            seokdok_string_free(j);
+            assert!(!back.input.space_converts);
+            assert_eq!(back.conversion.style, config::StyleOpt::Morpheme);
+            assert_eq!(back.conversion.max_candidates, Config::default().conversion.max_candidates);
+            assert!(std::fs::read_to_string(dir.join("config.toml")).unwrap().contains("style = \"morpheme\""));
+        }
+        std::env::remove_var("SEOKDOK_CONFIG_DIR");
+        config::reload();
+        let _ = std::fs::remove_dir_all(&dir);
     }
 }

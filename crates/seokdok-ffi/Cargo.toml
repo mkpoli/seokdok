@@ -1,6 +1,6 @@
 [package]
 name = "seokdok-ffi"
-description = "釋讀 (seokdok) input method: C interface to the session, for the fcitx5 addon and the iOS keyboard"
+description = "釋讀 (seokdok) input method: C interface to the session, for the fcitx5 addon, the iOS keyboard and the macOS input method"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -14,3 +14,4 @@ crate-type = ["staticlib", "rlib"]
 [dependencies]
 seokdok-core = { path = "../seokdok-core" }
 seokdok-session = { path = "../seokdok-session" }
+serde_json = "1"

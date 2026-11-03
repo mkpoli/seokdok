@@ -12,6 +12,8 @@ settings:
     CURRENT_PROJECT_VERSION: "1"
     # The Rust library is built for arm64 simulators only.
     EXCLUDED_ARCHS[sdk=iphonesimulator*]: x86_64
+    # A simulator runs ad-hoc signed code; a device build needs a team.
+    CODE_SIGN_IDENTITY[sdk=iphonesimulator*]: "-"
 targets:
   Seokdok:
     type: application
@@ -74,3 +76,21 @@ targets:
     dependencies:
       - framework: SeokdokCore.xcframework
         embed: false
+  SeokdokUITests:
+    type: bundle.ui-testing
+    platform: iOS
+    sources: [UITests]
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: li.mkpo.seokdok.uitests
+        GENERATE_INFOPLIST_FILE: true
+    dependencies:
+      - target: Seokdok
+schemes:
+  Seokdok:
+    build:
+      targets:
+        Seokdok: all
+    test:
+      config: Debug
+      targets: [SeokdokUITests]

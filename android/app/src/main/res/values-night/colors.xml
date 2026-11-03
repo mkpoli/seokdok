@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="kb_background">#FF1E1F22</color>
+    <color name="key">#FF46484D</color>
+    <color name="key_pressed">#FF65686E</color>
+    <color name="key_function">#FF313237</color>
+    <color name="key_accent">#FF4D86F0</color>
+    <color name="key_text">#FFF1F2F4</color>
+    <color name="key_text_accent">#FFFFFFFF</color>
+    <color name="key_hint">#FFA4A8AF</color>
+    <color name="key_old">#FFB2A8FF</color>
+    <color name="key_shadow">#66000000</color>
+    <color name="strip_text">#FFF1F2F4</color>
+    <color name="strip_note">#FFA4A8AF</color>
+    <color name="strip_selected">#444D86F0</color>
+    <color name="preedit_focus">#664D86F0</color>
+</resources>

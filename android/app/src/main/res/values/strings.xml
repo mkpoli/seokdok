@@ -19,6 +19,7 @@
     <string name="candidate_layout">候補 方向 · Candidate layout</string>
 
     <string name="section_conversion">變換 · Conversion</string>
+    <string name="sino_only">國漢文混用 · Hanja for Sino-Korean words only</string>
     <string name="style">表記 · Style</string>
     <string name="fragment">남은 母音 · Leftover vowel</string>
     <string name="coda_always">받침 늘 쓰기 · Always write the final consonant</string>

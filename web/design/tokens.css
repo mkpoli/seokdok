@@ -39,8 +39,8 @@
   --c-preedit: light-dark(#c0392b, #ff9a8b);
   --c-telegram: #229ed9;
 
-  --f-serif: 'Noto Serif KR', 'Noto Serif CJK KR', 'Source Han Serif K', 'Batang', serif;
-  --f-sans: 'Pretendard', 'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
+  --f-serif: 'Noto Serif KR', 'Seokdok Rare Serif', 'Noto Serif CJK KR', 'Source Han Serif K', 'Batang', serif;
+  --f-sans: 'Pretendard', 'Noto Sans KR', 'Seokdok Rare Sans', 'Apple SD Gothic Neo', 'Malgun Gothic', system-ui, sans-serif;
   --f-round: 'Gowun Batang', var(--f-serif);
   --f-mono: 'JetBrains Mono', ui-monospace, monospace;
 

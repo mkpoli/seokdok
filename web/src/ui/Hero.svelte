@@ -1,5 +1,5 @@
 <script>
-  import { t, r, p } from '../lib/i18n.svelte.js'
+  import { t, r, plain } from '../lib/i18n.svelte.js'
 
   // The wall of 訓讀 verbs, after the third 釋讀會 poster: the written form with
   // its stem above. All are dictionary entries attested in the group's chat.

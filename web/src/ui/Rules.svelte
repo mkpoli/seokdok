@@ -1,6 +1,6 @@
 <script>
   import { reveal } from '../lib/reveal.js'
-  import { t, r, p } from '../lib/i18n.svelte.js'
+  import { t, r, plain } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
   import { options, DEFAULTS } from '../lib/options.svelte.js'
 

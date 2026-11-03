@@ -1,6 +1,6 @@
 <script>
   import { reveal } from '../lib/reveal.js'
-  import { t, r, p } from '../lib/i18n.svelte.js'
+  import { t, r, plain } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
 
   let { onpick } = $props()
@@ -21,13 +21,13 @@
   <p class="eyebrow" use:reveal>{@html r(t().words.eyebrow)}</p>
   <h2 class="h2" use:reveal={1}>{@html r(t().words.title)}</h2>
   <p class="lede" use:reveal={2}>{@html r(t().words.lede)}</p>
-  <input class="filter ui-input" type="search" bind:value={q} placeholder={p(t().words.filter)} aria-label={p(t().words.filter)} />
+  <input class="filter ui-input" type="search" bind:value={q} placeholder={plain(t().words.filter)} aria-label={plain(t().words.filter)} />
   <div class="grid">
     {#each shown as e (e.lemma + e.written)}
       <button
         class="tile"
         onclick={() => onpick(e.lemma)}
-        title="{e.lemma} · {e.count}{p(t().words.count)}"
+        title="{e.lemma} · {e.count}{plain(t().words.count)}"
         style:--w={0.55 + 0.45 * Math.sqrt(e.count / max)}
       >
         <small lang="ko">{e.lemma}</small>

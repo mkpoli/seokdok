@@ -1,6 +1,6 @@
 <script>
   import { reveal } from '../lib/reveal.js'
-  import { t, r, p } from '../lib/i18n.svelte.js'
+  import { t, r, plain } from '../lib/i18n.svelte.js'
   import Ruby from './Ruby.svelte'
 
   let text = $state(t().reader.sample)
@@ -11,8 +11,8 @@
   <h2 class="h2" use:reveal={1}>{@html r(t().reader.title)}</h2>
   <p class="lede" use:reveal={2}>{@html r(t().reader.lede)}</p>
   <div class="reader card" use:reveal={3}>
-    <textarea bind:value={text} rows="3" lang="ko" aria-label={p(t().reader.title)}></textarea>
-    <p class="out" lang="ko" aria-label={p(t().reader.reading)}><Ruby {text} /></p>
+    <textarea bind:value={text} rows="3" lang="ko" aria-label={plain(t().reader.title)}></textarea>
+    <p class="out" lang="ko" aria-label={plain(t().reader.reading)}><Ruby {text} /></p>
   </div>
 </section>
 

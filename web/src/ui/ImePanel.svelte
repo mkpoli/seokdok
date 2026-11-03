@@ -1,6 +1,6 @@
 <script>
   import { reveal } from '../lib/reveal.js'
-  import { t, r, p } from '../lib/i18n.svelte.js'
+  import { t, r, plain } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
   import { options, saveOptions } from '../lib/options.svelte.js'
   import Keyboard from './Keyboard.svelte'
@@ -28,6 +28,29 @@
       pos = { left: Math.max(8, left), top: r.bottom - host.top + 6 }
     })
   })
+
+  /** A click puts the caret where it lands in the committed text. */
+  function place(e) {
+    const hit = document.caretPositionFromPoint?.(e.clientX, e.clientY)
+    const range = hit ? null : document.caretRangeFromPoint?.(e.clientX, e.clientY)
+    const node = hit?.offsetNode ?? range?.startContainer
+    const offset = hit?.offset ?? range?.startOffset ?? 0
+    const part = node?.parentElement?.closest('[data-part]')?.dataset.part
+    if (part && node.nodeType === Node.TEXT_NODE && !showRuby) {
+      const before = [...ime.before].length
+      const n = [...node.textContent.slice(0, offset)].length
+      // Text nodes inside a part: count the code points before this node.
+      let pre = 0
+      for (const t of node.parentElement.closest('[data-part]').childNodes) {
+        if (t === node) break
+        pre += [...(t.textContent ?? '')].length
+      }
+      ime.setCursor(part === 'before' ? pre + n : before + pre + n)
+    } else if (e.target === e.currentTarget || !part) {
+      if (!ime.pre && !ime.segs) ime.setCursor([...ime.doc].length)
+    }
+    sink.focus()
+  }
 
   /** "讀 읽다 +아/어 · 訓讀 community" → readable, with the source named. */
   function noteHtml(note) {
@@ -59,6 +82,10 @@
       const r = await engine.convert(pre)
       if (ime.pre === pre) preview = r[0]?.text ?? ''
     }, 90)
+  })
+
+  $effect(() => {
+    ime.spaceMode = options.spaceMode
   })
 
   // Options go to the engine; an open conversion is redone under them.
@@ -119,7 +146,7 @@
     ime.cancel()
     ime.composer.clear()
     ime.insertText('')
-    ime.doc = ''
+    ime.setDoc('')
     reading = ''
   }
 
@@ -135,14 +162,19 @@
   <div class="panel card" use:reveal={3}>
     <div class="toolbar">
       <div class="seg" role="group" aria-label="input">
-        <button aria-pressed={ime.mode === 'sim'} title={p(t().ime.simTip)} onclick={() => (ime.mode = 'sim')}>{@html r(t().ime.sim)}</button>
-        <button aria-pressed={ime.mode === 'os'} title={p(t().ime.osTip)} onclick={() => (ime.mode = 'os')}>{@html r(t().ime.os)}</button>
+        <button aria-pressed={ime.mode === 'sim'} title={plain(t().ime.simTip)} onclick={() => (ime.mode = 'sim')}>{@html r(t().ime.sim)}</button>
+        <button aria-pressed={ime.mode === 'os'} title={plain(t().ime.osTip)} onclick={() => (ime.mode = 'os')}>{@html r(t().ime.os)}</button>
       </div>
       <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" bind:checked={showRuby} />{@html r(t().ime.ruby)}</label>
       <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" bind:checked={showKeys} />{@html r(t().ime.keyboard)}</label>
       <details class="opts">
         <summary class="btn" data-size="sm">{@html r(t().options.title)}</summary>
         <div class="opts-body card">
+          <fieldset>
+            <legend>{@html r(t().options.spaceKey)}</legend>
+            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.spaceMode} value="convert" />{@html r(t().options.spaceConvert)}</label>
+            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.spaceMode} value="space" />{@html r(t().options.spaceSpace)}</label>
+          </fieldset>
           <fieldset>
             <legend>{@html r(t().options.style)}</legend>
             <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.style} value="surface" />{@html r(t().options.surface)}</label>
@@ -160,11 +192,11 @@
       </details>
     </div>
 
-    <div class="editor" class:focused role="presentation" onclick={() => sink.focus()}>
+    <div class="editor" class:focused role="presentation" onclick={place}>
       <textarea
         class="sink"
         bind:this={sink}
-        aria-label={p(t().ime.title)}
+        aria-label={plain(t().ime.title)}
         autocapitalize="off"
         autocomplete="off"
         spellcheck="false"
@@ -176,11 +208,11 @@
         onfocus={() => (focused = true)}
         onblur={() => (focused = false)}
       ></textarea>
-      <div class="text" lang="ko" bind:this={textEl}>{#if empty}<span class="placeholder">{@html r(t().ime.placeholder)}</span>{/if}<span class="doc">{#if showRuby}<Ruby text={ime.doc} />{:else}{ime.doc}{/if}</span>{#if ime.segs}{#each ime.segs as s, i}<span
+      <div class="text" lang="ko" bind:this={textEl}>{#if empty}<span class="placeholder">{@html r(t().ime.placeholder)}</span>{/if}<span class="doc" data-part="before">{#if showRuby}<Ruby text={ime.before} />{:else}{ime.before}{/if}</span>{#if ime.segs}{#each ime.segs as s, i}<span
               class="segment"
               class:focus={i === ime.focus}
               class:multi={s.candidates.length > 1}
-              data-seg={i}>{s.candidates[s.pick]?.text ?? s.reading}</span>{/each}{:else}<span class="pre">{ime.pre}{ime.osComposing}</span>{/if}{#if focused}<span class="caret"></span>{/if}</div>
+              data-seg={i}>{s.candidates[s.pick]?.text ?? s.reading}</span>{/each}{:else}<span class="pre">{ime.pre}{ime.osComposing}</span>{/if}{#if focused}<span class="caret"></span>{/if}<span class="doc" data-part="after">{#if showRuby}<Ruby text={ime.after} />{:else}{ime.after}{/if}</span></div>
       {#if ime.segs && ime.current && ime.open}
         {@const start = ime.pageStart}
         {@const all = ime.current.candidates}
@@ -226,7 +258,7 @@
       </ul>
       <div class="actions">
         {#if !status.ready}
-          <span class="loading" title={status.failed || p(t().ime.loading)}>
+          <span class="loading" title={status.failed || plain(t().ime.loading)}>
             <span>{@html r(status.failed ? t().ime.failed : t().ime.loading)}{status.failed ? '' : ` ${pct}%`}</span>
             <span class="bar"><span style:width="{pct}%"></span></span>
           </span>
@@ -325,10 +357,12 @@
     border: 0;
     caret-color: transparent;
     font-size: 16px;
+    /* Clicks reach the text (to place the caret); the handler focuses this. */
+    pointer-events: none;
   }
   .text {
     position: relative;
-    pointer-events: none;
+    min-height: 2.1em;
     word-break: break-word;
     font: 500 clamp(22px, 2.6vw, 28px) / 2.1 var(--f-serif);
   }

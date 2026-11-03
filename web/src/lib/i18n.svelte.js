@@ -54,6 +54,9 @@ const ko = {
   },
   options: {
     title: '{表記|표기} {設定|설정}',
+    spaceKey: 'Space {鍵|키}',
+    spaceConvert: '{變換|변환} (Tab: {變換|변환})',
+    spaceSpace: '띄어{書|쓰}기 (Tab·↓: {變換|변환})',
     style: '{送韓字|송한자}',
     surface: '{表音式|표음식} 見ㅆ다',
     morpheme: '{形態式|형태식} 見았다',
@@ -176,6 +179,9 @@ const en = {
   },
   options: {
     title: 'Spelling options',
+    spaceKey: 'Space key',
+    spaceConvert: 'Converts (Japanese style)',
+    spaceSpace: 'Types a space (Tab or ↓ converts)',
     style: '送韓字',
     surface: 'Surface 見ㅆ다',
     morpheme: 'Morpheme 見았다',
@@ -281,6 +287,6 @@ export function r(s) {
 }
 
 /** Plain text for attributes: Hangul readings in 한, Hanja in 韓. */
-export function p(s) {
+export function plain(s) {
   return s.replace(MARK, (_, h, k) => (i18n.lang === 'ko' ? k : h))
 }

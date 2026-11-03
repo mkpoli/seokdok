@@ -21,7 +21,8 @@
   /** Put a word into the input method and convert it (from the word grid). */
   async function tryWord(word) {
     if (ime.segs) ime.commit()
-    if (ime.doc && !ime.doc.endsWith(' ') && !ime.doc.endsWith('\n')) ime.doc += ' '
+    ime.setCursor([...ime.doc].length)
+    if (ime.doc && !/\s$/.test(ime.doc)) ime.setDoc(ime.doc + ' ')
     ime.composer.clear()
     ime.insertText(word)
     document.getElementById('ime')?.scrollIntoView({ behavior: 'smooth', block: 'start' })

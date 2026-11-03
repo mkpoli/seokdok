@@ -1,7 +1,7 @@
 <script>
   // A 두벌식 keyboard for touch screens and for readers learning the layout.
   import { keyToJamo } from '../../pkg/seokdok.js'
-  import { t, r, p } from '../lib/i18n.svelte.js'
+  import { t, r, plain } from '../lib/i18n.svelte.js'
 
   let { ime, focus } = $props()
   let shift = $state(false)
@@ -16,7 +16,7 @@
   }
 </script>
 
-<div class="kb card" role="group" aria-label={p(t().ime.keyboard)}>
+<div class="kb card" role="group" aria-label={plain(t().ime.keyboard)}>
   {#each rows as row, r}
     <div class="row" style:padding-left="{r * 18}px">
       {#if r === 2}

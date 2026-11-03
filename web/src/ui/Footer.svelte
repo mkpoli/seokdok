@@ -1,5 +1,5 @@
 <script>
-  import { t, r, p } from '../lib/i18n.svelte.js'
+  import { t, r, plain } from '../lib/i18n.svelte.js'
 </script>
 
 <footer class="section foot">

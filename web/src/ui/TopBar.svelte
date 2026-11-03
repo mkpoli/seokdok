@@ -1,5 +1,5 @@
 <script>
-  import { i18n, setLang, t, r, p } from '../lib/i18n.svelte.js'
+  import { i18n, setLang, t, r, plain } from '../lib/i18n.svelte.js'
 
   let theme = $state(document.documentElement.dataset.theme ?? 'auto')
 
@@ -36,7 +36,7 @@
         <button aria-pressed={i18n.lang === code} onclick={() => setLang(code)} {lang}>{label}</button>
       {/each}
     </div>
-    <button class="theme" onclick={cycleTheme} title={p(t().theme[theme])} aria-label={p(t().theme[theme])}>
+    <button class="theme" onclick={cycleTheme} title={plain(t().theme[theme])} aria-label={plain(t().theme[theme])}>
       {#if theme === 'light'}
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" /><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" /></svg>
       {:else if theme === 'dark'}

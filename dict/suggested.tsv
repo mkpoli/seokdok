@@ -31,7 +31,6 @@ lemma	written	pos	class	source	count	note
 벌다	稼다	verb		suggested		earn
 나무	木	noun		suggested	20	gloss
 나무	樹	noun		suggested	1	gloss
-모두	皆	adv		suggested	57	gloss
 모두	悉	adv		suggested	3	gloss
 갈다	磨다	verb		suggested	4	gloss
 다시	更	adv		suggested	10	gloss
@@ -887,3 +886,5545 @@ lemma	written	pos	class	source	count	note
 튕기다	彈기다	verb		suggested		flick
 하많다	多많다	adj		suggested		numerous
 환하다	明하다	adj		suggested	1	bright
+이다	戴다	verb		suggested		carry on the head
+이다	載다	verb		suggested	2	carry, load
+에다	割다	verb		suggested	9	cut, slice
+에다	切다	verb		suggested	13	cut
+고다	煮다	verb		suggested		stew, simmer
+고다	煎다	verb		suggested	5	boil down
+고다	熬다	verb		suggested		boil down slowly
+마다	碎다	verb		suggested		smash
+마다	破다	verb		suggested		break
+대다	到다	verb		suggested	1	arrive in time
+대다	及다	verb		suggested	25	reach
+까다	剝다	verb		suggested		peel
+까다	削다	verb		suggested		pare
+배다	浸다	verb		suggested	1	soak into
+배다	染다	verb		suggested	5	soak in, stain
+배다	滲다	verb		suggested		seep into
+배다	密다	adj		suggested	3	close together
+배다	稠다	adj		suggested	1	dense
+괜찮다	可다	adj		suggested	2	passable, OK
+괜찮다	好다	adj		suggested		good
+괜찮다	佳다	adj		suggested		nice
+많이	多이	adv		suggested	4	much, many
+많이	衆이	adv		suggested		in great numbers
+써다	鋸다	verb		suggested		saw wood
+써다	割다	verb		suggested	9	cut, split
+예다	行다	verb		suggested		go
+예다	往다	verb		suggested	14	go
+예다	去다	verb		suggested		go away
+미다	脫다	verb		suggested		hair falling out
+미다	落다	verb		suggested	19	fall out
+여기다	思기다	verb		suggested		consider
+여기다	看기다	verb		suggested		regard as
+디다	傷다	verb		suggested		be bruised
+우리다	浸다	verb		suggested	1	soak out
+우리다	漬다	verb		suggested		infuse
+누다	排다	verb		suggested	2	excrete
+누다	泄다	verb		suggested		discharge
+누다	便다	verb		suggested	16	relieve oneself
+데다	燙다	verb		suggested		scald
+데다	燒다	verb		suggested	3	burn
+데다	灼다	verb		suggested		scorch
+아마	蓋	adv		suggested	5	perhaps
+아마	或	adv		suggested	19	maybe
+그리	然	adv		suggested	2	so
+때문	故	noun		suggested	4	cause, reason
+때문	由	noun		suggested	3	reason
+때문	因	noun		suggested	10	cause
+어서	速	adv		suggested	4	quickly
+어서	急	adv		suggested	5	hurriedly
+어서	早	adv		suggested	20	early, soon
+이렇게	如此	adv		suggested	5	like this
+하지만	然	adv		suggested	2	but
+하지만	但	adv		suggested	12	however
+거의	幾	adv		suggested	3	almost
+거의	殆	adv		suggested	11	almost
+설다	生다	adj		suggested		unripe, raw
+느낌	感	noun		suggested	30	feeling
+느낌	情	noun		suggested	8	sentiment
+요즘	近來	noun		suggested	2	recently
+요즘	近	noun		suggested	5	lately
+한데	野	noun		suggested	8	outdoors
+한데	外	noun		suggested	24	outside
+삼다	爲다	verb		suggested	2	make into, take as
+삼다	作다	verb		suggested	7	make
+틀다	捻다	verb		suggested		twist
+틀다	扭다	verb		suggested		wrench
+틀다	轉다	verb		suggested	2	turn
+때문에	故	adv		suggested	19	therefore
+채다	奪다	verb		suggested	3	snatch
+채다	搶다	verb		suggested		snatch
+채다	捕다	verb		suggested		seize
+들이	容	noun		suggested		capacity
+같이	共	adv		suggested	11	together
+같이	同	adv		suggested	22	together
+피다	開다	verb		suggested	7	bloom
+피다	發다	verb		suggested	5	blossom
+감다	瞑다	verb		suggested	2	close the eyes
+감다	閉다	verb		suggested	1	shut
+못하다	不能하다	verb		suggested		cannot
+석다	融다	verb		suggested		melt
+석다	溶다	verb		suggested	2	dissolve
+석다	消다	verb		suggested	5	vanish
+듯하다	似하다	adj		suggested		seem
+듯하다	如하다	adj		suggested	25	appear like
+띄다	見다	verb		suggested		be seen
+띄다	顯다	verb		suggested	1	stand out
+골다	鼾다	verb		suggested		snore
+뒤다	掘다	verb		suggested		dig through
+뒤다	搜다	verb		suggested	1	search
+뒤다	探다	verb		suggested		probe
+맛있다	味있다	adj		suggested		tasty
+맛있다	美味있다	adj		suggested		delicious
+있음	有	noun		suggested	60	being, having
+있음	在	noun		suggested	11	presence
+다음	次	noun		suggested	13	next
+다음	後	noun		suggested	3	following
+엄청	甚	adv		suggested	5	very
+엄청	極	adv		suggested	3	extremely
+언제	何時	adv		suggested	15	when
+여러분	諸位	noun		suggested	8	everyone
+아주	甚	adv		suggested	5	very
+아주	極	adv		suggested	3	extremely
+아주	頗	adv		suggested	14	quite
+안되다	不成다	verb		suggested	2	fail
+안되다	憐다	adj		suggested		feel sorry
+안되다	憫다	adj		suggested		pity
+이랑	畝	noun		suggested		ridge
+이랑	畦	noun		suggested		ridge between fields
+잘못	誤	noun		suggested	14	mistake
+잘못	過	noun		suggested	5	fault
+잘못	錯	noun		suggested	2	error
+재미	興	noun		suggested	2	fun
+재미	趣	noun		suggested		interest
+재미	味	noun		suggested	3	flavor, relish
+바로	正	adv		suggested	5	exactly
+바로	直	adv		suggested	21	directly
+어째	何	adv		suggested	65	why
+옛날	昔날	noun		suggested		the past
+옛날	古날	noun		suggested		olden days
+매우	甚	adv		suggested	5	very
+매우	極	adv		suggested	3	extremely
+매우	頗	adv		suggested	14	quite
+나리	主	noun		suggested	40	lord
+나리	君	noun		suggested	28	sir
+떨다	震다	verb		suggested		tremble
+떨다	顫다	verb		suggested		shiver
+떨다	慄다	verb		suggested		shudder
+씨다	掘다	verb		suggested		dig out
+씨다	鑿다	verb		suggested		bore
+나중	後	noun		suggested	3	later
+나중	末	noun		suggested	11	end
+어리	籠	noun		suggested		cage
+어리	檻	noun		suggested		coop
+재미있다	興있다	adj		suggested		interesting
+재미있다	趣있다	adj		suggested	1	amusing
+헤다	泳다	verb		suggested		swim
+헤다	游다	verb		suggested		swim
+자주	頻	adv		suggested	24	often
+자주	屢	adv		suggested		repeatedly
+자주	數	adv		suggested	9	frequently
+대로	如	noun		suggested	30	as, according to
+대로	隨	noun		suggested	1	following
+겹다	過다	adj		suggested	4	excessive
+겹다	超다	adj		suggested	5	beyond capacity
+궁금	空	noun		suggested		hollow
+쇠다	過다	verb		suggested	14	celebrate, spend
+쇠다	祝다	verb		suggested	4	celebrate
+쇠다	慶다	verb		suggested	1	celebrate
+푸다	汲다	verb		suggested	1	draw, scoop
+푸다	酌다	verb		suggested		ladle
+푸다	掬다	verb		suggested		scoop
+따로	別	adv		suggested	37	separately
+아직도	猶	adv		suggested	11	still
+아직도	尙	adv		suggested		still
+깔다	鋪다	verb		suggested		spread
+깔다	敷다	verb		suggested	1	lay out
+꾸다	夢다	verb		suggested	5	dream
+괴다	溜다	verb		suggested		pool
+괴다	滯다	verb		suggested		stagnate
+솔다	狹다	adj		suggested		narrow
+솔다	窄다	adj		suggested		cramped
+솔다	乾다	verb		suggested	4	dry up
+솔다	硬다	verb		suggested		harden
+바뀌다	變다	verb		suggested	2	change
+바뀌다	易다	verb		suggested	7	be exchanged
+바뀌다	換다	verb		suggested		be swapped
+바뀌다	替다	verb		suggested		be replaced
+사라	皿	noun		suggested		plate
+사라	碟	noun		suggested		dish
+얼마	幾	noun		suggested	3	how much
+얼마	何	noun		suggested	65	how many
+받침	臺	noun		suggested	4	support
+받침	托	noun		suggested	1	saucer
+받침	墊	noun		suggested		pad
+아쉽다	惜다	adj		suggested	2	regretful
+아쉽다	憾다	adj		suggested		sorry
+보기	例	noun		suggested	63	example
+찍다	斫다	verb		suggested		chop
+찍다	伐다	verb		suggested		chop down
+아리	脚	noun		suggested		leg
+아리	腿	noun		suggested		leg
+아리다	痛다	adj		suggested		aching
+아리다	疼다	adj		suggested	1	smarting
+이번	今番	noun		suggested		this time
+이번	今回	noun		suggested		this occasion
+찾아보다	尋아보다	verb		suggested	1	go and find
+찾아보다	訪아보다	verb		suggested		visit
+박다	打다	verb		suggested		drive in
+박다	釘다	verb		suggested	1	nail
+박다	搥다	verb		suggested		hammer
+벌써	已	adv		suggested	24	already
+벌써	旣	adv		suggested	6	already
+아예	全	adv		suggested	50	entirely
+아예	都	adv		suggested	3	altogether
+오라	繩	noun		suggested		binding cord
+오라	索	noun		suggested	2	rope
+날씨	天氣	noun		suggested	6	weather
+날씨	天候	noun		suggested		weather
+욱다	曲다	verb		suggested	6	crooked
+욱다	屈다	verb		suggested		bent
+절다	漬다	verb		suggested		be soaked
+절다	淹다	verb		suggested		be drenched
+째다	裂다	verb		suggested	2	tear open
+째다	割다	verb		suggested	9	cut open
+째다	切다	verb		suggested	13	cut
+한번	一番	adv		suggested	15	once
+한번	一日	noun		suggested	9	someday
+다들	皆	adv		suggested		everyone
+다들	諸	adv		suggested		all
+차이다	蹴이다	verb		suggested		get kicked
+패다	斫다	verb		suggested	1	chop
+패다	劈다	verb		suggested		split
+패다	割다	verb		suggested	9	cut
+꼬다	撚다	verb		suggested	2	twist
+꼬다	綯다	verb		suggested		twist rope
+꼬다	絞다	verb		suggested		wring
+마지막	末	noun		suggested	11	the end
+마지막	終	noun		suggested	13	the last
+마지막	最後	noun		suggested	5	the last
+옮다	移다	verb		suggested	2	move
+옮다	遷다	verb		suggested		relocate
+임금	王	noun		suggested	31	king
+임금	君	noun		suggested	30	monarch
+임금	主	noun		suggested		sovereign
+드디어	遂	adv		suggested	2	finally
+드디어	竟	adv		suggested		at last
+드디어	終	adv		suggested	14	in the end
+뜻하다	意하다	verb		suggested	14	mean
+비싸다	高다	adj		suggested	15	expensive
+비싸다	貴다	adj		suggested	5	costly
+제대로	正	adv		suggested	5	properly
+제대로	如法	adv		suggested		in due manner
+죄다	緊다	verb		suggested	1	tighten
+죄다	束다	verb		suggested	1	bind
+또는	或	adv		suggested	28	or
+또는	又	adv		suggested	51	also
+똑같다	同다	adj		suggested		identical
+모드다	集다	verb		suggested	7	gather
+모드다	聚다	verb		suggested		collect
+모드다	會다	verb		suggested	8	assemble
+베이다	切이다	verb		suggested	2	be cut
+베이다	割이다	verb		suggested	1	be cut
+베이다	斬이다	verb		suggested		be slashed
+살짝	微	adv		suggested	1	slightly
+살짝	輕	adv		suggested		lightly
+아까	先	adv		suggested	11	a while ago
+아까	俄	adv		suggested	6	just now
+어째서	何故	adv		suggested	14	why
+이야기	話	noun		suggested	18	talk
+이야기	談	noun		suggested	1	talk
+이야기	說	noun		suggested	22	tale
+하도	甚	adv		suggested	5	so much
+하도	極	adv		suggested	3	extremely
+게다가	且	adv		suggested	11	moreover
+김치	沈菜	noun		suggested	3	kimchi
+내리	下	adv		suggested	32	downwards
+내리다	降다	verb		suggested	30	come down
+내리다	下다	verb		suggested	29	go down
+널다	晒다	verb		suggested		spread out in the sun
+널다	曝다	verb		suggested		expose
+널다	張다	verb		suggested		spread
+바리	鉢	noun		suggested	4	bowl
+바리	缽	noun		suggested		bowl
+삐다	挫다	verb		suggested		sprain
+삐다	捻다	verb		suggested		twist a joint
+삐다	斜다	verb		suggested		be askew
+아가	兒	noun		suggested	13	baby
+아가	嬰	noun		suggested		infant
+아마도	或	adv		suggested	19	maybe
+아마도	蓋	adv		suggested	5	perhaps
+아시	鳳	noun		suggested	1	phoenix
+계시다	在시다	verb		suggested	12	stay, be
+계시다	居시다	verb		suggested		dwell
+고요	靜	noun		suggested	1	calm
+고요	寂	noun		suggested		tranquility
+굳이	強	adv		suggested		insistently
+굳이	固	adv		suggested	11	firmly
+그때	其時	noun		suggested	9	that time
+그때	當時	noun		suggested	49	that time
+그러나	然	adv		suggested	2	but
+늦다	遲다	adj		suggested		late
+늦다	晩다	adj		suggested	9	late
+마치	恰	adv		suggested		just as if
+마치	如	adv		suggested	30	like
+마치	槌	noun		suggested		hammer
+마치	鎚	noun		suggested		hammer
+마치다	終다	verb		suggested	14	finish
+마치다	畢다	verb		suggested	1	complete
+마치다	了다	verb		suggested	5	conclude
+미리	預	adv		suggested		beforehand
+미리	豫	adv		suggested	1	in advance
+미리	先	adv		suggested	11	ahead
+미리	龍	noun		suggested	8	dragon
+밭다	涸다	verb		suggested		dry up
+밭다	乾다	verb		suggested	4	evaporate
+밭다	迫다	adj		suggested		tight
+밭다	窄다	adj		suggested		narrow
+보통	普通	adv		suggested	31	usually
+보통	通常	adv		suggested	1	commonly
+붓다	注다	verb		suggested	2	pour
+붓다	灌다	verb		suggested		pour in
+붓다	傾다	verb		suggested	1	tip out
+생각나다	思나다	verb		suggested	4	come to mind
+생각나다	想나다	verb		suggested	5	occur to one
+숙다	低다	verb		suggested		bend down
+숙다	俯다	verb		suggested		stoop
+숙다	垂다	verb		suggested		droop
+이어	續	adv		suggested		following
+쯔다	伐다	verb		suggested	2	fell
+쯔다	斬다	verb		suggested	2	cut
+쯔다	截다	verb		suggested		cut off
+하루	一日	noun		suggested	10	a day
+하루	日	noun		suggested		day
+개나리	連翹	noun		suggested	1	forsythia
+마침	適	adv		suggested	9	just in time
+마침	恰	adv		suggested		just
+마침	終	noun		suggested	13	finishing
+모음	集	noun		suggested	4	collection
+아무리	縱	adv		suggested		however much
+옥다	曲다	verb		suggested	5	crooked
+옥다	屈다	verb		suggested		bent
+잘하다	善하다	verb		suggested	1	do well
+잘하다	能하다	verb		suggested	1	be good at
+적어도	少	adv		suggested	13	at least
+헷갈리다	混갈리다	verb		suggested		be confused
+가시다	消다	verb		suggested	9	fade away
+가시다	去다	verb		suggested		go away
+고자	宦	noun		suggested		eunuch
+되게	甚	adv		suggested	5	very
+되게	極	adv		suggested	3	extremely
+드시다	食시다	verb		suggested	14	eat (honorific)
+드시다	飮시다	verb		suggested		drink (honorific)
+만큼	程	noun		suggested	1	degree
+만큼	許	noun		suggested	2	extent
+빨리	速	adv		suggested	4	quickly
+빨리	疾	adv		suggested	2	swiftly
+빨리	早	adv		suggested	20	early
+애초	初	noun		suggested	38	beginning
+애초	元	noun		suggested	2	origin
+없었다	無었다	adj		suggested		was not there
+없었다	亡었다	verb		suggested		died, vanished
+없었다	沒었다	verb		suggested		vanished
+이대	篠	noun		suggested		arrow bamboo
+크기	大小	noun		suggested		size
+크기	大	noun		suggested	8	size
+가락	錘	noun		suggested		spindle
+가위	剪	noun		suggested	1	scissors
+가위	剪刀	noun		suggested		scissors
+고맙다	謝다	adj		suggested	2	thankful
+고맙다	感다	adj		suggested	8	grateful
+뀌다	放다	verb		suggested	8	release
+달리	異	adv		suggested	4	differently
+달리	別	adv		suggested	37	otherwise
+동안	間	noun		suggested	1	interval
+마스다	碎다	verb		suggested		break
+마스다	破다	verb		suggested		break
+마찬가지	同	noun		suggested	22	identical
+설레다	悸다	verb		suggested		palpitate
+설레다	躍다	verb		suggested		leap, throb
+설레다	動다	verb		suggested		stir
+아름	抱	noun		suggested		armful
+요새	近來	adv		suggested	2	lately
+요새	近	adv		suggested	5	lately
+이젠	今	noun		suggested	4	now
+겹치다	重치다	verb		suggested	6	pile up
+겹치다	疊치다	verb		suggested		lay on top
+국수	麵	noun		suggested	16	noodle
+국수	麪	noun		suggested		noodle
+그동안	其間	adv		suggested	4	in the meantime
+까먹다	剝먹다	verb		suggested		peel and eat
+깔끔하다	淨하다	adj		suggested		clean, neat
+깔끔하다	潔하다	adj		suggested		tidy
+나서다	出서다	verb		suggested		go forth
+나서다	進서다	verb		suggested		step forward
+돌리다	回다	verb		suggested	5	turn
+돌리다	轉다	verb		suggested	3	rotate
+따지다	辨다	verb		suggested	1	distinguish
+따지다	詰다	verb		suggested	1	press for an answer
+따지다	問다	verb		suggested	8	question
+띠다	帶다	verb		suggested		wear around the waist
+수리	鷲	noun		suggested	1	eagle
+어르다	弄다	verb		suggested	2	humour
+어르다	撫다	verb		suggested	2	caress
+어르신	長者	noun		suggested	3	elder
+켜다	點다	verb		suggested	39	light
+켜다	燃다	verb		suggested		burn
+켜다	燈다	verb		suggested	1	light a lamp
+튀다	跳다	verb		suggested		spatter
+튀다	濺다	verb		suggested		splash
+튀다	飛다	verb		suggested		fly off
+핑계	口實	noun		suggested		pretext
+핑계	託	noun		suggested	1	excuse
+훨씬	遙	adv		suggested		far more
+훨씬	甚	adv		suggested	5	much more
+걸리다	掛다	verb		suggested	3	be hung
+걸리다	懸다	verb		suggested	1	hang
+굴다	行다	verb		suggested		behave
+굴다	爲다	verb		suggested		act
+끝나다	終나다	verb		suggested	6	come to an end
+끝나다	畢나다	verb		suggested		be finished
+나머지	餘	noun		suggested	7	remainder
+도이	錢	noun		suggested		money
+돌아가다	歸가다	verb		suggested	1	go back
+돌아가다	回가다	verb		suggested		return
+모습	姿	noun		suggested		appearance
+모습	貌	noun		suggested		appearance
+모습	樣	noun		suggested	17	figure
+모임	會	noun		suggested	8	gathering
+모임	集	noun		suggested	4	meeting
+물어보다	問어보다	verb		suggested	3	ask
+미루다	延다	verb		suggested	1	postpone
+미루다	遲다	verb		suggested	1	delay
+미루다	推다	verb		suggested	1	push off
+미루다	讓다	verb		suggested	1	yield
+바보	愚	noun		suggested	4	fool
+살리다	活리다	verb		suggested	26	bring to life
+살리다	生리다	verb		suggested	7	let live
+얼마나	何	adv		suggested	65	how much
+주로	主	adv		suggested	40	chiefly
+진지	飯	noun		suggested	11	meal (honorific)
+차마	忍	adv		suggested	10	bear
+달걀	鷄卵	noun		suggested	4	hen's egg
+달걀	卵	noun		suggested		egg
+먹기	食	noun		suggested	2	eating
+생기다	生기다	verb		suggested	13	appear
+생기다	出기다	verb		suggested		emerge
+신기하다	奇하다	adj		suggested		wondrous
+신기하다	神奇하다	adj		suggested	36	mysterious
+애매하다	曖昧하다	adj		suggested	14	ambiguous
+옛말	古語	noun		suggested	21	archaism
+옛말	昔말	noun		suggested		old word
+젓다	攪다	verb		suggested		stir
+표기하다	表記하다	verb		suggested	64	write, note
+가리키다	指다	verb		suggested	5	point to
+거룩	聖	noun		suggested	5	holiness
+고장	地	noun		suggested		district
+고장	鄕	noun		suggested		locale
+구분하다	區分하다	verb		suggested	22	classify
+대단하다	偉하다	adj		suggested		great
+대단하다	大하다	adj		suggested		huge
+대단하다	甚하다	adj		suggested	8	tremendous
+더불다	與다	verb		suggested	15	accompany
+더불다	伴다	verb		suggested		bring along
+돌아다니다	回다니다	verb		suggested		go around
+돌아다니다	遊다니다	verb		suggested		wander
+따라서	故	adv		suggested	19	therefore
+떼다	離다	verb		suggested	7	detach
+떼다	脫다	verb		suggested		take off
+떼다	剝다	verb		suggested		peel off
+머리말	序	noun		suggested	1	preface
+머리말	序文	noun		suggested		foreword
+모레	明後日	noun		suggested	3	day after tomorrow
+발음하다	發音하다	verb		suggested	28	pronounce
+변하다	變하다	verb		suggested	24	change
+심심하다	閑하다	adj		suggested		bored, idle
+심심하다	無聊하다	adj		suggested	1	boring
+아저씨	叔	noun		suggested	1	uncle
+아줌마	嬸	noun		suggested		aunt
+앞으로	前으로	adv		suggested		from now on
+어려움	難	noun		suggested	39	difficulty
+오리다	剪다	verb		suggested		cut out
+오리다	裁다	verb		suggested		cut out
+오리다	切다	verb		suggested	13	cut
+이분	此분	noun		suggested		this person
+자연스럽다	自然스럽다	adj		suggested	15	natural
+젊은이	少은이	noun		suggested		young person
+퍼지다	播지다	verb		suggested		spread
+퍼지다	散지다	verb		suggested		disperse
+퍼지다	擴지다	verb		suggested		expand
+한참	暫	noun		suggested	1	a while
+한참	久	noun		suggested		a long while
+할아버지	祖父	noun		suggested	9	grandfather
+확실히	確實히	adv		suggested	49	certainly
+가능하다	可能하다	adj		suggested	52	possible
+가말다	管다	verb		suggested	1	manage
+가말다	處다	verb		suggested	1	deal with
+구두	靴	noun		suggested	3	shoes
+구라	詐	noun		suggested		lie
+구라	謊	noun		suggested		lie
+귀엽다	愛다	adj		suggested	1	cute
+귀엽다	憐다	adj		suggested		endearing
+깜짝	瞬	noun		suggested		blink
+남새	菜	noun		suggested	2	vegetables
+남새	蔬	noun		suggested	2	greens
+노리다	睨다	verb		suggested		glare
+노리다	瞪다	verb		suggested		stare
+노리다	狙다	verb		suggested	2	aim at
+노리다	臊다	adj		suggested		foul-smelling
+노리다	臭다	adj		suggested	1	stinking
+높이	高	noun		suggested	15	height
+높이다	高이다	verb		suggested	2	raise
+높이다	揚다	verb		suggested		elevate
+다리다	熨다	verb		suggested		iron
+담배	煙草	noun		suggested	6	tobacco
+담배	煙	noun		suggested	4	tobacco
+도시락	辨當	noun		suggested		lunchbox
+도움	助	noun		suggested	5	help
+동일하다	同一하다	adj		suggested	9	identical
+듯싶다	似다	verb		suggested		seem
+따위	等	noun		suggested	80	and the like
+마구	亂	adv		suggested		recklessly
+마구	妄	adv		suggested		indiscriminately
+마저	盡	adv		suggested	11	all
+마저	全	adv		suggested	50	with no remainder
+문득	忽	noun		suggested	11	suddenly
+문득	驀	noun		suggested		abruptly
+미처	未	adv		suggested	9	not yet
+미처	未及	adv		suggested		not up to
+부루	萵苣	noun		suggested		lettuce
+새끼	子	noun		suggested	38	young animal
+새끼	仔	noun		suggested	6	offspring
+아기	嬰	noun		suggested		baby
+아기	兒	noun		suggested	13	child
+어느정도	幾分	adv		suggested		somewhat
+어느정도	多少	adv		suggested	4	to some degree
+어이	何	adv		suggested	65	how
+의미하다	意味하다	verb		suggested	21	mean
+익숙하다	熟하다	adj		suggested		skilled
+익숙하다	慣하다	adj		suggested		accustomed
+익히	熟	adv		suggested	3	well known
+일부러	故	adv		suggested	19	deliberately
+일부러	特	adv		suggested	3	specially
+자국	跡	noun		suggested	1	mark
+자국	痕	noun		suggested	1	stain
+자꾸	屢	adv		suggested		repeatedly
+자꾸	頻	adv		suggested	24	incessantly
+졸다	眠다	verb		suggested		doze
+졸다	睡다	verb		suggested	2	be sleepy
+해당하다	該當하다	verb		suggested	14	correspond
+감자	薯	noun		suggested	1	potato
+나타내다	示내다	verb		suggested		show
+나타내다	表내다	verb		suggested		represent
+나타내다	現내다	verb		suggested		make appear
+넘어가다	越가다	verb		suggested		go over
+넘어가다	過가다	verb		suggested		pass over
+넘어가다	倒가다	verb		suggested		collapse
+높임	敬	noun		suggested	9	honorific
+높임말	敬語	noun		suggested	3	honorific speech
+다듬다	削다	verb		suggested		trim
+다듬다	整다	verb		suggested		tidy
+다듬다	修다	verb		suggested		refine
+단지	壺	noun		suggested		pot
+단지	甕	noun		suggested		jar
+들어서다	入서다	verb		suggested		enter
+때로	時로	adv		suggested		occasionally
+마음씨	心	noun		suggested		disposition
+말씀하다	言하다	verb		suggested		speak
+맞추다	合추다	verb		suggested		adjust
+맞추다	調추다	verb		suggested		tune
+멋있다	佳다	adj		suggested		nice
+멋있다	美다	adj		suggested		fine
+볶음	炒	noun		suggested	1	stir-fry
+비키다	避키다	verb		suggested		step aside
+비키다	避다	verb		suggested	1	avoid
+상추	萵苣	noun		suggested		lettuce
+새우다	夜우다	verb		suggested		stay up all night
+서두르다	急두르다	verb		suggested		hurry
+서두르다	急다	verb		suggested	7	hasten
+설날	元日	noun		suggested		New Year
+설날	元旦	noun		suggested	1	New Year's Day
+설치다	亂치다	verb		suggested		act wildly
+스치다	掠다	verb		suggested		graze
+스치다	擦다	verb		suggested	1	brush
+시리다	冷다	verb		suggested	6	be cold
+시리다	寒다	verb		suggested		chill
+억지	強	noun		suggested		stubbornness
+언제나	常	adv		suggested		always
+언제나	恒	adv		suggested	2	always
+언젠가	何時	adv		suggested	15	some time
+얼른	速	adv		suggested	3	quickly
+얼른	早	adv		suggested	15	at once
+여리다	弱다	adj		suggested	3	tender
+여리다	柔다	adj		suggested		soft
+여리다	脆다	adj		suggested		delicate
+여의다	失다	verb		suggested	3	lose
+여의다	喪다	verb		suggested		be bereaved
+올해	今年	noun		suggested	16	this year
+이틀	二日	noun		suggested	1	two days
+입력기	入力器	noun		suggested	1	input editor
+잘못하다	誤하다	verb		suggested	5	err
+잘못하다	過하다	verb		suggested	1	do wrongly
+장난	戲	noun		suggested	1	mischief
+장난	弄	noun		suggested	5	play
+정작	實	adv		suggested	18	actually
+정작	眞	adv		suggested	9	really
+지라	脾	noun		suggested		spleen
+진지하다	眞摯하다	adj		suggested	1	earnest
+진지하다	眞하다	adj		suggested	1	sincere
+차지	占	noun		suggested		taking possession
+콩나물	豆나물	noun		suggested		bean sprouts
+한쪽	一方	noun		suggested	1	one side
+한쪽	片	noun		suggested		one side
+한편	一方	adv		suggested	1	on the other hand
+할머니	祖母	noun		suggested	8	grandmother
+훌륭하다	優하다	adj		suggested	1	excellent
+훌륭하다	善하다	adj		suggested	1	fine
+가오	面	noun		suggested		face, dignity
+거꾸로	倒	adv		suggested	1	upside down
+거꾸로	逆	adv		suggested	6	reversed
+게살	蟹肉	noun		suggested	1	crabmeat
+게살	蟹살	noun		suggested		crab flesh
+곯다	腐다	verb		suggested		rot
+곯다	爛다	verb		suggested		spoil
+곯다	壞다	verb		suggested		go bad
+구리다	臭다	adj		suggested	1	foul-smelling
+국자	杓	noun		suggested		ladle
+그곳	其處	noun		suggested	10	that place
+그이	彼	noun		suggested		that person
+그저	只	adv		suggested	12	just
+그저	唯	adv		suggested	17	only
+까다롭다	苛롭다	adj		suggested	1	fussy
+까다롭다	難다	adj		suggested		difficult
+나들이	出遊	noun		suggested		outing
+나들이	遊	noun		suggested	7	excursion
+늘어나다	增어나다	verb		suggested	2	expand
+늘어나다	延어나다	verb		suggested		stretch
+되놈	胡	noun		suggested	6	barbarian
+뒤집다	翻다	verb		suggested		flip
+뒤집다	覆다	verb		suggested		overturn
+뒤집다	反다	verb		suggested	2	invert
+등에	虻	noun		suggested		gadfly
+떠오르다	浮오르다	verb		suggested		rise
+떠오르다	昇오르다	verb		suggested		ascend
+떳떳하다	堂堂하다	adj		suggested	1	upright
+마음대로	任意로	adv		suggested	2	as one pleases
+마음대로	隨意로	adv		suggested		at will
+마주	對	adv		suggested	22	face to face
+만하다	値하다	adj		suggested		be worth
+맞이	迎	noun		suggested	2	welcoming
+무꾸리	卜	noun		suggested	1	divination
+무꾸리	占	noun		suggested		fortune-telling
+민물	淡水	noun		suggested	4	freshwater
+배앓이	腹痛	noun		suggested	1	stomachache
+뵈다	見다	verb		suggested		see
+뵈다	謁다	verb		suggested		have an audience
+부처	佛	noun		suggested	7	Buddha
+불쌍	憐	noun		suggested		pitiful
+불쌍	憫	noun		suggested		poor
+사뢰다	白다	verb		suggested	11	tell a superior
+사뢰다	啓다	verb		suggested	2	inform
+사뢰다	奏다	verb		suggested	1	report
+살아가다	活가다	verb		suggested		live on
+살아가다	生가다	verb		suggested		go through life
+서리다	曇다	verb		suggested		cloud over
+소나기	驟雨	noun		suggested	2	shower
+솜씨	手	noun		suggested	7	skill
+솜씨	才	noun		suggested	1	talent
+솜씨	腕	noun		suggested		ability
+시절	時節	noun		suggested	11	time
+시집	媤家	noun		suggested	2	husband's family
+씌다	憑다	verb		suggested		be possessed
+씌다	魅다	verb		suggested		be bewitched
+아주머니	嬸	noun		suggested		aunt
+안해	妻	noun		suggested		wife
+알아보다	識아보다	verb		suggested		recognize
+알아보다	認아보다	verb		suggested		identify
+언니	姉	noun		suggested	5	older sister
+없애다	無애다	verb		suggested	8	eliminate
+없애다	去애다	verb		suggested		remove
+엉망	亂	noun		suggested		mess
+오빠	兄	noun		suggested	6	older brother
+왠지	何故	adv		suggested	14	somehow
+이대로	如此	adv		suggested	5	as it is
+이참	此番	noun		suggested	12	this chance
+이태	二年	noun		suggested	2	two years
+일하다	事하다	verb		suggested	5	work
+일하다	勞하다	verb		suggested		labor
+자시다	食시다	verb		suggested	14	eat (honorific)
+젖먹이	乳兒	noun		suggested		suckling
+제법	頗	adv		suggested	10	fairly
+족보	族譜	noun		suggested	1	genealogy
+족보	譜	noun		suggested		record
+좀더	更	adv		suggested	10	a little more
+주름	皺	noun		suggested		wrinkles
+주장하다	主張하다	verb		suggested	6	assert
+차리다	備다	verb		suggested	1	prepare
+차리다	整다	verb		suggested		arrange
+차리다	設다	verb		suggested	1	set up
+흔히	常	adv		suggested		commonly
+흔히	普	adv		suggested	1	generally
+가입하다	加入하다	verb		suggested	10	join
+가지가지	種種	noun		suggested	2	various kinds
+간직	藏	noun		suggested	1	keeping
+간직	保	noun		suggested		preserving
+감사합니다	感謝합니다	adj		suggested	34	is thankful
+건너	對	noun		suggested	22	opposite side
+건네다	渡네다	verb		suggested		hand over
+건네다	授네다	verb		suggested		hand to
+건네다	傳네다	verb		suggested		pass on
+고지식하다	愚直하다	adj		suggested		inflexible
+고추	苦椒	noun		suggested	1	chili pepper
+고프다	饑다	adj		suggested		hungry
+고프다	飢다	adj		suggested	2	starved
+고프다	餓다	adj		suggested		empty, hungry
+골치	頭	noun		suggested		head
+곳곳	處處	adv		suggested	4	everywhere
+꼬막	蚶	noun		suggested		cockle
+낙지	絡蹄	noun		suggested	3	octopus
+내내	終	adv		suggested	14	throughout
+내내	通	adv		suggested	3	all the time
+냅다	辛다	adj		suggested	2	acrid
+네모	四角	noun		suggested		square
+누나	姉	noun		suggested	5	older sister of a male
+다슬다	治다	verb		suggested		govern
+대가리	頭	noun		suggested		animal head
+대하다	對하다	verb		suggested	26	face, relate to
+더불어	與	adv		suggested	16	together with
+도라지	桔梗	noun		suggested	1	balloon flower
+도리	桁	noun		suggested		purlin
+도리다	刳다	verb		suggested		carve out
+도리다	抉다	verb		suggested		gouge out
+도와주다	助와주다	verb		suggested	1	help
+도와주다	援와주다	verb		suggested		aid
+동네	洞	noun		suggested	12	neighborhood
+동네	里	noun		suggested	7	village
+두르다	圍다	verb		suggested	1	surround
+두르다	繞다	verb		suggested		encircle
+두르다	纏다	verb		suggested	1	wrap
+듯이	如	noun		suggested	30	as if
+똑같이	同이	adv		suggested		equally
+뜯다	摘다	verb		suggested		pluck
+뜯다	拔다	verb		suggested		pull out
+뜯다	裂다	verb		suggested		tear
+마련	備	noun		suggested	1	preparation
+마련	設	noun		suggested	1	arrangement
+막내	末	noun		suggested	10	youngest child
+만지다	觸다	verb		suggested	3	touch
+만지다	撫다	verb		suggested	2	stroke
+말하기	言	noun		suggested	7	speaking
+말하기	說	noun		suggested	22	speech
+맨날	每日	adv		suggested	7	every day
+맴돌다	環돌다	verb		suggested		circle
+맴돌다	廻돌다	verb		suggested	1	go around
+먹이	餌	noun		suggested		feed
+먹이	食	noun		suggested	2	food
+메아리	響	noun		suggested	1	echo
+메아리	谺	noun		suggested		echo
+며칠	幾日	noun		suggested	1	how many days
+모루	砧	noun		suggested		anvil
+모이	餌	noun		suggested		poultry feed
+몹시	甚	adv		suggested	5	exceedingly
+몹시	極	adv		suggested	3	extremely
+무리	群	noun		suggested	4	group
+무리	衆	noun		suggested	1	crowd
+무리	黨	noun		suggested	2	gang
+문의하다	問하다	verb		suggested	1	inquire
+문의하다	質問하다	verb		suggested		ask
+물통	水桶	noun		suggested		water container
+밀리다	滯다	verb		suggested		be overdue
+밀리다	遲다	verb		suggested	1	be delayed
+바닷가	海邊	noun		suggested		seashore
+박수	覡	noun		suggested		male shaman
+변화하다	變化하다	verb		suggested	11	change
+보라	紫	noun		suggested		purple
+부름	召	noun		suggested	2	summons
+부름	呼	noun		suggested	12	call
+붇다	脹다	verb		suggested		swell
+붇다	腫다	verb		suggested		swell up
+비리다	腥다	adj		suggested		fishy
+빌미	因	noun		suggested	9	cause
+빌미	祟	noun		suggested	2	curse, cause of misfortune
+빛내다	光내다	verb		suggested	1	make shine
+빛내다	輝내다	verb		suggested	1	make glitter
+뻗다	伸다	verb		suggested	7	stretch
+뻗다	延다	verb		suggested	1	extend
+사용되다	使用되다	verb		suggested	17	be used
+사흘	三日	noun		suggested	2	three days
+상관없다	相關없다	adj		suggested	3	unrelated
+상투	髻	noun		suggested	3	topknot
+시장	飢	noun		suggested	2	hunger
+싸이다	包이다	verb		suggested		be wrapped
+싸이다	圍이다	verb		suggested		be surrounded
+아빠	父	noun		suggested	10	dad
+아재	叔	noun		suggested	1	uncle
+앙이다	非이다	adj		suggested		be not
+어쩌다	偶	adv		suggested	1	by chance
+얹다	載다	verb		suggested		put on
+얹다	置다	verb		suggested	9	place
+오가다	往來다	verb		suggested		come and go
+오르내리다	昇降다	verb		suggested		go up and down
+욱이다	曲이다	verb		suggested		bend
+욱이다	屈이다	verb		suggested		bend
+유지하다	維持하다	verb		suggested	1	maintain
+이레	七日	noun		suggested	3	seven days
+이른바	所謂	adv		suggested	7	so-called
+이해하다	理解하다	verb		suggested	26	understand
+인제	今	adv		suggested		now
+일자리	職	noun		suggested		job
+있으시다	有으시다	verb		suggested	9	have (honorific)
+자랑	誇	noun		suggested	1	pride
+저승	冥	noun		suggested		netherworld
+저승	黃泉	noun		suggested		world of the dead
+점잖다	端다	adj		suggested		dignified
+점잖다	莊다	adj		suggested		grave
+정말로	眞로	adv		suggested		truly
+정말로	實로	adv		suggested		really
+정하다	淨하다	adj		suggested		clean
+죄다	悉	adv		suggested	3	all
+죄다	盡	adv		suggested	11	completely
+죄다	皆	adv		suggested		all
+준말	略語	noun		suggested		abbreviation
+준말	略말	noun		suggested		shortening
+지우다	消우다	verb		suggested	5	erase
+지우다	抹우다	verb		suggested		wipe out
+지피다	焚피다	verb		suggested		light a fire
+지피다	燃피다	verb		suggested		kindle
+차지하다	占하다	verb		suggested		occupy
+초대하다	招待하다	verb		suggested	2	invite
+추가하다	追加하다	verb		suggested	22	add
+튀김	揚	noun		suggested		deep-fried food
+하나하나	一一	noun		suggested	3	every one
+한물	大水	noun		suggested		flood
+호떡	胡餠	noun		suggested	1	hotteok
+확인하다	確認하다	verb		suggested	2	confirm
+흉내	模	noun		suggested	1	imitation
+힘내다	力내다	verb		suggested		take heart
+가난	貧	noun		suggested	1	poverty
+가늠	量	noun		suggested	8	estimation
+가늠	測	noun		suggested	6	aim
+가물치	鱧	noun		suggested		snakehead
+가방	鞄	noun		suggested	2	bag
+가비	寡婦	noun		suggested	1	widow
+가새	剪	noun		suggested	1	scissors
+가장자리	邊	noun		suggested	3	edge
+가장자리	緣	noun		suggested	2	brink
+간수	滷	noun		suggested	1	bittern
+감기다	閉기다	verb		suggested		be closed
+감기다	瞑기다	verb		suggested		close (eyes)
+거룩하다	聖하다	adj		suggested	1	holy
+거지	乞人	noun		suggested		beggar
+거지	乞	noun		suggested	4	beggar
+거짓말	僞말	noun		suggested		lie
+거짓말	假말	noun		suggested		falsehood
+걱정하다	憂하다	verb		suggested	1	worry
+걱정하다	患하다	verb		suggested		be anxious
+걸어가다	步어가다	verb		suggested		walk
+걸어가다	行어가다	verb		suggested		go on foot
+고로	故	adv		suggested	19	therefore
+고맙습니다	感謝습니다	verb		suggested		thank you
+공차	公差	noun		suggested		tolerance
+국물	湯	noun		suggested	7	broth
+국물	汁	noun		suggested	2	broth
+국밥	湯飯	noun		suggested	1	soup with rice
+궁금하다	訝하다	adj		suggested		curious
+그날	其日	noun		suggested		that day
+그놈	其놈	noun		suggested		that guy
+기장	黍	noun		suggested		millet
+기장	稷	noun		suggested		millet
+깨우다	覺우다	verb		suggested	1	wake someone
+깨우다	醒우다	verb		suggested		rouse
+꺼내다	出내다	verb		suggested		take out
+꺼내다	取내다	verb		suggested		pull out
+꺼내다	抽내다	verb		suggested		draw out
+꽃피다	花피다	verb		suggested		bloom
+날로	生	adv		suggested	23	raw
+날치	飛魚	noun		suggested	2	flying fish
+냄비	鍋	noun		suggested	3	pot
+너무나	過	adv		suggested	11	excessively
+너무나	甚	adv		suggested	5	far too much
+네모꼴	四角形	noun		suggested	1	quadrangle
+논밭	田畓	noun		suggested	1	fields and paddies
+눈길	視線	noun		suggested		gaze
+다루다	治다	verb		suggested		handle
+다루다	操다	verb		suggested	3	operate
+다루다	扱다	verb		suggested		deal with
+다지다	碎다	verb		suggested		crush
+다지다	搗다	verb		suggested	1	pound
+다지다	固다	verb		suggested	13	firm up
+다짐	誓	noun		suggested	1	resolution
+다짐	約	noun		suggested	3	promise
+달라지다	異지다	verb		suggested	1	become different
+달라지다	變지다	verb		suggested	1	change
+달력	曆	noun		suggested	1	calendar
+달빛	月光	noun		suggested		moonlight
+달빛	月빛	noun		suggested		moonlight
+닷새	五日	noun		suggested	1	five days
+대추	棗	noun		suggested	1	jujube
+도랒	桔梗	noun		suggested	1	balloon flower
+도요	鷸	noun		suggested		snipe
+돋다	昇다	verb		suggested	1	rise
+돋다	生다	verb		suggested	1	come up
+동아	冬瓜	noun		suggested		winter melon
+둘러보다	周러보다	verb		suggested		look around
+둘러보다	環러보다	verb		suggested		look around
+들려오다	聞려오다	verb		suggested	5	come to hearing
+등장하다	登場하다	verb		suggested	3	enter the stage
+땡볕	炎陽	noun		suggested		blazing sun
+땡볕	烈日	noun		suggested		scorching sun
+똑똑하다	聰하다	adj		suggested		clever
+똑똑하다	賢하다	adj		suggested		smart
+똑똑하다	慧하다	adj		suggested		intelligent
+띄우다	浮우다	verb		suggested	2	set afloat
+띄우다	放우다	verb		suggested	1	launch
+마디다	耐다	adj		suggested		durable
+마디다	堅다	adj		suggested	2	sturdy
+마실	訪	noun		suggested	4	visit to a neighbor
+마실	遊	noun		suggested	6	outing
+막상	實際	adv		suggested	14	really
+막상	實	adv		suggested	18	actually
+많아지다	多아지다	verb		suggested	19	increase
+말리다	止리다	verb		suggested	1	stop
+말리다	禁리다	verb		suggested		forbid
+말벌	馬蜂	noun		suggested	3	hornet
+맛집	味집	noun		suggested		good restaurant
+매달	每月	noun		suggested		monthly
+맨손	空手	noun		suggested		bare hands
+맨손	赤手	noun		suggested		empty-handed
+모시	苧	noun		suggested		ramie
+목소리	聲	noun		suggested	7	voice
+미리보기	豫覽	noun		suggested		preview
+바닷물	海水	noun		suggested		seawater
+박달	檀	noun		suggested	1	birch
+보라매	鷹	noun		suggested		goshawk
+보름	望	noun		suggested		fifteenth day
+보름	十五日	noun		suggested	1	fifteen days
+봉사	盲	noun		suggested		blind person
+봉사	瞽	noun		suggested		blind person
+부러	故	adv		suggested	19	deliberately
+분석하다	分析하다	verb		suggested	1	analyze
+사랑하다	愛하다	verb		suggested	1	love
+새마을	新村	noun		suggested	3	new village
+선돌	立石	noun		suggested	2	menhir
+섣달	臘月	noun		suggested		twelfth lunar month
+세차다	烈차다	adj		suggested		vigorous
+세차다	猛차다	adj		suggested	1	fierce
+셈틀	計算機	noun		suggested		computer
+솔직히	率直히	adv		suggested	4	honestly
+수수	薥黍	noun		suggested		sorghum
+숨지다	息지다	verb		suggested		die
+시달리다	苦리다	verb		suggested		be troubled
+시름	愁	noun		suggested		sorrow
+시름	憂	noun		suggested	7	anxiety
+신나다	興나다	verb		suggested		be elated
+싸라기	碎米	noun		suggested		broken rice
+싸라기	屑米	noun		suggested		rice grits
+아람	私	noun		suggested	7	privacy
+아리새	鶯	noun		suggested		oriole
+앞뒤	前後	noun		suggested	1	front and rear
+어둠	暗	noun		suggested	1	darkness
+어둠	闇	noun		suggested		dark
+어버이	父母	noun		suggested	3	parents
+어버이	親	noun		suggested	2	parent
+어설프다	疎다	adj		suggested		sloppy
+어설프다	拙다	adj		suggested	4	clumsy
+억지로	強로	adv		suggested		forcibly
+억지로	強	adv		suggested		by force
+언뜻	忽	noun		suggested	11	in an instant
+언뜻	瞥	noun		suggested		in a flash
+엄마	母	noun		suggested	14	mum
+여름짓다	農짓다	verb		suggested		farm
+염소	羊	noun		suggested	2	goat
+염소	山羊	noun		suggested		goat
+엿기름	麥芽	noun		suggested		malt
+영원히	永遠히	adv		suggested	3	forever
+예상하다	豫想하다	verb		suggested	1	expect
+오늘날	今日	noun		suggested		these days
+오라버님	兄님	noun		suggested	1	older brother (honorific)
+오름	昇	noun		suggested	4	ascent
+올라가다	上라가다	verb		suggested	3	go up
+올라가다	登라가다	verb		suggested		ascend
+올림	上	noun		suggested	2	raising
+완전히	完全히	adv		suggested	14	completely
+우두머리	頭	noun		suggested		chief
+우두머리	長	noun		suggested	16	leader
+울리다	鳴다	verb		suggested	5	sound
+울리다	響다	verb		suggested	2	resound
+워낙	元來	adv		suggested	34	originally, very
+은근히	慇懃히	adv		suggested	3	discreetly
+이듬	翌	noun		suggested		second plowing
+이듬해	翌年	noun		suggested	1	next year
+이상하다	異常하다	adj		suggested	72	strange
+이상하다	異하다	adj		suggested		unusual
+이용하다	利用하다	verb		suggested	17	use
+이자	今	adv		suggested		now
+잡수시다	食수시다	verb		suggested	3	eat (honorific)
+잡히다	捕히다	verb		suggested		be caught
+잡히다	執히다	verb		suggested		be seized
+재빠르다	速다	adj		suggested	7	quick
+재빠르다	捷다	adj		suggested		swift
+재빠르다	敏다	adj		suggested	6	nimble
+저자	市	noun		suggested	13	market
+정확히	正確히	adv		suggested	15	exactly
+제외하다	除外하다	verb		suggested	5	exclude
+조심하다	操心하다	verb		suggested	1	be careful
+조용하다	靜하다	adj		suggested	2	quiet
+조용하다	寂하다	adj		suggested		still
+주걱	杓	noun		suggested		spatula
+중에서	中에서	adv		suggested		among
+지내다	過내다	verb		suggested	1	spend time
+지내다	送내다	verb		suggested	1	pass time
+지네	蜈蚣	noun		suggested		centipede
+짜증	煩	noun		suggested		irritation
+찐빵	蒸빵	noun		suggested	1	steamed bun
+참으로	眞으로	adv		suggested	1	truly
+참으로	實로	adv		suggested		indeed
+찾기	尋	noun		suggested	6	searching
+처리하다	處理하다	verb		suggested	1	handle
+터치다	破치다	verb		suggested		break
+터치다	裂치다	verb		suggested		burst
+특이하다	特異하다	adj		suggested	32	unusual
+풀리다	解리다	verb		suggested	1	be untied
+풀이	解	noun		suggested	6	explanation
+피우다	開우다	verb		suggested		cause to bloom
+피우다	發우다	verb		suggested	2	make blossom
+하늬	西	noun		suggested	6	west
+한가위	仲秋	noun		suggested	1	Mid-Autumn Festival
+한때	一時	noun		suggested	13	one time
+한여름	盛夏	noun		suggested	1	midsummer
+항것	主	noun		suggested		master
+헛소리	虛言	noun		suggested	1	nonsense
+헛소리	妄言	noun		suggested		ravings
+호두	胡桃	noun		suggested	1	walnut
+혼자	獨	noun		suggested	5	solitude
+확실하다	確實하다	adj		suggested	8	certain
+흐름	流	noun		suggested		flow
+흔하다	常하다	adj		suggested		common
+흔하다	普하다	adj		suggested		frequent
+흥미롭다	興味롭다	adj		suggested	23	interesting
+가꾸다	培다	verb		suggested		cultivate
+가꾸다	栽다	verb		suggested		plant
+가쁘다	喘다	adj		suggested	1	short of breath
+가없다	邊없다	adj		suggested		boundless
+가져오다	持져오다	verb		suggested		bring
+감안하다	勘案하다	verb		suggested		consider
+거래하다	去來하다	verb		suggested		trade
+거치다	經치다	verb		suggested		pass through
+거치다	歷치다	verb		suggested		go through
+고려하다	考慮하다	verb		suggested	16	consider
+관련하다	關聯하다	verb		suggested	4	be related
+그럴듯하다	似다	adj		suggested	7	seem like
+그럴듯하다	疑似하다	adj		suggested		plausible
+그리하다	然하다	verb		suggested		do so
+그리하다	如是하다	verb		suggested		do thus
+기념하다	記念하다	verb		suggested	1	commemorate
+기념하다	紀念하다	verb		suggested	1	commemorate
+기억하다	記憶하다	verb		suggested	5	remember
+기억하다	憶하다	verb		suggested		remember
+끌리다	引리다	verb		suggested	4	be pulled
+끌리다	惹리다	verb		suggested		be drawn to
+끌리다	牽리다	verb		suggested		be led, dragged
+나누이다	分이다	verb		suggested	5	be divided
+나누이다	別이다	verb		suggested	1	be separated
+나닐다	飛닐다	verb		suggested		fly about
+나닐다	翔닐다	verb		suggested		soar about
+낮잡다	卑잡다	verb		suggested		look down on
+낮잡다	賤잡다	verb		suggested		underrate
+내놓다	出놓다	verb		suggested		put out, offer
+내놓다	放놓다	verb		suggested		let go
+내놓다	提놓다	verb		suggested		put forward
+다가오다	近오다	verb		suggested	3	draw near
+다가오다	迫오다	verb		suggested	1	approach, press
+닳다	耗다	verb		suggested		wear down
+닳다	磨다	verb		suggested	4	wear by rubbing
+닳다	減다	verb		suggested	1	diminish
+담기다	盛기다	verb		suggested		be put in
+담기다	容기다	verb		suggested	1	be contained
+담기다	入기다	verb		suggested		be included
+답답하다	悶답하다	adj		suggested		stifled, frustrated
+답답하다	鬱답하다	adj		suggested		oppressed
+덧나다	惡化나다	verb		suggested		worsen, aggravate
+덧나다	添나다	verb		suggested		add on, get worse
+덧붙다	添붙다	verb		suggested		attach in addition
+덧붙다	附붙다	verb		suggested		stick to
+되살다	甦다	verb		suggested		revive
+되살다	蘇다	verb		suggested		come back to life
+되살다	復生다	verb		suggested		live again
+뒤지다	搜지다	verb		suggested		rummage
+뒤지다	索지다	verb		suggested		search through
+들리다	聞리다	verb		suggested	14	be heard
+들리다	聽리다	verb		suggested	3	be heard
+딸리다	屬리다	verb		suggested		belong to
+딸리다	附리다	verb		suggested	2	be attached
+딸리다	隨리다	verb		suggested		accompany
+떠올리다	想올리다	verb		suggested	1	bring to mind
+떠올리다	浮올리다	verb		suggested		float up
+뚜렷하다	明렷하다	adj		suggested		clear
+뚜렷하다	瞭렷하다	adj		suggested		distinct
+뚜렷하다	著하다	adj		suggested		conspicuous
+만들어지다	作어지다	verb		suggested	6	be made
+만들어지다	造어지다	verb		suggested	1	be made
+만들어지다	成어지다	verb		suggested	1	come into being
+말씀드리다	言드리다	verb		suggested		speak humbly
+말씀드리다	告드리다	verb		suggested	1	tell humbly
+맛없다	味없다	adj		suggested		tasteless
+맹글다	作다	verb		suggested		make
+맹글다	造다	verb		suggested	7	make
+멎다	止다	verb		suggested		stop
+멎다	停다	verb		suggested		cease
+멎다	息다	verb		suggested		come to an end
+메기다	導다	verb		suggested	3	lead in song
+메기다	唱다	verb		suggested	5	lead singing
+명확하다	明確하다	adj		suggested	4	clear, precise
+명확하다	明白하다	adj		suggested	1	clear
+물리다	厭리다	verb		suggested		be sick of
+물리다	倦리다	verb		suggested		be tired of
+물리다	飽리다	verb		suggested		be sated
+뭇다	組다	verb		suggested		organize
+뭇다	束다	verb		suggested	1	bundle
+밤새다	夜새다	verb		suggested		pass the night
+배워주다	敎주다	verb		suggested		teach
+배워주다	授주다	verb		suggested		impart
+벌이다	列이다	verb		suggested		spread out, set out
+벌이다	開이다	verb		suggested		start, open
+벌이다	設이다	verb		suggested		set up
+변경하다	變更하다	verb		suggested	3	change
+변경하다	改하다	verb		suggested		alter
+복무하다	服務하다	verb		suggested	1	serve
+복무하다	勤務하다	verb		suggested		serve on duty
+봐주다	寬주다	verb		suggested		go easy on
+봐주다	容주다	verb		suggested		tolerate
+봐주다	見주다	verb		suggested	1	overlook
+뺏다	奪다	verb		suggested	2	take away
+뺏다	掠다	verb		suggested		seize
+뺏다	剝다	verb		suggested		strip
+뻔하다	明하다	adj		suggested	1	obvious
+뻔하다	顯然하다	adj		suggested		evident
+뻔하다	昭然하다	adj		suggested		plain
+삐뚤다	歪다	adj		suggested		crooked
+삐뚤다	曲다	adj		suggested	4	crooked
+삐뚤다	傾다	adj		suggested	2	tilted
+삭다	腐다	verb		suggested		rot away
+삭다	朽다	verb		suggested		decay
+삭다	消다	verb		suggested	5	dissolve, subside
+살지다	肥지다	adj		suggested		fat
+살지다	豐지다	adj		suggested		plump
+생각되다	思되다	verb		suggested	1	come to mind
+생각되다	想되다	verb		suggested	1	be thought
+생겨나다	生겨나다	verb		suggested		emerge
+생겨나다	出겨나다	verb		suggested		come out
+생겨나다	起겨나다	verb		suggested		arise
+선호하다	選好하다	verb		suggested	16	prefer
+선호하다	好하다	verb		suggested	5	favour
+소중하다	所重하다	adj		suggested	1	precious
+소중하다	貴重하다	adj		suggested		precious
+소중하다	重하다	adj		suggested	1	valuable
+손잡다	手잡다	verb		suggested		take by the hand
+실리다	載리다	verb		suggested	4	be loaded, printed
+실리다	積리다	verb		suggested		be loaded
+심각하다	深刻하다	adj		suggested	3	severe
+심각하다	重大하다	adj		suggested		grave
+쓰리다	痛리다	verb		suggested		sting
+쓰리다	疼리다	verb		suggested		ache sharply
+안타깝다	憐깝다	adj		suggested		pitiable
+안타깝다	惜깝다	adj		suggested	1	regrettable
+안타깝다	恨깝다	adj		suggested		regrettable
+알맞다	適맞다	adj		suggested		just right
+알맞다	宜맞다	adj		suggested		suitable
+알맞다	折맞다	adj		suggested		fitting
+어우르다	合우르다	verb		suggested		combine
+어우르다	幷우르다	verb		suggested		unite
+어우르다	統우르다	verb		suggested		unite, combine
+오지다	完지다	adj		suggested		flawless, perfect
+오지다	全지다	adj		suggested	7	complete
+웨치다	呼치다	verb		suggested		shout
+웨치다	喝치다	verb		suggested		shout
+웨치다	叫치다	verb		suggested	3	cry out
+유명하다	有名하다	adj		suggested	33	famous
+유명하다	著名하다	adj		suggested		famous
+으르다	怯다	verb		suggested	1	threaten
+으르다	威다	verb		suggested		intimidate
+으르다	脅다	verb		suggested	1	menace
+이루어지다	成어지다	verb		suggested	1	be attained
+이루어지다	就어지다	verb		suggested		be fulfilled
+익숙해지다	熟해지다	verb		suggested		become accustomed
+익숙해지다	慣해지다	verb		suggested	1	get used to
+인식하다	認識하다	verb		suggested	4	recognize
+인식하다	識하다	verb		suggested		be aware
+자유롭다	自由롭다	adj		suggested	6	free
+잘나다	善나다	adj		suggested		excellent
+잘나다	美나다	adj		suggested		good-looking
+잘되다	善되다	verb		suggested		go well
+잘되다	榮되다	verb		suggested		prosper
+잘생겼다	美生겼다	verb		suggested		handsome
+잘생겼다	善生겼다	verb		suggested		handsome
+저러다	彼러다	verb		suggested		behave that way
+좋아지다	好아지다	verb		suggested		improve
+좋아지다	善아지다	verb		suggested		become better
+주름잡다	牛耳잡다	verb		suggested		dominate
+주름잡다	制잡다	verb		suggested		control
+주름잡다	摺잡다	verb		suggested		make pleats
+주문하다	注文하다	verb		suggested	3	order
+주문하다	訂하다	verb		suggested		place an order
+지껄이다	嘈이다	verb		suggested		chatter
+지껄이다	喧이다	verb		suggested		jabber
+지껄이다	語이다	verb		suggested	10	prattle
+지나치다	過치다	verb		suggested		go past
+지나치다	涉치다	verb		suggested	1	pass
+지나치다	透치다	verb		suggested		pass through
+지루하다	支離하다	adj		suggested		tedious
+지루하다	倦하다	adj		suggested		boring
+지루하다	悶하다	adj		suggested		dull
+지적하다	指摘하다	verb		suggested	1	point out
+지적하다	指하다	verb		suggested		point to
+쬐다	照다	verb		suggested		shine
+쬐다	曝다	verb		suggested		bask
+쬐다	炙다	verb		suggested		warm by fire
+찌그러지다	歪그러지다	verb		suggested		be squashed
+찌그러지다	潰그러지다	verb		suggested		be crushed
+찌그러지다	凹그러지다	verb		suggested		dent
+챙기다	收기다	verb		suggested		collect, pack
+챙기다	備기다	verb		suggested		prepare
+챙기다	整기다	verb		suggested		put in order
+튀기다	炸기다	verb		suggested		fry
+튀기다	跳기다	verb		suggested		splash, bounce
+표현하다	表現하다	verb		suggested	7	express
+표현하다	表하다	verb		suggested	1	express
+풀이하다	解하다	verb		suggested		interpret
+풀이하다	釋하다	verb		suggested		explain
+헤치다	披치다	verb		suggested		push through
+헤치다	撥치다	verb		suggested		part, cut through
+헤치다	拓치다	verb		suggested		open up
+활발하다	活潑하다	adj		suggested	5	lively
+활발하다	活하다	adj		suggested		animated
+흐릿하다	朧하다	adj		suggested	1	hazy
+흐릿하다	暗하다	adj		suggested	1	dim
+흐릿하다	曖昧하다	adj		suggested	14	vague
+가까이하다	近하다	verb		suggested	3	get close to
+가까이하다	親하다	verb		suggested	1	befriend
+가늠하다	量하다	verb		suggested		estimate
+가늠하다	測하다	verb		suggested		gauge
+가늠하다	準하다	verb		suggested		aim at
+간수하다	看守하다	verb		suggested		keep safe
+간수하다	保管하다	verb		suggested		take care of
+간직하다	藏직하다	verb		suggested		keep safely
+간직하다	保存하다	verb		suggested		preserve
+간직하다	秘하다	verb		suggested		treasure
+갉다	嚙다	verb		suggested		gnaw
+갉다	齧다	verb		suggested		nibble
+갑작스럽다	急스럽다	adj		suggested		sudden
+갑작스럽다	猝스럽다	adj		suggested		abrupt
+갑작스럽다	勃스럽다	adj		suggested		sudden
+강요하다	强要하다	verb		suggested		force
+강요하다	强制하다	verb		suggested	1	impose
+같잖다	微같잖다	adj		suggested		insignificant
+거닐다	逍다	verb		suggested		stroll
+거닐다	彷다	verb		suggested		saunter
+거닐다	步다	verb		suggested	1	walk
+거짓말하다	僞語하다	verb		suggested		lie
+거짓말하다	虛言하다	verb		suggested		tell a lie
+걱정되다	憂慮되다	verb		suggested		be worried
+걱정되다	憂되다	verb		suggested		be worried
+걱정되다	愁되다	verb		suggested		be anxious
+검색하다	檢索하다	verb		suggested	14	search
+검색하다	探索하다	verb		suggested		look up
+게임하다	遊戱하다	verb		suggested		play games
+게임하다	遊하다	verb		suggested		play
+격하다	激하다	adj		suggested	1	fierce
+격하다	烈하다	adj		suggested		violent
+격하다	憤하다	verb		suggested		be furious
+겸손하다	謙遜하다	adj		suggested		humble
+겸손하다	謙하다	adj		suggested		modest
+경애하다	敬愛하다	verb		suggested	3	love and respect
+경애하다	敬하다	verb		suggested		respect
+고민하다	苦悶하다	verb		suggested	6	worry
+고민하다	悶하다	verb		suggested		be troubled
+고이다	滯이다	verb		suggested		pool
+고이다	溜이다	verb		suggested		form a puddle
+괘씸하다	怪하다	adj		suggested		contemptible
+괘씸하다	憎하다	adj		suggested		culpable
+교란되다	攪亂되다	verb		suggested		be disturbed
+교란되다	亂되다	verb		suggested		be disturbed
+교육하다	敎育하다	verb		suggested		educate
+교육하다	敎하다	verb		suggested		train
+구분되다	區分되다	verb		suggested	7	be classified
+구분되다	分되다	verb		suggested		be divided
+구현하다	具現하다	verb		suggested	1	realize
+구현하다	現하다	verb		suggested		embody
+굴러가다	轉러가다	verb		suggested		run, roll along
+굴러가다	轉가다	verb		suggested		function
+규정되다	規定되다	verb		suggested	1	be defined
+규정되다	定되다	verb		suggested		be fixed
+근접하다	近接하다	verb		suggested		come close
+근접하다	近하다	verb		suggested	3	be near
+급증하다	急增하다	verb		suggested		surge
+급증하다	增하다	verb		suggested	2	increase
+기이다	隱이다	verb		suggested		conceal
+기이다	匿이다	verb		suggested		hide
+기이하다	奇異하다	adj		suggested		strange
+기이하다	奇하다	adj		suggested		odd
+깔리다	壓리다	verb		suggested		be pinned under
+깔리다	敷리다	verb		suggested		be spread
+깔아뭉개다	壓뭉개다	verb		suggested		crush down
+꼴리다	勃리다	verb		suggested		get an erection
+꼴리다	起리다	verb		suggested		rise
+꾀다	誘다	verb		suggested	3	entice
+꾀다	誂다	verb		suggested		lure
+꾀다	惑다	verb		suggested	3	tempt
+끝없다	終없다	adj		suggested		never-ending
+끼우다	插우다	verb		suggested		insert
+끼우다	嵌우다	verb		suggested		fit in
+나아오다	進오다	verb		suggested		come forward
+나아오다	前오다	verb		suggested		come forward
+나아지다	善아지다	verb		suggested		improve
+나아지다	優아지다	verb		suggested		get better
+낯익다	熟익다	adj		suggested		familiar
+낯익다	面익다	adj		suggested		familiar-faced
+내려다보다	俯보다	verb		suggested		look down
+내려다보다	瞰보다	verb		suggested		look down on
+내려앉다	降앉다	verb		suggested		descend, settle
+내려앉다	落앉다	verb		suggested		sink, land
+내주다	與주다	verb		suggested	2	give
+내주다	授주다	verb		suggested		grant
+내주다	給주다	verb		suggested		issue
+널리다	廣리다	verb		suggested	1	be spread
+널리다	布리다	verb		suggested		be spread out
+느끼하다	膩하다	adj		suggested		greasy
+느끼하다	油膩하다	adj		suggested		oily
+다가가다	近가다	verb		suggested	3	approach
+다가가다	迫가다	verb		suggested	1	get closer
+다녀오다	歸오다	verb		suggested		return
+다운로드하다	下載하다	verb		suggested		download
+다운받다	下받다	verb		suggested		download
+다운받다	受받다	verb		suggested		receive
+다짐하다	盟하다	verb		suggested		resolve
+다짐하다	誓하다	verb		suggested		promise
+다짐하다	決心하다	verb		suggested		make a resolution
+당연하다	當然하다	adj		suggested	8	natural
+당연하다	宜하다	adj		suggested	4	reasonable
+대들다	抗들다	verb		suggested		defy
+대들다	逆들다	verb		suggested		oppose
+대들다	敵들다	verb		suggested	1	stand against
+더워지다	熱워지다	verb		suggested	2	become hot
+더워지다	暑워지다	verb		suggested	2	become hot
+덧붙이다	添붙이다	verb		suggested		attach in addition
+덧붙이다	附붙이다	verb		suggested	2	affix
+데치다	煠치다	verb		suggested		parboil
+데치다	湯치다	verb		suggested		blanch
+도지다	再지다	verb		suggested		relapse
+도지다	發지다	verb		suggested	1	flare up
+독특하다	獨特하다	adj		suggested	2	unique
+독특하다	特하다	adj		suggested		special
+돌아서다	轉서다	verb		suggested		turn around
+돌아서다	回서다	verb		suggested		turn around
+돌파하다	突破하다	verb		suggested		break through
+돌파하다	破하다	verb		suggested		breakthrough
+동그랗다	圓랗다	adj		suggested	2	round
+동그랗다	團랗다	adj		suggested		round
+동떨어지다	隔떨어지다	verb		suggested		be far off
+동떨어지다	遠떨어지다	verb		suggested		be distant
+동떨어지다	離떨어지다	verb		suggested	2	be apart from
+되감다	卷감다	verb		suggested		rewind
+되감다	還감다	verb		suggested		rewind
+뒤떨어지다	後떨어지다	verb		suggested		fall behind
+뒤떨어지다	劣떨어지다	verb		suggested		be inferior
+드가다	入가다	verb		suggested	1	go in
+드나들다	出나들다	verb		suggested		go out and in
+드높다	高높다	adj		suggested		lofty
+드높다	崇높다	adj		suggested		tall, high
+드세다	强세다	adj		suggested	2	wild
+드세다	猛세다	adj		suggested	1	violent
+들려주다	聞려주다	verb		suggested	5	let hear
+들려주다	告주다	verb		suggested	1	tell
+들려주다	說주다	verb		suggested		narrate
+들어주다	聽주다	verb		suggested	2	grant a wish
+들어주다	許주다	verb		suggested		accept
+들추다	擧추다	verb		suggested		lift up
+들추다	揭추다	verb		suggested		reveal
+따라하다	隨하다	verb		suggested		follow
+따라하다	模倣하다	verb		suggested	3	imitate
+따라하다	效하다	verb		suggested		copy
+마련하다	磨鍊하다	verb		suggested		arrange
+마련하다	備하다	verb		suggested		prepare
+마련하다	設하다	verb		suggested		set up
+마주치다	逢치다	verb		suggested	1	meet
+마주치다	遇치다	verb		suggested	2	run into
+마주치다	遭치다	verb		suggested		encounter
+맞서다	對서다	verb		suggested		face each other
+맞서다	抗서다	verb		suggested		stand against
+맞서다	拒서다	verb		suggested		oppose
+먹히다	食히다	verb		suggested	3	be eaten
+먹히다	喫히다	verb		suggested		be eaten
+못되다	惡되다	adj		suggested	1	nasty
+못되다	凶되다	adj		suggested		evil
+무관하다	無關하다	adj		suggested	9	unrelated
+무관하다	無係하다	adj		suggested		irrelevant
+무르다	軟르다	adj		suggested		soft
+무르다	柔르다	adj		suggested		tender
+무르다	脆르다	adj		suggested		brittle
+무르다	熟르다	verb		suggested		become tender
+무시하다	無視하다	verb		suggested	5	ignore
+무시하다	蔑視하다	verb		suggested		slight
+뭣같다	穢같다	adj		suggested		crappy
+뭣같다	惡같다	adj		suggested		lousy
+반대하다	反對하다	verb		suggested	4	oppose
+반대하다	反하다	verb		suggested		oppose
+발기다	剝기다	verb		suggested		peel
+발기다	剖기다	verb		suggested		open up
+발기다	裂기다	verb		suggested		strip
+발전시키다	發展시키다	verb		suggested		develop
+발전시키다	進시키다	verb		suggested		further
+발전하다	發展하다	verb		suggested	1	develop
+발전하다	發하다	verb		suggested	1	grow
+발표하다	發表하다	verb		suggested	2	present
+발표하다	表하다	verb		suggested	1	announce
+밝혀지다	明혀지다	verb		suggested		be revealed
+밝혀지다	露혀지다	verb		suggested		be exposed
+방해하다	妨害하다	verb		suggested		obstruct
+방해하다	妨하다	verb		suggested		hinder
+배고프다	飢고프다	adj		suggested		hungry
+배고프다	餓고프다	adj		suggested		starving
+배회하다	徘徊하다	verb		suggested		wander
+배회하다	彷徨하다	verb		suggested		roam
+번지다	蔓지다	verb		suggested		spread
+번지다	擴지다	verb		suggested		spread
+번지다	延지다	verb		suggested		extend
+벼르다	期르다	verb		suggested		wait for opportunity
+벼르다	企르다	verb		suggested		plan
+변변하다	滿足하다	adj		suggested		decent
+변변하다	端正하다	adj		suggested		satisfactory
+보살피다	看살피다	verb		suggested		look after
+보살피다	護살피다	verb		suggested		take care of
+보살피다	守살피다	verb		suggested	3	guard
+복구하다	復舊하다	verb		suggested	1	restore
+복구하다	復하다	verb		suggested	1	recover
+복붙하다	複寫하다	verb		suggested	2	copy and paste
+부응하다	副應하다	verb		suggested		meet expectations
+부응하다	應하다	verb		suggested	1	respond
+부족하다	不足하다	adj		suggested	16	insufficient
+부족하다	乏하다	adj		suggested		lacking
+부탁하다	付託하다	verb		suggested		request
+부탁하다	託하다	verb		suggested		entrust
+분리되다	分離되다	verb		suggested	5	be separated
+분리되다	離되다	verb		suggested	2	be separated
+분명하다	分明하다	adj		suggested		clear
+분명하다	明하다	adj		suggested	1	obvious
+불거지다	隆거지다	verb		suggested		bulge
+불거지다	突거지다	verb		suggested		protrude
+불편하다	不便하다	adj		suggested	10	inconvenient
+불편하다	不安하다	adj		suggested		uncomfortable
+비비다	擦비다	verb		suggested		rub
+비비다	摩비다	verb		suggested		chafe
+비틀다	捩틀다	verb		suggested		twist
+비틀다	撚틀다	verb		suggested		wring
+비틀다	拗틀다	verb		suggested		bend
+빨래하다	洗濯하다	verb		suggested		do laundry
+빨래하다	濯하다	verb		suggested		wash clothes
+빨래하다	漱하다	verb		suggested		rinse
+빼놓다	除놓다	verb		suggested		leave out
+빼놓다	省놓다	verb		suggested		omit
+빼놓다	拔놓다	verb		suggested		take out
+빼돌리다	拔돌리다	verb		suggested		spirit away
+뽀얗다	白얗다	adj		suggested	2	hazy white
+뽀얗다	朦얗다	adj		suggested		hazy
+뿌옇다	朦옇다	adj		suggested		hazy
+뿌옇다	霧옇다	adj		suggested		misty
+사무치다	徹치다	verb		suggested		pierce to the heart
+사무치다	透치다	verb		suggested		penetrate
+사무치다	通치다	verb		suggested		touch
+서투르다	拙투르다	adj		suggested	1	unskillful
+서투르다	疏투르다	adj		suggested		unhandy
+선보이다	示보이다	verb		suggested		show
+설거지하다	洗하다	verb		suggested		wash dishes
+설명하다	說明하다	verb		suggested	5	explain
+설명하다	說하다	verb		suggested		explain
+설치하다	設置하다	verb		suggested	7	install
+설치하다	設하다	verb		suggested		set up
+성립되다	成立되다	verb		suggested	1	be established
+성립되다	成되다	verb		suggested		be formed
+수집하다	收集하다	verb		suggested		collect
+수집하다	蒐集하다	verb		suggested		gather
+숙제하다	宿題하다	verb		suggested		do homework
+시끌벅적하다	喧騷하다	adj		suggested		noisy
+시끌벅적하다	喧하다	adj		suggested		noisy
+실시하다	實施하다	verb		suggested		implement
+실시하다	施行하다	verb		suggested	3	put into practice
+쏟아지다	注아지다	verb		suggested		pour
+쏟아지다	傾아지다	verb		suggested	1	be spilled
+쏟아지다	瀉아지다	verb		suggested		splash out
+쑤다	煮다	verb		suggested		cook gruel
+쑤다	粥쑤다	verb		suggested		make porridge
+알아내다	知내다	verb		suggested		find out
+알아내다	察내다	verb		suggested		discover
+알아듣다	解듣다	verb		suggested		understand
+알아듣다	悟듣다	verb		suggested		get
+알아듣다	了듣다	verb		suggested		grasp
+알아먹다	解먹다	verb		suggested		get (pejorative)
+알아먹다	知먹다	verb		suggested		figure out
+앞당기다	早당기다	verb		suggested	1	bring forward
+앞장서다	先장서다	verb		suggested		lead
+앞장서다	率장서다	verb		suggested		head
+애틋하다	憐하다	adj		suggested		tender, wistful
+애틋하다	慕하다	adj		suggested		longing
+어수선하다	紛亂하다	adj		suggested		disordered
+어수선하다	雜亂하다	adj		suggested		messy
+어수선하다	煩雜하다	adj		suggested		untidy
+어울리다	適울리다	verb		suggested	1	suit
+어울리다	和울리다	verb		suggested		get along
+어울리다	合울리다	verb		suggested		match
+어지럽히다	亂히다	verb		suggested		make a mess
+어지럽히다	眩히다	verb		suggested		make dizzy
+어지럽히다	擾히다	verb		suggested		disturb
+언급하다	言及하다	verb		suggested	4	mention
+언급하다	及하다	verb		suggested		refer to
+엇갈리다	交갈리다	verb		suggested		pass each other
+엇갈리다	錯갈리다	verb		suggested		miss each other
+여쭙다	問쭙다	verb		suggested		ask humbly
+여쭙다	白쭙다	verb		suggested		inquire
+연결하다	連結하다	verb		suggested		connect
+연결하다	連하다	verb		suggested		join
+연결하다	接하다	verb		suggested	1	attach
+연구하다	硏究하다	verb		suggested	2	research
+연구하다	究하다	verb		suggested		investigate
+연달다	連달다	verb		suggested		continue
+연달다	續달다	verb		suggested	1	keep on
+연락하다	連絡하다	verb		suggested	1	communicate
+연락하다	聯絡하다	verb		suggested		notify
+영리하다	怜悧하다	adj		suggested		clever
+영리하다	聰明하다	adj		suggested	1	smart
+영리하다	營利하다	verb		suggested		seek profit
+오고가다	往가다	verb		suggested	4	go
+올라서다	登서다	verb		suggested		stand high
+올라서다	昇서다	verb		suggested		rise to
+올려놓다	上놓다	verb		suggested		put on
+올려놓다	載놓다	verb		suggested		place on
+웃기다	笑기다	verb		suggested	7	be funny
+이룩하다	成하다	verb		suggested		achieve
+이룩하다	達하다	verb		suggested		accomplish
+이룩하다	築하다	verb		suggested		build up
+인쇄되다	印刷되다	verb		suggested		be printed
+인쇄되다	印되다	verb		suggested		be printed
+일나다	起나다	verb		suggested	1	wake up, get up
+일나다	醒나다	verb		suggested		wake up
+일정하다	一定하다	adj		suggested		fixed
+일정하다	定하다	adj		suggested	11	specified
+일치하다	一致하다	verb		suggested	1	agree
+일치하다	符合하다	verb		suggested	1	correspond
+일치하다	合하다	verb		suggested	1	coincide
+잊혀지다	忘혀지다	verb		suggested	2	be forgotten
+작아지다	小아지다	verb		suggested		become smaller
+작아지다	細아지다	verb		suggested		dwindle
+잘못되다	誤되다	verb		suggested	5	go wrong
+잘못되다	錯되다	verb		suggested		go awry
+장보다	市보다	verb		suggested		go to market
+장보다	場보다	verb		suggested		go shopping
+적절하다	適切하다	adj		suggested	4	appropriate
+적절하다	適하다	adj		suggested	1	suited
+적히다	記히다	verb		suggested	14	be written
+적히다	書히다	verb		suggested		be written
+전해지다	傳해지다	verb		suggested	1	be conveyed
+정리하다	整理하다	verb		suggested	5	put in order
+정리하다	整하다	verb		suggested		straighten out
+정해지다	定해지다	verb		suggested	1	be decided
+정해지다	決해지다	verb		suggested		be fixed
+제치다	除치다	verb		suggested		put away
+제치다	排치다	verb		suggested		push away
+조그마하다	小하다	adj		suggested		small
+조그마하다	微하다	adj		suggested		tiny
+조리다	煮리다	verb		suggested		simmer
+조리다	煎리다	verb		suggested	2	boil down
+조리하다	調理하다	verb		suggested	1	convalesce
+조리하다	調하다	verb		suggested		recover
+존재하다	存在하다	verb		suggested	16	exist
+존재하다	存하다	verb		suggested		exist
+존중하다	尊重하다	verb		suggested	3	respect
+존중하다	尊하다	verb		suggested		esteem
+졸리다	睡리다	verb		suggested		feel sleepy
+졸리다	眠리다	verb		suggested		get drowsy
+주무시다	寢무시다	verb		suggested		sleep (honorific)
+주무시다	睡무시다	verb		suggested		sleep (honorific)
+주어지다	與어지다	verb		suggested	2	be given
+주어지다	授어지다	verb		suggested		be provided
+준하다	準하다	verb		suggested		conform to
+준하다	凖하다	verb		suggested		correspond
+지새다	明새다	verb		suggested		dawn, spend the night
+지새다	徹새다	verb		suggested		stay through
+지칭하다	指稱하다	verb		suggested		designate
+지칭하다	稱하다	verb		suggested	4	refer to
+진행되다	進行되다	verb		suggested	1	progress
+진행되다	進되다	verb		suggested		proceed
+질투하다	嫉妬하다	verb		suggested		be jealous
+질투하다	妬하다	verb		suggested		be envious
+집어넣다	入넣다	verb		suggested		put in
+집어넣다	納넣다	verb		suggested		throw in
+집중하다	集中하다	verb		suggested		concentrate
+집중하다	集하다	verb		suggested		focus
+짓누르다	壓누르다	verb		suggested		press down
+짓누르다	押누르다	verb		suggested		press
+참신하다	斬新하다	adj		suggested	1	fresh, novel
+참신하다	新하다	adj		suggested		new
+참조하다	參照하다	verb		suggested	2	refer to
+참조하다	參하다	verb		suggested		consult
+처지다	垂지다	verb		suggested		droop
+처지다	下지다	verb		suggested		sag
+처참하다	悽慘하다	adj		suggested		atrocious
+처참하다	慘하다	adj		suggested		terrible
+촉촉하다	潤하다	adj		suggested		moist
+촉촉하다	濕하다	adj		suggested	8	slightly wet
+촬영하다	撮影하다	verb		suggested		film
+촬영하다	撮하다	verb		suggested		photograph
+치닫다	馳닫다	verb		suggested		rush
+치닫다	奔닫다	verb		suggested		race upwards
+침침하다	沈沈하다	adj		suggested		dim
+침침하다	暗하다	adj		suggested	1	dark
+커지다	大지다	verb		suggested		become large
+커지다	巨지다	verb		suggested		expand
+킹받다	憤받다	verb		suggested		get enraged
+탁월하다	卓越하다	adj		suggested		outstanding
+탁월하다	卓하다	adj		suggested		preeminent
+털어놓다	吐놓다	verb		suggested		confess, empty out
+털어놓다	傾놓다	verb		suggested		pour out
+통일하다	統一하다	verb		suggested	5	unify
+통일하다	統하다	verb		suggested		unify
+튀어나오다	突오다	verb		suggested		stick out
+튀어나오다	飛오다	verb		suggested		pop out
+트이다	開이다	verb		suggested		be opened
+트이다	通이다	verb		suggested	2	be cleared
+트이다	闊이다	adj		suggested		open-hearted
+트이다	豁이다	adj		suggested		broad-minded
+튼튼하다	堅하다	adj		suggested		sturdy
+튼튼하다	强하다	adj		suggested	10	strong
+튼튼하다	固하다	adj		suggested		firm
+파괴하다	破壞하다	verb		suggested		destroy
+파괴하다	破하다	verb		suggested		demolish
+파하다	罷하다	verb		suggested	1	end, dismiss
+파하다	破하다	verb		suggested		break up
+판매하다	販賣하다	verb		suggested	1	sell
+판매하다	賣하다	verb		suggested		sell
+팔로우하다	追從하다	verb		suggested		follow
+팔로우하다	追하다	verb		suggested		follow
+팔리다	賣리다	verb		suggested		be sold
+팔리다	售리다	verb		suggested		be sold
+퍼뜨리다	散뜨리다	verb		suggested	1	scatter
+퍼뜨리다	傳뜨리다	verb		suggested		disseminate
+퍼뜨리다	播뜨리다	verb		suggested		spread
+편집하다	編輯하다	verb		suggested	6	edit
+편집하다	編하다	verb		suggested		edit
+편찮다	病찮다	adj		suggested		ill
+편찮다	痛찮다	adj		suggested		unwell
+펼쳐지다	展쳐지다	verb		suggested		unfold
+펼쳐지다	開쳐지다	verb		suggested		spread out
+포함되다	包含되다	verb		suggested	5	be included
+포함되다	含되다	verb		suggested		be included
+포함하다	包含하다	verb		suggested	7	include
+포함하다	含하다	verb		suggested		include
+표시하다	表示하다	verb		suggested	4	express
+표시하다	標示하다	verb		suggested		mark
+표현되다	表現되다	verb		suggested		be expressed
+표현되다	表되다	verb		suggested		be represented
+풍부하다	豐富하다	adj		suggested		abundant
+풍부하다	豐하다	adj		suggested		plentiful
+풍요롭다	豐饒롭다	adj		suggested		abundant
+풍요롭다	豐롭다	adj		suggested		rich
+하락하다	下落하다	verb		suggested		fall
+하락하다	落하다	verb		suggested		drop
+해결되다	解決되다	verb		suggested	2	be solved
+해결되다	決되다	verb		suggested		be settled
+해내다	成내다	verb		suggested		accomplish
+해내다	遂내다	verb		suggested		achieve
+해롭다	害롭다	adj		suggested	1	harmful
+해롭다	毒롭다	adj		suggested		noxious
+해석하다	解釋하다	verb		suggested	5	interpret
+해석하다	釋하다	verb		suggested		construe
+행동하다	行動하다	verb		suggested		act
+행동하다	行하다	verb		suggested		behave
+형성되다	形成되다	verb		suggested		be formed
+형성되다	成되다	verb		suggested		be shaped
+혼나다	魂나다	verb		suggested		get scolded
+혼나다	懲나다	verb		suggested		be punished
+화나다	怒나다	verb		suggested		be angry
+화나다	火나다	verb		suggested		be furious
+화내다	怒내다	verb		suggested		get angry
+화내다	火내다	verb		suggested		lose one's temper
+화려하다	華麗하다	adj		suggested		gorgeous
+화려하다	華하다	adj		suggested		splendid
+확대되다	擴大되다	verb		suggested		be expanded
+확대되다	擴되다	verb		suggested		be expanded
+후회하다	後悔하다	verb		suggested	1	regret
+후회하다	悔하다	verb		suggested		regret
+흉내내다	模내다	verb		suggested		imitate
+흉내내다	效내다	verb		suggested		mimic
+흘러내리다	流내리다	verb		suggested		run down
+흘러내리다	垂내리다	verb		suggested		roll down
+힘겹다	難겹다	adj		suggested		difficult
+힘겹다	苦겹다	adj		suggested		arduous
+힘겹다	重겹다	adj		suggested		hard
+가감하다	加減하다	verb		suggested		add and reduce
+가감하다	增減하다	verb		suggested		increase and decrease
+가공되다	加工되다	verb		suggested		be processed
+가공되다	工되다	verb		suggested		be treated
+가공하다	加工하다	verb		suggested		process
+가공하다	工하다	verb		suggested		treat
+가꾸가다	取가다	verb		suggested		take
+가꾸가다	奪가다	verb		suggested		take away
+가녀리다	纖리다	adj		suggested		thin and weak
+가녀리다	弱리다	adj		suggested		weak
+가누다	制누다	verb		suggested		control the body
+가누다	支누다	verb		suggested		steady
+가다듬다	整듬다	verb		suggested		compose
+가다듬다	勵듬다	verb		suggested		brace
+가다듬다	調듬다	verb		suggested		clear and neaten
+가다붙다	近붙다	verb		suggested		approach each other
+가다붙다	寄붙다	verb		suggested		draw near
+가당하다	可當하다	adj		suggested		proper
+가당하다	適當하다	adj		suggested	13	suitable
+가동되다	稼動되다	verb		suggested		be operated
+가동되다	動되다	verb		suggested		run
+가동하다	稼動하다	verb		suggested		operate
+가동하다	動하다	verb		suggested		run
+가련하다	可憐하다	adj		suggested	2	wretched
+가련하다	憐하다	adj		suggested		pitiable
+가로지다	橫지다	adj		suggested		horizontal
+가로지르다	橫지르다	verb		suggested		cross
+가로채다	奪채다	verb		suggested		snatch
+가로채다	掠채다	verb		suggested		steal
+가만두다	默두다	verb		suggested		leave alone
+가만두다	置두다	verb		suggested	2	not disturb
+가만있다	靜있다	adj		suggested		still
+가만있다	默있다	adj		suggested		quiet
+가만하다	靜하다	adj		suggested	2	still
+가만하다	默하다	adj		suggested		quiet
+가무잡잡하다	黑하다	adj		suggested		swarthy
+가무잡잡하다	黝하다	adj		suggested		dark-skinned
+가벼워지다	輕워지다	verb		suggested	3	become lighter
+가산되다	加算되다	verb		suggested		be added
+가산되다	加되다	verb		suggested		be added
+가산하다	加算하다	verb		suggested		add
+가산하다	加하다	verb		suggested	5	add
+가상하다	嘉賞하다	adj		suggested		praiseworthy
+가상하다	嘉하다	adj		suggested		admirable
+가설되다	假說되다	verb		suggested		be hypothesised
+가설되다	假定되다	verb		suggested		be assumed
+가설하다	假說하다	verb		suggested		hypothesise
+가설하다	假設하다	verb		suggested		erect
+가세하다	加勢하다	verb		suggested		side with
+가세하다	加擔하다	verb		suggested		support
+가소롭다	可笑롭다	adj		suggested		laughable
+가소롭다	笑롭다	adj		suggested		absurd
+가식하다	假飾하다	verb		suggested		put on airs
+가식하다	飾하다	verb		suggested		be pretentious
+가애하다	可愛하다	adj		suggested	1	adorable
+가애하다	愛하다	adj		suggested	1	lovable
+가정하다	假定하다	verb		suggested	4	hypothesise
+가정하다	假하다	verb		suggested		suppose
+가져가다	持가다	verb		suggested		take away
+가져가다	取가다	verb		suggested		take
+가져다주다	持주다	verb		suggested		bring
+가져다주다	致주다	verb		suggested		bring about
+가책되다	呵責되다	verb		suggested		be blamed
+가책되다	責되다	verb		suggested		be censured
+가책하다	呵責하다	verb		suggested		blame
+가책하다	責하다	verb		suggested		censure
+가출하다	家出하다	verb		suggested		run away from home
+가출하다	出하다	verb		suggested		leave home
+각혈하다	咯血하다	verb		suggested		cough up blood
+각혈하다	吐血하다	verb		suggested		spit blood
+간곡하다	懇曲하다	adj		suggested		earnest
+간곡하다	懇切하다	adj		suggested		sincere
+간곳없다	去없다	adj		suggested		gone without trace
+간단하다	簡單하다	adj		suggested	11	simple
+간단하다	簡하다	adj		suggested		straightforward
+간단하다	間斷하다	verb		suggested		pause briefly
+간단하다	斷하다	verb		suggested		pause
+간댕거리다	搖거리다	verb		suggested		sway
+간댕거리다	動거리다	verb		suggested		dangle
+간병하다	看病하다	verb		suggested		nurse
+간병하다	看護하다	verb		suggested		care for
+간사하다	奸詐하다	adj		suggested		deceitful
+간사하다	奸邪하다	adj		suggested		cunning
+간사하다	幹事하다	verb		suggested		manage
+간사하다	管理하다	verb		suggested		administer
+간섭하다	干涉하다	verb		suggested		interfere
+간섭하다	干하다	verb		suggested		meddle
+간소하다	簡素하다	adj		suggested		simple
+간소하다	簡하다	adj		suggested		plain
+간악하다	奸惡하다	adj		suggested		malicious
+간악하다	奸하다	adj		suggested		treacherous
+간주하다	看做하다	verb		suggested	3	regard as
+간주하다	看하다	verb		suggested		consider
+간지나다	格나다	verb		suggested		be stylish
+간지나다	風나다	verb		suggested		be cool
+간지럽다	癢럽다	verb		suggested		itchy
+간지럽다	痒럽다	verb		suggested		itchy
+간지럽히다	癢히다	verb		suggested		tickle
+간지럽히다	痒히다	verb		suggested		tickle
+간질이다	癢이다	verb		suggested		tickle
+간질이다	痒이다	verb		suggested		tickle
+간청하다	懇請하다	verb		suggested		beg
+간청하다	懇願하다	verb		suggested		plead
+간추리다	撮리다	verb		suggested		sum up
+간편하다	簡便하다	adj		suggested		simple and convenient
+간편하다	簡하다	adj		suggested		simple
+간호하다	看護하다	verb		suggested		nurse
+간호하다	看하다	verb		suggested		tend
+갈고닦다	磨닦다	verb		suggested		hone
+갈고닦다	琢닦다	verb		suggested		polish
+갈고닦다	鍊닦다	verb		suggested		cultivate
+갈구다	虐구다	verb		suggested		bully
+갈구다	苛구다	verb		suggested		nag
+갈구다	責구다	verb		suggested		scold
+갈기다	打기다	verb		suggested		hit
+갈기다	擊기다	verb		suggested	1	strike
+갈기다	鞭기다	verb		suggested		whip
+갈닦다	磨닦다	verb		suggested		rub, polish
+갈닦다	琢닦다	verb		suggested		polish jade
+갈망하다	渴望하다	verb		suggested		long for
+갈망하다	渴하다	verb		suggested		desire
+갈부수다	碎부수다	verb		suggested		crush
+갈아대다	替대다	verb		suggested		replace
+갈아대다	換대다	verb		suggested		renew
+갈아매다	換매다	verb		suggested		retie
+갈아매다	更매다	verb		suggested		restring
+갈아신다	換신다	verb		suggested		change shoes
+갈아신다	履신다	verb		suggested		put on other shoes
+갈아엎다	耕엎다	verb		suggested		plough down
+갈아엎다	墾엎다	verb		suggested		turn over soil
+갈음하다	代하다	verb		suggested		substitute
+갈음하다	替하다	verb		suggested		replace
+갈증나다	渴나다	adj		suggested		thirsty
+갈증나다	渴症나다	adj		suggested		thirsty
+갈퀴다	搔퀴다	verb		suggested		rake
+갈퀴다	扒퀴다	verb		suggested		rake up
+갉아먹다	蝕먹다	verb		suggested		eat away
+갋다	爭다	verb		suggested		compete
+갋다	競다	verb		suggested	1	vie
+감개무량하다	感慨無量하다	adj		suggested		deeply moved
+감개무량하다	感慨하다	adj		suggested		moved
+감당되다	堪當되다	verb		suggested		be manageable
+감당되다	堪되다	verb		suggested		be endurable
+감당하다	堪當하다	verb		suggested		cope with
+감당하다	堪하다	verb		suggested		bear
+감돌다	廻돌다	verb		suggested	1	linger
+감돌다	繞돌다	verb		suggested		hang around
+감명되다	感銘되다	verb		suggested		be deeply impressed
+감명되다	銘되다	verb		suggested		be impressed
+감명하다	感銘하다	verb		suggested		impress deeply
+감명하다	銘하다	verb		suggested		impress
+감사드리다	感謝드리다	verb		suggested		express thanks
+감사드리다	謝드리다	verb		suggested		thank
+감소시키다	減少시키다	verb		suggested		reduce
+감소시키다	減시키다	verb		suggested		reduce
+감소하다	減少하다	verb		suggested	4	decrease
+감소하다	減하다	verb		suggested		lessen
+감시하다	監視하다	verb		suggested		watch
+감시하다	監하다	verb		suggested		surveil
+감지하다	感知하다	verb		suggested		sense
+감지하다	覺知하다	verb		suggested		perceive
+감치다	纏치다	verb		suggested		linger
+감치다	縫치다	verb		suggested		whip-stitch
+감탄하다	感歎하다	verb		suggested		admire
+감탄하다	感嘆하다	verb		suggested		marvel
+감파르다	紺르다	adj		suggested		dark blue
+감파르다	靑黑르다	adj		suggested		livid
+값나가다	貴나가다	verb		suggested		be valuable
+강간하다	强姦하다	verb		suggested		rape
+강간하다	姦하다	verb		suggested		violate
+강경하다	强硬하다	adj		suggested		firm
+강경하다	硬하다	adj		suggested		strong
+강구다	聽구다	verb		suggested	2	listen carefully
+강권하다	强勸하다	verb		suggested		urge forcibly
+강권하다	勸하다	verb		suggested	1	recommend
+강력하다	强力하다	adj		suggested		powerful
+강력하다	强하다	adj		suggested	10	strong
+강렬하다	强烈하다	adj		suggested		intense
+강렬하다	烈하다	adj		suggested		fierce
+강의하다	講義하다	verb		suggested		lecture
+강의하다	講하다	verb		suggested		give a lecture
+강점되다	强占되다	verb		suggested		be occupied
+강점되다	占되다	verb		suggested		be seized
+강점하다	强占하다	verb		suggested		occupy
+강점하다	占하다	verb		suggested		seize
+강타하다	强打하다	verb		suggested		hit hard
+강타하다	打하다	verb		suggested	1	strike
+강탈되다	强奪되다	verb		suggested		be robbed
+강탈되다	奪되다	verb		suggested		be taken
+강탈하다	强奪하다	verb		suggested		rob
+강탈하다	奪하다	verb		suggested		take by force
+강화하다	强化하다	verb		suggested		strengthen
+강화하다	强하다	verb		suggested	10	intensify
+같이하다	同하다	verb		suggested	19	do together
+같이하다	共하다	verb		suggested		share
+개가하다	改嫁하다	verb		suggested		remarry
+개가하다	再嫁하다	verb		suggested		remarry
+개같다	犬같다	adj		suggested	1	doglike, crappy
+개같다	狗같다	adj		suggested		doglike
+개량하다	改良하다	verb		suggested		improve
+개량하다	良하다	verb		suggested	2	better
+개론하다	槪論하다	verb		suggested		outline
+개론하다	槪說하다	verb		suggested		discuss generally
+개명되다	改名되다	verb		suggested		be renamed
+개명되다	名되다	verb		suggested		be named
+개명하다	改名하다	verb		suggested	3	rename
+개명하다	名하다	verb		suggested		name
+개발되다	開發되다	verb		suggested		be developed
+개발되다	發되다	verb		suggested	1	be exploited
+개발하다	開發하다	verb		suggested		develop
+개발하다	發하다	verb		suggested	1	exploit
+개방되다	開放되다	verb		suggested		be opened
+개방되다	放되다	verb		suggested	1	be open
+개방하다	開放하다	verb		suggested		open to public
+개방하다	放하다	verb		suggested	2	open
+개봉되다	開封되다	verb		suggested		be unsealed
+개봉되다	封되다	verb		suggested		be opened
+개봉하다	開封하다	verb		suggested		break a seal
+개봉하다	封하다	verb		suggested		open
+개비하다	改備하다	verb		suggested		renew
+개비하다	備하다	verb		suggested		refurnish
+개사되다	改詞되다	verb		suggested		have lyrics changed
+개사되다	詞되다	verb		suggested		undergo lyric change
+개사하다	改詞하다	verb		suggested	1	change lyrics
+개사하다	詞하다	verb		suggested		rewrite lyrics
+개선되다	改善되다	verb		suggested	1	improve
+개선되다	善되다	verb		suggested		become better
+개선하다	改善하다	verb		suggested		improve
+개선하다	善하다	verb		suggested	1	ameliorate
+개시되다	開始되다	verb		suggested		begin
+개시되다	始되다	verb		suggested	5	be started
+개시하다	開始하다	verb		suggested	1	start
+개시하다	始하다	verb		suggested	7	begin
+개않다	善않다	adj		suggested		nice
+개장되다	開場되다	verb		suggested		be opened
+개장되다	場되다	verb		suggested		have an opening
+개장하다	開場하다	verb		suggested		open
+개장하다	場하다	verb		suggested		open a venue
+개조되다	改造되다	verb		suggested		be remodeled
+개조되다	造되다	verb		suggested	1	be remade
+개조하다	改造하다	verb		suggested	1	remodel
+개조하다	造하다	verb		suggested	2	rebuild
+개지랄하다	狂하다	verb		suggested		act like an idiot
+개지랄하다	愚하다	verb		suggested	1	act foolishly
+개척하다	開拓하다	verb		suggested		cultivate
+개척하다	拓하다	verb		suggested		reclaim
+개혁되다	改革되다	verb		suggested		be reformed
+개혁되다	革되다	verb		suggested		be reformed
+개혁시키다	改革시키다	verb		suggested		reform
+개혁시키다	革시키다	verb		suggested		reform
+개혁하다	改革하다	verb		suggested		reform
+개혁하다	革하다	verb		suggested		reform
+개화되다	開化되다	verb		suggested		be enlightened
+개화되다	化되다	verb		suggested	1	be civilised
+개화하다	開化하다	verb		suggested		enlighten
+개화하다	化하다	verb		suggested	2	civilise
+객쩍다	客쩍다	adj		suggested		idle
+객쩍다	空쩍다	adj		suggested		needless
+객혈하다	喀血하다	verb		suggested		spit blood
+객혈하다	咯血하다	verb		suggested		cough up blood
+갤마주다	敎주다	verb		suggested		teach
+갤마주다	授주다	verb		suggested		teach
+갱치없다	亂치없다	adj		suggested		untidy
+갱치없다	雜치없다	adj		suggested		messy
+갸륵하다	嘉하다	adj		suggested		admirable
+갸륵하다	奇特하다	adj		suggested		praiseworthy
+갸름하다	細하다	adj		suggested		slender
+갸름하다	長하다	adj		suggested		oblong
+갸울다	傾울다	verb		suggested	1	tilt
+갸울다	斜울다	verb		suggested		slant
+갸웃거리다	傾거리다	verb		suggested	1	tilt head
+갸웃거리다	歪거리다	verb		suggested		cock head
+갹출하다	醵出하다	verb		suggested		contribute
+갹출하다	出하다	verb		suggested		donate
+거대하다	巨大하다	adj		suggested		huge
+거대하다	巨하다	adj		suggested		massive
+거동하다	擧動하다	verb		suggested		behave
+거동하다	動하다	verb		suggested		move
+거둥둥하다	同하다	adj		suggested	19	similar
+거둥둥하다	類하다	adj		suggested		alike
+거들다	助들다	verb		suggested		help
+거들다	援들다	verb		suggested		assist
+거듭나다	再生나다	verb		suggested		be born again
+거듭나다	更生나다	verb		suggested		be reborn
+거듭하다	重하다	verb		suggested	1	repeat
+거듭하다	累하다	verb		suggested		pile up
+거듭하다	荐하다	verb		suggested		repeat
+거뜨다	拾뜨다	verb		suggested		pick up
+거뜨다	摭뜨다	verb		suggested		gather
+거만하다	倨慢하다	adj		suggested		arrogant
+거만하다	傲慢하다	adj		suggested		haughty
+거머쥐다	握쥐다	verb		suggested		seize
+거무스름하다	黑하다	adj		suggested		dark-colored
+거무스름하다	玄하다	adj		suggested		dark
+거부되다	拒否되다	verb		suggested		be refused
+거부되다	拒되다	verb		suggested		be rejected
+거부하다	拒否하다	verb		suggested	3	refuse
+거부하다	拒하다	verb		suggested		reject
+거북하다	不便하다	adj		suggested	10	uncomfortable
+거북하다	苦하다	adj		suggested		ill at ease
+거세다	强세다	adj		suggested	2	rough
+거세다	猛세다	adj		suggested	1	violent
+거세다	荒세다	adj		suggested		wild
+거슬리다	逆리다	verb		suggested	1	go against
+거슬리다	悖리다	verb		suggested		annoy
+거역하다	拒逆하다	verb		suggested		defy
+거역하다	逆하다	verb		suggested		go against
+거절하다	拒絶하다	verb		suggested	1	refuse
+거절하다	拒하다	verb		suggested		reject
+거주하다	居住하다	verb		suggested	5	reside
+거주하다	居하다	verb		suggested		live
+거천하다	擧薦하다	verb		suggested		recommend
+거천하다	薦하다	verb		suggested		suggest
+거치적거리다	妨거리다	verb		suggested		obstruct
+거치적거리다	礙거리다	verb		suggested		hamper
+거하다	巨하다	verb		suggested		plentiful, grand
+거하다	盛하다	verb		suggested		abundant
+걱정스럽다	憂스럽다	adj		suggested		worried
+걱정스럽다	愁스럽다	adj		suggested		anxious
+건너뛰다	越뛰다	verb		suggested		jump over
+건너뛰다	超뛰다	verb		suggested		skip over
+건드리다	觸드리다	verb		suggested	1	touch
+건드리다	干드리다	verb		suggested		meddle with
+건사하다	收拾하다	verb		suggested		take care of
+건사하다	保하다	verb		suggested		protect
+건설하다	建設하다	verb		suggested	1	build
+건설하다	建하다	verb		suggested		construct
+건승하다	健勝하다	adj		suggested		healthy
+건승하다	健하다	adj		suggested		sound
+건전하다	健全하다	adj		suggested	1	sound
+건전하다	健하다	adj		suggested		wholesome
+건축하다	建築하다	verb		suggested		construct
+건축하다	築하다	verb		suggested		build
+걷어차다	蹴차다	verb		suggested		kick
+걷어차다	踢차다	verb		suggested		kick away
+걷잡다	收잡다	verb		suggested		control
+걷잡다	制잡다	verb		suggested		hold back
+걷히다	收히다	verb		suggested		be folded up
+걷히다	撤히다	verb		suggested		be cleared away
+걸맞다	適맞다	adj		suggested		suitable
+걸어오다	步오다	verb		suggested		come on foot
+걸어오다	徒步오다	verb		suggested		walk here
+걸우다	肥우다	verb		suggested		fertilize
+걸우다	沃우다	verb		suggested		manure
+걸쭉하다	濃하다	adj		suggested	1	thick
+걸쭉하다	稠하다	adj		suggested		mushy
+걸치다	掛치다	verb		suggested	1	put on
+걸치다	披치다	verb		suggested		lay over
+걸치다	跨치다	verb		suggested		lay across
+검거하다	檢擧하다	verb		suggested		arrest
+검거하다	捕하다	verb		suggested		apprehend
+검붉다	紫붉다	adj		suggested		dark red
+검붉다	玄붉다	adj		suggested		blackish-red
+검사하다	檢査하다	verb		suggested	1	examine
+검사하다	檢하다	verb		suggested		inspect
+검역하다	檢疫하다	verb		suggested		quarantine
+검역하다	疫하다	verb		suggested		quarantine
+검열되다	檢閱되다	verb		suggested		be censored
+검열되다	閱되다	verb		suggested		be reviewed
+검열하다	檢閱하다	verb		suggested		censor
+검열하다	閱하다	verb		suggested		review
+검질기다	頑질기다	adj		suggested		persistent
+검질기다	强질기다	adj		suggested	2	tenacious
+검찰하다	檢察하다	verb		suggested		prosecute
+검찰하다	察하다	verb		suggested		investigate
+검출되다	檢出되다	verb		suggested		be detected
+검출되다	出되다	verb		suggested		be found
+검출하다	檢出하다	verb		suggested		detect
+검출하다	出하다	verb		suggested		find
+검푸르다	黝푸르다	adj		suggested		dark blue
+검푸르다	靑黑푸르다	adj		suggested		livid
+겁나다	怯나다	verb		suggested		be frightened
+겁나다	恐나다	verb		suggested	1	be afraid
+겁먹다	怯먹다	verb		suggested		be frightened
+겁먹다	恐먹다	verb		suggested		take fright
+겁박하다	劫迫하다	verb		suggested		intimidate
+겁박하다	脅迫하다	verb		suggested		coerce
+겁탈하다	劫奪하다	verb		suggested		rob
+겁탈하다	劫掠하다	verb		suggested		plunder
+겉핥다	皮핥다	verb		suggested		scratch the surface
+겉핥다	表핥다	verb		suggested		superficial
+게시되다	揭示되다	verb		suggested	1	be posted
+게시되다	揭되다	verb		suggested		be posted
+게시하다	揭示하다	verb		suggested	2	post
+게시하다	揭하다	verb		suggested		post
+게양되다	揭揚되다	verb		suggested		be hoisted
+게양되다	揚되다	verb		suggested		be raised
+게양하다	揭揚하다	verb		suggested	1	hoist
+게양하다	揚하다	verb		suggested		raise
+게재되다	揭載되다	verb		suggested	1	be published
+게재되다	載되다	verb		suggested		be printed
+게재하다	揭載하다	verb		suggested	1	publish
+게재하다	載하다	verb		suggested		print
+겨누다	狙누다	verb		suggested		aim at
+격노하다	激怒하다	verb		suggested		be furious
+격노하다	怒하다	verb		suggested		be enraged
+격려되다	激勵되다	verb		suggested		be encouraged
+격려되다	勵되다	verb		suggested		be urged
+격려하다	激勵하다	verb		suggested		encourage
+격려하다	勵하다	verb		suggested		urge
+격렬하다	激烈하다	adj		suggested		violent
+격렬하다	烈하다	adj		suggested		intense
+격찬하다	激讚하다	verb		suggested		extol
+격찬하다	讚하다	verb		suggested		praise
+격파하다	擊破하다	verb		suggested		smash
+격파하다	破하다	verb		suggested		crush
+격화하다	激化하다	verb		suggested		intensify
+격화하다	劇化하다	verb		suggested		escalate
+견성하다	見性하다	verb		suggested		see one's true nature
+견성하다	見하다	verb		suggested		perceive
+견실하다	堅實하다	adj		suggested		reliable
+견실하다	實하다	adj		suggested		solid
+견책되다	譴責되다	verb		suggested		be reprimanded
+견책되다	責되다	verb		suggested		be censured
+견책하다	譴責하다	verb		suggested		reprimand
+견책하다	責하다	verb		suggested		censure
+결단하다	決斷하다	verb		suggested		determine
+결단하다	斷하다	verb		suggested		decide
+결딴나다	缺나다	verb		suggested		be ruined
+결딴나다	壞나다	verb		suggested		be broken
+결리다	痛리다	verb		suggested		have a stitch
+결리다	滯리다	verb		suggested		feel pressure
+결석하다	缺席하다	verb		suggested		be absent
+결석하다	缺하다	verb		suggested		be missing
+결심하다	決心하다	verb		suggested		resolve
+결심하다	決하다	verb		suggested		be determined
+결정되다	決定되다	verb		suggested	2	be decided
+결정되다	定되다	verb		suggested		be fixed
+결정짓다	決定짓다	verb		suggested		make a decision
+결정짓다	決짓다	verb		suggested		decide
+결정하다	決定하다	verb		suggested	2	decide
+결정하다	定하다	verb		suggested	11	fix
+결핍하다	缺乏하다	verb		suggested		lack
+결핍하다	乏하다	verb		suggested		be deficient
+결합되다	結合되다	verb		suggested		be combined
+결합되다	合되다	verb		suggested		be fused
+결합시키다	結合시키다	verb		suggested		combine
+결합시키다	合시키다	verb		suggested		join
+결합하다	結合하다	verb		suggested	3	unite
+결합하다	合하다	verb		suggested	1	combine
+결혼시키다	結婚시키다	verb		suggested		marry off
+결혼시키다	婚시키다	verb		suggested		marry off
+결혼하다	結婚하다	verb		suggested		marry
+결혼하다	婚하다	verb		suggested		wed
+겸허하다	謙虛하다	adj		suggested		humble
+겸허하다	謙하다	adj		suggested		modest
+겹겹하다	重重하다	adj		suggested		layered
+겹겹하다	疊疊하다	adj		suggested		stacked
+겹놓다	重놓다	verb		suggested		overlap
+겹놓다	疊놓다	verb		suggested		pile up
+경계하다	警戒하다	verb		suggested		be vigilant
+경계하다	戒하다	verb		suggested		watch out
+경고하다	警告하다	verb		suggested	1	warn
+경고하다	告하다	verb		suggested	3	give warning
+경례하다	敬禮하다	verb		suggested	1	salute
+경례하다	禮하다	verb		suggested		bow
+경매되다	競賣되다	verb		suggested		be auctioned
+경매되다	賣되다	verb		suggested		be sold
+경매하다	競賣하다	verb		suggested		auction
+경매하다	賣하다	verb		suggested		sell
+경솔하다	輕率하다	adj		suggested		rash
+경솔하다	輕하다	adj		suggested	3	careless
+경악하다	驚愕하다	verb		suggested		be astonished
+경악하다	愕하다	verb		suggested		be shocked
+경영하다	經營하다	verb		suggested		run
+경영하다	營하다	verb		suggested		manage
+경이롭다	驚異롭다	adj		suggested		wonderful
+경이롭다	異롭다	adj		suggested		marvelous
+경쟁하다	競爭하다	verb		suggested		compete
+경쟁하다	爭하다	verb		suggested		vie
+경직되다	硬直되다	verb		suggested		stiffen
+경직되다	硬되다	verb		suggested		become rigid
+경직하다	硬直하다	verb		suggested		be stiff
+경직하다	硬하다	verb		suggested		be rigid
+경청하다	傾聽하다	verb		suggested		listen attentively
+경청하다	聽하다	verb		suggested	2	listen
+경축하다	慶祝하다	verb		suggested		celebrate
+경축하다	祝하다	verb		suggested		congratulate
+경험되다	經驗되다	verb		suggested		be experienced
+경험되다	驗되다	verb		suggested		be tested
+경험하다	經驗하다	verb		suggested	1	experience
+경험하다	歷하다	verb		suggested		go through
+곁들이다	添들이다	verb		suggested		add as a side
+곁들이다	副들이다	verb		suggested		accompany
+계산하다	計算하다	verb		suggested	2	calculate
+계산하다	算하다	verb		suggested		count
+계속되다	繼續되다	verb		suggested		continue
+계속되다	續되다	verb		suggested	1	go on
+계속하다	繼續하다	verb		suggested		continue
+계속하다	續하다	verb		suggested	1	resume
+계약하다	契約하다	verb		suggested		contract
+계약하다	約하다	verb		suggested		promise
+계획되다	計劃되다	verb		suggested		be planned
+계획되다	劃되다	verb		suggested		be laid out
+계획하다	計劃하다	verb		suggested		plan
+계획하다	劃하다	verb		suggested		lay out
+고급스럽다	高級스럽다	adj		suggested	1	high-class
+고급스럽다	高貴스럽다	adj		suggested		luxurious
+고단하다	孤單하다	adj		suggested		tired
+고단하다	疲하다	adj		suggested		exhausted
+고달프다	疲프다	adj		suggested		weary
+고달프다	憊프다	adj		suggested		tired
+고달피다	疲피다	verb		suggested		distress the body
+고달피다	苦피다	verb		suggested		afflict
+고대하다	苦待하다	verb		suggested		wait eagerly
+고대하다	待하다	verb		suggested		look forward to
+고독사하다	孤獨死하다	verb		suggested		die alone
+고독사하다	死하다	verb		suggested	1	die
+고독하다	孤獨하다	adj		suggested		lonely
+고독하다	孤하다	adj		suggested		isolated
+고동치다	鼓動치다	verb		suggested		beat
+고동치다	動치다	verb		suggested		palpitate
+고되다	苦되다	adj		suggested	1	hard
+고되다	辛되다	adj		suggested		arduous
+고두하다	叩頭하다	verb		suggested		kowtow
+고두하다	叩하다	verb		suggested		bow to the ground
+고립되다	孤立되다	verb		suggested		be isolated
+고립되다	立되다	verb		suggested		stand alone
+고립하다	孤立하다	verb		suggested		isolate
+고립하다	孤하다	verb		suggested		isolate
+고매굴다	尊굴다	verb		suggested		respect
+고매굴다	敬굴다	verb		suggested		revere
+고명하다	高名하다	adj		suggested		esteemed
+고명하다	高하다	adj		suggested		eminent
+고문하다	拷問하다	verb		suggested		torture
+고문하다	拷하다	verb		suggested		torture
+고민되다	苦悶되다	verb		suggested		worry
+고민되다	悶되다	verb		suggested		be troubled
+고발하다	告發하다	verb		suggested		accuse
+고발하다	告하다	verb		suggested	3	indict
+고생하다	苦生하다	verb		suggested		suffer hardship
+고생하다	苦하다	verb		suggested		have a hard time
+고소하다	香하다	adj		suggested	1	fragrant
+고소하다	芳하다	adj		suggested		savory
+고약하다	膏藥하다	adj		suggested		nasty
+고약하다	惡하다	adj		suggested	2	awful
+고용하다	雇傭하다	verb		suggested		employ
+고용하다	雇하다	verb		suggested		hire
+고유하다	固有하다	adj		suggested		inherent
+고유하다	固하다	adj		suggested		intrinsic
+고장나다	故障나다	verb		suggested		break down
+고장나다	障나다	verb		suggested		be broken
+고정되다	固定되다	verb		suggested		be fixed
+고정되다	定되다	verb		suggested		be stationary
+고조되다	高潮되다	verb		suggested		be raised
+고조되다	高되다	verb		suggested		rise
+고즈넉하다	靜하다	adj		suggested	2	serene
+고즈넉하다	寂하다	adj		suggested		calm
+고집스럽다	固執스럽다	adj		suggested		stubborn
+고집스럽다	拗스럽다	adj		suggested		obstinate
+고집하다	固執하다	verb		suggested		insist
+고집하다	固하다	verb		suggested		persist
+고통스럽다	苦痛스럽다	adj		suggested		painful
+고통스럽다	痛스럽다	adj		suggested		agonizing
+고하다	告하다	verb		suggested	3	inform
+고하다	謂하다	verb		suggested	3	tell
+고하다	諭하다	verb		suggested		instruct
+곤란하다	困難하다	adj		suggested	1	difficult
+곤란하다	難하다	adj		suggested	4	hard
+골리다	弄리다	verb		suggested	4	tease
+골리다	嘲리다	verb		suggested		annoy
+골인하다	得點하다	verb		suggested		score
+곪다	膿다	verb		suggested		fester
+곰피다	開피다	verb		suggested		bloom
+곰피다	發피다	verb		suggested	1	blossom
+곱다랗다	麗랗다	adj		suggested	1	very beautiful
+곱다랗다	美랗다	adj		suggested		pretty
+공갈치다	恐喝치다	verb		suggested		threaten
+공갈치다	嚇치다	verb		suggested		intimidate
+공갈하다	恐喝하다	verb		suggested		threaten
+공갈하다	嚇하다	verb		suggested		intimidate
+공개되다	公開되다	verb		suggested	1	be made public
+공개되다	開되다	verb		suggested		be opened
+공개하다	公開하다	verb		suggested	1	make public
+공개하다	開하다	verb		suggested		open
+공격하다	攻擊하다	verb		suggested		attack
+공격하다	攻하다	verb		suggested		assault
+공교롭다	工巧롭다	adj		suggested	1	coincidental
+공교롭다	巧롭다	adj		suggested		strange
+공급되다	供給되다	verb		suggested	1	be supplied
+공급되다	供되다	verb		suggested		be provided
+공급하다	供給하다	verb		suggested		supply
+공급하다	供하다	verb		suggested		provide
+공변되다	公되다	adj		suggested		fair
+공변되다	平되다	adj		suggested		equitable
+공사하다	工事하다	verb		suggested		do construction
+공사하다	工하다	verb		suggested		build
+공손하다	恭遜하다	adj		suggested	2	polite
+공손하다	恭하다	adj		suggested		courteous
+공습하다	空襲하다	verb		suggested		raid from the air
+공습하다	襲하다	verb		suggested		raid
+공언하다	公言하다	verb		suggested		declare openly
+공언하다	空言하다	verb		suggested		spew empty words
+공유하다	共有하다	verb		suggested	5	share
+공유하다	共하다	verb		suggested		share
+공정하다	公正하다	adj		suggested		fair
+공정하다	公平하다	adj		suggested		just
+공존하다	共存하다	verb		suggested	4	coexist
+공존하다	共하다	verb		suggested		coexist
+공증하다	公證하다	verb		suggested		notarize
+공증하다	證하다	verb		suggested		attest
+공지하다	公知하다	verb		suggested		announce
+공지하다	告知하다	verb		suggested		notify
+공평하다	公平하다	adj		suggested		fair
+공평하다	平하다	adj		suggested		even
+공표하다	公表하다	verb		suggested		announce publicly
+공표하다	表하다	verb		suggested	1	declare
+공하다	空하다	adj		suggested		free of charge
+공하다	供하다	verb		suggested		offer
+공하다	貢하다	verb		suggested		pay
+과거하다	科擧하다	verb		suggested		pass the civil service exam
+과거하다	及第하다	verb		suggested		pass
+과금되다	課金되다	verb		suggested		be billed
+과금되다	課되다	verb		suggested		be charged
+과금하다	課金하다	verb		suggested		bill
+과금하다	課하다	verb		suggested		charge
+과다하다	過多하다	adj		suggested		excessive
+과다하다	過하다	adj		suggested	1	too much
+과대평가되다	過大評價되다	verb		suggested		be overestimated
+과대평가되다	過評되다	verb		suggested		be overrated
+과대평가하다	過大評價하다	verb		suggested		overestimate
+과대평가하다	過評하다	verb		suggested		overrate
+과로하다	過勞하다	verb		suggested	2	overwork
+과로하다	勞하다	verb		suggested		toil
+과소평가하다	過小評價하다	verb		suggested		underestimate
+과소평가하다	輕視하다	verb		suggested		belittle
+과식하다	過食하다	verb		suggested		overeat
+과식하다	食하다	verb		suggested	3	eat
+과장되다	誇張되다	verb		suggested		be exaggerated
+과장되다	張되다	verb		suggested		be stretched
+과장하다	誇張하다	verb		suggested		exaggerate
+과장하다	誇하다	verb		suggested		boast
+관계되다	關係되다	verb		suggested		be related
+관계되다	關되다	verb		suggested		concern
+관계하다	關係하다	verb		suggested		be related
+관계하다	關하다	verb		suggested	6	concern
+관광하다	觀光하다	verb		suggested		sightsee
+관광하다	觀하다	verb		suggested		tour
+관대하다	寬大하다	adj		suggested		generous
+관대하다	寬하다	adj		suggested		magnanimous
+관두다	罷두다	verb		suggested		quit
+관두다	止두다	verb		suggested	1	stop
+관람하다	觀覽하다	verb		suggested	3	watch
+관람하다	觀하다	verb		suggested		see
+관련되다	關聯되다	verb		suggested	4	be connected
+관련되다	聯되다	verb		suggested		be linked
+관리하다	管理하다	verb		suggested		manage
+관리하다	管하다	verb		suggested		control
+관찰하다	觀察하다	verb		suggested		observe
+관찰하다	察하다	verb		suggested		examine
+관하다	關하다	verb		suggested	6	regard
+관하다	係하다	verb		suggested		relate to
+광대하다	廣大하다	adj		suggested	1	vast
+광대하다	廣하다	adj		suggested	1	extensive
+괜하다	空하다	adj		suggested		vain
+괜하다	徒하다	adj		suggested		useless
+괴롭히다	苦히다	verb		suggested		torment
+괴롭히다	虐히다	verb		suggested		bully
+괴롭히다	惱히다	verb		suggested		harass
+괴팍하다	乖愎하다	adj		suggested		bad-tempered
+괴팍하다	乖하다	adj		suggested		perverse
+굉장하다	宏壯하다	adj		suggested		amazing
+굉장하다	壯하다	adj		suggested		magnificent
+교란하다	攪亂하다	verb		suggested		disturb
+교란하다	亂하다	verb		suggested		disturb
+교류하다	交流하다	verb		suggested		exchange
+교류하다	流하다	verb		suggested		flow
+교미하다	交尾하다	verb		suggested		mate
+교미하다	交하다	verb		suggested		copulate
+교부받다	交付받다	verb		suggested		be issued
+교부받다	付받다	verb		suggested		be delivered
+교사하다	敎唆하다	verb		suggested		instigate
+교사하다	唆하다	verb		suggested	1	incite
+교육되다	敎育되다	verb		suggested		be educated
+교육되다	育되다	verb		suggested	1	be raised
+교체하다	交替하다	verb		suggested	1	replace
+교체하다	替하다	verb		suggested		change
+교환되다	交換되다	verb		suggested		be exchanged
+교환되다	換되다	verb		suggested		be swapped
+교환하다	交換하다	verb		suggested		exchange
+교환하다	換하다	verb		suggested		swap
+교활하다	狡猾하다	adj		suggested		crafty
+교활하다	猾하다	adj		suggested		sly
+구걸하다	求乞하다	verb		suggested		beg
+구걸하다	乞하다	verb		suggested		implore
+구경하다	求景하다	verb		suggested		sightsee
+구경하다	觀하다	verb		suggested		look at
+구국하다	救國하다	verb		suggested		save the nation
+구국하다	救하다	verb		suggested		rescue
+구기다	縐기다	verb		suggested		crumple
+구기다	皺기다	verb		suggested		wrinkle
+구니되다	執되다	verb		suggested		be obsessed over
+구니되다	着되다	verb		suggested		be attached
+구니하다	執하다	verb		suggested		be absorbed
+구니하다	着하다	verb		suggested		be obsessed
+구독하다	購讀하다	verb		suggested	2	subscribe
+구독하다	讀하다	verb		suggested		read
+구류되다	拘留되다	verb		suggested		be detained
+구류되다	拘되다	verb		suggested		be arrested
+구류하다	拘留하다	verb		suggested		detain
+구류하다	拘하다	verb		suggested		arrest
+구매되다	購買되다	verb		suggested		be bought
+구매되다	購되다	verb		suggested		be purchased
+구매하다	購買하다	verb		suggested	2	purchase
+구매하다	購하다	verb		suggested		buy
+구별되다	區別되다	verb		suggested	5	be distinguished
+구별되다	別되다	verb		suggested	1	be differentiated
+구별하다	區別하다	verb		suggested	32	distinguish
+구별하다	別하다	verb		suggested	1	differentiate
+구부정하다	曲하다	adj		suggested		slightly bent
+구부정하다	屈하다	adj		suggested		stooped
+구사하다	驅使하다	verb		suggested	3	command
+구사하다	使하다	verb		suggested		use skillfully
+구석지다	隅지다	adj		suggested		secluded
+구석지다	僻지다	adj		suggested		remote
+구성되다	構成되다	verb		suggested		be constituted
+구성되다	成되다	verb		suggested		be formed
+구성하다	構成하다	verb		suggested		constitute
+구성하다	成하다	verb		suggested		form
+구속되다	拘束되다	verb		suggested		be arrested
+구속되다	束되다	verb		suggested		be restrained
+구속하다	拘束하다	verb		suggested		arrest
+구속하다	束하다	verb		suggested		restrain
+구수하다	香하다	adj		suggested	1	savoury
+구수하다	味하다	adj		suggested		tasty
+구슬프다	悲프다	adj		suggested	3	sad
+구슬프다	哀프다	adj		suggested		mournful
+구애하다	求愛하다	verb		suggested		court
+구애하다	求하다	verb		suggested	1	woo
+구원하다	救援하다	verb		suggested		rescue
+구원하다	救하다	verb		suggested		save
+구조하다	救助하다	verb		suggested		rescue
+구조하다	助하다	verb		suggested		help
+구축하다	構築하다	verb		suggested		construct
+구축하다	築하다	verb		suggested		build
+구출하다	救出하다	verb		suggested		rescue
+구출하다	出하다	verb		suggested		get out
+구타하다	毆打하다	verb		suggested		beat up
+구타하다	打하다	verb		suggested	1	assault
+구토하다	嘔吐하다	verb		suggested		vomit
+구토하다	吐하다	verb		suggested		throw up
+구현되다	具現되다	verb		suggested		be realized
+구현되다	現되다	verb		suggested		appear
+구혼하다	求婚하다	verb		suggested		propose
+구혼하다	婚하다	verb		suggested		marry
+국영하다	國營하다	verb		suggested		state-manage
+국영하다	營하다	verb		suggested		manage
+국유화하다	國有化하다	verb		suggested		nationalize
+국유화하다	化하다	verb		suggested	2	convert
+굴하다	屈하다	verb		suggested		yield
+굴하다	降하다	verb		suggested	6	surrender
+굵다랗다	太랗다	adj		suggested		very thick
+굵다랗다	大랗다	adj		suggested	1	big
+굼뜨다	鈍뜨다	adj		suggested		sluggish
+굼뜨다	緩뜨다	adj		suggested	1	slow
+굽신거리다	屈거리다	verb		suggested		bow repeatedly
+굽신거리다	拜거리다	verb		suggested		bow and scrape
+궁글다	空글다	adj		suggested		hollow
+궁글다	虛글다	adj		suggested	1	empty
+궁리하다	窮理하다	verb		suggested		ponder
+궁리하다	思하다	verb		suggested		deliberate
+궁하다	窮하다	adj		suggested		poor
+궁하다	貧하다	adj		suggested		needy
+권고하다	勸告하다	verb		suggested		advise
+권고하다	勸하다	verb		suggested	1	recommend
+권투하다	拳鬪하다	verb		suggested		box
+권투하다	拳하다	verb		suggested		box
+궤탈사하다	古하다	adj		suggested	2	very old
+궤탈사하다	汚하다	adj		suggested		dirty
+귀국하다	歸國하다	verb		suggested		return to country
+귀국하다	歸하다	verb		suggested		return
+귀엣말하다	耳語하다	verb		suggested		whisper
+귀엣말하다	囁하다	verb		suggested		whisper
+귀환하다	歸還하다	verb		suggested		return home
+귀환하다	歸하다	verb		suggested		go home
+귓속말하다	耳語하다	verb		suggested		whisper
+귓속말하다	囁하다	verb		suggested		whisper
+규정하다	規定하다	verb		suggested	2	provide
+규정하다	規하다	verb		suggested		make a rule
+규제되다	規制되다	verb		suggested		be regulated
+규제되다	制되다	verb		suggested		be restricted
+규제하다	規制하다	verb		suggested		regulate
+규제하다	制하다	verb		suggested		restrict
+규탄되다	糾彈되다	verb		suggested		be denounced
+규탄되다	彈되다	verb		suggested		be censured
+규탄하다	糾彈하다	verb		suggested		denounce
+규탄하다	彈하다	verb		suggested		censure
+균등하다	均等하다	adj		suggested		equal
+균등하다	均하다	adj		suggested		uniform
+그늘지다	陰지다	adj		suggested		shady
+그늘지다	蔭지다	adj		suggested		shaded
+그려지다	畫려지다	verb		suggested		be drawn
+그려지다	描려지다	verb		suggested		be depicted
+그리웁다	戀웁다	verb		suggested		yearn for
+그리웁다	慕웁다	verb		suggested		long for
+그만두다	廢두다	verb		suggested		quit
+그만두다	止두다	verb		suggested	1	stop
+그만하다	止하다	verb		suggested	2	stop
+그만하다	罷하다	verb		suggested	1	quit
+그을다	焦을다	verb		suggested		be scorched
+그을다	燻을다	verb		suggested		be smoked
+그을다	曬을다	verb		suggested		be suntanned
+그을리다	焦리다	verb		suggested		scorch
+그을리다	燻리다	verb		suggested		smoke
+극기하다	克己하다	verb		suggested		practice self-control
+극기하다	克하다	verb		suggested	3	conquer
+극난하다	極難하다	adj		suggested		extremely difficult
+극난하다	難하다	adj		suggested	4	difficult
+극복하다	克服하다	verb		suggested		overcome
+극복하다	克하다	verb		suggested	3	overcome
+극악하다	極惡하다	adj		suggested		heinous
+극악하다	凶惡하다	adj		suggested		villainous
+근거하다	根據하다	verb		suggested	1	base on
+근거하다	據하다	verb		suggested		found on
+근면하다	勤勉하다	adj		suggested		diligent
+근면하다	勤하다	adj		suggested	1	industrious
+근무하다	勤務하다	verb		suggested		work
+근무하다	務하다	verb		suggested		serve
+근절하다	根絶하다	verb		suggested		eradicate
+근절하다	絶하다	verb		suggested		cut off
+근지럽다	癢럽다	adj		suggested		itchy
+근지럽다	痒럽다	adj		suggested		itchy
+근질거리다	癢거리다	verb		suggested		feel itchy
+근질거리다	痒거리다	verb		suggested		feel itchy
+근질근질하다	癢하다	verb		suggested		feel itchy
+금기하다	禁忌하다	verb		suggested		view as taboo
+금기하다	忌하다	verb		suggested		avoid
+금지되다	禁止되다	verb		suggested		be prohibited
+금지되다	禁되다	verb		suggested		be forbidden
+금지하다	禁止하다	verb		suggested	1	prohibit
+금지하다	禁하다	verb		suggested	1	forbid
+급감하다	急減하다	verb		suggested		decrease rapidly
+급감하다	減하다	verb		suggested		decrease
+급격하다	急激하다	adj		suggested		sudden
+급격하다	急하다	adj		suggested	1	abrupt
+급식하다	給食하다	verb		suggested		provide meals
+급식하다	給하다	verb		suggested		supply
+급여되다	給與되다	verb		suggested		be paid
+급여되다	與되다	verb		suggested	2	be granted
+급여하다	給與하다	verb		suggested		pay
+급여하다	與하다	verb		suggested	2	grant
+기괴하다	奇怪하다	adj		suggested		strange
+기괴하다	怪하다	adj		suggested		uncanny
+기구하다	崎嶇하다	adj		suggested		unfortunate
+기구하다	奇하다	adj		suggested		strange
+기껍다	喜껍다	adj		suggested		glad
+기껍다	悅껍다	adj		suggested		happy
+기껍다	懌껍다	adj		suggested		delighted
+기다려지다	待려지다	verb		suggested		be awaited
+기대되다	期待되다	verb		suggested	2	be expected
+기대되다	期되다	verb		suggested		be anticipated
+기도하다	祈禱하다	verb		suggested		pray
+기도하다	祈하다	verb		suggested		petition
+기똥차다	奇차다	adj		suggested		stunning
+기똥차다	絶차다	adj		suggested		astounding
+기록하다	記錄하다	verb		suggested	2	record
+기록하다	記하다	verb		suggested	6	write down
+기마하다	騎馬하다	verb		suggested		ride a horse
+기마하다	騎하다	verb		suggested		ride
+기만되다	欺瞞되다	verb		suggested		be deceived
+기만되다	欺되다	verb		suggested		be tricked
+기만하다	欺瞞하다	verb		suggested		deceive
+기만하다	欺하다	verb		suggested		trick
+기묘하다	奇妙하다	adj		suggested		peculiar
+기묘하다	奇하다	adj		suggested		weird
+기민하다	機敏하다	adj		suggested		agile
+기민하다	敏하다	adj		suggested		alert
+기발하다	奇拔하다	adj		suggested	1	brilliant
+기발하다	奇하다	adj		suggested		novel
+기부하다	寄附하다	verb		suggested		donate
+기부하다	寄付하다	verb		suggested		contribute
+기소되다	起訴되다	verb		suggested		be indicted
+기소되다	訴되다	verb		suggested		be prosecuted
+기소하다	起訴하다	verb		suggested		indict
+기소하다	訴하다	verb		suggested		prosecute
+기약하다	期約하다	verb		suggested		promise to meet
+기약하다	約하다	verb		suggested		vow
+기어가다	匍匐가다	verb		suggested		crawl along
+기어가다	爬가다	verb		suggested		creep
+기어나가다	爬나가다	verb		suggested		crawl out
+기어들다	爬들다	verb		suggested		crawl in
+기어들어오다	爬入오다	verb		suggested		crawl in
+기어들어오다	匍匐入오다	verb		suggested		crawl in
+기억나다	記憶나다	verb		suggested	1	recall
+기억나다	憶나다	verb		suggested		remember
+기억되다	記憶되다	verb		suggested		be remembered
+기억되다	憶되다	verb		suggested		be remembered
+기업하다	起業하다	verb		suggested		do business
+기업하다	企業하다	verb		suggested		undertake
+기여하다	寄與하다	verb		suggested		contribute
+기여하다	貢獻하다	verb		suggested		contribute
+기원하다	起源하다	verb		suggested		originate
+기원하다	祈願하다	verb		suggested		pray
+기입하다	記入하다	verb		suggested	1	fill in
+기입하다	入하다	verb		suggested		enter
+기절하다	氣絶하다	verb		suggested		faint
+기절하다	絶하다	verb		suggested		swoon
+기증되다	寄贈되다	verb		suggested		be donated
+기증되다	贈되다	verb		suggested		be presented
+기증하다	寄贈하다	verb		suggested		donate
+기증하다	贈하다	verb		suggested		present
+기차다	奇차다	adj		suggested		amazing
+기차다	壯차다	adj		suggested		breathtaking
+기침하다	咳嗽하다	verb		suggested		cough
+기침하다	咳하다	verb		suggested		cough
+기특하다	奇特하다	adj		suggested		admirable
+기특하다	特하다	adj		suggested		praiseworthy
+긴급하다	緊急하다	adj		suggested		urgent
+긴급하다	急하다	adj		suggested	1	pressing
+긴장되다	緊張되다	verb		suggested		be tense
+긴장되다	張되다	verb		suggested		be strained
+긴장하다	緊張하다	verb		suggested		be tense
+긴장하다	張하다	verb		suggested		be strained
+길차다	茂차다	adj		suggested		lush
+길차다	長차다	adj		suggested		long and thick
+깇다	咳다	verb		suggested		cough
+깇다	嗽다	verb		suggested		cough
+까리하다	宏하다	adj		suggested		wonderful
+까리하다	良하다	adj		suggested	2	cool
+까마득하다	遙하다	adj		suggested		remote
+까마득하다	遠하다	adj		suggested		far-off
+까마득하다	窅하다	adj		suggested		distant
+까발리다	暴리다	verb		suggested		expose
+까발리다	露리다	verb		suggested		lay open
+까불다	浮불다	verb		suggested		act rashly
+까불다	播불다	verb		suggested	1	winnow, sift
+깎아지르다	峻지르다	adj		suggested		steep
+깎아지르다	險지르다	adj		suggested		sheer
+깎이다	削이다	verb		suggested		be peeled
+깎이다	剝이다	verb		suggested		be shaved
+깐깐하다	嚴하다	adj		suggested		strict
+깐깐하다	頑하다	adj		suggested		stubborn
+깐깐하다	細하다	adj		suggested		meticulous
+깜깜하다	暗하다	adj		suggested	1	pitch-dark
+깜깜하다	漆黑하다	adj		suggested		pitch-dark
+깜빡하다	忘하다	verb		suggested		forget for a moment
+깜빡하다	閃하다	verb		suggested		flicker
+깜찍하다	可愛하다	adj		suggested	1	adorable
+깜찍하다	愛하다	adj		suggested	1	cute
+깝치다	浮치다	verb		suggested		behave frivolously
+깝치다	騷치다	verb		suggested		fool around
+깨배다	醒배다	verb		suggested		wake someone up
+깨배다	覺배다	verb		suggested		wake
+꺼림칙하다	不快하다	adj		suggested	1	uncomfortable
+꺼림칙하다	不安하다	adj		suggested		uneasy
+꺾어지다	折어지다	verb		suggested		snap
+꺾어지다	斷어지다	verb		suggested		break
+껌껌하다	暗하다	adj		suggested	1	pitch-dark
+껌껌하다	黑하다	adj		suggested		black-dark
+께끈하다	汚하다	adj		suggested		dirty
+께끈하다	穢하다	adj		suggested		unclean
+께낀하다	汚하다	adj		suggested		dirty
+께낀하다	穢하다	adj		suggested		unclean
+껴입다	重입다	verb		suggested		wear layers
+껴입다	疊입다	verb		suggested		layer up
+꼬박거리다	睡거리다	verb		suggested		doze off
+꼬박거리다	眠거리다	verb		suggested		nod off
+꼬시다	誘시다	verb		suggested		tempt
+꼬시다	惑시다	verb		suggested		seduce
+꼬이다	捩이다	verb		suggested		be twisted
+꼬이다	纏이다	verb		suggested		be entangled
+꼬집다	摘집다	verb		suggested		pinch
+꼬집다	掐집다	verb		suggested		pinch
+꼴사납다	醜사납다	adj		suggested		ugly
+꼴사납다	陋사납다	adj		suggested		shabby
+꼴치다	睨치다	verb		suggested		glare at
+꼴치다	瞪치다	verb		suggested		stare with disapproval
+꼼꼼하다	細密하다	adj		suggested		meticulous
+꼼꼼하다	精密하다	adj		suggested		precise
+꼽다	屈다	verb		suggested		count on fingers
+꼽다	數다	verb		suggested	3	count
+꼽히다	數히다	verb		suggested		be counted
+꼽히다	擧히다	verb		suggested		be ranked
+꾀죄죄하다	汚하다	adj		suggested		shabby
+꾀죄죄하다	襤褸하다	adj		suggested		unkempt
+꾸깃꾸깃하다	皺하다	verb		suggested		crumple
+꾸꾸당하다	曲하다	adj		suggested		crooked
+꾸꾸당하다	屈하다	adj		suggested		bent
+꾸벅거리다	睡거리다	verb		suggested		doze off
+꾸벅거리다	眠거리다	verb		suggested		nod off
+꾸이다	貸이다	verb		suggested		lend
+꾸이다	借이다	verb		suggested		loan
+꾸준하다	恒常하다	adj		suggested		persistent
+꾸준하다	持續하다	adj		suggested		steady
+꿀꿀하다	鬱하다	adj		suggested		feel down
+꿀꿀하다	沈하다	adj		suggested		feel low
+꿇다	跪다	verb		suggested		kneel
+꿇다	屈다	verb		suggested		bow down
+꿋꿋하다	剛하다	adj		suggested		firm
+꿋꿋하다	堅하다	adj		suggested		solid
+꿋꿋하다	彊하다	adj		suggested		strong
+꿰차다	占차다	verb		suggested		make one's own
+꿰차다	據차다	verb		suggested		occupy
+끄덕이다	頷이다	verb		suggested		nod
+끄덕이다	頭이다	verb		suggested		nod
+끄르다	解르다	verb		suggested		untie
+끄르다	釋르다	verb		suggested		loosen
+끄집다	牽집다	verb		suggested		pull
+끄집다	引집다	verb		suggested		drag
+끄집어내다	引내다	verb		suggested		pull out
+끄집어내다	抽내다	verb		suggested		take out
+끈적하다	粘하다	adj		suggested		sticky
+끈적하다	膠하다	adj		suggested		viscous
+끈질기다	頑질기다	adj		suggested		persistent
+끈질기다	執질기다	adj		suggested		tenacious
+끊기다	斷기다	verb		suggested		be cut
+끊기다	絶기다	verb		suggested		be severed
+끔찍끔찍하다	慘酷하다	adj		suggested		atrocious
+끔찍끔찍하다	慘하다	adj		suggested		terrible
+끔찍하다	慘酷하다	adj		suggested		terrible
+끔찍하다	慘하다	adj		suggested		horrible
+끙끙거리다	呻거리다	verb		suggested		groan
+끙끙거리다	吟거리다	verb		suggested		moan
+끙끙하다	呻하다	verb		suggested		moan
+끙끙하다	吟하다	verb		suggested		groan
+끼얹다	注얹다	verb		suggested		pour
+끼얹다	灌얹다	verb		suggested		douse
+끼이다	挾이다	verb		suggested		be caught
+끼이다	窄이다	verb		suggested		be fastened
+끽반하다	喫飯하다	verb		suggested		have a meal
+끽반하다	食하다	verb		suggested	3	eat
+끽연하다	喫煙하다	verb		suggested		smoke
+끽연하다	煙하다	verb		suggested		smoke
+나긋하다	軟하다	adj		suggested		soft
+나긋하다	柔하다	adj		suggested		gentle
+나누어주다	分주다	verb		suggested		distribute
+나누어주다	配주다	verb		suggested		give out
+나대다	亂대다	verb		suggested		act unruly
+나대다	騷대다	verb		suggested		behave wildly
+나돌다	流돌다	verb		suggested		circulate
+나돌다	彷돌다	verb		suggested		wander around
+나른하다	懶하다	adj		suggested		languid
+나른하다	倦하다	adj		suggested		listless
+나른하다	疲하다	adj		suggested		weary
+나무하다	樵하다	verb		suggested		gather firewood
+나무하다	薪하다	verb		suggested		cut firewood
+나빠지다	惡빠지다	verb		suggested	1	get worse
+나빠지다	劣빠지다	verb		suggested		deteriorate
+나수다	治수다	verb		suggested		heal
+나수다	療수다	verb		suggested		cure
+나약하다	懦弱하다	adj		suggested	2	weak
+나약하다	弱하다	adj		suggested	3	soft
+나이들다	老들다	verb		suggested		grow old
+나이들다	齡들다	verb		suggested		age
+나포되다	拿捕되다	verb		suggested		be captured
+나포되다	捕되다	verb		suggested		be apprehended
+나포하다	拿捕하다	verb		suggested		capture
+나포하다	捕하다	verb		suggested		apprehend
+낙제하다	落第하다	verb		suggested		fail an exam
+낙제하다	落하다	verb		suggested		flunk
+낙하하다	落下하다	verb		suggested		fall
+낙하하다	落하다	verb		suggested		drop
+낚시하다	釣하다	verb		suggested		go fishing
+낚시하다	釣魚하다	verb		suggested		fish
+난감하다	難堪하다	adj		suggested	1	difficult
+난감하다	難하다	adj		suggested	4	embarrassed
+난리하다	亂離하다	verb		suggested		confuse
+난리하다	亂하다	verb		suggested		disorder
+난질이치다	逃치다	verb		suggested		run away
+난질이치다	走치다	verb		suggested		flee
+난처하다	難處하다	adj		suggested		awkward
+난처하다	困하다	adj		suggested		embarrassing
+난치하다	難治하다	adj		suggested		intractable
+난치하다	難하다	adj		suggested	4	hard to treat
+날뛰다	躍뛰다	verb		suggested		leap
+날뛰다	跳뛰다	verb		suggested		jump up
+날래다	勇래다	adj		suggested		swift
+날래다	敢래다	adj		suggested		sprightly
+날래다	驍래다	adj		suggested		valiant
+날려가다	飛려가다	verb		suggested		fly away
+날려가다	飄려가다	verb		suggested		be blown away
+날씬하다	纖하다	adj		suggested		slender
+날씬하다	瘦하다	adj		suggested		slim
+날조되다	捏造되다	verb		suggested		be fabricated
+날조되다	造되다	verb		suggested	1	be forged
+날조하다	捏造하다	verb		suggested		fabricate
+날조하다	造하다	verb		suggested	2	forge
+낡아빠지다	古아빠지다	adj		suggested	2	worn out
+낡아빠지다	舊아빠지다	adj		suggested		shabby
+남겨지다	殘겨지다	verb		suggested		be left
+남겨지다	餘겨지다	verb		suggested		remain
+남루하다	襤褸하다	adj		suggested		tattered
+남루하다	褸하다	adj		suggested		ragged
+남벌하다	濫伐하다	verb		suggested		fell recklessly
+남벌하다	伐하다	verb		suggested		fell trees
+남사스럽다	羞스럽다	adj		suggested		shameful
+남사스럽다	恥스럽다	adj		suggested		embarrassing
+남자답다	男子답다	adj		suggested		manly
+남자답다	男답다	adj		suggested		masculine
+남장하다	男裝하다	verb		suggested		cross-dress as male
+남장하다	裝하다	verb		suggested		disguise
+납득하다	納得하다	verb		suggested		accept
+납득하다	得하다	verb		suggested		grasp
+납량하다	納凉하다	verb		suggested		enjoy the cool
+납량하다	凉하다	verb		suggested		cool oneself
+납작하다	扁하다	adj		suggested		flat
+납작하다	薄하다	adj		suggested		thin
+납작하다	伏하다	verb		suggested		lie face down
+납작하다	匍하다	verb		suggested		lie prostrate
+납치되다	拉致되다	verb		suggested	1	be kidnapped
+납치되다	拉되다	verb		suggested		be abducted
+납치하다	拉致하다	verb		suggested	1	kidnap
+납치하다	拉하다	verb		suggested		abduct
+납품하다	納品하다	verb		suggested		deliver goods
+납품하다	納하다	verb		suggested		deliver
+낭독되다	朗讀되다	verb		suggested		be read aloud
+낭독되다	讀되다	verb		suggested		be read
+낭독하다	朗讀하다	verb		suggested	1	read aloud
+낭독하다	讀하다	verb		suggested		read
+낭비하다	浪費하다	verb		suggested		waste
+낭비하다	費하다	verb		suggested		squander
+낭송되다	朗誦되다	verb		suggested		be recited
+낭송되다	誦되다	verb		suggested		be recited
+낭송하다	朗誦하다	verb		suggested		recite
+낭송하다	誦하다	verb		suggested		recite
+낮아지다	低아지다	verb		suggested	1	lower
+낮아지다	下아지다	verb		suggested		decrease
+낮일하다	晝일하다	verb		suggested		work by day
+낮일하다	日勤하다	verb		suggested		work the day shift
+낯가리다	羞가리다	verb		suggested		be shy
+낯간지럽다	羞간지럽다	verb		suggested		be embarrassed
+낯간지럽다	恥간지럽다	verb		suggested		be shameful
+낯설다	生설다	adj		suggested		strange
+낯설다	疏설다	adj		suggested		unfamiliar
+내걸다	揭걸다	verb		suggested	2	put up
+내걸다	懸걸다	verb		suggested	1	display
+내다보다	望보다	verb		suggested		look out
+내다보다	眺보다	verb		suggested		gaze out
+내뚫다	貫뚫다	verb		suggested		pierce
+내뚫다	穿뚫다	verb		suggested		penetrate
+내려놓다	下놓다	verb		suggested		put down
+내려놓다	降놓다	verb		suggested		lower
+내려다보이다	俯보이다	verb		suggested		be looked down on
+내려다보이다	瞰보이다	verb		suggested		be seen from above
+내로라하다	著名하다	verb		suggested		be prominent
+내로라하다	名하다	verb		suggested		be well-known
+내리받다	下받다	verb		suggested		receive from above
+내리받다	降받다	verb		suggested		download
+내리치다	打치다	verb		suggested		strike
+내리치다	擊치다	verb		suggested	1	hit
+내몰다	驅몰다	verb		suggested		drive out
+내몰다	逐몰다	verb		suggested		expel
+내몰리다	驅몰리다	verb		suggested		be driven out
+내몰리다	逐몰리다	verb		suggested		be expelled
+내보내다	出보내다	verb		suggested		let out
+내보내다	放보내다	verb		suggested	1	release
+내빼다	逃빼다	verb		suggested		run away
+내빼다	走빼다	verb		suggested		flee
+내쉬다	呼쉬다	verb		suggested		exhale
+내쉬다	吐쉬다	verb		suggested		breathe out
+내지르다	叫지르다	verb		suggested		shout
+내지르다	喊지르다	verb		suggested		yell
+내쫓다	逐쫓다	verb		suggested		expel
+내쫓다	驅쫓다	verb		suggested		kick out
+내키다	欲키다	verb		suggested	1	feel like
+내키다	向키다	verb		suggested		be inclined
+내팽개치다	抛치다	verb		suggested		hurl
+내팽개치다	棄치다	verb		suggested		throw away
+내한하다	來韓하다	verb		suggested		come to Korea
+내한하다	來하다	verb		suggested		come
+냄새나다	臭나다	verb		suggested		smell
+냄새나다	香나다	verb		suggested		smell fragrant
+냉각하다	冷却하다	verb		suggested		cool
+냉각하다	冷하다	verb		suggested	1	chill
+냉담하다	冷淡하다	adj		suggested		cold
+냉담하다	冷하다	adj		suggested	1	chilly
+냉담해지다	冷해지다	verb		suggested		grow cold
+냉담해지다	淡해지다	verb		suggested		become indifferent
+냉혹하다	冷酷하다	adj		suggested		cruel
+냉혹하다	酷하다	adj		suggested		ruthless
+너저분하다	雜하다	adj		suggested		messy
+너저분하다	亂하다	adj		suggested		untidy
+널따랗다	廣따랗다	adj		suggested	1	wide
+널따랗다	闊따랗다	adj		suggested		spacious
+널주다	落주다	verb		suggested		drop
+널주다	墜주다	verb		suggested	1	cause to fall
+널지다	落지다	verb		suggested	2	fall
+널지다	墜지다	verb		suggested	1	drop
+널쭈다	落쭈다	verb		suggested		drop
+널쭈다	墜쭈다	verb		suggested	1	cause to fall
+널찌다	落찌다	verb		suggested		fall
+널찌다	墜찌다	verb		suggested	1	drop
+넓적하다	廣하다	adj		suggested	1	wide
+넓적하다	扁하다	adj		suggested		flat
+넘나들다	越나들다	verb		suggested		cross over
+넘쳐나다	溢쳐나다	verb		suggested		overflow
+넙적하다	伏하다	verb		suggested		lie face down
+넙적하다	匍하다	verb		suggested		lie prostrate
+노느다	分느다	verb		suggested		divide
+노느다	配느다	verb		suggested		distribute
+노랑지다	沃지다	adj		suggested		fertile
+노랑지다	肥지다	adj		suggested		rich
+노력하다	努力하다	verb		suggested	2	strive
+노력하다	努하다	verb		suggested		exert oneself
+노릇노릇하다	黃하다	adj		suggested	2	yellowish
+노릇노릇하다	金하다	adj		suggested		golden
+노망하다	老妄하다	verb		suggested		become senile
+노망하다	耄하다	verb		suggested		dote
+노엽다	怒엽다	adj		suggested		enraged
+노엽다	憤엽다	adj		suggested		indignant
+노출하다	露出하다	verb		suggested		expose
+노출하다	露하다	verb		suggested		reveal
+노화하다	老化하다	verb		suggested		age
+노화하다	老하다	verb		suggested		grow old
+녹아나다	敗나다	verb		suggested		be crushed
+녹아나다	潰나다	verb		suggested		be defeated
+논의하다	論議하다	verb		suggested	1	discuss
+논의하다	議하다	verb		suggested		deliberate
+논쟁되다	論爭되다	verb		suggested		be disputed
+논쟁되다	爭되다	verb		suggested		be contested
+논쟁하다	論爭하다	verb		suggested		dispute
+논쟁하다	爭하다	verb		suggested		contend
+논하다	論하다	verb		suggested	2	discuss
+논하다	議하다	verb		suggested		argue
+놀러오다	遊오다	verb		suggested		come to visit
+놀러오다	訪오다	verb		suggested		visit
+놀아나다	遊아나다	verb		suggested		fool around
+놀아나다	戱아나다	verb		suggested		play around
+농구하다	籠球하다	verb		suggested		play basketball
+농구하다	球하다	verb		suggested		play ball
+농담하다	弄談하다	verb		suggested		joke
+농담하다	戱하다	verb		suggested		jest
+농사하다	農事하다	verb		suggested		farm
+농사하다	農하다	verb		suggested		farm
+농후하다	濃厚하다	adj		suggested		thick
+농후하다	濃하다	adj		suggested	1	dense
+높다랗다	高다랗다	adj		suggested		quite high
+높다랗다	峻다랗다	adj		suggested		lofty
+높아지다	高아지다	verb		suggested		become higher
+높아지다	昂아지다	verb		suggested		rise
+뇌까리다	喋까리다	verb		suggested		chatter
+뇌까리다	嘈까리다	verb		suggested		jabber
+누그러뜨리다	緩뜨리다	verb		suggested	1	soften
+누그러뜨리다	和뜨리다	verb		suggested		appease
+누비다	縫비다	verb		suggested		quilt
+누비다	綴비다	verb		suggested		stitch
+누적하다	累積하다	verb		suggested		accumulate
+누적하다	累하다	verb		suggested		pile up
+누추하다	陋醜하다	adj		suggested		squalid
+누추하다	陋하다	adj		suggested		shabby
+눅다	廉다	adj		suggested	1	cheap
+눅다	賤다	adj		suggested	1	inexpensive
+눅다	溫다	verb		suggested		get warm
+눅다	暖다	verb		suggested		warm up
+눅이다	緩이다	verb		suggested	1	soften
+눅이다	鎭이다	verb		suggested		calm
+눈꼴사납다	醜사납다	adj		suggested		unsightly
+눈꼴사납다	嫌사납다	adj		suggested		offensive to the eye
+눈뜨다	醒뜨다	verb		suggested		awaken
+눈물겹다	淚겹다	adj		suggested		tearful
+눈물겹다	感겹다	adj		suggested		touching
+눈부시다	眩부시다	adj		suggested		dazzling
+눈부시다	燦부시다	adj		suggested		brilliant
+눈치보다	察보다	verb		suggested		read the room
+눈치보다	顔色보다	verb		suggested		watch another's face
+눈치채다	覺채다	verb		suggested		notice
+눈치채다	察채다	verb		suggested		become aware
+눌러자다	留자다	verb		suggested		stay and sleep
+눌러자다	宿자다	verb		suggested		lodge overnight
+눚다	遲다	verb		suggested		be late
+눚다	晩다	verb		suggested	9	be late
+느긋하다	悠하다	adj		suggested		relaxed
+느긋하다	緩하다	adj		suggested	1	carefree
+늘어서다	列서다	verb		suggested		line up
+늘어서다	並서다	verb		suggested		stand in a row
+늠름하다	凜凜하다	adj		suggested		imposing
+늠름하다	凜하다	adj		suggested		manly
+능가하다	凌駕하다	verb		suggested		surpass
+능가하다	凌하다	verb		suggested		outdo
+능숙하다	能熟하다	adj		suggested		proficient
+능숙하다	熟하다	adj		suggested		adept
+능하다	能하다	adj		suggested	1	good at
+능하다	才하다	adj		suggested		skilled
+다그다	近그다	verb		suggested	3	bring near
+다그다	迫그다	verb		suggested	1	put close
+다그치다	催치다	verb		suggested		urge
+다그치다	迫치다	verb		suggested	1	press
+다급하다	急하다	adj		suggested	1	urgent
+다급하다	切迫하다	adj		suggested		pressing
+다녀가다	訪가다	verb		suggested		drop by
+다독하다	多讀하다	verb		suggested		read extensively
+다독하다	讀하다	verb		suggested		read
+다락같다	高같다	adj		suggested		very high
+다락같다	貴같다	adj		suggested		expensive
+다리미질하다	熨하다	verb		suggested		iron
+다리미질하다	熨斗질하다	verb		suggested		iron
+다림질하다	熨하다	verb		suggested		iron
+다림질하다	熨斗질하다	verb		suggested		iron
+간질거리다	癢거리다	verb		suggested		tickle, itch
+간질거리다	痒거리다	verb		suggested		itch
+간질대다	癢대다	verb		suggested		tickle
+간질대다	痒대다	verb		suggested		itch
+거침없다	礙없다	adj		suggested		unhindered
+거침없다	阻없다	adj		suggested		unimpeded
+깨까사다	康까사다	adj		suggested		well, healthy
+깨까사다	健까사다	adj		suggested		healthy
+끄떡없다	恙없다	adj		suggested		unscathed
+끄떡없다	事없다	adj		suggested		unharmed
+끊임없다	絶없다	adj		suggested		incessant
+끊임없다	斷없다	adj		suggested		continuous
+끼어들다	割어들다	verb		suggested	1	cut in
+끼어들다	介어들다	verb		suggested	1	intervene
+느껴지다	感껴지다	verb		suggested		be felt
+느껴지다	覺껴지다	verb		suggested		be perceived
+느닷없다	不意없다	adj		suggested		unforeseen
+느닷없다	突없다	adj		suggested		sudden
+다름없다	異없다	adj		suggested		no different
+다부지다	强지다	adj		suggested	3	robust
+다부지다	壯지다	adj		suggested		stocky
+대응하다	對應하다	verb		suggested	4	correspond to
+대응하다	應하다	verb		suggested	1	respond
+대체하다	代替하다	verb		suggested	4	replace
+대체하다	代하다	verb		suggested		substitute
+머뭇거리다	躊躇거리다	verb		suggested	2	hesitate
+머뭇거리다	猶豫거리다	verb		suggested		waver
+버릇없다	禮儀없다	adj		suggested		rude
+버릇없다	禮없다	adj		suggested		impolite
+사고팔다	買고팔다	verb		suggested		buy and sell
+사고팔다	賣팔다	verb		suggested		trade
+쓸데없다	用없다	adj		suggested		useless
+쓸데없다	益없다	adj		suggested		needless
+아무렇다	任렇다	adj		suggested		unspecific
+아무렇다	隨렇다	adj		suggested		any which way
+엄청나다	莫大나다	adj		suggested		enormous
+엄청나다	巨나다	adj		suggested		colossal
+웃프다	笑프다	adj		suggested		funny but sad
+주고받다	授받다	verb		suggested		exchange
+주고받다	與고받다	verb		suggested		give and take
+하찮다	微찮다	adj		suggested		trifling
+하찮다	賤찮다	adj		suggested		trivial
+노동계급화하다	勞動階級化하다	verb		suggested		proletarianize
+다양하다	多樣하다	adj		suggested	10	diverse
+다잡다	多잡다	verb		suggested		tighten (weak)
+다정스럽다	多情스럽다	adj		suggested		affectionate
+다정하다	多情하다	adj		suggested		affectionate
+다채롭다	多彩롭다	adj		suggested	1	colourful
+단란하다	團欒하다	adj		suggested		harmonious
+단명하다	短命하다	adj		suggested		short-lived
+단일하다	單一하다	adj		suggested	1	single
+단장하다	丹粧하다	verb		suggested		adorn, redecorate
+단정하다	端正하다	adj		suggested		neat
+단정하다	斷定하다	verb		suggested		conclude
+단종되다	斷種되다	verb		suggested		discontinued
+단종하다	斷種하다	verb		suggested		discontinue
+달려오다	走려오다	verb		suggested		come running
+달려오다	馳려오다	verb		suggested		gallop toward
+달리하다	異리하다	verb		suggested		differ
+달성하다	達成하다	verb		suggested		achieve
+달하다	達하다	verb		suggested		reach
+담담하다	淡淡하다	adj		suggested		calm
+담당하다	擔當하다	verb		suggested		take charge
+담박하다	淡泊하다	adj		suggested		plain
+담백하다	淡白하다	adj		suggested		plain
+담보하다	擔保하다	verb		suggested		guarantee
+담쌓다	垣쌓다	verb		suggested		wall off
+답변하다	答辯하다	verb		suggested		reply
+답습되다	踏襲되다	verb		suggested		followed
+답습하다	踏襲하다	verb		suggested		follow
+답신하다	答申하다	verb		suggested		report
+답장하다	答狀하다	verb		suggested		answer letter
+당겨지다	引겨지다	verb		suggested		be pulled
+당겨지다	牽겨지다	verb		suggested		be dragged
+당당하다	堂堂하다	adj		suggested	1	dignified
+당부받다	當付받다	verb		suggested		be urged
+당부하다	當付하다	verb		suggested		request
+당차다	强차다	adj		suggested	2	strong
+당황하다	唐慌하다	verb		suggested	1	flustered
+대기하다	待機하다	verb		suggested		wait
+대꾸하다	應꾸하다	verb		suggested		respond (weak)
+대답하다	對答하다	verb		suggested		answer
+대두하다	擡頭하다	verb		suggested		emerge
+대망하다	待望하다	verb		suggested		await
+대비하다	對備하다	verb		suggested		prepare
+대신하다	代身하다	verb		suggested		replace
+대여하다	貸與하다	verb		suggested		lend
+대용하다	代用하다	verb		suggested		substitute
+대치하다	對峙하다	verb		suggested		confront
+대표하다	代表하다	verb		suggested	2	represent
+대화하다	對話하다	verb		suggested	9	converse
+댕이다	行이다	verb		suggested		go
+댕이다	通이다	verb		suggested	2	commute
+더러워지다	汚러워지다	verb		suggested		become dirty
+더러워지다	濁러워지다	verb		suggested		become turbid
+더부룩하다	脹더부룩하다	adj		suggested		bloated (weak)
+덕새없다	德없다	adj		suggested		lacking sense (weak)
+던지럽다	醜럽다	adj		suggested		foul (weak)
+덤벙이다	浮벙이다	verb		suggested		frivolous (weak)
+덥수룩하다	亂수룩하다	adj		suggested		shaggy (weak)
+덧대다	加대다	verb		suggested		add over
+덧대다	添대다	verb		suggested		attach
+덮치다	襲치다	verb		suggested		pounce
+덮치다	覆치다	verb		suggested		cover over
+데려가다	率려가다	verb		suggested		take along
+데려오다	率려오다	verb		suggested		bring along
+데불다	率불다	verb		suggested		bring along
+데지다	投지다	verb		suggested		throw
+도달하다	到達하다	verb		suggested	2	reach
+도려내다	刳려내다	verb		suggested		cut out
+도려내다	抉려내다	verb		suggested		gouge
+도륙되다	屠戮되다	verb		suggested		slaughtered
+도륙하다	屠戮하다	verb		suggested		slaughter
+도망가다	逃망가다	verb		suggested		flee
+도망가다	逋망가다	verb		suggested		abscond
+도망치다	逃망치다	verb		suggested		flee
+도망하다	逃亡하다	verb		suggested		flee
+도모하다	圖謀하다	verb		suggested		plan
+도배하다	塗褙하다	verb		suggested		wallpaper
+도사하다	徒死하다	verb		suggested		die in vain
+도열하다	堵列하다	verb		suggested		line up
+도전하다	挑戰하다	verb		suggested		challenge
+도촬하다	盜撮하다	verb		suggested		candid photo
+독립되다	獨立되다	verb		suggested		independent
+독서하다	讀書하다	verb		suggested		read
+독촉하다	督促하다	verb		suggested		urge
+돌격하다	突擊하다	verb		suggested		charge
+돌아가시다	歸가시다	verb		suggested		honorific die
+돌파되다	突破되다	verb		suggested		surpassed
+동거하다	同居하다	verb		suggested		cohabit
+동경하다	憧憬하다	verb		suggested		yearn
+동그라지다	轉그라지다	verb		suggested		tumble
+동그래지다	圓그래지다	verb		suggested		become round
+동글다	圓글다	adj		suggested		round
+동나다	盡나다	verb		suggested		run out
+동나다	竭나다	verb		suggested		exhausted
+동등하다	同等하다	adj		suggested	2	equal
+동맹하다	同盟하다	verb		suggested		ally
+동봉하다	同封하다	verb		suggested		enclose
+동사하다	凍死하다	verb		suggested		freeze to death
+동의하다	同意하다	verb		suggested	4	agree
+동작하다	動作하다	verb		suggested		move
+동정하다	同情하다	verb		suggested		sympathise
+동트다	黎트다	verb		suggested		dawn
+동트다	曙트다	verb		suggested		daybreak
+돼먹다	成먹다	verb		suggested		turn out (weak)
+되갈다	再갈다	verb		suggested		replow
+되뇌다	復뇌다	verb		suggested	1	repeat
+되돌리다	返돌리다	verb		suggested		return
+되돌리다	復돌리다	verb		suggested	1	restore
+되먹다	再먹다	verb		suggested		eat again
+되살리다	蘇살리다	verb		suggested		revive
+되살리다	復살리다	verb		suggested	1	revive
+되새기다	反새기다	verb		suggested		ruminate
+되찾다	復찾다	verb		suggested		retrieve
+되찾다	取찾다	verb		suggested		take back
+되풀이하다	反풀이하다	verb		suggested		repeat
+두둑하다	厚둑하다	adj		suggested		thick
+두드러지다	著드러지다	adj		suggested		prominent
+두드러지다	顯드러지다	adj		suggested		conspicuous
+두절되다	杜絶되다	verb		suggested		interrupted
+두절하다	杜絶하다	verb		suggested		interrupt
+두티다	移티다	verb		suggested		shift slightly
+둔갑하다	遁甲하다	verb		suggested	1	transform
+둔치다	屯치다	verb		suggested		encamp
+둘러앉다	圍앉다	verb		suggested		sit around
+둘러앉다	坐러앉다	verb		suggested		sit
+뒈지다	死지다	verb		suggested	1	die
+뒤꺼럽다	煩꺼럽다	adj		suggested		noisy (weak)
+뒤늦다	遲늦다	adj		suggested		late
+뒤늦다	晩늦다	adj		suggested		late
+뒤따르다	追따르다	verb		suggested		follow
+뒤따르다	隨따르다	verb		suggested		follow
+뒤따르다	從따르다	verb		suggested	3	follow
+뒤바뀌다	易바뀌다	verb		suggested	7	be switched
+뒤바뀌다	換바뀌다	verb		suggested		be exchanged
+뒤보다	便보다	verb		suggested		defecate
+뒤집어쓰다	被쓰다	verb		suggested	1	get covered
+뒤집어쓰다	冠쓰다	verb		suggested		put on head
+뒤집어엎다	覆엎다	verb		suggested		overturn
+뒤집어엎다	翻엎다	verb		suggested		turn over
+뒤쳐지다	翻쳐지다	verb		suggested		turn inside out
+뒤틀다	捩틀다	verb		suggested		twist
+뒤틀다	拗틀다	verb		suggested		contort
+뒤흔들다	搖흔들다	verb		suggested		shake
+뒤흔들다	撼흔들다	verb		suggested		jolt
+뒷받침하다	支받침하다	verb		suggested		support
+뒷받침하다	援받침하다	verb		suggested		back up
+뒹굴다	轉굴다	verb		suggested		roll about
+드넓다	廣넓다	adj		suggested		vast
+드넓다	寬넓다	adj		suggested		broad
+드세차다	猛차다	adj		suggested	1	fierce
+드세차다	烈차다	adj		suggested		violent
+득남하다	得男하다	verb		suggested		get a son
+득녀하다	得女하다	verb		suggested		get a daughter
+득도하다	得道하다	verb		suggested		attain enlightenment
+득의양양하다	得意揚揚하다	adj		suggested		smug
+득점하다	得點하다	verb		suggested		score
+든든하다	堅든하다	adj		suggested		sturdy
+든든하다	固든하다	adj		suggested		firm
+들르다	立르다	verb		suggested		stop by (weak)
+들르다	寄르다	verb		suggested		drop in
+들무새하다	助무새하다	verb		suggested		help labor
+들볶다	苛볶다	verb		suggested		harass
+들볶다	惱볶다	verb		suggested		annoy
+들썩이다	動썩이다	verb		suggested		move up and down
+들썩이다	騷썩이다	verb		suggested		stir
+들쑤시다	攪쑤시다	verb		suggested		stir
+들쑤시다	刺쑤시다	verb		suggested		prick
+들쑥날쑥하다	不齊쑥날쑥하다	adj		suggested		uneven
+들어올리다	擧올리다	verb		suggested		raise
+들어올리다	揚올리다	verb		suggested		lift
+들어옮기다	移옮기다	verb		suggested		move
+들어차다	滿차다	verb		suggested	1	be full
+들어차다	充차다	verb		suggested		fill
+들여다보다	窺다보다	verb		suggested		peek in
+들여다보다	覗다보다	verb		suggested		look into
+들여오다	入여오다	verb		suggested	1	bring in
+들이밀다	推밀다	verb		suggested		push in
+들이받다	觸받다	verb		suggested		ram
+들이받다	衝받다	verb		suggested		collide
+들이켜다	飮이켜다	verb		suggested		gulp
+들이켜다	吸이켜다	verb		suggested		inhale
+들쭉날쭉하다	不齊쭉날쭉하다	adj		suggested		uneven
+들치다	擧치다	verb		suggested		lift
+들키다	露키다	verb		suggested		be exposed
+들키다	發키다	verb		suggested	1	be discovered
+듬직하다	重직하다	adj		suggested	1	weighty
+듬직하다	鎭직하다	adj		suggested		solid
+등교하다	登校하다	verb		suggested		go to school
+등락하다	騰落하다	verb		suggested		rise and fall
+등록되다	登錄되다	verb		suggested	4	registered
+등록하다	登錄하다	verb		suggested	3	register
+등산하다	登山하다	verb		suggested		climb mountain
+등쳐먹다	騙쳐먹다	verb		suggested		swindle
+등쳐먹다	詐쳐먹다	verb		suggested		defraud
+따돌리다	避돌리다	verb		suggested		evade
+따돌리다	斥돌리다	verb		suggested		ostracise
+따라다니다	隨라다니다	verb		suggested		follow around
+따라다니다	從라다니다	verb		suggested	3	follow
+따라오다	隨라오다	verb		suggested		follow
+따라오다	從라오다	verb		suggested	3	follow
+따분하다	倦분하다	adj		suggested		bored
+따분하다	憫분하다	adj		suggested		pitiful
+따사롭다	溫사롭다	adj		suggested		warm
+따사롭다	暖사롭다	adj		suggested		warm
+따오다	引오다	verb		suggested		quote
+따오다	摘오다	verb		suggested		pluck
+딱하다	憫하다	adj		suggested		pitiful
+딱하다	憐하다	adj		suggested		pity
+딸꾹질하다	呃逆하다	verb		suggested		hiccup
+때늦다	遲늦다	adj		suggested		late
+때늦다	晩늦다	adj		suggested		belated
+때우다	補우다	verb		suggested		patch
+때우다	塡우다	verb		suggested		fill
+때우다	繕우다	verb		suggested		mend
+땡땡이치다	逃치다	verb		suggested		skip class
+땡땡이치다	缺치다	verb		suggested		absent
+떠나가다	去나가다	verb		suggested		go away
+떠나가다	離나가다	verb		suggested	2	leave
+떠나가다	發나가다	verb		suggested	1	depart
+떠다니다	浮다니다	verb		suggested		float
+떠다니다	漂다니다	verb		suggested		drift
+떠돌다	漂돌다	verb		suggested		wander
+떠돌다	流돌다	verb		suggested		roam
+떠돌다	浪돌다	verb		suggested		wander
+떠들썩하다	噪들썩하다	adj		suggested		noisy
+떠들썩하다	喧들썩하다	adj		suggested		boisterous
+떠들썩하다	譁들썩하다	adj		suggested		clamorous
+떠먹다	掬먹다	verb		suggested		scoop and eat
+떠먹다	啜먹다	verb		suggested		sip
+떠받들다	奉받들다	verb		suggested		revere
+떠받들다	支받들다	verb		suggested		prop up
+떠받들다	擎받들다	verb		suggested		hold up
+떠벌리다	誇벌리다	verb		suggested		boast
+떠벌리다	張벌리다	verb		suggested		spread
+떡치다	姦치다	verb		suggested		have sex
+떨떠름하다	澁떠름하다	adj		suggested		astringent
+떨떠름하다	苦떠름하다	adj		suggested		bitter
+떨어뜨리다	落뜨리다	verb		suggested		drop
+떨어뜨리다	墮뜨리다	verb		suggested		let fall
+떨어뜨리다	輸뜨리다	verb		suggested		lose
+떫디떫다	澁디떫다	adj		suggested		astringent
+떼어내다	離어내다	verb		suggested	2	separate
+떼어내다	剝어내다	verb		suggested		peel off
+떼어내다	割어내다	verb		suggested		cut off
+떼짓다	群짓다	verb		suggested		form group
+똑떨어지다	合떨어지다	verb		suggested		match
+똑떨어지다	符떨어지다	verb		suggested		tally
+똥똥하다	肥똥하다	adj		suggested		plump
+똥똥하다	胖똥하다	adj		suggested		fat
+똥싸다	便싸다	verb		suggested		defecate
+똥싸다	屎싸다	verb		suggested		excrete
+뚜하다	慍하다	adj		suggested		sulky
+뚜하다	悶하다	adj		suggested		sullen
+뚝뚝하다	硬뚝하다	adj		suggested		hard
+뚝뚝하다	剛뚝하다	adj		suggested		stiff
+뚱뚱하다	肥뚱하다	adj		suggested		fat
+뚱뚱하다	胖뚱하다	adj		suggested		fat
+뚱치다	竊치다	verb		suggested		steal
+뚱치다	盜치다	verb		suggested		steal
+뛰어가다	走어가다	verb		suggested	1	run
+뛰어가다	趨어가다	verb		suggested		rush
+뛰어나오다	走어나오다	verb		suggested		run out
+뛰어다니다	跳어다니다	verb		suggested		jump about
+뛰어다니다	走어다니다	verb		suggested		run about
+뛰어들다	投어들다	verb		suggested		dive in
+뛰어들다	赴어들다	verb		suggested		rush into
+뛰어오다	走어오다	verb		suggested		come running
+뛰어오르다	躍어오르다	verb		suggested		jump up
+뛰어오르다	跳어오르다	verb		suggested		jump up
+뜨거워지다	熱거워지다	verb		suggested	2	get hot
+뜨거워지다	熱워지다	verb		suggested	2	become hot
+뜯어내다	剝어내다	verb		suggested		tear off
+뜯어내다	毁어내다	verb		suggested		rip apart
+뜸하다	疏하다	adj		suggested		infrequent
+뜸하다	稀하다	adj		suggested	1	rare
+뜻있다	志있다	adj		suggested		ambitious
+뜻있다	意있다	adj		suggested		meaningful
+띠우다	帶우다	verb		suggested		belt
+띠우다	束우다	verb		suggested		gird
+마다하다	辭다하다	verb		suggested		decline
+마다하다	拒다하다	verb		suggested		refuse
+마련되다	備련되다	verb		suggested		prepared
+마련되다	設련되다	verb		suggested		arranged
+마렵다	急렵다	adj		suggested		urgent need
+마무르다	了무르다	verb		suggested		finish
+마무르다	終무르다	verb		suggested	1	end
+마무리하다	終무리하다	verb		suggested	1	conclude
+마무리하다	了무리하다	verb		suggested		complete
+마수다	碎수다	verb		suggested	1	smash
+마수다	破수다	verb		suggested		break
+마음먹다	心먹다	verb		suggested		decide
+마음쓰다	心쓰다	verb		suggested		care
+마주잡다	對잡다	verb		suggested		hold facing
+마주잡다	相잡다	verb		suggested		hold together
+마찰되다	摩擦되다	verb		suggested		rubbed
+마찰시키다	摩擦시키다	verb		suggested		cause to rub
+마찰하다	摩擦하다	verb		suggested		rub
+막다르다	窮다르다	adj		suggested		dead end
+막다르다	塞다르다	adj		suggested		blocked
+막돼먹다	粗돼먹다	adj		suggested		crude
+막돼먹다	惡먹다	adj		suggested		bad
+막되다	粗되다	adj		suggested		crude
+막되다	惡되다	adj		suggested	1	bad
+막살하다	止하다	verb		suggested	2	stop
+막살하다	廢하다	verb		suggested		give up
+막힘없다	通없다	adj		suggested		unobstructed
+막힘없다	暢없다	adj		suggested		smooth
+만끽하다	滿喫하다	verb		suggested	1	enjoy fully
+만만하다	易만하다	adj		suggested	7	easy
+만만하다	輕만하다	adj		suggested	3	slight
+만발하다	滿發하다	verb		suggested		in full bloom
+만연하다	蔓延하다	verb		suggested		spread
+만유하다	漫遊하다	verb		suggested		roam
+만족스럽다	滿足스럽다	adj		suggested	1	satisfactory
+만족하다	滿足하다	verb		suggested		satisfied
+만지작거리다	撫지작거리다	verb		suggested		fiddle
+만지작거리다	弄지작거리다	verb		suggested		toy with
+만지작대다	撫지작대다	verb		suggested		fiddle
+만지작대다	弄지작대다	verb		suggested		toy with
+만포장이다	豊포장이다	adj		suggested		plentiful
+만포장이다	饒포장이다	adj		suggested		abundant
+만회되다	挽回되다	verb		suggested		recovered
+만회하다	挽回하다	verb		suggested		recover
+말갛다	淸갛다	adj		suggested		clear
+말갛다	明갛다	adj		suggested		bright
+말끔하다	淨끔하다	adj		suggested		clean
+말끔하다	潔끔하다	adj		suggested		neat
+말대꾸하다	抗대꾸하다	verb		suggested		retort
+말라빠지다	瘦빠지다	adj		suggested		scrawny
+말라빠지다	枯빠지다	adj		suggested		dried up
+말려들다	卷려들다	verb		suggested		get entangled
+말려들다	捲려들다	verb		suggested		be caught up
+말쑥하다	淸쑥하다	adj		suggested		neat
+말쑥하다	潔쑥하다	adj		suggested		tidy
+맛나다	味나다	adj		suggested		tasty
+맛나다	旨나다	adj		suggested		delicious
+망가지다	壞가지다	verb		suggested		break
+망가지다	毁가지다	verb		suggested		ruin
+망극하다	罔極하다	adj		suggested		immeasurable
+망설이다	躊설이다	verb		suggested		hesitate
+망설이다	躇설이다	verb		suggested		waver
+망설이다	猶설이다	verb		suggested		hesitate
+맞들다	共들다	verb		suggested		lift together
+맞들다	擧들다	verb		suggested		lift
+맞부딪치다	衝부딪치다	verb		suggested		collide
+맞부딪치다	觸부딪치다	verb		suggested	1	touch
+맞아떨어지다	合아떨어지다	verb		suggested		match
+맞아떨어지다	符아떨어지다	verb		suggested		tally
+맞잡다	相잡다	verb		suggested		hold together
+맞잡다	握잡다	verb		suggested		grip
+맞히다	中히다	verb		suggested		hit
+맞히다	的히다	verb		suggested		hit the mark
+매기다	課기다	verb		suggested		assess
+매기다	評기다	verb		suggested		rate
+매끄럽다	滑끄럽다	adj		suggested		smooth
+매끄럽다	潤끄럽다	adj		suggested		slick
+매끈하다	滑끈하다	adj		suggested		smooth
+매끈하다	潤끈하다	adj		suggested		sleek
+매도하다	賣渡하다	verb		suggested		sell
+매듭짓다	結듭짓다	verb		suggested		tie knot
+매듭짓다	結짓다	verb		suggested		conclude
+매료하다	魅了하다	verb		suggested		enthrall
+매만지다	撫만지다	verb		suggested		stroke
+매만지다	整만지다	verb		suggested		tidy
+매섭다	烈섭다	adj		suggested		sharp
+매섭다	峻섭다	adj		suggested		severe
+매스껍다	惡스껍다	adj		suggested		nauseous
+매음하다	賣淫하다	verb		suggested		prostitution
+매이다	繫이다	verb		suggested	1	be tied
+매이다	縛이다	verb		suggested		be bound
+매장하다	埋葬하다	verb		suggested		bury
+매정하다	冷정하다	adj		suggested		cold
+매정하다	酷정하다	adj		suggested		heartless
+매질하다	鞭질하다	verb		suggested		whip
+매질하다	笞질하다	verb		suggested		flog
+매춘하다	賣春하다	verb		suggested		prostitution
+매캐하다	辛캐하다	adj		suggested		acrid
+매콤하다	辛콤하다	adj		suggested		spicy
+맹길다	作길다	verb		suggested		make
+맹길다	造길다	verb		suggested	4	make
+맹렬하다	猛烈하다	adj		suggested		fierce
+맹렬해지다	猛烈해지다	verb		suggested		become fierce
+맹비난하다	猛非難하다	verb		suggested		condemn harshly
+맹세하다	盟誓하다	verb		suggested		swear
+머리하다	髮하다	verb		suggested		do hair
+머뭇대다	躊대다	verb		suggested		hesitate
+머뭇대다	躇대다	verb		suggested		falter
+머쓱하다	窘쓱하다	adj		suggested		awkward
+멀뚱하다	呆뚱하다	adj		suggested		blank
+멀쩡하다	健쩡하다	adj		suggested		sound
+멀쩡하다	無쩡하다	adj		suggested	7	intact (weak)
+멈칫거리다	躊칫거리다	verb		suggested		hesitate
+멈칫거리다	躇칫거리다	verb		suggested		baulk
+멋없다	無없다	adj		suggested		unrefined (weak)
+멋지다	優지다	adj		suggested		splendid
+멋지다	雅지다	adj		suggested		elegant
+멍하다	惘하다	adj		suggested		dazed
+멍하다	惝하다	adj		suggested		absentminded
+멍하다	怳하다	adj		suggested		hazy
+메슥거리다	嘔슥거리다	verb		suggested		feel sick
+메슥거리다	吐슥거리다	verb		suggested		vomit
+멱따다	刎따다	verb		suggested		cut throat
+멱따다	屠따다	verb		suggested		slaughter
+면내다	掘내다	verb		suggested		dig
+면도하다	面刀하다	verb		suggested		shave
+면도하다	剃도하다	verb		suggested		shave
+면하다	免하다	verb		suggested		avoid
+면하다	脫하다	verb		suggested		escape
+멸망하다	滅亡하다	verb		suggested		perish
+멸하다	滅하다	verb		suggested		annihilate
+멸하다	殲하다	verb		suggested		exterminate
+멸하다	殄하다	verb		suggested		destroy
+명령하다	命令하다	verb		suggested		order
+명료하다	明瞭하다	adj		suggested		clear
+명명하다	命名하다	verb		suggested	2	name
+명백하다	明白하다	adj		suggested	1	obvious
+명시하다	明示하다	verb		suggested	1	state clearly
+명중하다	命中하다	verb		suggested		hit target
+명철하다	明哲하다	adj		suggested		wise
+모방하다	模倣하다	verb		suggested	3	imitate
+모색하다	摸索하다	verb		suggested		seek
+모셔가다	侍셔가다	verb		suggested		attend and take
+모셔가다	奉셔가다	verb		suggested		serve
+모욕하다	侮辱하다	verb		suggested		insult
+모호하다	模糊하다	adj		suggested	6	vague
+목격되다	目擊되다	verb		suggested		witnessed
+목격하다	目擊하다	verb		suggested	1	witness
+목도하다	目睹하다	verb		suggested		witness
+목욕하다	沐浴하다	verb		suggested		bathe
+목표하다	目標하다	verb		suggested		aim
+몰려들다	聚려들다	verb		suggested		gather
+몰려들다	集려들다	verb		suggested	1	gather
+몰려들다	輳려들다	verb		suggested		converge
+몰리다	驅리다	verb		suggested		be driven
+몰리다	窮리다	verb		suggested		be cornered
+몰수되다	沒收되다	verb		suggested		confiscated
+몰수하다	沒收하다	verb		suggested		confiscate
+몰아가다	驅아가다	verb		suggested		drive
+몰아가다	驟아가다	verb		suggested		gallop
+몰아내다	逐아내다	verb		suggested		drive out
+몰아내다	驅아내다	verb		suggested		expel
+몰아넣다	驅아넣다	verb		suggested		drive in
+몰아붙이다	逼아붙이다	verb		suggested		corner
+몰아붙이다	迫아붙이다	verb		suggested	1	press
+몰아세우다	驅아세우다	verb		suggested		drive
+몰아세우다	詰아세우다	verb		suggested		rebuke
+몰아치다	暴아치다	verb		suggested		rage
+몰아치다	驅아치다	verb		suggested		drive
+몰염치하다	沒廉恥하다	adj		suggested		shameless
+몹쓸다	惡쓸다	verb		suggested	1	wicked
+몹쓸다	凶쓸다	verb		suggested		evil
+못살다	貧살다	verb		suggested		live poor
+못살다	窮살다	verb		suggested		poverty
+못생기다	醜생기다	verb		suggested		ugly
+못생기다	丑생기다	verb		suggested		ugly
+못생기다	寢생기다	verb		suggested		ugly
+몽롱하다	朦朧하다	adj		suggested		dim
+묘사하다	描寫하다	verb		suggested		depict
+무관심하다	無關心하다	adj		suggested		indifferent
+무궁하다	無窮하다	adj		suggested		infinite
+무난하다	無難하다	adj		suggested	4	easy
+무느다	毁느다	verb		suggested		demolish
+무느다	壞느다	verb		suggested		destroy
+무덤덤하다	淡덤덤하다	adj		suggested		indifferent
+무덥다	溽덥다	adj		suggested		humid heat
+무덥다	蒸덥다	adj		suggested		sultry
+무뚝뚝하다	木뚝뚝하다	adj		suggested		blunt
+무뚝뚝하다	冷뚝뚝하다	adj		suggested		cold
+무람없다	無禮없다	adj		suggested		rude
+무람없다	慢없다	adj		suggested		insolent
+무력하다	無力하다	adj		suggested		powerless
+무례하다	無禮하다	adj		suggested	1	rude
+무모하다	無謀하다	adj		suggested		reckless
+무분별하다	無分別하다	adj		suggested		indiscriminate
+무사하다	無事하다	adj		suggested	1	safe
+무소부지하다	無所不知하다	verb		suggested		omniscient
+무시무시하다	恐시무시하다	adj		suggested	1	terrible
+무시무시하다	怖시무시하다	adj		suggested	1	frightful
+무심하다	無心하다	adj		suggested		indifferent
+무쌍하다	無雙하다	adj		suggested		peerless
+무엇하다	何엇하다	adj		suggested		what (weak)
+무용하다	無用하다	adj		suggested		useless
+무의미하다	無意味하다	adj		suggested	1	meaningless
+무익하다	無益하다	adj		suggested		futile
+무자맥질하다	潛자맥질하다	verb		suggested		dive
+무자맥질하다	沒자맥질하다	verb		suggested		submerge
+무자비하다	無慈悲하다	adj		suggested		ruthless
+무장되다	武裝되다	verb		suggested		armed
+무장시키다	武裝시키다	verb		suggested		arm
+무장하다	武裝하다	verb		suggested		arm
+무지하다	無知하다	adj		suggested	3	ignorant
+무찌르다	擊찌르다	verb		suggested	1	defeat
+무찌르다	破찌르다	verb		suggested		rout
+무찌르다	鏖찌르다	verb		suggested		slaughter
+무책임하다	無責任하다	adj		suggested		irresponsible
+무치다	和치다	verb		suggested		season
+무치다	拌치다	verb		suggested		toss with seasoning
+무한하다	無限하다	adj		suggested		infinite
+무효하다	無效하다	adj		suggested		invalid
+묵직하다	重직하다	adj		suggested	1	heavy
+묵직하다	沈직하다	adj		suggested		weighty
+문대다	擦대다	verb		suggested		rub
+문대다	磨대다	verb		suggested		scour
+문병하다	問病하다	verb		suggested		visit patient
+물러나다	退러나다	verb		suggested		step back
+물러나다	退나다	verb		suggested		withdraw
+물려받다	承려받다	verb		suggested		inherit
+물려받다	繼려받다	verb		suggested		succeed
+물맞이하다	浴맞이하다	verb		suggested		shower
+물뿌리다	淋뿌리다	verb		suggested		sprinkle
+물뿌리다	灑뿌리다	verb		suggested		spray
+물어내다	償어내다	verb		suggested		compensate
+물어내다	賠어내다	verb		suggested		pay damages
+물어떼다	咬어떼다	verb		suggested		bite off
+물어뜯다	咬어뜯다	verb		suggested		bite
+물어뜯다	嚙어뜯다	verb		suggested		gnaw
+뭉개다	潰개다	verb		suggested		crush
+뭉개다	壓개다	verb		suggested		squash
+뭉치다	團치다	verb		suggested		clump
+뭉치다	結치다	verb		suggested		bind together
+뭉클하다	感클하다	adj		suggested		moved
+미국화하다	美國化하다	verb		suggested		Americanize
+미비하다	未備하다	adj		suggested		incomplete
+미쁘다	孚쁘다	adj		suggested		trustworthy
+미쁘다	誠쁘다	adj		suggested		sincere
+미쁘다	允쁘다	adj		suggested		reliable
+미소짓다	微笑짓다	verb		suggested		smile
+미소하다	微笑하다	verb		suggested		smile
+미안하다	未安하다	adj		suggested	5	sorry
+미어지다	裂어지다	verb		suggested	2	be torn
+미어지다	破어지다	verb		suggested		be torn
+미역감다	浴감다	verb		suggested		bathe
+미역감다	沐감다	verb		suggested		bathe
+미적지근하다	微溫지근하다	adj		suggested		lukewarm
+미쳐지다	狂쳐지다	verb		suggested		go crazy
+미쳐지다	瘋쳐지다	verb		suggested		go mad
+미행하다	尾行하다	verb		suggested		tail
+미혹하다	迷惑하다	verb		suggested		confuse
+민감하다	敏感하다	adj		suggested		sensitive
+민영화하다	民營化하다	verb		suggested		privatize
+민주화되다	民主化되다	verb		suggested		democratized
+민주화하다	民主化하다	verb		suggested		democratize
+민하다	愚하다	adj		suggested	1	foolish
+민하다	鈍하다	adj		suggested	1	dull
+믿음직스럽다	信직스럽다	adj		suggested		reliable
+믿음직스럽다	賴직스럽다	adj		suggested		dependable
+믿음직하다	信직하다	adj		suggested		reliable
+믿음직하다	賴직하다	adj		suggested		dependable
+밀렵되다	密獵되다	verb		suggested		poached
+밀렵하다	密獵하다	verb		suggested		poach
+밀어붙이다	推어붙이다	verb		suggested		push ahead
+밀어붙이다	押어붙이다	verb		suggested		press
+밀접하다	密接하다	adj		suggested		close
+밀집되다	密集되다	verb		suggested		clustered
+밀집하다	密集하다	verb		suggested		cluster
+밋밋하다	平밋하다	adj		suggested		plain
+밋밋하다	淡밋하다	adj		suggested		bland
+밑돌다	下돌다	verb		suggested	4	fall below
+밑돌다	未돌다	verb		suggested	1	fall short
+밑지다	損지다	verb		suggested		lose money
+밑지다	虧지다	verb		suggested		lose
+바닥나다	盡닥나다	verb		suggested		run out
+바닥나다	竭닥나다	verb		suggested		deplete
+바듯하다	緊듯하다	adj		suggested		tight fit
+바듯하다	僅듯하다	adj		suggested		barely
+바람직하다	可직하다	adj		suggested		desirable
+바람직하다	宜직하다	adj		suggested		appropriate
+바람피우다	姦피우다	verb		suggested		affair
+바람피우다	浮피우다	verb		suggested		cheat
+바보스럽다	愚스럽다	adj		suggested		foolish
+바보스럽다	癡스럽다	adj		suggested		idiotic
+바빠지다	忙빠지다	verb		suggested	2	become busy
+바빠지다	忙지다	verb		suggested	2	get busy
+바뿌다	艱뿌다	adj		suggested		difficult
+바뿌다	難뿌다	adj		suggested		hard
+바수다	碎수다	verb		suggested	1	grind
+바수다	砕수다	verb		suggested		crush
+바쳐지다	獻쳐지다	verb		suggested		be offered
+바쳐지다	奉쳐지다	verb		suggested		dedicated
+박살나다	粉碎나다	verb		suggested		smashed
+박살나다	碎나다	verb		suggested		shattered
+박수하다	拍手하다	verb		suggested		clap
+박탈당하다	剝奪당하다	verb		suggested		deprived
+박탈되다	剝奪되다	verb		suggested		deprived
+박탈하다	剝奪하다	verb		suggested		deprive
+박하다	薄하다	adj		suggested		stingy
+박하다	吝하다	adj		suggested		mean
+박해하다	迫害하다	verb		suggested	1	persecute
+박히다	刺히다	verb		suggested		be stuck
+박히다	釘히다	verb		suggested		be nailed
+반공하다	反共하다	verb		suggested		anticommunist
+반납하다	返納하다	verb		suggested		return
+반납하다	還납하다	verb		suggested		give back
+반듯하다	正듯하다	adj		suggested		upright
+반듯하다	直듯하다	adj		suggested		straight
+반반하다	平반하다	adj		suggested		flat
+반반하다	坦반하다	adj		suggested		even
+반복하다	反復하다	verb		suggested	3	repeat
+반비례하다	反比例하다	verb		suggested		inversely proportional
+반영하다	反映하다	verb		suggested	1	reflect
+반응하다	反應하다	verb		suggested		react
+반죽하다	捏죽하다	verb		suggested	1	knead
+반죽하다	練죽하다	verb		suggested		knead
+반짝이다	輝짝이다	verb		suggested		glitter
+반짝이다	煌짝이다	verb		suggested		sparkle
+반하다	惚하다	verb		suggested		infatuated
+반하다	戀하다	verb		suggested	1	fall in love
+반항하다	反抗하다	verb		suggested		defy
+받아쓰다	書쓰다	verb		suggested		dictation
+받아쓰다	寫쓰다	verb		suggested	1	copy
+받치다	支치다	verb		suggested		support
+받치다	托치다	verb		suggested		prop up
+받히다	觸히다	verb		suggested	1	be butted
+받히다	衝히다	verb		suggested		be gored
+발가벗다	裸벗다	verb		suggested		be naked
+발가벗다	露벗다	verb		suggested		bare
+발간되다	發刊되다	verb		suggested		published
+발간하다	發刊하다	verb		suggested		publish
+발견되다	發見되다	verb		suggested	1	discovered
+발견하다	發見하다	verb		suggested	4	discover
+발광하다	發光하다	verb		suggested		emit light
+발굴되다	發掘되다	verb		suggested		unearthed
+발달하다	發達하다	verb		suggested	4	develop
+발라내다	剔라내다	verb		suggested		pick out
+발라내다	剝라내다	verb		suggested		peel out
+발랄하다	潑剌하다	adj		suggested		lively
+발리다	塗리다	verb		suggested		be smeared
+발리다	敷리다	verb		suggested		be applied
+발매되다	發賣되다	verb		suggested	1	released
+발매하다	發賣하다	verb		suggested		release
+발명되다	發明되다	verb		suggested	2	invented
+발명하다	發明하다	verb		suggested		invent
+발발하다	勃發하다	verb		suggested		break out
+발보이다	誇보이다	verb		suggested		show off
+발보이다	示보이다	verb		suggested		show
+발사하다	發射하다	verb		suggested		shoot
+발상하다	發想하다	verb		suggested		conceive idea
+발생하다	發生하다	verb		suggested	4	occur
+발전되다	發展되다	verb		suggested		developed
+발치하다	拔齒하다	verb		suggested		extract tooth
+발칙하다	不測하다	adj		suggested		impudent
+발칙하다	無禮칙하다	adj		suggested		impertinent
+발표되다	發表되다	verb		suggested		announced
+발휘하다	發揮하다	verb		suggested		exhibit
+밝혀내다	究혀내다	verb		suggested		find out
+밝혀내다	明혀내다	verb		suggested		reveal
+밝혀내다	察혀내다	verb		suggested		discern
+밟히다	踏히다	verb		suggested		be trodden
+밟히다	蹈히다	verb		suggested		be stepped on
+밤늦다	夜늦다	adj		suggested		late at night
+밤늦다	深늦다	adj		suggested		deep night
+밤새우다	夜새우다	verb		suggested		stay up
+밤일하다	夜일하다	verb		suggested		night work
+방귀뀌다	屁뀌다	verb		suggested		fart
+방목하다	放牧하다	verb		suggested		graze
+방문하다	訪問하다	verb		suggested		visit
+방송하다	放送하다	verb		suggested		broadcast
+방역하다	防疫하다	verb		suggested		prevent epidemic
+방치하다	放置하다	verb		suggested		neglect
+방탄하다	防彈하다	verb		suggested		bulletproof
+방탕하다	放蕩하다	adj		suggested		dissipated
+방한하다	訪韓하다	verb		suggested		visit Korea
+배기다	耐기다	verb		suggested		endure
+배기다	忍기다	verb		suggested		bear
+배달되다	配達되다	verb		suggested		delivered
+배달하다	配達하다	verb		suggested	1	deliver
+배반하다	背反하다	verb		suggested		betray
+배반하다	背叛하다	verb		suggested	2	betray
+배변하다	排便하다	verb		suggested		defecate
+배분하다	配分하다	verb		suggested		distribute
+배신하다	背信하다	verb		suggested		betray
+배웅하다	送웅하다	verb		suggested		see off
+배웅하다	餞웅하다	verb		suggested		send off
+버릇하다	慣릇하다	verb		suggested		be accustomed
+버릇하다	習릇하다	verb		suggested		habit
+버무리다	拌무리다	verb		suggested		mix together
+버무리다	和무리다	verb		suggested		blend
+벅차다	溢차다	adj		suggested		overflow
+벅차다	堪차다	adj		suggested		too much
+번영하다	繁榮하다	verb		suggested		prosper
+벌겋다	赤겋다	adj		suggested	1	red
+벌겋다	紅겋다	adj		suggested		red
+벌게지다	赤게지다	verb		suggested	1	redden
+벌게지다	紅게지다	verb		suggested		blush
+벌기다	剝기다	verb		suggested		peel
+벌기다	脫기다	verb		suggested		strip
+벌떡이다	動떡이다	verb		suggested		palpitate
+벌떡이다	搏떡이다	verb		suggested		throb
+벌어지다	生어지다	verb		suggested		occur
+벌어지다	開어지다	verb		suggested		split open
+벌어지다	起어지다	verb		suggested		take place
+벌이하다	稼이하다	verb		suggested		earn
+벗겨지다	脫겨지다	verb		suggested		come off
+벗겨지다	剝겨지다	verb		suggested		be peeled
+벼리다	鍛리다	verb		suggested		forge blade
+벼리다	礪리다	verb		suggested		sharpen
+변이하다	變異하다	verb		suggested		mutate
+변절하다	變節하다	verb		suggested		defect
+별다르다	別다르다	adj		suggested	1	special
+별다르다	殊다르다	adj		suggested		particular
+병존하다	竝存하다	verb		suggested		coexist
+보고하다	報告하다	verb		suggested		report
+보관하다	保管하다	verb		suggested		keep
+보도하다	報道하다	verb		suggested	1	report
+보류하다	保留하다	verb		suggested	4	defer
+보상하다	報償하다	verb		suggested		reward
+보상하다	補償하다	verb		suggested		compensate
+보완하다	補完하다	verb		suggested	1	supplement
+보우하다	保佑하다	verb		suggested	1	protect
+보위하다	保衛하다	verb		suggested		defend
+보잘것없다	微없다	adj		suggested		worthless
+보잘것없다	賤없다	adj		suggested		worthless
+보장되다	保障되다	verb		suggested		guaranteed
+보장하다	保障하다	verb		suggested		guarantee
+보전하다	保全하다	verb		suggested		preserve
+보존하다	保存하다	verb		suggested		preserve
+보증하다	保證하다	verb		suggested		guarantee
+보지하다	保持하다	verb		suggested		maintain
+보채다	催채다	verb		suggested		urge
+보채다	促채다	verb		suggested		hurry
+보충하다	補充하다	verb		suggested		supplement
+복되다	福되다	adj		suggested		blessed
+복되다	祥되다	adj		suggested		auspicious
+복받치다	湧받치다	verb		suggested		well up
+복받치다	激받치다	verb		suggested		surge
+복사하다	複寫하다	verb		suggested	2	copy
+복수하다	復讐하다	verb		suggested		revenge
+복습하다	復習하다	verb		suggested		review
+복용하다	服用하다	verb		suggested		take medicine
+복원하다	復元하다	verb		suggested		restore
+복잡하다	複雜하다	adj		suggested	24	complicated
+복종하다	服從하다	verb		suggested	1	obey
+볼메다	憤메다	adj		suggested		exasperated
+볼메다	慍메다	adj		suggested		ruffled
+봉분하다	封墳하다	verb		suggested		mound grave
+봉사하다	奉仕하다	verb		suggested	2	serve
+봉착하다	逢着하다	verb		suggested		run into
+부끄리다	恥리다	verb		suggested		ashamed
+부끄리다	愧리다	verb		suggested		ashamed
+부닥치다	當닥치다	verb		suggested		face
+부닥치다	遭닥치다	verb		suggested		encounter
+부닥치다	遇닥치다	verb		suggested		encounter
+부담하다	負擔하다	verb		suggested		shoulder
+부당하다	不當하다	adj		suggested		unjust
+부대끼다	擾대끼다	verb		suggested		jostle
+부대끼다	苦대끼다	verb		suggested		be troubled
+부도덕하다	不道德하다	adj		suggested		immoral
+부둥키다	抱둥키다	verb		suggested		hug
+부둥키다	擁둥키다	verb		suggested		embrace
+부딪다	撞딪다	verb		suggested		strike
+부딪다	衝딪다	verb		suggested		collide
+부딪다	觸딪다	verb		suggested		hit
+부럼없다	無없다	adj		suggested		nothing to envy
+부려먹다	使려먹다	verb		suggested		use
+부려먹다	役려먹다	verb		suggested		exploit
+부르트다	疱트다	verb		suggested		blister
+부리이다	使이다	verb		suggested	3	be employed
+부리이다	役이다	verb		suggested		be in service
+부상하다	負傷하다	verb		suggested		wound
+부시다	眩시다	adj		suggested		dazzling
+부시다	耀시다	adj		suggested		glaring
+부시다	洗시다	verb		suggested		wash
+부시다	濯시다	verb		suggested		rinse
+부시다	滌시다	verb		suggested		rinse
+부여하다	賦與하다	verb		suggested		grant
+부인하다	否認하다	verb		suggested		deny
+부임하다	赴任하다	verb		suggested		take post
+부적합하다	不適合하다	adj		suggested		unsuitable
+부정하다	否定하다	verb		suggested	1	deny
+부정확하다	不正確하다	adj		suggested		inaccurate
+부착되다	附着되다	verb		suggested		attached
+분기되다	分岐되다	verb		suggested		branch off
+분기하다	分岐하다	verb		suggested		branch off
+분납하다	分納하다	verb		suggested		pay in instalments
+분리하다	分離하다	verb		suggested	2	separate
+분배하다	分配하다	verb		suggested		distribute
+분별되다	分別되다	verb		suggested		distinguished
+분별하다	分別하다	verb		suggested		distinguish
+분실하다	紛失하다	verb		suggested		lose
+분실하다	失실하다	verb		suggested	3	lose
+분열하다	分裂하다	verb		suggested		split
+분주하다	奔走하다	adj		suggested		busy
+분포하다	分布하다	verb		suggested		distributed
+분해되다	分解되다	verb		suggested		disassembled
+분해하다	分解하다	verb		suggested		disassemble
+불가사의하다	不可思議하다	adj		suggested		mysterious
+불가피하다	不可避하다	adj		suggested	1	inevitable
+불가해하다	不可解하다	adj		suggested		incomprehensible
+불경스럽다	不敬스럽다	adj		suggested		disrespectful
+불경하다	不敬하다	adj		suggested	1	irreverent
+불공평하다	不公平하다	adj		suggested		unfair
+불과하다	不過하다	adj		suggested	1	no more than
+불구하다	不拘하다	verb		suggested	2	despite
+불규칙하다	不規則하다	adj		suggested		irregular
+불길하다	不吉하다	adj		suggested	1	ominous
+불러오다	呼러오다	verb		suggested		call in
+불러오다	招러오다	verb		suggested		summon
+불러오다	致러오다	verb		suggested		bring about
+불러일으키다	喚러일으키다	verb		suggested		arouse
+불러일으키다	起일으키다	verb		suggested		raise
+불러일으키다	惹일으키다	verb		suggested		provoke
+불룩하다	隆룩하다	adj		suggested		bulging
+불룩하다	膨룩하다	adj		suggested		swollen
+불륜하다	不倫하다	verb		suggested		have affair
+불복하다	不服하다	verb		suggested		disobey
+불안하다	不安하다	adj		suggested		uneasy
+불어오다	吹어오다	verb		suggested		blow in
+불어오다	起어오다	verb		suggested		originate
+불완전하다	不完全하다	adj		suggested		incomplete
+불운하다	不運하다	adj		suggested		unlucky
+불지르다	燒지르다	verb		suggested		burn
+불충하다	不忠하다	verb		suggested		disloyal
+불치다	去치다	verb		suggested		castrate (weak)
+불치다	騸치다	verb		suggested		castrate
+불친절하다	不親切하다	adj		suggested		unkind
+불쾌하다	不快하다	adj		suggested	1	unpleasant
+불필요하다	不必要하다	adj		suggested		unnecessary
+불행하다	不幸하다	adj		suggested	1	unhappy
+불효하다	不孝하다	verb		suggested		unfilial
+붐비다	混비다	verb		suggested		crowded
+붐비다	擁비다	verb		suggested		packed
+붕괴되다	崩壞되다	verb		suggested		collapsed
+붕괴하다	崩壞하다	verb		suggested	1	collapse
+비겁하다	卑怯하다	adj		suggested		cowardly
+비기다	比기다	verb		suggested		compare
+비기다	擬기다	verb		suggested	1	liken
+비기다	平기다	verb		suggested		draw
+비난하다	非難하다	verb		suggested	1	condemn
+비뚤다	歪뚤다	adj		suggested		crooked
+비뚤다	斜뚤다	adj		suggested		skew
+비뚤다	曲뚤다	adj		suggested		bent
+비롯되다	始롯되다	verb		suggested		start
+비롯되다	起롯되다	verb		suggested		originate
+비릿하다	腥릿하다	adj		suggested		fishy
+비릿하다	臭릿하다	adj		suggested		smelly
+비밀스럽다	祕密스럽다	adj		suggested		secret
+비범하다	非凡하다	adj		suggested		extraordinary
+비상하다	非常하다	adj		suggested	1	extreme
+비속하다	卑俗하다	adj		suggested		vulgar
+비약하다	飛躍하다	verb		suggested		leap
+비열하다	卑劣하다	adj		suggested		base
+비옥하다	肥沃하다	adj		suggested		fertile
+비집다	抉집다	verb		suggested		pry open
+비집다	擠집다	verb		suggested		squeeze in
+비참하다	悲慘하다	adj		suggested		miserable
+비축하다	備蓄하다	verb		suggested		stockpile
+비축하다	貯축하다	verb		suggested		store up
+비틀거리다	蹣틀거리다	verb		suggested		stagger
+비틀거리다	逶틀거리다	verb		suggested		totter
+비틀대다	蹣틀대다	verb		suggested		stagger
+비틀대다	逶틀대다	verb		suggested		totter
+비판하다	批判하다	verb		suggested	2	criticize
+비호하다	庇護하다	verb		suggested		protect
+빈곤하다	貧困하다	adj		suggested		poor
+빈둥거리다	遊둥거리다	verb		suggested		laze about
+빈둥거리다	閑둥거리다	verb		suggested		idle
+빈둥대다	遊둥대다	verb		suggested		laze about
+빈둥대다	閑둥대다	verb		suggested		idle
+빈틈없다	隙없다	adj		suggested		no gap
+빗나가다	外나가다	verb		suggested		miss
+빗나가다	逸나가다	verb		suggested		stray
+빗나가다	違나가다	verb		suggested		deviate
+빗맞다	外맞다	verb		suggested		miss
+빗맞다	違맞다	verb		suggested		miss
+빗발치다	雨치다	verb		suggested		rain down
+빗발치다	驟치다	verb		suggested		pour
+빛발치다	光치다	verb		suggested		ray
+빛발치다	輝치다	verb		suggested		shine
+빠개다	割개다	verb		suggested		split
+빠개다	裂개다	verb		suggested		cleave
+빠개다	劈개다	verb		suggested		cut
+빠듯하다	緊듯하다	adj		suggested		tight fit
+빠듯하다	僅듯하다	adj		suggested		barely
+빠져나가다	脫져나가다	verb		suggested		get out
+빠져나가다	拔져나가다	verb		suggested		slip out
+빠져나가다	出져나가다	verb		suggested		go out
+빠져나오다	脫져나오다	verb		suggested		escape
+빠져나오다	拔져나오다	verb		suggested		get out
+빠져나오다	出져나오다	verb		suggested		come out
+빡세다	苛세다	adj		suggested		tough
+빡세다	酷세다	adj		suggested		harsh
+빡치다	怒치다	verb		suggested		angry
+빡치다	憤치다	verb		suggested		enraged
+빤질거리다	滑질거리다	verb		suggested		glossy
+빤질거리다	光질거리다	verb		suggested		glisten
+빤하다	明하다	adj		suggested	1	clear
+빤하다	顯하다	adj		suggested		evident
+빨리감다	速감다	verb		suggested		fast forward
+빨아내다	吸아내다	verb		suggested		suck out
+빨아들이다	吸아들이다	verb		suggested		suck in
+빨아들이다	吮아들이다	verb		suggested		suck
+빨아먹다	吸아먹다	verb		suggested		suck
+빨아먹다	吮아먹다	verb		suggested		suck
+빨아올리다	吸아올리다	verb		suggested		suck up
+빼내다	拔내다	verb		suggested		pull out
+빼내다	抽내다	verb		suggested		extract
+빼내다	竊내다	verb		suggested		pilfer
+빼닮다	似닮다	verb		suggested		resemble
+빼닮다	肖닮다	verb		suggested		look alike
+빼들다	拔들다	verb		suggested		draw out
+빼들다	抽들다	verb		suggested		pull out
+빼빼하다	瘦빼하다	adj		suggested		skinny
+빼빼하다	痩빼하다	adj		suggested		lean
+빼치다	拔치다	verb		suggested		extricate
+빼치다	脫치다	verb		suggested		escape
+뺑소니치다	逃치다	verb		suggested		hit-and-run
+뺑소니치다	遁치다	verb		suggested		flee
+뻐근하다	痛근하다	adj		suggested		stiff
+뻐근하다	强근하다	adj		suggested	2	stiff
+뻔뻔스럽다	厚顔스럽다	adj		suggested		shameless
+뻔뻔하다	厚顔하다	adj		suggested		shameless
+뻘쭘하다	窘쭘하다	adj		suggested		awkward
+뻘쭘하다	羞쭘하다	adj		suggested		embarrassed
+뻥치다	欺치다	verb		suggested		lie
+뻥치다	誑치다	verb		suggested		deceive
+뽀뽀하다	吻하다	verb		suggested		kiss
+뽐내다	誇내다	verb		suggested		boast
+뽐내다	傲내다	verb		suggested		haughty
+뽐내다	矜내다	verb		suggested		proud
+뽑히다	拔히다	verb		suggested		be pulled out
+뽑히다	選히다	verb		suggested		be chosen
+뾰로통하다	慍로통하다	adj		suggested		sulky
+뾰로통하다	憮로통하다	adj		suggested		sullen
+뿌리치다	拂리치다	verb		suggested		shake off
+뿌리치다	拒리치다	verb		suggested		refuse
+뿌리치다	振리치다	verb		suggested		shake off
+삐딱하다	斜딱하다	adj		suggested		slanted
+삐딱하다	歪딱하다	adj		suggested		skewed
+사고하다	思考하다	verb		suggested		think
+사과하다	謝過하다	verb		suggested	1	apologize
+사랍다	愛랍다	adj		suggested		lovable
+사로잡히다	捕로잡히다	verb		suggested		be caught
+사로잡히다	虜로잡히다	verb		suggested		be captured
+사막화되다	沙漠化되다	verb		suggested		desertified
+사막화하다	沙漠化하다	verb		suggested		desertify
+사소하다	些少하다	adj		suggested		trivial
+사소하다	瑣소하다	adj		suggested		trifling
+사악하다	邪惡하다	adj		suggested	5	wicked
+사죄하다	謝罪하다	verb		suggested	1	apologize
+사퇴하다	辭退하다	verb		suggested		resign
+사하다	赦하다	verb		suggested		forgive
+삭이다	消이다	verb		suggested	1	digest
+삭이다	消化이다	verb		suggested		digest
+삭이다	酵이다	verb		suggested		ferment
+삭제하다	削除하다	verb		suggested	4	delete
+산뜻하다	爽뜻하다	adj		suggested		refreshing
+산뜻하다	鮮뜻하다	adj		suggested		fresh
+산책하다	散策하다	verb		suggested	1	stroll
+살뜰하다	誠뜰하다	adj		suggested		sincere
+살뜰하다	懇뜰하다	adj		suggested		earnest
+살벌하다	殺伐하다	adj		suggested		brutal
+살살하다	狡살하다	adj		suggested		sly
+살살하다	猾살하다	adj		suggested		cunning
+살아남다	生아남다	verb		suggested		survive
+살아남다	存아남다	verb		suggested		survive
+살아남다	殘아남다	verb		suggested		remain
+살아오다	生아오다	verb		suggested		have lived
+살아지다	消아지다	verb		suggested	1	vanish
+살인하다	殺人하다	verb		suggested		murder
+살해되다	殺害되다	verb		suggested	1	murdered
+살해하다	殺害하다	verb		suggested		murder
+상관하다	相關하다	verb		suggested		care
+상그랍다	難그랍다	adj		suggested		difficult
+상냥하다	優냥하다	adj		suggested		kind
+상냥하다	柔냥하다	adj		suggested		gentle
+상냥하다	親냥하다	adj		suggested		friendly
+상담하다	相談하다	verb		suggested		consult
+상당하다	相當하다	adj		suggested	1	considerable
+상상하다	想像하다	verb		suggested	1	imagine
+상세하다	詳細하다	adj		suggested	2	detailed
+상스럽다	常스럽다	adj		suggested	1	vulgar
+상스럽다	卑스럽다	adj		suggested		coarse
+상의하다	相議하다	verb		suggested		discuss
+상이하다	相異하다	adj		suggested		different
+상정하다	上程하다	verb		suggested		present
+상정하다	想定하다	verb		suggested	2	postulate
+상징하다	象徵하다	verb		suggested		symbolise
+상환되다	償還되다	verb		suggested		repaid
+새까맣다	漆까맣다	adj		suggested		jet-black
+새까맣다	黑까맣다	adj		suggested		black
+새빨갛다	眞빨갛다	adj		suggested	1	scarlet
+새빨갛다	赤빨갛다	adj		suggested	1	red
+새빨갛다	紅빨갛다	adj		suggested		crimson
+새콤하다	酸콤하다	adj		suggested		sourish
+새파랗다	碧파랗다	adj		suggested		deep blue
+새파랗다	靑파랗다	adj		suggested	1	blue
+새하얗다	白하얗다	adj		suggested	2	white
+새하얗다	純하얗다	adj		suggested		pure white
+색칠되다	色漆되다	verb		suggested		painted
+색칠되다	彩칠되다	verb		suggested		coloured
+색칠하다	彩칠하다	verb		suggested		colour
+색칠하다	塗칠하다	verb		suggested		paint
+샘솟다	湧솟다	verb		suggested		well up
+샘솟다	泉솟다	verb		suggested		spring
+샛노랗다	黃노랗다	adj		suggested	2	yellow
+샛노랗다	金노랗다	adj		suggested		golden yellow
+생산되다	生産되다	verb		suggested		produced
+생산하다	生産하다	verb		suggested	2	produce
+생존하다	生存하다	verb		suggested	3	survive
+생활하다	生活하다	verb		suggested		live
+샵차리다	店차리다	verb		suggested		set up shop
+서글프다	悲글프다	adj		suggested		sad
+서글프다	哀글프다	adj		suggested		sorrowful
+서럽다	悲럽다	adj		suggested		sorrowful
+서럽다	哀럽다	adj		suggested		sad
+서럽다	慟럽다	adj		suggested		grief
+서머하다	愧머하다	adj		suggested		ashamed
+서머하다	慚머하다	adj		suggested		ashamed
+서명하다	署名하다	verb		suggested		sign
+서성거리다	徘성거리다	verb		suggested		pace
+서성거리다	徊성거리다	verb		suggested		wander
+서성거리다	彷성거리다	verb		suggested		wander
+서술하다	敍述하다	verb		suggested		narrate
+서슴다	躊슴다	verb		suggested		hesitate
+서슴다	躇슴다	verb		suggested		hesitate
+서약하다	誓約하다	verb		suggested		vow
+석방하다	釋放하다	verb		suggested		release
+선거하다	選擧하다	verb		suggested		elect
+선고하다	宣告하다	verb		suggested		sentence
+선동하다	煽動하다	verb		suggested		incite
+선량하다	善良하다	adj		suggested		kind-hearted
+선명하다	鮮明하다	adj		suggested		vivid
+선물하다	膳物하다	verb		suggested		give gift
+선별하다	選別하다	verb		suggested		select
+선언되다	宣言되다	verb		suggested		declared
+선언하다	宣言하다	verb		suggested		declare
+선하다	鮮하다	adj		suggested	1	vivid
+선하다	善하다	adj		suggested	1	good
+선호되다	選好되다	verb		suggested	2	preferred
+섣부르다	早부르다	adj		suggested	1	hasty
+섣부르다	輕부르다	adj		suggested	3	rash
+설더구하다	多구하다	verb		suggested	13	eat a lot
+설득하다	說得하다	verb		suggested		persuade
+설립하다	設立하다	verb		suggested		establish
+설치되다	設置되다	verb		suggested	1	installed
+설하다	說하다	verb		suggested		preach
+섧다	悲다	adj		suggested		sad
+섧다	哀다	adj		suggested		sorrowful
+섬뜩하다	悚뜩하다	adj		suggested		eerie
+섬뜩하다	慄뜩하다	adj		suggested		horrifying
+섬세하다	纖細하다	adj		suggested		delicate
+섭취하다	攝取하다	verb		suggested	1	ingest
+성가시다	煩가시다	adj		suggested		annoying
+성가시다	累가시다	adj		suggested		troublesome
+성교하다	性交하다	verb		suggested		copulate
+성급하다	性急하다	adj		suggested		hasty
+성대하다	盛大하다	adj		suggested		grand
+성사되다	成事되다	verb		suggested		accomplished
+성스럽다	聖스럽다	adj		suggested		holy
+성실하다	誠實하다	adj		suggested		conscientious
+성장하다	成長하다	verb		suggested		grow
+성폭행하다	性暴行하다	verb		suggested		rape
+성하다	完하다	verb		suggested		intact
+성하다	全하다	verb		suggested	7	whole
+성하다	盛하다	adj		suggested		flourishing
+성하다	旺하다	adj		suggested		vigorous
+성하다	繁하다	adj		suggested		prosperous
+세뇌하다	洗腦하다	verb		suggested		brainwash
+세련되다	洗練되다	adj		suggested		refined
+세수하다	洗手하다	verb		suggested		wash face
+세수하다	洗수하다	verb		suggested		wash
+세탁하다	洗濯하다	verb		suggested		launder
+소각하다	燒却하다	verb		suggested		incinerate
+소개되다	紹介되다	verb		suggested		introduced
+소녀답다	少女답다	adj		suggested		girlish
+소란스럽다	騷亂스럽다	adj		suggested		noisy
+소리지르다	叫지르다	verb		suggested		yell
+소리지르다	喝지르다	verb		suggested		shout
+소리치다	叫치다	verb		suggested	3	shout
+소리치다	喝치다	verb		suggested		yell
+소리하다	唱하다	verb		suggested	1	sing
+소멸하다	消滅하다	verb		suggested	4	vanish
+소문나다	聞나다	verb		suggested	6	become known
+소문나다	傳나다	verb		suggested		spread
+소박하다	素朴하다	adj		suggested		simple
+소변보다	小便보다	verb		suggested		urinate
+소비하다	消費하다	verb		suggested		consume
+소소하다	小小하다	adj		suggested		small
+소스라치다	驚라치다	verb		suggested		startled
+소스라치다	悚라치다	verb		suggested		scared
+소실하다	消失하다	verb		suggested		vanish
+소심하다	小心하다	adj		suggested		timid
+소용없다	所用없다	adj		suggested		useless
+소원하다	所願하다	verb		suggested		wish
+소유하다	所有하다	verb		suggested		own
+소제하다	掃除하다	verb		suggested		clean
+소지하다	所持하다	verb		suggested		possess
+소집하다	召集하다	verb		suggested		convene
+소화하다	消化하다	verb		suggested		digest
+속되다	俗되다	adj		suggested	1	vulgar
+속되다	俚되다	adj		suggested		rustic
+속삭이다	囁삭이다	verb		suggested		whisper
+속삭이다	耳삭이다	verb		suggested		murmur
+속상하다	傷하다	verb		suggested	3	hurt
+속상하다	心傷하다	verb		suggested		feel depressed
+속출하다	續出하다	verb		suggested		appear one after another
+손꼽히다	屈꼽히다	verb		suggested		be counted
+손꼽히다	指꼽히다	verb		suggested		be counted
+손대다	手대다	verb		suggested		lay hands on
+손대다	觸대다	verb		suggested	1	touch
+손상하다	損傷하다	verb		suggested		damage
+손쉽다	易쉽다	adj		suggested		easy
+손싸다	宜싸다	adj		suggested		suitable
+손질하다	手질하다	verb		suggested		repair
+손질하다	修질하다	verb		suggested		mend
+솔깃하다	惑깃하다	adj		suggested		tempted
+솔깃하다	傾깃하다	adj		suggested	1	inclined
+솔직하다	率直하다	adj		suggested		frank
+송구하다	悚懼하다	adj		suggested		sorry
+송구하다	送球하다	verb		suggested		throw ball
+수고하다	受苦하다	verb		suggested	2	take trouble
+수교하다	修交하다	verb		suggested		establish relations
+수근거리다	耳근거리다	verb		suggested		whisper
+수근거리다	囁근거리다	verb		suggested		whisper
+수다떨다	喋떨다	verb		suggested		chatter
+수다스럽다	喋스럽다	adj		suggested		talkative
+수다스럽다	饒舌스럽다	adj		suggested		garrulous
+수리하다	修理하다	verb		suggested		repair
+수북하다	盛북하다	adj		suggested		heaped
+수북하다	高북하다	adj		suggested		piled up
+수사하다	搜査하다	verb		suggested		investigate
+수상하다	殊常하다	adj		suggested	2	suspicious
+수상하다	受賞하다	verb		suggested		win award
+수소문하다	搜所聞하다	verb		suggested		enquire
+수수하다	素수하다	adj		suggested		plain
+수수하다	質수하다	adj		suggested		simple
+수수하다	授受하다	verb		suggested		receive
+수술하다	手術하다	verb		suggested		operate
+수습하다	收拾하다	verb		suggested		collect
+수영하다	水泳하다	verb		suggested		swim
+수입하다	輸入하다	verb		suggested	2	import
+수줍다	羞줍다	adj		suggested		bashful
+수줍다	慙줍다	adj		suggested		shy
+수출하다	輸出하다	verb		suggested		export
+수취하다	受取하다	verb		suggested		receive
+수틀리다	乖틀리다	verb		suggested		upset
+수틀리다	違틀리다	verb		suggested		go wrong
+수행하다	遂行하다	verb		suggested		perform
+수혈하다	輸血하다	verb		suggested		transfuse blood
+수확하다	收穫하다	verb		suggested		harvest
+숙고하다	熟考하다	verb		suggested		ponder
+숙박하다	宿泊하다	verb		suggested	1	lodge
+숙성되다	熟成되다	verb		suggested		matured
+순박하다	淳朴하다	adj		suggested		naive
+순수하다	純粹하다	adj		suggested		pure
+순진하다	純眞하다	adj		suggested		innocent
+숨가쁘다	喘가쁘다	verb		suggested		out of breath
+숨가쁘다	息가쁘다	verb		suggested		breath
+숨거두다	息거두다	verb		suggested		breathe last
+숨거두다	死거두다	verb		suggested	1	die
+숨넘어가다	息넘어가다	verb		suggested		expire
+숨넘어가다	死넘어가다	verb		suggested	1	die
+숨돌리다	息돌리다	verb		suggested		take breath
+숨돌리다	憩돌리다	verb		suggested		rest
+숨막히다	窒막히다	verb		suggested		suffocate
+숨막히다	塞막히다	verb		suggested		choke
+숨죽이다	息죽이다	verb		suggested		hold breath
+숨죽이다	潛죽이다	verb		suggested		keep quiet
+숨차다	喘차다	verb		suggested		out of breath
+숨차다	息차다	verb		suggested		breathless
+숫하다	純하다	adj		suggested		pure
+숫하다	初하다	adj		suggested	3	innocent
+숭배되다	崇拜되다	verb		suggested		worshipped
+스며들다	滲며들다	verb		suggested		permeate
+스며들다	浸며들다	verb		suggested	1	soak in
+스며들다	沁며들다	verb		suggested		percolate
+스산하다	蕭散하다	adj		suggested		bleak
+스산하다	凄산하다	adj		suggested		chilly
+습윤하다	濕潤하다	adj		suggested		humid
+승낙하다	承諾하다	verb		suggested		consent
+승리당하다	勝利당하다	verb		suggested		unexpected victory
+승리하다	勝利하다	verb		suggested		win
+승인하다	承認하다	verb		suggested	2	approve
+승진되다	昇進되다	verb		suggested		promoted
+승진시키다	昇進시키다	verb		suggested		promote
+승진하다	昇進하다	verb		suggested		be promoted
+시꺼멓다	黑꺼멓다	adj		suggested		deep black
+시꺼멓다	漆꺼멓다	adj		suggested		jet black
+시끌시끌하다	喧끌시끌하다	adj		suggested		noisy
+시도하다	試圖하다	verb		suggested	6	attempt
+시무룩하다	憮무룩하다	adj		suggested		morose
+시무룩하다	鬱무룩하다	adj		suggested		gloomy
+시시덕거리다	戲덕거리다	verb		suggested		joke
+시시덕거리다	笑덕거리다	verb		suggested		laugh and chat
+시시하다	瑣시하다	adj		suggested		trivial
+시시하다	些시하다	adj		suggested		insignificant
+시원해지다	涼해지다	verb		suggested		cool down
+시원해지다	爽해지다	verb		suggested	6	refreshed
+시위하다	示威하다	verb		suggested		demonstrate
+시유하다	施釉하다	verb		suggested		apply glaze
+시작되다	始作되다	verb		suggested	1	begin
+시장하다	市場하다	adj		suggested		hungry (weak)
+시장하다	饑장하다	adj		suggested		hungry
+시장하시다	饑장하시다	adj		suggested		hungry
+시집보내다	嫁집보내다	verb		suggested		marry off
+시집보내다	婚집보내다	verb		suggested		marry off
+시청하다	視聽하다	verb		suggested	1	watch
+시커멓다	黑커멓다	adj		suggested		deep black
+시커멓다	漆커멓다	adj		suggested		jet black
+시큼하다	酸큼하다	adj		suggested		sour
+시푸다	欲푸다	verb		suggested	1	want
+시푸다	願푸다	verb		suggested		desire
+시험하다	試驗하다	verb		suggested	1	test
+식겁하다	食怯하다	verb		suggested		freak out
+식민지화하다	植民地化하다	verb		suggested		colonize
+신격화되다	神格化되다	verb		suggested		deified
+신격화하다	神格化하다	verb		suggested		deify
+신고하다	申告하다	verb		suggested	2	report
+신뢰하다	信賴하다	verb		suggested		trust
+신박하다	新박하다	adj		suggested		novel
+신박하다	奇박하다	adj		suggested		interesting
+신비스럽다	神祕스럽다	adj		suggested		mysterious
+신비하다	神祕하다	adj		suggested		mysterious
+신선하다	新鮮하다	adj		suggested	1	fresh
+신성하다	神聖하다	adj		suggested	2	sacred
+신세지다	身世지다	verb		suggested		receive help
+신임하다	信任하다	verb		suggested		trust
+신중하다	愼重하다	adj		suggested	1	careful
+신청하다	申請하다	verb		suggested	1	apply
+실망시키다	失望시키다	verb		suggested		disappoint
+실망하다	失望하다	verb		suggested		disappointed
+실성하다	失性하다	verb		suggested		lose mind
+실수하다	失手하다	verb		suggested		make mistake
+실시되다	實施되다	verb		suggested		take effect
+실어나르다	載어나르다	verb		suggested		convey
+실어나르다	運어나르다	verb		suggested		transport
+실종되다	失踪되다	verb		suggested		go missing
+실직하다	失職하다	verb		suggested		lose job
+실천하다	實踐하다	verb		suggested	4	carry out
+실하다	實하다	adj		suggested		solid
+실하다	堅하다	adj		suggested		sturdy
+실행하다	實行하다	verb		suggested	1	execute
+실험하다	實驗하다	verb		suggested	1	experiment
+실현하다	實現하다	verb		suggested		realize
+싫어지다	嫌어지다	verb		suggested		come to hate
+싫어지다	厭어지다	verb		suggested		become disgusted
+싫어지다	惡어지다	verb		suggested	1	loathe
+심란하다	心亂하다	adj		suggested		disturbed
+심문하다	審問하다	verb		suggested		interrogate
+심부름하다	使부름하다	verb		suggested		run errand
+심오하다	深奧하다	adj		suggested		profound
+심의하다	審議하다	verb		suggested		deliberate
+싱그럽다	新그럽다	adj		suggested		fresh
+싱그럽다	鮮그럽다	adj		suggested		fresh
+싱싱하다	新싱하다	adj		suggested		fresh
+싱싱하다	鮮싱하다	adj		suggested		fresh
+싸고돌다	圍고돌다	verb		suggested		crowd around
+싸고돌다	庇고돌다	verb		suggested		shield
+싸늘하다	冷늘하다	adj		suggested		chilly
+싸늘하다	凉늘하다	adj		suggested		cool
+싸돌다	圍돌다	verb		suggested		cluster around
+싸돌아다니다	徘돌아다니다	verb		suggested		wander
+싸돌아다니다	遊돌아다니다	verb		suggested		roam
+싸잡다	包잡다	verb		suggested		wrap and hold
+싸잡다	括잡다	verb		suggested		lump together
+싸하다	辛하다	adj		suggested		pungent
+싸하다	刺하다	adj		suggested		stinging
+쌀쌀하다	冷쌀하다	adj		suggested		chilly
+쌀쌀하다	凉쌀하다	adj		suggested		cool
+쌓여지다	積여지다	verb		suggested		piled up
+쌓여지다	累여지다	verb		suggested		accumulate
+쌔비다	竊비다	verb		suggested		steal
+쌔비다	盜비다	verb		suggested		steal
+써리다	耙리다	verb		suggested		harrow
+썩음썩음하다	腐음썩음하다	adj		suggested		nearly rotten
+썩음썩음하다	朽음썩음하다	adj		suggested		decaying
+쏘다니다	遊다니다	verb		suggested		roam
+쏘다니다	徘다니다	verb		suggested		wander
+쏘아보다	睨아보다	verb		suggested		glare
+쏘아보다	瞪아보다	verb		suggested		glare
+쏘아보다	射아보다	verb		suggested		shoot a glance
+쏠다	嚙다	verb		suggested		gnaw
+쏠다	齧다	verb		suggested		nibble
+쐬다	當다	verb		suggested	12	air oneself
+쐬다	吹다	verb		suggested	2	expose to wind
+쑤셔넣다	塞셔넣다	verb		suggested		stuff
+쑤셔넣다	詰셔넣다	verb		suggested		cram
+쑤셔넣다	納셔넣다	verb		suggested		put in
+쑤시다	刺시다	verb		suggested		poke
+쑤시다	穿시다	verb		suggested		pick
+쓸리다	掃리다	verb		suggested		be swept
+쓸리다	拂리다	verb		suggested		be brushed
+쓸모없다	無用없다	adj		suggested		useless
+쓸모없다	無益없다	adj		suggested		worthless
+쓸어일어나다	一斉일어나다	verb		suggested		all at once
+쓸어일어나다	起어나다	verb		suggested	10	wake up
+씁쓸하다	苦쓸하다	adj		suggested		bitter
+씁쓸하다	澁쓸하다	adj		suggested		bitterish
+씨루다	爭루다	verb		suggested		compete
+씨루다	鬪루다	verb		suggested		fight
+씨불이다	喋불이다	verb		suggested		babble
+씨불이다	囉불이다	verb		suggested		talk carelessly
+씨뿌리다	種뿌리다	verb		suggested		sow seeds
+씨뿌리다	播뿌리다	verb		suggested		sow
+아늑하다	安늑하다	adj		suggested		comfortable
+아늑하다	穩늑하다	adj		suggested		cozy
+아니꼽다	憐꼽다	adj		suggested		pity
+아니꼽다	憫꼽다	adj		suggested		compassion
+아듬다	抱듬다	verb		suggested		hug
+아듬다	擁듬다	verb		suggested		embrace
+아련하다	依련하다	adj		suggested		faint
+아련하다	微련하다	adj		suggested		dim
+아리땁다	嬌리땁다	adj		suggested		graceful
+아리땁다	娜리땁다	adj		suggested		elegant
+아리땁다	婷리땁다	adj		suggested		graceful
+아리키다	敎키다	verb		suggested		teach
+아리키다	訓키다	verb		suggested		instruct
+아무찮다	佳찮다	verb		suggested		fine
+아무찮다	善찮다	verb		suggested		good
+아빠다리하다	胡坐하다	verb		suggested		cross-legged
+아스라하다	遙스라하다	adj		suggested		distant
+아스라하다	遠스라하다	adj		suggested		remote
+아스라하다	杳스라하다	adj		suggested		far and dim
+아슴채이다	感채이다	adj		suggested		thankful
+아슴채이다	謝채이다	adj		suggested		grateful
+아슴턚다	感턚다	adj		suggested		thankful
+아슴턚다	謝턚다	adj		suggested		grateful
+아첨하다	阿諂하다	verb		suggested		flatter
+악랄하다	惡辣하다	adj		suggested		vicious
+악물다	嚙물다	verb		suggested		grit
+악물다	咬물다	verb		suggested		clench teeth
+악수하다	握手하다	verb		suggested		shake hands
+악착같다	齷齪같다	adj		suggested		tenacious
+악착스럽다	齷齪스럽다	adj		suggested		tenacious
+악하다	惡하다	adj		suggested	2	evil
+악하다	劣하다	adj		suggested	7	bad
+악화되다	惡化되다	verb		suggested		worsen
+악화시키다	惡化시키다	verb		suggested		aggravate
+악화하다	惡化하다	verb		suggested		worsen
+안내하다	案內하다	verb		suggested		guide
+안내하다	導내하다	verb		suggested		lead
+안절부절못하다	不安하다	verb		suggested		restless
+안정되다	安定되다	verb		suggested		stable
+안타까워하다	憐워하다	verb		suggested		pity
+안타까워하다	惜워하다	verb		suggested		regret
+알랑거리다	阿랑거리다	verb		suggested		flatter
+알랑거리다	諂랑거리다	verb		suggested		fawn
+알려지다	知려지다	verb		suggested		be known
+알려지다	聞려지다	verb		suggested	5	become known
+알아차리다	察차리다	verb		suggested		notice
+알아차리다	悟차리다	verb		suggested		realise
+알아차리다	覺차리다	verb		suggested		become aware
+알차다	實차다	adj		suggested		full
+알차다	充차다	adj		suggested		rich
+앓아눕다	病눕다	verb		suggested		fall ill
+앓아눕다	臥눕다	verb		suggested		lie sick
+암기하다	暗記하다	verb		suggested	1	memorize
+암담하다	暗澹하다	adj		suggested		dismal
+암송하다	暗誦하다	verb		suggested		recite
+암시하다	暗示하다	verb		suggested		hint
+압도하다	壓倒하다	verb		suggested		overwhelm
+압박하다	壓迫하다	verb		suggested		press
+앙다물다	閉다물다	verb		suggested		shut tightly
+앙다물다	緘다물다	verb		suggested		seal
+앞두다	前두다	verb		suggested		have ahead
+앞두다	臨두다	verb		suggested		face
+앞세우다	先세우다	verb		suggested		put ahead
+앞세우다	導세우다	verb		suggested		lead
+애매모호하다	曖昧模糊하다	adj		suggested		ambiguous
+애무하다	愛撫하다	verb		suggested		caress
+애석하다	哀惜하다	adj		suggested		pitiful
+애쓰다	努쓰다	verb		suggested		strive
+애쓰다	勞쓰다	verb		suggested		exert
+애쓰다	勉쓰다	verb		suggested		endeavour
+애원하다	哀願하다	verb		suggested		plead
+애월하다	愛月하다	verb		suggested		love the Moon
+애젊다	若젊다	adj		suggested		very young
+애젊다	少젊다	adj		suggested		young
+애처롭다	哀처롭다	adj		suggested		pitiful
+애처롭다	憐처롭다	adj		suggested		pathetic
+애청하다	愛聽하다	verb		suggested		listen avidly
+앳기우다	失기우다	verb		suggested	3	lose
+앳기우다	奪기우다	verb		suggested		be dispossessed
+앳되다	幼되다	adj		suggested		childish
+앳되다	稚되다	adj		suggested		youthful
+야구하다	野球하다	verb		suggested		play baseball
+야기하다	惹起하다	verb		suggested		cause
+야단하다	惹端하다	verb		suggested		cause disturbance
+야릇하다	奇하다	adj		suggested		strange
+야릇하다	怪하다	adj		suggested		strange
+야릇하다	異하다	adj		suggested		strange
+야무지다	堅지다	adj		suggested		firm, shrewd
+야무지다	精지다	adj		suggested		firm, shrewd
+야속하다	薄하다	adj		suggested		cold, unkind
+야속하다	冷하다	adj		suggested	1	cold, unkind
+야속하다	酷하다	adj		suggested		cruel
+야하다	淫하다	adj		suggested		lewd
+야하다	艶하다	adj		suggested		lewd
+야하다	妖하다	adj		suggested		lewd
+야행하다	夜行하다	verb		suggested		travel by night
+약삭빠르다	敏빠르다	adj		suggested		shrewd
+약삭빠르다	黠빠르다	adj		suggested		cunning
+약삭빠르다	巧빠르다	adj		suggested		crafty
+약진하다	躍進하다	verb		suggested		leap forward
+얄궂다	怪궂다	adj		suggested		weird
+얄궂다	奇궂다	adj		suggested		weird
+얌전하다	穩하다	adj		suggested		gentle
+얌전하다	靜하다	adj		suggested	2	quiet
+얌전하다	淑하다	adj		suggested		demure
+양념하다	藥念하다	verb		suggested		season
+양념하다	調味하다	verb		suggested		season
+양도하다	讓渡하다	verb		suggested		hand over
+양반다리하다	兩班다리하다	verb		suggested		sit cross-legged
+양반다리하다	趺坐하다	verb		suggested		sit cross-legged
+양보하다	讓步하다	verb		suggested		yield
+양치질하다	養齒질하다	verb		suggested		brush teeth
+양치하다	養齒하다	verb		suggested		brush teeth
+얕잡다	淺잡다	verb		suggested		underrate
+얕잡다	輕잡다	verb		suggested		belittle
+어두워지다	暗워지다	verb		suggested	1	become dark
+어두워지다	昏워지다	verb		suggested		become dark
+어두컴컴하다	暗컴컴하다	adj		suggested	1	dark and dim
+어두컴컴하다	昏컴컴하다	adj		suggested		dark and dim
+어드렇다	何렇다	adj		suggested		how
+어렙다	難다	adj		suggested		hard to speak of
+어렙다	憚다	adj		suggested		inviting caution
+어리숙하다	愚하다	adj		suggested	1	naive
+어리숙하다	癡하다	adj		suggested		dopey
+어리숙하다	鈍하다	adj		suggested	1	dull
+어벙하다	鈍하다	adj		suggested	1	dumbish
+어벙하다	愚하다	adj		suggested	1	dumbish
+어여쁘다	麗쁘다	adj		suggested	1	pretty
+어여쁘다	美쁘다	adj		suggested		pretty
+어엿하다	儼하다	adj		suggested		stately
+어엿하다	堂하다	adj		suggested		respectable
+어우러지다	和러지다	verb		suggested		in harmony
+어우러지다	合러지다	verb		suggested		joined
+어줍다	鈍다	adj		suggested		dull
+어줍다	拙다	adj		suggested	3	clumsy
+어줍잖다	拙잖다	adj		suggested		inappropriate
+억세다	强세다	adj		suggested	2	tough
+억세다	剛세다	adj		suggested		strong
+억세다	硬세다	adj		suggested		rough
+억울하다	冤하다	adj		suggested		wronged
+억울하다	抑鬱하다	adj		suggested		wronged
+언짢다	不짢다	adj		suggested		unpleasant
+언짢다	惡짢다	adj		suggested		unpleasant
+얻어걸리다	得어걸리다	verb		suggested		obtain by chance
+얻어걸리다	獲어걸리다	verb		suggested		obtain by chance
+얻어맞다	得어맞다	verb		suggested		get hit
+얻어맞다	打맞다	verb		suggested		get hit
+얻어먹다	得어먹다	verb		suggested		be treated to food
+얻어먹다	乞먹다	verb		suggested		beg food
+얼버무리다	混버무리다	verb		suggested		equivocate
+얼버무리다	糊버무리다	verb		suggested		equivocate
+얼큰하다	辛하다	adj		suggested		spicy
+얼큰하다	辣하다	adj		suggested		spicy
+얽히고설키다	絡히고설키다	verb		suggested		tangled
+얽히고설키다	纏히고설키다	verb		suggested		entwined
+엄격하다	嚴格하다	adj		suggested		strict
+엄선되다	嚴選되다	verb		suggested		carefully selected
+엄선하다	嚴選하다	verb		suggested		carefully select
+엄습하다	掩襲하다	verb		suggested		surprise attack
+엄하다	嚴하다	adj		suggested		strict
+없애버리다	除애버리다	verb		suggested		get rid of
+없애버리다	滅애버리다	verb		suggested		annihilate
+없어지다	無어지다	verb		suggested	16	vanish
+없어지다	消어지다	verb		suggested	1	vanish
+없어지다	失어지다	verb		suggested	3	be lost
+엇비슷하다	似비슷하다	adj		suggested		similar
+엇비슷하다	近비슷하다	adj		suggested	3	similar
+엉뚱하다	奇하다	adj		suggested		off the wall
+엉뚱하다	異하다	adj		suggested		unusual
+엉성하다	疎하다	adj		suggested		sloppy
+엉성하다	粗하다	adj		suggested		sloppy
+엉큼하다	陰하다	adj		suggested		insidious
+엉큼하다	險하다	adj		suggested		wily
+엎지르다	覆지르다	verb		suggested		spill
+엎지르다	傾지르다	verb		suggested	1	spill
+엎치다	覆치다	verb		suggested		lay face down
+엎치다	伏치다	verb		suggested		lay face down
+에굳다	固다	verb		suggested	2	set firm
+에굳다	堅굳다	verb		suggested		set firm
+여겨지다	認겨지다	verb		suggested		be regarded
+여겨지다	思겨지다	verb		suggested		be thought
+여과하다	濾過하다	verb		suggested		filter
+여닫다	開閉다	verb		suggested		open and shut
+여닫다	開닫다	verb		suggested		open and shut
+여미다	斂미다	verb		suggested		straighten clothes
+여미다	整미다	verb		suggested		adjust clothes
+여성스럽다	女性스럽다	adj		suggested	2	feminine
+여성스럽다	女스럽다	adj		suggested		feminine
+여여하다	如如하다	adj		suggested		suchness
+여유롭다	餘裕롭다	adj		suggested		relaxed
+여자답다	女子답다	adj		suggested		womanly
+여전하다	如前하다	adj		suggested	1	as before
+여행하다	旅行하다	verb		suggested	1	travel
+역겹다	逆겹다	adj		suggested		revolting
+역겹다	厭겹다	adj		suggested		sickening
+역하다	逆하다	adj		suggested		disgusting
+연결되다	連結되다	verb		suggested	2	be connected
+연구되다	研究되다	verb		suggested		be researched
+연기하다	延期하다	verb		suggested		postpone
+연습하다	練習하다	verb		suggested	3	practice
+연승하다	連勝하다	verb		suggested		win in a row
+연애하다	戀愛하다	verb		suggested		romantic relationship
+연약하다	軟弱하다	adj		suggested		weak
+연주하다	演奏하다	verb		suggested		perform
+연패하다	連敗하다	verb		suggested		losing streak
+열렬하다	熱烈하다	adj		suggested		ardent
+열망하다	熱望하다	verb		suggested		aspire
+열애하다	熱愛하다	verb		suggested		love ardently
+열없다	怯없다	adj		suggested		timid
+엷파랗다	淡파랗다	adj		suggested		pale blue
+엷파랗다	薄파랗다	adj		suggested		pale blue
+염려하다	念慮하다	verb		suggested		worry
+염원하다	念願하다	verb		suggested		wish
+염탐하다	廉探하다	verb		suggested		spy
+영검하다	靈驗하다	adj		suggested		miraculous
+영광스럽다	榮光스럽다	adj		suggested		glorious
+영민하다	英敏하다	adj		suggested		bright
+영민하다	穎敏하다	adj		suggested		sharp-witted
+영사하다	映寫하다	verb		suggested		project films
+영원하다	永遠하다	adj		suggested	6	eternal
+예민하다	銳敏하다	adj		suggested		sensitive
+예비하다	豫備하다	verb		suggested		prepare
+예상되다	豫想되다	verb		suggested		be anticipated
+예상되다	預想되다	verb		suggested		be anticipated
+예약하다	豫約하다	verb		suggested		reserve
+예약하다	預約하다	verb		suggested		reserve
+예언하다	豫言하다	verb		suggested		foretell
+예언하다	預言하다	verb		suggested		foretell
+예절바르다	禮節바르다	adj		suggested		well-mannered
+예측하다	豫測하다	verb		suggested		predict
+예측하다	預測하다	verb		suggested		predict
+오달지다	全지다	adj		suggested	7	perfect
+오달지다	完지다	adj		suggested		perfect
+오답하다	誤答하다	verb		suggested		answer wrong
+오래가다	久가다	verb		suggested	3	last long
+오롯하다	全하다	adj		suggested	7	complete
+오롯하다	完하다	adj		suggested		complete
+오만하다	傲慢하다	adj		suggested		arrogant
+오염되다	汚染되다	verb		suggested		be contaminated
+오인하다	誤認하다	verb		suggested	1	mistake
+오해하다	誤解하다	verb		suggested	5	misunderstand
+옥이다	曲이다	verb		suggested		bend
+옥이다	屈이다	verb		suggested		bend
+옥죄다	緊죄다	verb		suggested		tighten
+옥죄다	締죄다	verb		suggested		tighten
+온유하다	溫柔하다	adj		suggested		mild
+온전하다	穩全하다	adj		suggested		intact
+온전하다	全하다	adj		suggested	7	whole
+올곧다	直곧다	adj		suggested		upright
+올곧다	正곧다	adj		suggested		upright
+옭다	縛다	verb		suggested		bind
+옭다	結다	verb		suggested		tie
+옹골지다	實지다	adj		suggested		solid
+옹골지다	堅지다	adj		suggested		solid
+옹골차다	實차다	adj		suggested		solid
+옹골차다	堅차다	adj		suggested		solid
+옹글다	全다	verb		suggested	10	whole
+옹글다	完다	verb		suggested		intact
+옹졸하다	狹하다	adj		suggested		narrow-minded
+옹졸하다	偏狹하다	adj		suggested		narrow-minded
+옹호하다	擁護하다	verb		suggested		defend
+완고하다	頑固하다	adj		suggested		stubborn
+완곡하다	婉曲하다	adj		suggested		euphemistic
+완롱하다	玩弄하다	verb		suggested		toy with
+완벽하다	完璧하다	adj		suggested	4	perfect
+완봉하다	完封하다	verb		suggested		shutout
+완성시키다	完成시키다	verb		suggested		complete
+완성하다	完成하다	verb		suggested	1	complete
+완전하다	完全하다	adj		suggested	3	complete
+완투하다	完投하다	verb		suggested		complete game
+왕래하다	往來하다	verb		suggested		come and go
+왕성하다	旺盛하다	adj		suggested		vigorous
+왜곡하다	歪曲하다	verb		suggested		distort
+외면하다	外面하다	verb		suggested		turn away
+외설스럽다	猥褻스럽다	adj		suggested		obscene
+외설하다	猥褻하다	adj		suggested		obscene
+외식하다	外食하다	verb		suggested		eat out
+외출하다	外出하다	verb		suggested		go out
+요구되다	要求되다	verb		suggested		be required
+요란하다	擾亂하다	verb		suggested		noisy
+요리하다	料理하다	verb		suggested		cook
+요망하다	要望하다	verb		suggested		request
+요망하다	妖妄하다	adj		suggested		wicked
+요약하다	要約하다	verb		suggested		summarize
+요원하다	遙遠하다	adj		suggested		remote
+요청하다	要請하다	verb		suggested	2	request
+요하다	要하다	verb		suggested		need
+욕하다	辱하다	verb		suggested		curse
+용감하다	勇敢하다	adj		suggested	1	brave
+용서하다	容恕하다	verb		suggested		forgive
+용이하다	容易하다	adj		suggested	2	easy
+용접하다	鎔接하다	verb		suggested		weld
+용하다	勇하다	adj		suggested		skilled
+용하다	妙하다	adj		suggested	27	skilled
+우둔하다	愚鈍하다	adj		suggested		dull
+우렁차다	雄차다	adj		suggested		powerful
+우렁차다	壯차다	adj		suggested		powerful
+우비다	穿비다	verb		suggested		poke, bore
+우비다	抉비다	verb		suggested		scrape out
+우수하다	優秀하다	adj		suggested	2	excellent
+우스꽝스럽다	滑稽스럽다	adj		suggested		ridiculous
+우습다	笑습다	adj		suggested		laughable
+우승하다	優勝하다	verb		suggested		win
+우아하다	優雅하다	adj		suggested	1	elegant
+우연하다	偶然하다	adj		suggested	1	accidental
+우중충하다	陰하다	adj		suggested		somber
+우중충하다	暗중충하다	adj		suggested	1	dark
+우회전하다	右回轉하다	verb		suggested		turn right
+욱여넣다	押여넣다	verb		suggested		cram into
+욱여넣다	詰여넣다	verb		suggested		stuff into
+운동하다	運動하다	verb		suggested		exercise
+운명하다	殞命하다	verb		suggested		pass away
+운반하다	運搬하다	verb		suggested		transport
+운영하다	運營하다	verb		suggested	2	operate
+운전하다	運轉하다	verb		suggested		drive
+운하다	云하다	verb		suggested		say, quote
+운행하다	運行하다	verb		suggested	1	operate
+울창하다	鬱蒼하다	adj		suggested		dense
+웃어넘기다	笑어넘기다	verb		suggested		laugh off
+웅크리다	蹲크리다	verb		suggested		crouch
+웅크리다	屈크리다	verb		suggested		crouch
+원만하다	圓滿하다	adj		suggested		mild, smooth
+원망하다	怨望하다	verb		suggested		resent
+웬만하다	可하다	adj		suggested	1	acceptable
+웬만하다	適하다	adj		suggested	1	fair
+위대하다	偉大하다	adj		suggested	3	great
+위안하다	慰安하다	verb		suggested		comfort
+위치하다	位置하다	verb		suggested		be located
+위험하다	危險하다	adj		suggested	3	dangerous
+유괴되다	誘拐되다	verb		suggested		be abducted
+유괴하다	誘拐하다	verb		suggested		abduct
+유념하다	留念하다	verb		suggested		keep in mind
+유래되다	由來되다	verb		suggested	4	originate
+유리하다	有利하다	adj		suggested		advantageous
+유리하다	遊離하다	verb		suggested		separate
+유명해지다	有名해지다	verb		suggested	1	become famous
+유발하다	誘發하다	verb		suggested		induce
+유별나다	有別나다	adj		suggested		peculiar
+유사하다	類似하다	adj		suggested	24	similar
+유예하다	猶豫하다	verb		suggested		postpone
+유용하다	有用하다	adj		suggested	7	useful
+유익하다	有益하다	adj		suggested	1	beneficial
+유일하다	唯一하다	adj		suggested	4	sole
+유창하다	流暢하다	adj		suggested		fluent
+유쾌하다	愉快하다	adj		suggested		pleasant
+유해하다	有害하다	adj		suggested	1	harmful
+유행하다	流行하다	verb		suggested	2	in fashion
+유효하다	有效하다	adj		suggested		valid
+육박하다	肉薄하다	verb		suggested		approach
+이글거리다	燃거리다	verb		suggested		blaze
+이글거리다	焰거리다	verb		suggested		flare
+으스름하다	朧하다	adj		suggested	1	hazy
+으스스하다	凄하다	adj		suggested		creepy
+으슥하다	幽하다	adj		suggested		secluded
+으슥하다	僻하다	adj		suggested		secluded
+으쓱하다	聳하다	verb		suggested		shrug
+은밀하다	隱密하다	adj		suggested		secret
+은인자중하다	隱忍自重하다	verb		suggested		hold back
+은혜롭다	恩惠롭다	adj		suggested	1	merciful
+을씨년스럽다	凄스럽다	adj		suggested		dreary
+음란하다	淫亂하다	adj		suggested	1	lewd
+음침하다	陰沈하다	adj		suggested		gloomy
+음탕하다	淫蕩하다	adj		suggested		lewd
+응답하다	應答하다	verb		suggested		respond
+응대하다	應對하다	verb		suggested		handle
+응원하다	應援하다	verb		suggested		cheer on
+응징하다	膺懲하다	verb		suggested		punish
+응하다	應하다	verb		suggested	1	respond
+의논하다	議論하다	verb		suggested		discuss
+의도하다	意圖하다	verb		suggested		intend
+의식하다	意識하다	verb		suggested	8	be aware
+의심스럽다	疑心스럽다	adj		suggested		suspicious
+의심쩍다	疑心쩍다	verb		suggested		doubt
+의심하다	疑心하다	verb		suggested		doubt
+의아하다	疑訝하다	adj		suggested	1	surprising
+의젓하다	儼하다	adj		suggested		dignified
+의젓하다	莊하다	adj		suggested		sober
+의존하다	依存하다	verb		suggested		depend
+이동하다	移動하다	verb		suggested		move
+이륙시키다	離陸시키다	verb		suggested		cause to take off
+이륙하다	離陸하다	verb		suggested		take off
+이리하다	如此하다	verb		suggested		do like this
+이리하다	如是하다	verb		suggested		do like this
+이사하다	移徙하다	verb		suggested		move house
+이상야릇하다	異常야릇하다	adj		suggested		odd
+이야기하다	話하다	verb		suggested	8	talk
+이야기하다	談하다	verb		suggested	1	talk
+이야기하다	說하다	verb		suggested		tell
+이용되다	利用되다	verb		suggested		be used
+이채롭다	異彩롭다	adj		suggested		unusual
+이해되다	理解되다	verb		suggested	4	be understood
+이행하다	履行하다	verb		suggested		fulfill
+이혼하다	離婚하다	verb		suggested		divorce
+익사하다	溺死하다	verb		suggested		drown
+익살스럽다	諧謔스럽다	adj		suggested		comical
+익살스럽다	滑稽스럽다	adj		suggested		funny
+인나다	起나다	verb		suggested	1	get up
+인도하다	引導하다	verb		suggested	1	guide
+인상깊다	印象깊다	adj		suggested		impressive
+인색하다	吝嗇하다	adj		suggested		stingy
+인쇄하다	印刷하다	verb		suggested		print
+인애하다	仁愛하다	verb		suggested		benevolent
+인용하다	引用하다	verb		suggested	5	quote
+인정하다	認定하다	verb		suggested	7	affirm
+인증하다	認證하다	verb		suggested		certify
+일그러지다	歪그러지다	verb		suggested		be contorted
+일그러지다	曲그러지다	verb		suggested		be twisted
+일그리다	歪그리다	verb		suggested		contort
+일떠서다	起떠서다	verb		suggested		spring up
+일떠서다	起서다	verb		suggested		arise
+일떠세우다	起떠세우다	verb		suggested		raise up
+일떠세우다	起세우다	verb		suggested		raise up
+일러두다	告러두다	verb		suggested	1	instruct beforehand
+일러두다	敎러두다	verb		suggested		instruct beforehand
+일러바치다	告러바치다	verb		suggested	1	report wrongdoing
+일없다	事없다	adj		suggested		unnecessary
+일천하다	日淺하다	adj		suggested		new, short in duration
+일컬리다	稱컬리다	verb		suggested		be called
+일컬리다	謂컬리다	verb		suggested	3	be named
+임대하다	賃貸하다	verb		suggested		lease
+임박하다	臨迫하다	adj		suggested		imminent
+임신하다	妊娠하다	verb		suggested		conceive
+임하다	臨하다	verb		suggested		undertake
+입대하다	入隊하다	verb		suggested		enlist
+입덕하다	入德하다	verb		suggested		enter a fandom
+입맞추다	口맞추다	verb		suggested		kiss
+입맞추다	吻맞추다	verb		suggested		kiss
+입원시키다	入院시키다	verb		suggested		hospitalize
+입원하다	入院하다	verb		suggested		be hospitalized
+입장하다	入場하다	verb		suggested	1	enter
+입증하다	立證하다	verb		suggested		prove
+입학하다	入學하다	verb		suggested		enter a school
+자결하다	自決하다	verb		suggested		commit suicide
+자그마하다	小그마하다	adj		suggested	2	small
+자그마하다	微그마하다	adj		suggested		tiny
+자극하다	刺戟하다	verb		suggested		stimulate
+자동화하다	自動化하다	verb		suggested		automate
+자랑스럽다	誇스럽다	adj		suggested		proud
+자랑스럽다	矜스럽다	adj		suggested	1	proud
+자릿하다	痺하다	adj		suggested		tingling
+자만하다	自慢하다	verb		suggested		brag
+자물시다	昏시다	verb		suggested		faint
+자물시다	絶시다	verb		suggested		pass out
+자비롭다	慈悲롭다	adj		suggested		merciful
+자수하다	自首하다	verb		suggested		surrender
+자신만만하다	自信滿滿하다	adj		suggested		confident
+자애롭다	慈愛롭다	adj		suggested		benevolent
+자욱하다	濃하다	adj		suggested	1	dense
+자욱하다	密하다	adj		suggested		thick
+자진하다	自進하다	verb		suggested		volunteer
+자취하다	自炊하다	verb		suggested		cook for oneself
+자해하다	自害하다	verb		suggested		self-harm
+자해하다	自傷하다	verb		suggested		self-injure
+작고하다	作故하다	verb		suggested		pass away
+작동하다	作動하다	verb		suggested	2	operate
+작성하다	作成하다	verb		suggested	5	prepare
+작용하다	作用하다	verb		suggested		act on
+작정하다	作定하다	verb		suggested		intend
+작화하다	作畵하다	adj		suggested		illustrate
+잔원하다	潺湲하다	adj		suggested		calm, quiet
+잔인하다	殘忍하다	adj		suggested		cruel
+잔잔하다	靜하다	adj		suggested	2	calm
+잔잔하다	穩하다	adj		suggested		peaceful
+잔혹하다	殘酷하다	adj		suggested		cruel
+잗갈다	細갈다	verb		suggested		grind finely
+잗갈다	細磨다	verb		suggested		grind finely
+잗다랗다	細다랗다	adj		suggested		fine, small
+잘나가다	好나가다	verb		suggested		successful
+잘록하다	窄하다	adj		suggested		narrow in the middle
+잘살다	富살다	verb		suggested		live in wealth
+잘생기다	好생기다	verb		suggested		good-looking
+잘생기다	美생기다	verb		suggested		handsome
+잘생기다	秀생기다	verb		suggested		good-looking
+잠수하다	潛水하다	verb		suggested		submerge
+잡담하다	雜談하다	verb		suggested		chat
+잡아가다	捕아가다	verb		suggested		seize and take away
+잡아가다	執아가다	verb		suggested		seize and take away
+잡아매다	繫매다	verb		suggested	1	tie up
+잡아매다	縛매다	verb		suggested		fasten
+잡아먹다	捕아먹다	verb		suggested		slaughter and eat
+잡아먹다	屠먹다	verb		suggested		slaughter and eat
+잡치다	壞치다	verb		suggested		ruin
+잡치다	敗치다	verb		suggested		spoil
+장가가다	丈家가다	verb		suggested		marry
+장가가다	娶가다	verb		suggested		marry
+장담하다	壯談하다	verb		suggested		guarantee
+장하다	壯하다	adj		suggested		grand
+재고하다	再考하다	verb		suggested		reconsider
+재구하다	再構하다	verb		suggested	11	reconstruct
+재기하다	再起하다	verb		suggested		come back
+재미없다	滋味없다	adj		suggested		uninteresting
+재바르다	快바르다	adj		suggested		quick
+재바르다	敏바르다	adj		suggested		quick
+재배하다	栽培하다	verb		suggested		cultivate
+재수사하다	再搜査하다	verb		suggested		reinvestigate
+재우다	寢우다	verb		suggested		put to bed
+재우다	眠우다	verb		suggested		put to sleep
+재잘거리다	喋거리다	verb		suggested		chatter
+재잘거리다	囀거리다	verb		suggested		chatter
+재채기하다	噴嚏하다	verb		suggested		sneeze
+재현하다	再現하다	verb		suggested	3	reproduce
+잽싸다	捷싸다	adj		suggested		nimble
+잽싸다	敏싸다	adj		suggested		quick
+쟁기질하다	犁질하다	verb		suggested		plow
+쟁기질하다	耕질하다	verb		suggested		plow
+쟁쟁하다	錚錚하다	adj		suggested		ringing like metal
+저러하다	彼러하다	adj		suggested		like that
+저리하다	彼리하다	verb		suggested		behave like that
+저애하다	沮礙하다	verb		suggested		obstruct
+저주하다	詛呪하다	verb		suggested	1	curse
+저지르다	犯지르다	verb		suggested		commit
+저지하다	沮止하다	verb		suggested		obstruct
+저축하다	貯蓄하다	verb		suggested		save
+적나라하다	赤裸裸하다	adj		suggested		naked
+적당하다	適當하다	adj		suggested	13	suitable
+적법하다	適法하다	adj		suggested		lawful
+적용되다	適用되다	verb		suggested	3	apply
+적용하다	適用하다	verb		suggested	6	apply
+적응하다	適應하다	verb		suggested	2	adapt
+적출하다	摘出하다	verb		suggested		excise
+적합하다	適合하다	adj		suggested	9	suitable
+적확하다	的確하다	adj		suggested		accurate
+전개되다	展開되다	verb		suggested		unfold
+전개하다	展開하다	verb		suggested		develop
+전공하다	專攻하다	verb		suggested		major in
+전달되다	傳達되다	verb		suggested		be delivered
+전달하다	傳達하다	verb		suggested	1	convey
+전시하다	展示하다	verb		suggested		display
+전율하다	戰慄하다	verb		suggested		shudder
+전쟁하다	戰爭하다	verb		suggested		wage war
+전진하다	前進하다	verb		suggested		advance
+전화하다	電話하다	verb		suggested		telephone
+전환하다	轉換하다	verb		suggested	2	switch
+절단하다	切斷하다	verb		suggested		amputate
+절도하다	竊盜하다	verb		suggested		steal
+절실하다	切實하다	adj		suggested	2	urgent
+절약하다	節約하다	verb		suggested		save
+절이다	漬이다	verb		suggested		preserve in salt
+절이다	鹽이다	verb		suggested		salt
+절제하다	節制하다	verb		suggested		restrain
+젊어지다	若어지다	verb		suggested		become younger
+젊어지다	少어지다	verb		suggested	2	become younger
+점검하다	點檢하다	verb		suggested		inspect
+점령하다	占領하다	verb		suggested	1	occupy
+점찍다	點찍다	verb		suggested		mark, have one's eye on
+접근하다	接近하다	verb		suggested		approach
+접수하다	接受하다	verb		suggested		receive
+접종하다	接種하다	verb		suggested		inoculate
+접질리다	挫질리다	verb		suggested		sprain
+접질리다	捻질리다	verb		suggested		wrench
+젓가락질하다	箸질하다	verb		suggested		use chopsticks
+정겹다	情겹다	adj		suggested		warm
+정당하다	正當하다	adj		suggested	2	legitimate
+정돈하다	整頓하다	verb		suggested		put in order
+정들다	情들다	verb		suggested		grow fond
+정복하다	征服하다	verb		suggested		conquer
+정성스럽다	精誠스럽다	adj		suggested		sincere
+정숙하다	貞淑하다	adj		suggested		chaste
+정신없다	精神없다	adj		suggested		absent-minded
+정예하다	精銳하다	adj		suggested		elite
+정의롭다	正義롭다	adj		suggested		righteous
+정중하다	鄭重하다	adj		suggested		courteous
+정직하다	正直하다	adj		suggested		honest
+정찰하다	偵察하다	verb		suggested		scout
+젖히다	仰히다	verb		suggested		lean back
+젖히다	反히다	verb		suggested		bend back
+제공하다	提供하다	verb		suggested	1	provide
+제기하다	提起하다	verb		suggested		raise
+제대하다	除隊하다	verb		suggested		be discharged
+제시되다	提示되다	verb		suggested		be presented
+제시하다	提示하다	verb		suggested	4	present
+제안하다	提案하다	verb		suggested		propose
+제압하다	制壓하다	verb		suggested		subdue
+제의하다	提議하다	verb		suggested		propose
+제일가다	第一가다	verb		suggested		be the best
+제작하다	製作하다	verb		suggested	5	produce
+제정하다	制定하다	verb		suggested	1	enact
+제조하다	製造하다	verb		suggested	1	manufacture
+제쳐놓다	除쳐놓다	verb		suggested		set aside
+제쳐놓다	置놓다	verb		suggested		set aside
+제출하다	提出하다	verb		suggested		submit
+제한되다	制限되다	verb		suggested		be limited
+제한하다	制限하다	verb		suggested		limit
+조각나다	碎나다	verb		suggested		break into pieces
+조각나다	裂나다	verb		suggested		break into pieces
+조각하다	彫刻하다	verb		suggested		carve
+조립하다	組立하다	verb		suggested		assemble
+조마조마하다	焦하다	adj		suggested		anxious
+조신하다	操身하다	adj		suggested		modest
+조심스럽다	操心스럽다	adj		suggested		careful
+조언하다	助言하다	verb		suggested		advise
+조용조용하다	靜靜하다	adj		suggested		very quiet
+조용조용하다	寂寂하다	adj		suggested		very quiet
+조종하다	操縱하다	verb		suggested		pilot
+조촐하다	簡하다	adj		suggested		simple
+조촐하다	素하다	adj		suggested		plain
+족치다	打치다	verb		suggested		beat
+족치다	拷치다	verb		suggested		torture
+족하다	足하다	adj		suggested	1	sufficient
+존경하다	尊敬하다	verb		suggested	1	respect
+존숭하다	尊崇하다	verb		suggested		revere
+졸업하다	卒業하다	verb		suggested		graduate
+좀스럽다	細스럽다	adj		suggested		petty
+좀스럽다	瑣스럽다	adj		suggested		petty
+종료하다	終了하다	verb		suggested		end
+종용하다	從容하다	adj		suggested		unhurried
+종용하다	慫慂하다	verb		suggested		urge
+종합하다	綜合하다	verb		suggested	1	synthesize
+좌회전하다	左回轉하다	verb		suggested		turn left
+주되다	主되다	verb		suggested		be main
+주목하다	注目하다	verb		suggested		pay attention
+주옥같다	珠玉같다	adj		suggested		precious
+주요하다	主要하다	adj		suggested		main
+주워듣다	拾워듣다	verb		suggested		pick up by hearing
+주의하다	注意하다	verb		suggested	5	watch out
+주저앉다	坐저앉다	verb		suggested		sit down
+주저앉다	崩저앉다	verb		suggested		collapse
+주차하다	駐車하다	verb		suggested		park
+주체스럽다	重스럽다	adj		suggested		cumbersome
+주체하다	制하다	verb		suggested		control
+주체하다	持하다	verb		suggested		hold back
+준비하다	準備하다	verb		suggested	1	prepare
+준수하다	俊秀하다	verb		suggested		handsome
+줄기차다	强차다	adj		suggested	2	unwavering
+줄기차다	勁차다	adj		suggested		unrelenting
+줄넘기하다	繩넘기하다	verb		suggested		skip rope
+중단하다	中斷하다	verb		suggested	1	discontinue
+중대하다	重大하다	adj		suggested		significant
+중복되다	重複되다	verb		suggested		overlap
+중얼거리다	喃거리다	verb		suggested		mutter
+중지하다	中止하다	verb		suggested		halt
+증가되다	增加되다	verb		suggested		be increased
+증가시키다	增加시키다	verb		suggested		increase
+증가하다	增加하다	verb		suggested	1	increase
+증거하다	證據하다	verb		suggested		testify
+증류하다	蒸溜하다	verb		suggested		distil
+증명하다	證明하다	verb		suggested		prove
+증설하다	增設하다	verb		suggested		add installations
+증진하다	增進하다	verb		suggested		promote
+지각하다	遲刻하다	verb		suggested		be late
+지겹다	倦겹다	adj		suggested		tedious
+지겹다	厭겹다	adj		suggested		tedious
+지급하다	支給하다	verb		suggested		pay
+지긋하다	老하다	adj		suggested		elderly
+지긋하다	高하다	adj		suggested		advanced in years
+지도하다	指導하다	verb		suggested		guide
+지르밟다	踏밟다	verb		suggested		tramp down
+지르밟다	蹂밟다	verb		suggested		trample
+지명하다	指名하다	verb		suggested		nominate
+지목하다	指目하다	verb		suggested		name
+지배하다	支配하다	verb		suggested	4	rule
+지불하다	支拂하다	verb		suggested	1	pay
+지새우다	夜새우다	verb		suggested		stay up all night
+지새우다	徹새우다	verb		suggested		stay up all night
+지속되다	持續되다	verb		suggested	2	continue
+지시하다	指示하다	verb		suggested		direct
+지어내다	作어내다	verb		suggested		make up
+지어내다	造어내다	verb		suggested	1	fabricate
+지원하다	支援하다	verb		suggested	4	support
+지저귀다	囀귀다	verb		suggested		chirp
+지저귀다	啼귀다	verb		suggested		twitter
+지저분하다	汚저분하다	adj		suggested		filthy
+지저분하다	雜저분하다	adj		suggested		messy
+지적되다	指摘되다	verb		suggested		be pointed out
+지정되다	指定되다	verb		suggested		be designated
+지정하다	指定하다	verb		suggested		designate
+지지하다	支持하다	verb		suggested	3	support
+지켜보다	守켜보다	verb		suggested	3	watch over
+지켜보다	觀보다	verb		suggested		observe
+지켜보다	見보다	verb		suggested	1	watch
+지탱하다	支撐하다	verb		suggested		prop up
+지혜롭다	智慧롭다	adj		suggested	1	wise
+직진하다	直進하다	verb		suggested		go straight
+진료하다	診療하다	verb		suggested		treat medically
+진실하다	眞實하다	adj		suggested		sincere
+진압하다	鎭壓하다	verb		suggested		quell
+진정하다	鎭靜하다	verb		suggested		settle
+진정하다	眞正하다	adj		suggested		genuine
+진찰하다	診察하다	verb		suggested		examine medically
+진출하다	進出하다	verb		suggested		advance
+진하다	濃하다	adj		suggested	1	thick, strong
+진학하다	進學하다	verb		suggested		go on to school
+진행하다	進行하다	verb		suggested	2	progress
+질리다	厭리다	verb		suggested		fed up
+질리다	倦리다	verb		suggested		sick of
+질문하다	質問하다	verb		suggested		ask a question
+질색하다	窒塞하다	verb		suggested		loathe
+질식시키다	窒息시키다	verb		suggested		choke
+질식하다	窒息하다	verb		suggested		suffocate
+질타하다	叱咤하다	verb		suggested		rebuke
+짊다	負다	verb		suggested		carry on the back
+짐작하다	斟酌하다	verb		suggested		guess
+집어치우다	執어치우다	verb		suggested		give up
+집어치우다	撮어치우다	verb		suggested		throw away
+집중되다	集中되다	verb		suggested		be concentrated
+집필하다	執筆하다	verb		suggested		write
+짓궂다	戲궂다	adj		suggested		mischievous
+짓궂다	惡궂다	adj		suggested		ill-tempered
+짓부수다	破부수다	verb		suggested		smash
+짓부수다	碎부수다	verb		suggested		smash
+짓부시다	破부시다	verb		suggested		smash
+짓부시다	碎부시다	verb		suggested		shatter
+짓이기다	搗이기다	verb		suggested		crush
+짓이기다	蹂이기다	verb		suggested		trample
+징그럽다	憎그럽다	adj		suggested		creepy
+징그럽다	惡그럽다	adj		suggested		disgusting
+징벌하다	懲罰하다	verb		suggested		punish
+짙푸르다	濃푸르다	adj		suggested		deep blue
+짙푸르다	深푸르다	adj		suggested		deep blue
+짜릿하다	痺하다	adj		suggested		thrilling
+짝짓다	配짓다	verb		suggested		form a pair
+짝짓다	偶짓다	verb		suggested		make a pair
+짠하다	憐하다	adj		suggested		pitiful
+짠하다	惻하다	adj		suggested		sorry
+짭짤하다	鹹하다	adj		suggested		salty
+째비다	盜비다	verb		suggested		pinch, steal
+쨈매다	縛매다	verb		suggested		tie up
+쨈매다	結매다	verb		suggested		tie up
+쩔쩔매다	困매다	verb		suggested		flustered
+쩜매다	縛매다	verb		suggested		tie up
+쩜매다	結매다	verb		suggested		tie up
+쪼들리다	窮들리다	verb		suggested		hard-pressed
+쪼들리다	困들리다	verb		suggested		troubled
+쪽팔리다	面팔리다	verb		suggested		ashamed
+쪽팔리다	恥팔리다	verb		suggested		shameful
+쬐이다	曝이다	verb		suggested		bask
+쬐이다	曬이다	verb		suggested		bask
+찌릿하다	痺하다	adj		suggested		thrilling
+찌질하다	劣하다	adj		suggested	7	pathetic
+찌질하다	卑하다	adj		suggested		petty
+찜찜하다	不快하다	adj		suggested	1	uncomfortable
+찜찜하다	不安하다	adj		suggested		unsettling
+찜하다	占하다	verb		suggested		claim as one's own
+찝찝하다	不快하다	adj		suggested	1	uncomfortable
+찝찝하다	不安하다	adj		suggested		unsettling
+찡구다	插구다	verb		suggested		insert
+찡구다	嵌구다	verb		suggested		fit into
+찡하다	感하다	adj		suggested		touched
+차단하다	遮斷하다	verb		suggested		block
+차려입다	裝려입다	verb		suggested		dress up
+차분하다	靜하다	adj		suggested	2	calm
+차분하다	穩하다	adj		suggested		composed
+차수하다	叉手하다	verb		suggested		greet with folded hands
+착륙시키다	着陸시키다	verb		suggested		land a plane
+착륙하다	着陸하다	verb		suggested		land
+착석하다	着席하다	verb		suggested		take a seat
+착용하다	着用하다	verb		suggested		wear
+착잡하다	錯雜하다	adj		suggested		complicated
+찬미하다	讚美하다	verb		suggested		praise
+찬성하다	贊成하다	verb		suggested		agree
+찬탈하다	簒奪하다	verb		suggested	1	usurp
+참가하다	參加하다	verb		suggested		participate
+참담하다	慘憺하다	adj		suggested		tragic
+참되다	眞되다	adj		suggested	1	true
+참석하다	參席하다	verb		suggested	1	attend
+참여하다	參與하다	verb		suggested	2	participate
+참치하다	參差하다	adj		suggested		uneven
+참하다	淑하다	adj		suggested		well-behaved
+참하다	良하다	adj		suggested	2	modest and kind
+창립되다	創立되다	verb		suggested		be founded
+창립하다	創立하다	verb		suggested		found
+창설되다	創設되다	verb		suggested		be established
+창설하다	創設하다	verb		suggested		establish
+창조하다	創造하다	verb		suggested		create
+창피하다	猖披하다	adj		suggested		embarrassed
+찾아내다	尋아내다	verb		suggested		find
+찾아내다	搜아내다	verb		suggested		locate
+채굴하다	採掘하다	verb		suggested		mine
+채색하다	彩色하다	verb		suggested		colour
+채용하다	採用하다	verb		suggested	2	hire
+채찍질하다	鞭질하다	verb		suggested		whip
+채찍질하다	策질하다	verb		suggested		whip
+채택되다	採擇되다	verb		suggested	1	be adopted
+책망하다	責望하다	verb		suggested		rebuke
+책상다리하다	冊床다리하다	verb		suggested		sit cross-legged
+책응하다	策應하다	verb		suggested		support each other
+책임지다	責任지다	verb		suggested		take responsibility
+책하다	責하다	verb		suggested		scold
+처넣다	投넣다	verb		suggested		shove in
+처넣다	押넣다	verb		suggested		put in
+처방하다	處方하다	verb		suggested		prescribe
+처벌하다	處罰하다	verb		suggested		punish
+처신하다	處身하다	verb		suggested		conduct oneself
+처절하다	悽絶하다	adj		suggested	1	pitiable
+처하다	處하다	verb		suggested		be in a situation
+처형하다	處刑하다	verb		suggested		execute
+천하다	賤하다	adj		suggested		lowly
+철자하다	綴字하다	verb		suggested		spell
+철저하다	徹底하다	adj		suggested	1	thorough
+첨가하다	添加하다	verb		suggested		add
+첨부하다	添附하다	verb		suggested	1	attach
+청구하다	請求하다	verb		suggested		demand
+청산하다	淸算하다	verb		suggested		settle
+청소하다	淸掃하다	verb		suggested		clean
+청초하다	淸楚하다	adj		suggested		elegantly beautiful
+청취하다	聽取하다	verb		suggested		listen
+청하다	請하다	verb		suggested		request
+청혼하다	請婚하다	verb		suggested		propose marriage
+체포하다	逮捕하다	verb		suggested		arrest
+체험하다	體驗하다	verb		suggested		experience
+쳐들어가다	攻들어가다	verb		suggested		invade
+쳐들어가다	侵들어가다	verb		suggested		raid
+쳐죽이다	打죽이다	verb		suggested		strike to death
+쳐죽이다	撲죽이다	verb		suggested		kill by a blow
+초기하다	初期하다	verb		suggested		initialize
+초라하다	陋하다	adj		suggested		humble
+초라하다	卑하다	adj		suggested		insignificant
+초췌하다	憔悴하다	adj		suggested		haggard
+촌스럽다	村스럽다	adj		suggested	1	rustic
+촐촐하다	飢하다	verb		suggested		somewhat hungry
+촘촘하다	密하다	adj		suggested		dense
+촘촘하다	稠하다	adj		suggested		thick
+총명하다	聰明하다	adj		suggested	1	clever
+촬영되다	撮影되다	verb		suggested		be filmed
+최대화되다	最大化되다	verb		suggested		be maximized
+최대화하다	最大化하다	verb		suggested		maximize
+최소화되다	最小化되다	verb		suggested		be minimized
+최소화하다	最小化하다	verb		suggested		minimize
+추구하다	追求하다	verb		suggested		seek
+추모하다	追慕하다	verb		suggested	1	commemorate
+추방하다	追放하다	verb		suggested	2	banish
+추스르다	整스르다	verb		suggested		get oneself together
+추스르다	收스르다	verb		suggested		take care of oneself
+추악하다	醜惡하다	adj		suggested		ugly
+추앙하다	推仰하다	verb		suggested		revere
+추워지다	寒워지다	verb		suggested	1	become cold
+추잡하다	醜雜하다	adj		suggested		disgusting
+추적하다	追跡하다	verb		suggested		chase
+추진하다	推進하다	verb		suggested	2	propel
+추천하다	推薦하다	verb		suggested	4	recommend
+추출하다	抽出하다	verb		suggested	1	extract
+추측하다	推測하다	verb		suggested	1	surmise
+추켜세우다	擧켜세우다	verb		suggested		raise
+추켜세우다	立세우다	verb		suggested		lift up
+추키다	擧키다	verb		suggested		raise up
+추키다	揚키다	verb		suggested		lift
+추하다	醜하다	adj		suggested	1	ugly
+축구하다	蹴球하다	verb		suggested		play soccer
+축나다	縮나다	verb		suggested		be short
+축복하다	祝福하다	verb		suggested	1	bless
+축소하다	縮小하다	verb		suggested	1	reduce
+축적하다	蓄積하다	verb		suggested		accumulate
+출근하다	出勤하다	verb		suggested		go to work
+출루하다	出壘하다	verb		suggested		get on base
+출몰하다	出沒하다	verb		suggested		appear and disappear
+출발하다	出發하다	verb		suggested		depart
+출생하다	出生하다	verb		suggested	1	be born
+출석하다	出席하다	verb		suggested		attend
+출연하다	出演하다	verb		suggested	1	appear
+출장가다	出張가다	verb		suggested		go on a business trip
+출출하다	飢하다	adj		suggested		peckish
+출토되다	出土되다	verb		suggested		be excavated
+출퇴근하다	出退勤하다	verb		suggested		commute
+출판하다	出版하다	verb		suggested	1	publish
+출현하다	出現하다	verb		suggested	2	appear
+충고하다	忠告하다	verb		suggested		advise
+충돌하다	衝突하다	verb		suggested	1	collide
+충만되다	充滿되다	adj		suggested		full
+충만하다	充滿하다	adj		suggested		full
+충성스럽다	忠誠스럽다	adj		suggested		loyal
+충실하다	忠實하다	adj		suggested	2	faithful
+충전하다	充電하다	verb		suggested		charge
+취득하다	取得하다	verb		suggested		acquire
+취소되다	取消되다	verb		suggested		be cancelled
+취소하다	取消하다	verb		suggested		cancel
+취업하다	就業하다	verb		suggested		get a job
+취침하다	就寢하다	verb		suggested		go to bed
+측은하다	惻隱하다	adj		suggested		pitiful
+치러지다	償러지다	verb		suggested		be carried out
+치러지다	支러지다	verb		suggested		be paid
+치료하다	治療하다	verb		suggested	1	treat
+치르다	償르다	verb		suggested		pay
+치르다	支르다	verb		suggested		pay
+치유하다	治癒하다	verb		suggested		cure
+치유하다	稚幼하다	adj		suggested		young
+치장하다	治粧하다	verb		suggested		adorn
+치키다	擧키다	verb		suggested		raise up
+치키다	揚키다	verb		suggested		pull up
+칙칙하다	暗하다	adj		suggested	1	dusky
+칙칙하다	黯하다	adj		suggested		dingy
+친절하다	親切하다	adj		suggested	3	kind
+친하다	親하다	adj		suggested	1	close
+침공하다	侵攻하다	verb		suggested		invade
+침략하다	侵略하다	verb		suggested		invade
+침몰시키다	沈沒시키다	verb		suggested		sink a ship
+침몰하다	沈沒하다	verb		suggested		sink
+침묵하다	沈默하다	verb		suggested		be silent
+침입하다	侵入하다	verb		suggested		invade
+침착하다	沈着하다	adj		suggested		calm
+칫솔질하다	齒刷질하다	verb		suggested		brush teeth
+칭송하다	稱頌하다	verb		suggested		praise
+칭하다	稱하다	verb		suggested	4	call as
+칼칼하다	渴하다	adj		suggested		thirsty
+캄캄하다	暗하다	adj		suggested	1	pitch-dark
+캄캄하다	黑하다	adj		suggested		pitch-dark
+캐묻다	窮묻다	verb		suggested		interrogate
+캐묻다	詰묻다	verb		suggested		interrogate
+컴컴하다	暗하다	adj		suggested	1	pitch-dark
+컴컴하다	昏하다	adj		suggested		pitch-dark
+케케묵다	古케묵다	adj		suggested		old-fashioned
+케케묵다	舊케묵다	adj		suggested		antiquated
+켕기다	張기다	verb		suggested		drawn tight
+켕기다	緊기다	verb		suggested		strained
+켜지다	點지다	verb		suggested		turn on
+켜지다	燈지다	verb		suggested		go on
+쾌하다	快하다	adj		suggested	2	delighted
+쾌활하다	快活하다	adj		suggested		cheerful
+퀴퀴하다	腐하다	adj		suggested		musty
+퀴퀴하다	臭하다	adj		suggested		stale
+큰소리치다	大소리치다	verb		suggested		brag
+큰소리치다	豪소리치다	verb		suggested		boast
+타고앉다	乘고앉다	verb		suggested		occupy
+타고앉다	占앉다	verb		suggested		occupy
+타당하다	妥當하다	adj		suggested	2	appropriate
+타자하다	打字하다	verb		suggested		type
+타협하다	妥協하다	verb		suggested		compromise
+탄압하다	彈壓하다	verb		suggested		oppress
+탄원하다	歎願하다	verb		suggested		entreat
+탄핵하다	彈劾하다	verb		suggested	1	impeach
+탈덕하다	脫德하다	verb		suggested		exit a fandom
+탈세하다	脫稅하다	verb		suggested		evade taxes
+탈영하다	脫營하다	verb		suggested		desert
+탐내다	貪내다	verb		suggested		covet
+탐스럽다	貪스럽다	adj		suggested		desirable
+탐하다	貪하다	verb		suggested		covet
+탐험하다	探險하다	verb		suggested		explore
+태여나다	生다	verb		suggested	22	be born
+태여나다	誕다	verb		suggested		be born
+태연하다	泰然하다	adj		suggested		calm
+택하다	擇하다	verb		suggested		choose
+터놓다	開놓다	verb		suggested		open up
+터놓다	披놓다	verb		suggested		open up
+터뜨리다	破뜨리다	verb		suggested	1	break
+터뜨리다	爆뜨리다	verb		suggested	1	burst
+터무니없다	根據없다	adj		suggested		absurd
+터지다	爆지다	verb		suggested	1	explode
+터지다	破지다	verb		suggested	3	burst
+텁텁하다	濁하다	adj		suggested		stale
+토라지다	怒라지다	verb		suggested		sulk
+토라지다	慍라지다	verb		suggested		sulk
+토론하다	討論하다	verb		suggested	5	debate
+토의하다	討議하다	verb		suggested		discuss
+통견하다	洞見하다	verb		suggested		see through
+통과하다	通過하다	verb		suggested		pass through
+통근하다	通勤하다	verb		suggested		commute
+통일되다	統一되다	verb		suggested	6	be unified
+통지하다	通知하다	verb		suggested		notify
+통촉하다	洞燭하다	verb		suggested		discern
+통치하다	統治하다	verb		suggested		govern
+통통하다	肥하다	adj		suggested		plump
+통하다	通하다	verb		suggested	24	pass through
+통화하다	通話하다	verb		suggested		talk on the phone
+톺다	探다	verb		suggested		explore
+톺다	索다	verb		suggested	14	grope
+퇴근하다	退勤하다	verb		suggested	7	leave work
+퇴직하다	退職하다	verb		suggested		retire
+투명하다	透明하다	adj		suggested		transparent
+투숙하다	投宿하다	verb		suggested		stay at a hotel
+투자되다	投資되다	verb		suggested		be invested
+투자하다	投資하다	verb		suggested		invest
+투표하다	投票하다	verb		suggested	2	vote
+퉁퉁하다	肥하다	adj		suggested		plump
+퉁퉁하다	腫하다	adj		suggested		swollen
+트림하다	噯氣하다	verb		suggested		belch
+특별하다	特別하다	adj		suggested	2	special
+특수하다	特殊하다	adj		suggested	1	special
+특정하다	特定하다	adj		suggested	1	specific
+특징짓다	特徵짓다	verb		suggested		characterize
+튼실하다	堅실하다	adj		suggested		sturdy
+튼실하다	固실하다	adj		suggested		solid
+틀림없다	誤없다	adj		suggested		without error
+틀림없다	錯없다	adj		suggested		without error
+파괴되다	破壞되다	verb		suggested		be destroyed
+파렴치하다	破廉恥하다	adj		suggested		shameless
+파리하다	蒼하다	adj		suggested		pale
+파리하다	瘦하다	adj		suggested		thin
+파산하다	破産하다	verb		suggested		go bankrupt
+파악하다	把握하다	verb		suggested	1	grasp
+파헤치다	掘헤치다	verb		suggested		dig open
+파헤치다	剖헤치다	verb		suggested		dig open
+판가름하다	判가름하다	verb		suggested		judge
+판단하다	判斷하다	verb		suggested	6	determine
+판판하다	平平하다	adj		suggested	1	even, flat
+판판하다	平하다	adj		suggested		level
+팔팔하다	活하다	adj		suggested		lively
+팔팔하다	生하다	adj		suggested	1	spirited
+패배하다	敗北하다	verb		suggested		be defeated
+패하다	敗하다	verb		suggested		lose
+팬팬하다	平하다	adj		suggested		flat
+팬팬하다	坦하다	adj		suggested		even
+팽개치다	抛개치다	verb		suggested		throw away
+팽팽하다	張하다	adj		suggested		taut
+팽팽하다	緊하다	adj		suggested		tight
+퍼붓다	注붓다	verb		suggested		pour
+퍼붓다	傾붓다	verb		suggested		pour
+퍼오다	取오다	verb		suggested		reupload from elsewhere
+퍼오다	移오다	verb		suggested		transfer
+편리하다	便利하다	adj		suggested	5	convenient
+편찮으시다	便찮으시다	adj		suggested		be ill
+편편하다	便便하다	adj		suggested		comfortable
+편협하다	偏狹하다	adj		suggested		narrow-minded
+평가되다	評價되다	verb		suggested		be evaluated
+평가하다	評價하다	verb		suggested		evaluate
+평범하다	平凡하다	adj		suggested	4	ordinary
+평안하다	平安하다	adj		suggested		peaceful
+평온하다	平穩하다	adj		suggested		calm
+평정하다	平定하다	verb		suggested		subdue
+평정하다	平靜하다	adj		suggested		peaceful
+평탄하다	平坦하다	adj		suggested		flat
+평하다	評하다	verb		suggested		comment
+평행하다	平行하다	adj		suggested		parallel
+평화롭다	平和롭다	adj		suggested	1	peaceful
+폐지하다	廢止하다	verb		suggested	7	abolish
+포근하다	溫하다	adj		suggested	1	snug
+포근하다	暖하다	adj		suggested		cozy
+포기하다	抛棄하다	verb		suggested	5	give up
+포박하다	捕縛하다	verb		suggested		tie up
+포옹하다	抱擁하다	verb		suggested		embrace
+포획하다	捕獲하다	verb		suggested		capture
+폭격하다	爆擊하다	verb		suggested		bomb
+폭넓다	幅넓다	adj		suggested		broad
+폭파하다	爆破하다	verb		suggested		blow up
+표하다	表하다	verb		suggested	1	express
+푸르디푸르다	靑디푸르다	adj		suggested	1	deep green
+푸르디푸르다	碧디푸르다	adj		suggested		fresh green
+푸르스름하다	靑스름하다	adj		suggested	1	bluish
+푸짐하다	豊하다	adj		suggested		plentiful
+푸짐하다	厚하다	adj		suggested		generous
+푹신하다	軟하다	adj		suggested		soft
+푹신하다	柔하다	adj		suggested		yielding
+풀어지다	解어지다	verb		suggested		come untied
+품갚음하다	報갚음하다	verb		suggested		repay
+품안다	懷안다	verb		suggested		embrace
+품안다	抱안다	verb		suggested		hug
+풋풋하다	靑하다	adj		suggested	1	young and fresh
+풋풋하다	嫩하다	adj		suggested		tender
+풍기다	風기다	verb		suggested		spread in the air
+풍만하다	豐滿하다	adj		suggested		ample
+풍만해지다	豐滿해지다	verb		suggested		fill out
+풍족하다	豐足하다	adj		suggested		abundant
+피곤하다	疲困하다	adj		suggested	4	tired
+피로하다	疲勞하다	adj		suggested		exhausted
+피어오르다	騰어오르다	verb		suggested		rise up
+피어오르다	昇오르다	verb		suggested		rise up
+피임하다	避妊하다	verb		suggested		birth control
+핍박하다	逼迫하다	verb		suggested		persecute
+하교하다	下校하다	verb		suggested		leave school
+하얘지다	白얘지다	verb		suggested	2	become white
+하품하다	欠하다	verb		suggested		yawn
+하품하다	呵欠하다	verb		suggested		yawn
+학생답다	學生답다	adj		suggested		student-like
+학수고대하다	鶴首苦待하다	verb		suggested		eagerly wait
+학습하다	學習하다	verb		suggested	6	study
+한가롭다	閑暇롭다	adj		suggested		leisured
+한가하다	閑暇하다	adj		suggested	1	at leisure
+한갓지다	閑갓지다	adj		suggested		tranquil
+한갓지다	閑지다	adj		suggested		quiet
+한담하다	閑談하다	verb		suggested		chat
+한물가다	衰가다	verb		suggested		decline
+한숨짓다	歎息짓다	verb		suggested		sigh
+한심하다	寒心하다	adj		suggested		pathetic
+한잔하다	一盞하다	verb		suggested		have a drink
+한정되다	限定되다	verb		suggested		be limited
+한정하다	限定하다	verb		suggested	3	restrict
+한탄하다	恨歎하다	verb		suggested		lament
+할인하다	割引하다	verb		suggested		discount
+할퀴다	搔퀴다	verb		suggested		scratch
+할퀴다	爪퀴다	verb		suggested		scratch
+합격하다	合格하다	verb		suggested	1	pass a test
+합류하다	合流하다	verb		suggested		merge
+합법화되다	合法化되다	verb		suggested		be legalized
+항복하다	降伏하다	verb		suggested		surrender
+항의하다	抗議하다	verb		suggested		protest
+해결하다	解決하다	verb		suggested	2	resolve
+해고하다	解雇하다	verb		suggested		dismiss
+해당되다	該當되다	verb		suggested	1	correspond
+해동하다	解凍하다	verb		suggested		thaw
+해맑다	明맑다	adj		suggested		bright
+해맑다	淸맑다	adj		suggested		clear
+해묵다	舊묵다	verb		suggested		carried over from last year
+해묵다	陳묵다	verb		suggested		old
+해방하다	解放하다	verb		suggested	1	liberate
+해쓱하다	蒼하다	adj		suggested		pale
+해쓱하다	白하다	adj		suggested	2	pallid
+해어지다	破어지다	verb		suggested		become worn out
+해어지다	弊어지다	verb		suggested		become worn out
+해제끼다	殺제끼다	verb		suggested		kill
+해제끼다	倒제끼다	verb		suggested		kill
+해하다	害하다	verb		suggested		harm
+핼쑥하다	蒼하다	adj		suggested		pale
+핼쑥하다	瘦하다	adj		suggested		thin and haggard
+행복하다	幸福하다	adj		suggested	4	happy
+행사하다	行使하다	verb		suggested		exercise
+행진하다	行進하다	verb		suggested		march
+행하다	行하다	verb		suggested		do
+향긋하다	香하다	adj		suggested	1	fragrant
+향긋하다	芳하다	adj		suggested		aromatic
+향기롭다	香氣롭다	adj		suggested		fragrant
+향유하다	享有하다	verb		suggested		enjoy
+허락하다	許諾하다	verb		suggested		allow
+허술하다	疎하다	adj		suggested		shabby
+허술하다	粗하다	adj		suggested		shabby
+허옇다	白옇다	adj		suggested	2	dimly white
+허용하다	許容하다	verb		suggested	7	permit
+허접스럽다	粗스럽다	adj		suggested		sloppy
+허접스럽다	劣스럽다	adj		suggested		lousy
+헌걸차다	軒傑차다	adj		suggested		heroic
+헌걸차다	雄차다	adj		suggested		high-spirited
+헐렁하다	寬하다	adj		suggested		loose
+헐렁하다	闊하다	adj		suggested		baggy
+험상궂다	險狀궂다	adj		suggested		menacing-looking
+험하다	險하다	adj		suggested		rugged, dangerous
+헛기다리다	虛기다리다	verb		suggested	1	wait in vain
+헛코골다	虛鼻골다	verb		suggested		feign snoring
+헛코골다	假鼻골다	verb		suggested		feign snoring
+헤매다	彷徨매다	verb		suggested		wander
+헤매다	迷매다	verb		suggested		wander
+헤우다	締우다	verb		suggested		tighten
+헤우다	緊우다	verb		suggested		tighten
+헤집다	掘헤집다	verb		suggested		dig through
+헤집다	搜헤집다	verb		suggested		rummage through
+헤프다	濫프다	adj		suggested		wasteful
+헤프다	費프다	adj		suggested		wasteful
+현란하다	絢爛하다	adj		suggested		ornate
+현란하다	眩亂하다	adj		suggested		dazzling
+현명하다	賢明하다	adj		suggested		wise
+협력하다	協力하다	verb		suggested	1	cooperate
+형성하다	形成하다	verb		suggested		form
+형통하다	亨通하다	adj		suggested		go well
+형편없다	形便없다	adj		suggested		terrible
+호리다	誘리다	verb		suggested	1	enchant
+호리다	惑리다	verb		suggested		enchant
+호방하다	豪放하다	adj		suggested		magnanimous
+호연하다	浩然하다	adj		suggested		vast
+호응하다	呼應하다	verb		suggested		respond
+호전되다	好轉되다	verb		suggested		improve
+호전하다	好轉하다	verb		suggested		improve
+호흡하다	呼吸하다	verb		suggested		breathe
+혼내다	魂내다	verb		suggested		scold
+혼란스럽다	混亂스럽다	adj		suggested	1	confused
+혼잡하다	混雜하다	adj		suggested		chaotic
+홀리다	惑리다	verb		suggested		be enchanted
+홀리다	魅리다	verb		suggested		be possessed
+화목하다	和睦하다	adj		suggested		harmonious
+화사하다	華奢하다	adj		suggested		splendid
+화창하다	和暢하다	adj		suggested	1	balmy
+화해하다	和解하다	verb		suggested		reconcile
+확대하다	擴大하다	verb		suggested	1	expand
+확산되다	擴散되다	verb		suggested		spread
+확신하다	確信하다	verb		suggested		be convinced
+확인되다	確認되다	verb		suggested		be confirmed
+확정하다	確定하다	verb		suggested		finalize
+환불하다	還拂하다	verb		suggested		refund
+환승하다	換乘하다	verb		suggested	1	transfer
+환영하다	歡迎하다	verb		suggested	104	welcome
+환장하다	換腸하다	verb		suggested		go crazy
+활기차다	活氣차다	adj		suggested		lively
+활동하다	活動하다	verb		suggested	2	be active
+활용하다	活用하다	verb		suggested	7	make use of
+황당하다	荒唐하다	adj		suggested		absurd
+황량하다	荒涼하다	adj		suggested		desolate
+회개하다	悔改하다	verb		suggested		repent
+회답하다	回答하다	verb		suggested		reply
+회복하다	回復하다	verb		suggested	1	recover
+회복하다	恢復하다	verb		suggested		regain
+획득하다	獲得하다	verb		suggested		acquire
+횡단하다	橫斷하다	verb		suggested		cross
+횡령하다	橫領하다	verb		suggested		embezzle
+효도하다	孝道하다	adj		suggested	2	filial
+후덕하다	厚德하다	adj		suggested		generous
+후덥다	蒸덥다	adj		suggested		muggy
+후덥다	暑덥다	adj		suggested		hot and stuffy
+후비다	掘비다	verb		suggested		dig
+후비다	穿비다	verb		suggested		dig a hole
+후줄근하다	垂하다	adj		suggested		droop
+후퇴하다	後退하다	verb		suggested		retreat
+훈계하다	訓戒하다	verb		suggested		admonish
+훈훈하다	薰薰하다	adj		suggested		warm
+훈훈하다	暖하다	adj		suggested		comfortably warm
+훌쩍이다	啜이다	verb		suggested		sip
+훌쩍이다	飮이다	verb		suggested		drink
+훑다	掠다	verb		suggested		sweep over
+훑다	摘다	verb		suggested		thrash rice
+훑어보다	掠어보다	verb		suggested		look up and down
+훑어보다	閱어보다	verb		suggested		survey
+훑어읽다	掠어읽다	verb		suggested		skim
+훑어읽다	閱어읽다	verb		suggested		skim
+훔쳐가다	竊쳐가다	verb		suggested		steal
+훔쳐가다	盜쳐가다	verb		suggested		steal
+훤칠하다	長하다	adj		suggested		tall
+훤칠하다	偉하다	adj		suggested		tall
+훤하다	明하다	adj		suggested	1	bright
+훤하다	朗하다	adj		suggested		light
+훼방하다	毁謗하다	verb		suggested		slander
+휑하다	洞하다	adj		suggested		knowledgeable
+휘날리다	飛날리다	verb		suggested		flutter
+휘날리다	飜날리다	verb		suggested		flap
+휘몰아치다	驅몰아치다	verb		suggested		drive hard
+휘몰아치다	吹몰아치다	verb		suggested		blow violently
+휘어잡다	握어잡다	verb		suggested		grip
+휘어잡다	執어잡다	verb		suggested		grasp
+휩싸이다	包싸이다	verb		suggested		be wrapped
+휩싸이다	裹싸이다	verb		suggested		be engulfed
+휩쓸다	掃쓸다	verb		suggested		sweep away
+휩쓸다	席쓸다	verb		suggested		sweep
+휴대하다	携帶하다	verb		suggested		carry
+휴식하다	休息하다	verb		suggested		rest
+휴학하다	休學하다	verb		suggested		take leave from school
+흐느끼다	泣느끼다	verb		suggested		sob
+흐느끼다	啜느끼다	verb		suggested		weep
+흐드러지다	爛드러지다	adj		suggested		profuse
+흐드러지다	繁드러지다	adj		suggested		luxuriant
+흐려지다	曇려지다	verb		suggested		become cloudy
+흐려지다	濁려지다	verb		suggested		become blurred
+흐트러지다	亂트러지다	verb		suggested		become disordered
+흐트러지다	散트러지다	verb		suggested		scatter
+흐트러트리다	亂트러트리다	verb		suggested		dishevel
+흐트러트리다	散트러트리다	verb		suggested		scatter
+흑화하다	黑化하다	verb		suggested	1	darken
+흘러나오다	流러나오다	verb		suggested		flow out
+흠잡다	瑕잡다	verb		suggested		find fault
+흠잡다	欠잡다	verb		suggested		find fault
+흡수하다	吸收하다	verb		suggested		absorb
+흡연하다	吸煙하다	verb		suggested		smoke
+흡입하다	吸入하다	verb		suggested		inhale
+흥건하다	浸하다	adj		suggested		immersed
+흥건하다	濕하다	adj		suggested	8	drenched
+흥겹다	興겹다	adj		suggested		merry
+흥미진진하다	興味津津하다	adj		suggested		very interesting
+흥분하다	興奮하다	verb		suggested		be excited
+흥하다	興하다	verb		suggested	1	prosper
+흩날다	散날다	verb		suggested		scatter in the wind
+흩날다	飄날다	verb		suggested		flutter
+희귀하다	稀貴하다	adj		suggested		rare
+희롱하다	戲弄하다	verb		suggested		taunt
+희망하다	希望하다	verb		suggested	1	hope
+희붐하다	微하다	adj		suggested		faintly bright
+희붐하다	曙하다	adj		suggested		just before daybreak
+희한하다	稀罕하다	adj		suggested		rare
+힐책하다	詰責하다	verb		suggested		rebuke
+힘없다	力없다	adj		suggested		powerless
+힘주다	力주다	verb		suggested		exert strength
+힘차다	力차다	adj		suggested		vigorous

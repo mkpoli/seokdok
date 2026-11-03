@@ -11,6 +11,7 @@ comments; the header line names the columns.
 | `community.tsv` | 標準國語釋讀辭典 | 釋讀會 members | none stated; see below |
 | `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested | language model, unreviewed | MIT |
 | `kun-ja.tsv` | 訓讀 found through Japanese 訓読み words with the same English gloss | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
+| `kun-ja-weak.tsv` | weaker Japanese links, kept so no candidate is lost | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
 | `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
 | `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
@@ -67,7 +68,9 @@ with `source` set to `user`. Check a file with
   form (kaikki.org extract) and that no hand-made dictionary covers were given
   to a language model with their English sense and the libhangul characters
   whose 訓音 gloss names them; it proposed one to three characters by meaning
-  and skipped words it was unsure of. Every row passed the engine's parser;
+  and skipped words it was unsure of; a second, coverage-first pass gave
+  candidates for nearly all the words skipped the first time (only particles,
+  interjections, mimetic words and loanwords stay out). Every row passed the engine's parser;
   none was reviewed by a person, so the tier ranks below the chat corpus,
   editorial and community entries and is labelled as unreviewed in the IME.
   The word list came from `tools/native_candidates.py`; no Wiktionary text is

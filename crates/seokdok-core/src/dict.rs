@@ -60,6 +60,9 @@ pub enum Source {
     Community,
     /// Added by the project editors.
     Editorial,
+    /// Proposed by a language model from word senses and 訓音 glosses;
+    /// unreviewed.
+    Suggested,
     /// Derived from a traditional 訓音 gloss (하늘 천 → 하늘 = 天).
     Gloss,
     /// A Sino-Korean dictionary (libhangul).
@@ -73,7 +76,8 @@ impl Source {
             Source::User => 0,
             Source::Corpus | Source::Editorial => 1,
             Source::Community => 2,
-            Source::Gloss | Source::Lexicon => 3,
+            Source::Suggested => 3,
+            Source::Gloss | Source::Lexicon => 4,
         }
     }
 
@@ -83,6 +87,7 @@ impl Source {
             "corpus" => Source::Corpus,
             "community" => Source::Community,
             "editorial" => Source::Editorial,
+            "suggested" => Source::Suggested,
             "gloss" => Source::Gloss,
             _ => Source::Lexicon,
         }
@@ -137,6 +142,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
         Source::Corpus => 2.5,
         Source::Community => 3.0,
         Source::Editorial => 3.0,
+        Source::Suggested => 4.5,
         Source::Gloss => 6.0,
         Source::Lexicon => 6.0,
     };
@@ -148,6 +154,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
     match source {
         // Gloss entries share characters with better entries, so their
         // credited counts are noisy: never rank them above the community tier.
+        Source::Suggested => attested.max(2.5),
         Source::Gloss | Source::Lexicon => attested.max(3.0),
         _ => attested.min(base),
     }

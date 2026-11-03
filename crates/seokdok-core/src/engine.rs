@@ -218,7 +218,7 @@ impl Engine {
     }
 
     /// Native dictionaries loaded by [`Engine::from_dir`], in order.
-    pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "gloss.tsv"];
+    pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv"];
     pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "fusion.tsv", "sino.tsv"];
 
     /// Load every known dictionary file present in `dir`.
@@ -360,7 +360,7 @@ impl Engine {
                         0.0
                     } else {
                         match entry.source {
-                            Source::Gloss | Source::Lexicon => SHORT_COST,
+                            Source::Gloss | Source::Lexicon | Source::Suggested => SHORT_COST,
                             Source::Community => 1.0,
                             _ => 0.0,
                         }
@@ -842,6 +842,7 @@ impl Engine {
                 let tier = match n.source {
                     Source::User | Source::Corpus | Source::Editorial => 0.0,
                     Source::Community => 0.5,
+                    Source::Suggested => 2.0,
                     Source::Gloss | Source::Lexicon => 3.0,
                 };
                 let cost = 1.0 + tier - 0.1 * ((n.count as f32) + 1.0).ln();
@@ -904,6 +905,7 @@ fn note(n: &Native, ending: Option<usize>) -> String {
         Source::Corpus => "corpus",
         Source::Community => "community",
         Source::Editorial => "editorial",
+        Source::Suggested => "suggested",
         Source::Gloss => "gloss",
         Source::Lexicon => "lexicon",
     };

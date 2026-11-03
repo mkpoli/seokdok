@@ -118,6 +118,22 @@ def jmdict(sj, have):
     return index, example
 
 
+# Borrowings from these languages (Sinitic, Japanese, Koreanic, and the old
+# Manchu and Mongolic loans such as 착하다 and 오랑캐) may still have a
+# 訓讀 through Japanese.
+KEEP = {"zh", "cmn", "ltc", "och", "lzh", "yue", "ja", "ojp", "ko", "ko-ear", "okm", "oko", "zkg", "jje",
+        "mnc", "juc", "xng", "cmg", "mn"}
+
+
+def loanword(d):
+    """A headword borrowed from a European or other language (웹 < English web):
+    its English gloss is the source word, often a homonym (web ↔ 蹼 みずかき)."""
+    for t in d.get("etymology_templates") or []:
+        if t["name"] in ("bor", "bor+", "lbor", "obor", "ubor") and t["args"].get("2") not in KEEP:
+            return True
+    return False
+
+
 def korean_words():
     """(lemma, pos, [normalized glosses]) for native headwords (no hanja form)."""
     out = {}
@@ -130,6 +146,8 @@ def korean_words():
             if pos in ("verb", "adj") and not word.endswith("다"):
                 continue
             if any("hanja" in (x.get("tags") or []) for x in d.get("forms") or []):
+                continue
+            if loanword(d):
                 continue
             glosses = []
             for si, s in enumerate((d.get("senses") or [])[:2]):

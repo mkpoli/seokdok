@@ -2,7 +2,7 @@
 // browser, and the choice is remembered.
 
 const ko = {
-  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '낱{言|말}', join: '{會|모임}' },
+  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '낱{言|말}', install: '{設置|설치}', join: '{會|모임}' },
   theme: { light: '{明|밝}게', dark: '{暗|어둡}게', auto: '{自動|자동}' },
   hero: {
     kicker: '풀어읽기모임 {釋讀會|석독회}의 {入力器|입력기}',
@@ -160,9 +160,25 @@ const ko = {
     president: '{會長|회장} 車魄',
     button: 't.me/pimsdh {入|들어}가기',
   },
-  windows: {
-    title: 'Windows {入力器|입력기}',
-    body: 'Windows{用|용} {入力器|입력기}(TSF)를 {準備|준비}하고 {有|있}습니다. {同|같}은 엔진과 {辭典|사전}을 {用|쓰}ㅂ니다.',
+  install: {
+    eyebrow: '{設置|설치}',
+    title: '{自己|제} 컴퓨터에서 {書|쓰}기',
+    lede: '{此|이} {頁|쪽}과 {同|같}은 엔진과 {辭典|사전}을 {用|쓰}는 {入力器|입력기}입니다. Windows와 Linux(fcitx5)를 {支援|지원}합니다.',
+    download: '{內|내}려받기',
+    windows: [
+      '{壓縮|압축}을 {解|풀}고 install.ps1을 {右|오른}쪽 클릭 → 「PowerShell에서 {實行|실행}」. {管理者|관리자} {權限|권한}을 {求|구}합니다.',
+      'Win+Space로 釋讀을 {選|고르}ㅂ니다. {韓國語|한국어}가 {言語|언어} {目錄|목록}에 {無|없}으면 {自動|자동}으로 {加|더}합니다.',
+    ],
+    linux: [
+      '{壓縮|압축}을 {解|풀}고 install.sh를 {實行|실행}합니다. sudo {無|없}이 {此|이} {使用者|사용자}에게만 {設置|설치}합니다.',
+      'fcitx5를 {再|다시} {始作|시작}하고, fcitx5-configtool에서 「Only Show Current Language」를 {解除|해제}한 {後|뒤} 釋讀을 {加|더}합니다.',
+    ],
+    system: '{全|모든} {使用者|사용자}에게:',
+    remove: '{削除|삭제}:',
+    keys: 'Space {變換|변환} · Space {再|다시} {候補|후보} · 1–9 {選擇|선택} · Enter {確定|확정} · Esc {取消|취소} · 한/영 {或|또}는 Alt {短|짧}게: 釋讀 ↔ A',
+    custom: '{自作|자작} {規則|규칙}과 낱말은 {上|위} 「{自作|자작}」의 {共有|공유}에서 JSON으로 {內|내}려받아 custom.json으로 {保存|저장}합니다.',
+    where: '{置|두}는 {處|곳}',
+    note: '{同|같}은 {處|곳}의 config.toml에서 {設定|설정}을 {變|바꾸}ㅂ니다. {入力器|입력기}를 {變|바꾸}었다가 {返|돌아}오면 {再|다시} {讀|읽}습니다.',
   },
   footer: {
     sources: '{辭典|사전}과 {出處|출처}',
@@ -172,7 +188,7 @@ const ko = {
 }
 
 const en = {
-  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', join: 'Group' },
+  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', install: 'Install', join: 'Group' },
   theme: { light: 'Light', dark: 'Dark', auto: 'Auto' },
   hero: {
     kicker: 'The input method of 풀어읽기모임 釋讀會',
@@ -330,9 +346,25 @@ const en = {
     president: '車魄, head of the group',
     button: 'Join t.me/pimsdh',
   },
-  windows: {
-    title: 'Windows IME',
-    body: 'A Windows input method (TSF) is in preparation, with the same engine and dictionaries.',
+  install: {
+    eyebrow: 'Install',
+    title: 'Type it on your own computer',
+    lede: 'A system input method with the same engine and dictionaries as this page, for Windows and for Linux (fcitx5).',
+    download: 'Download',
+    windows: [
+      'Unzip, right-click install.ps1 and choose “Run with PowerShell”. It asks for administrator rights.',
+      'Pick 釋讀 with Win+Space. Korean is added to your language list if it is missing.',
+    ],
+    linux: [
+      'Unpack and run install.sh. It installs for your user only, without sudo.',
+      'Restart fcitx5, then add 釋讀 in fcitx5-configtool (untick “Only Show Current Language” to find it).',
+    ],
+    system: 'For all users:',
+    remove: 'Uninstall:',
+    keys: 'Space converts · Space again lists candidates · 1–9 pick · Enter confirms · Esc cancels · Han/Eng or a tap of Alt: 釋讀 ↔ A',
+    custom: 'For your own rules and words, download the JSON from Share under Customize above and save it as custom.json.',
+    where: 'Location',
+    note: 'Settings live in config.toml in the same folder. Switch input method away and back to reload.',
   },
   footer: {
     sources: 'Dictionaries and sources',

@@ -29,10 +29,6 @@
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="12" fill="var(--c-telegram)" /><path fill="#fff" d="M5.4 11.8 16.6 7.5c.5-.2 1 .1.8.9l-1.9 9c-.1.6-.5.8-1 .5l-2.8-2.1-1.4 1.3c-.2.2-.3.3-.6.3l.2-2.9 5.3-4.8c.2-.2 0-.3-.3-.1L8.4 13.7l-2.8-.9c-.6-.2-.6-.6.1-.9z" /></svg>
         <span>https://t.me/pimsdh</span>
       </a>
-      <div class="win">
-        <strong>{@html r(t().windows.title)}</strong>
-        <span>{@html r(t().windows.body)}</span>
-      </div>
     </div>
   </div>
 </section>
@@ -125,13 +121,6 @@
   .tg svg {
     width: 44px;
     height: 44px;
-  }
-  .win {
-    display: grid;
-    gap: 2px;
-    margin-top: var(--s-6);
-    font-size: 14px;
-    opacity: 0.88;
   }
   @media (max-width: 760px) {
     .inner {

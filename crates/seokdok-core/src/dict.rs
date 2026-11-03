@@ -1,0 +1,279 @@
+//! Dictionary entries and their TSV format.
+//!
+//! `native.tsv` (訓讀): `lemma  written  pos  class  source  count  note`
+//!   - `lemma`: the Hangul dictionary form (읽다, 하늘, 처음).
+//!   - `written`: the 釋讀 dictionary form (讀다, 天, 初음, 囚두다, 在ㅆ다).
+//!     Leading Hanja cover the start of the lemma; trailing Hangul repeats the
+//!     uncovered rest. A trailing lone consonant (在ㅆ다) marks the stem's
+//!     final consonant as always written out (末音添記).
+//!   - `pos`: noun pron num bound adv det interj verb adj (or the Korean
+//!     names 명사 대명사 수사 의존명사 부사 관형사 감탄사 동사 형용사).
+//!   - `class`: inflection class (reg b d s h reu reo ani); blank = guessed.
+//!   - `source`: provenance tier, see [`Source`]; `count`: corpus count.
+//!
+//! `sino.tsv` (音讀): `reading  hanja  count  source`.
+
+use crate::conj::{allomorphs, guess_class, morph_ctx, Allomorph, Class, Ctx};
+use crate::jamo::{decompose, is_syllable, is_t};
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Pos {
+    Noun,
+    Pron,
+    Num,
+    Bound,
+    Adv,
+    Det,
+    Interj,
+    Verb,
+    Adj,
+}
+
+impl Pos {
+    pub fn parse(s: &str) -> Option<Pos> {
+        Some(match s {
+            "noun" | "명사" => Pos::Noun,
+            "pron" | "대명사" => Pos::Pron,
+            "num" | "수사" | "조수사" => Pos::Num,
+            "bound" | "의존명사" => Pos::Bound,
+            "adv" | "부사" => Pos::Adv,
+            "det" | "관형사" => Pos::Det,
+            "interj" | "감탄사" => Pos::Interj,
+            "verb" | "동사" => Pos::Verb,
+            "adj" | "형용사" => Pos::Adj,
+            _ => return None,
+        })
+    }
+    pub fn inflects(self) -> bool {
+        matches!(self, Pos::Verb | Pos::Adj)
+    }
+}
+
+/// Where an entry comes from. Lower tiers are trusted more when ranking.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum Source {
+    /// The user's own dictionary.
+    User,
+    /// Attested in the 釋讀會 chat corpus (with a count).
+    Corpus,
+    /// 標準國語釋讀辭典, the 釋讀會 community dictionary.
+    Community,
+    /// Added by the project editors.
+    Editorial,
+    /// Derived from a traditional 訓音 gloss (하늘 천 → 하늘 = 天).
+    Gloss,
+    /// A Sino-Korean dictionary (libhangul).
+    Lexicon,
+}
+
+impl Source {
+    /// Trust rank used when several entries explain the same written form.
+    pub fn rank(self) -> u8 {
+        match self {
+            Source::User => 0,
+            Source::Corpus | Source::Editorial => 1,
+            Source::Community => 2,
+            Source::Gloss | Source::Lexicon => 3,
+        }
+    }
+
+    pub fn parse(s: &str) -> Source {
+        match s {
+            "user" => Source::User,
+            "corpus" => Source::Corpus,
+            "community" => Source::Community,
+            "editorial" => Source::Editorial,
+            "gloss" => Source::Gloss,
+            _ => Source::Lexicon,
+        }
+    }
+}
+
+/// How the written form relates to the lemma.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub enum Tail {
+    /// Hanja cover the whole stem/word.
+    None,
+    /// The final consonant is written out (在ㅆ다, 事ㅅ).
+    Coda,
+    /// Hanja cover a prefix; the rest is Hangul (初음, 囚두다).
+    Partial,
+}
+
+#[derive(Clone, Debug)]
+pub struct Native {
+    pub lemma: String,
+    pub pos: Pos,
+    /// The Hanja part of the written form ("" for Hangul-only helper entries).
+    pub hanja: String,
+    /// Lemma components without 다 for inflecting words.
+    pub stem: Vec<char>,
+    pub stem_str: String,
+    /// Number of components covered by the Hanja.
+    pub cover: usize,
+    pub tail: Tail,
+    pub class: Class,
+    pub allos: Vec<Allomorph>,
+    pub morph: Option<Ctx>,
+    pub source: Source,
+    pub count: u32,
+    pub cost: f32,
+    /// File label and line the entry came from.
+    pub origin: (String, usize),
+}
+
+#[derive(Clone, Debug)]
+pub struct Sino {
+    pub reading: String,
+    pub hanja: String,
+    pub source: Source,
+    pub count: u32,
+    pub cost: f32,
+}
+
+fn native_cost(source: Source, count: u32) -> f32 {
+    let base = match source {
+        Source::User => 1.0,
+        Source::Corpus => 2.5,
+        Source::Community => 3.0,
+        Source::Editorial => 3.0,
+        Source::Gloss => 6.0,
+        Source::Lexicon => 6.0,
+    };
+    if count == 0 {
+        return base;
+    }
+    // Attested entries rank by corpus frequency, whatever their tier.
+    let attested = (3.2 - 0.45 * ((count as f32) + 1.0).ln()).max(0.2);
+    attested.min(base)
+}
+
+fn sino_cost(reading: &str, source: Source, count: u32) -> f32 {
+    let n = reading.chars().count();
+    let base = match (source, n) {
+        (Source::User, _) => 1.0,
+        (_, 1) => 7.0,
+        _ => 4.5,
+    };
+    (base - 0.35 * ((count as f32) + 1.0).ln()).max(0.3)
+}
+
+pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
+    let get = |i: usize| fields.get(i).map(|s| s.trim()).unwrap_or("");
+    let lemma = get(0).to_string();
+    let written = get(1).to_string();
+    let pos = Pos::parse(get(2)).ok_or_else(|| format!("unknown pos {:?}", get(2)))?;
+    let source = Source::parse(get(4));
+    let count: u32 = get(5).parse().unwrap_or(0);
+    let (stem_str, wstem) = if pos.inflects() {
+        let l = lemma.strip_suffix('다').ok_or("verb lemma must end in 다")?;
+        let w = written.strip_suffix('다').ok_or("verb written form must end in 다")?;
+        (l.to_string(), w.to_string())
+    } else {
+        (lemma.clone(), written.clone())
+    };
+    if stem_str.is_empty() || !stem_str.chars().all(is_syllable) {
+        return Err(format!("lemma {lemma:?} must be Hangul syllables"));
+    }
+    let split = wstem
+        .char_indices()
+        .find(|(_, c)| is_syllable(*c) || ('\u{3131}'..='\u{3163}').contains(c))
+        .map(|(i, _)| i)
+        .unwrap_or(wstem.len());
+    let (hanja, tail_s) = wstem.split_at(split);
+    let stem = decompose(&stem_str);
+    let tail_c = decompose(tail_s);
+    if hanja.is_empty() && tail_s != stem_str {
+        return Err(format!("{written:?}: no Hanja"));
+    }
+    if !stem.ends_with(&tail_c) {
+        return Err(format!("{written:?}: tail {tail_s:?} does not end {stem_str:?}"));
+    }
+    let cover = stem.len() - tail_c.len();
+    let tail = if tail_c.is_empty() || hanja.is_empty() {
+        Tail::None
+    } else if tail_c.iter().all(|&c| is_t(c)) {
+        Tail::Coda
+    } else {
+        Tail::Partial
+    };
+    let class = match get(3) {
+        "" => {
+            if pos.inflects() {
+                guess_class(&stem_str, pos == Pos::Adj)
+            } else {
+                Class::Regular
+            }
+        }
+        s => Class::parse(s).ok_or_else(|| format!("unknown class {s:?}"))?,
+    };
+    let (allos, morph) = if pos.inflects() {
+        (allomorphs(&stem_str, class), Some(morph_ctx(&stem_str, class)))
+    } else {
+        (Vec::new(), None)
+    };
+    Ok(Native {
+        lemma,
+        pos,
+        hanja: hanja.to_string(),
+        stem,
+        stem_str,
+        cover,
+        tail,
+        class,
+        allos,
+        morph,
+        source,
+        count,
+        cost: native_cost(source, count),
+        origin: (String::new(), 0),
+    })
+}
+
+pub fn parse_sino(fields: &[&str]) -> Result<Sino, String> {
+    let get = |i: usize| fields.get(i).map(|s| s.trim()).unwrap_or("");
+    let reading = get(0).to_string();
+    let hanja = get(1).to_string();
+    if reading.is_empty() || !reading.chars().all(is_syllable) || hanja.is_empty() {
+        return Err(format!("bad sino line {fields:?}"));
+    }
+    let count = get(2).parse().unwrap_or(0);
+    let source = Source::parse(if get(3).is_empty() { "lexicon" } else { get(3) });
+    let cost = sino_cost(&reading, source, count);
+    Ok(Sino { reading, hanja, source, count, cost })
+}
+
+/// Read a TSV file's data lines (skipping blanks, `#` comments and a header
+/// line starting with `lemma` or `reading`).
+pub fn tsv_lines(text: &str) -> impl Iterator<Item = (usize, Vec<&str>)> {
+    text.lines().enumerate().filter_map(|(i, l)| {
+        let t = l.trim_end_matches('\r');
+        if t.trim().is_empty() || t.starts_with('#') || t.starts_with("lemma\t") || t.starts_with("reading\t") {
+            None
+        } else {
+            Some((i + 1, t.split('\t').collect()))
+        }
+    })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn tails() {
+        let e = parse_native(&["있다", "在ㅆ다", "adj"]).unwrap();
+        assert_eq!(e.tail, Tail::Coda);
+        assert_eq!(e.hanja, "在");
+        let e = parse_native(&["가두다", "囚두다", "verb"]).unwrap();
+        assert_eq!(e.tail, Tail::Partial);
+        assert_eq!(e.cover, decompose("가").len());
+        let e = parse_native(&["처음", "初음", "noun"]).unwrap();
+        assert_eq!(e.tail, Tail::Partial);
+        let e = parse_native(&["것", "事ㅅ", "bound"]).unwrap();
+        assert_eq!(e.tail, Tail::Coda);
+        let e = parse_native(&["읽다", "讀다", "동사"]).unwrap();
+        assert_eq!(e.tail, Tail::None);
+        assert!(parse_native(&["읽다", "讀어다", "verb"]).is_err());
+    }
+}

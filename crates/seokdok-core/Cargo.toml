@@ -1,0 +1,9 @@
+[package]
+name = "seokdok-core"
+description = "Conversion engine for the 釋讀 orthography of Korean"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+
+[dependencies]

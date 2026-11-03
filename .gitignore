@@ -1,0 +1,7 @@
+/target/
+/data/private/
+__pycache__/
+*.pyc
+.venv/
+/data/sources/*
+!/data/sources/README.md

@@ -7,6 +7,7 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, RwLock};
 
 use seokdok_core::custom::Custom;
+use seokdok_core::engine::Builder;
 use seokdok_core::{Candidate, Engine, Options, Segment};
 
 use crate::session::Converter;
@@ -26,32 +27,28 @@ pub fn load_custom(user_dir: Option<&Path>) -> Option<Custom> {
 }
 
 /// As [`load_engine`], with the words and phrases of `custom` in front.
+/// Files are read and parsed one at a time, so only one file's text is held
+/// at once (the iOS keyboard extension has little memory).
 pub fn load_engine_with(dict_dir: &Path, user_dir: Option<&Path>, custom: Option<&Custom>, options: Options) -> (Engine, Vec<String>) {
     let (custom_native, custom_sino) = custom.map(Custom::user_tsv).unwrap_or_default();
-    let read = |names: &[&str]| -> Vec<(String, String)> {
-        let mut v = Vec::new();
-        if names.contains(&"user.tsv") && !custom_native.is_empty() {
-            v.push(("custom.json".to_string(), custom_native.clone()));
-        }
-        if names.contains(&"user-sino.tsv") && !custom_sino.is_empty() {
-            v.push(("custom.json".to_string(), custom_sino.clone()));
-        }
+    let mut b = Builder::new();
+    let mut feed = |names: &[&str], custom_text: &str, add: fn(&mut Builder, &str, &str)| {
         for n in names {
             let user_file = n.starts_with("user");
+            if user_file && !custom_text.is_empty() {
+                add(&mut b, "custom.json", custom_text);
+            }
             let dirs = [user_dir.filter(|_| user_file), Some(dict_dir)];
             for d in dirs.into_iter().flatten() {
                 if let Ok(text) = std::fs::read_to_string(d.join(n)) {
-                    v.push((n.to_string(), text));
+                    add(&mut b, n, &text);
                 }
             }
         }
-        v
     };
-    let nat = read(Engine::NATIVE_FILES);
-    let sin = read(Engine::SINO_FILES);
-    let nat_ref: Vec<(&str, &str)> = nat.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
-    let sin_ref: Vec<(&str, &str)> = sin.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
-    Engine::new(&nat_ref, &sin_ref, options)
+    feed(Engine::NATIVE_FILES, &custom_native, Builder::native);
+    feed(Engine::SINO_FILES, &custom_sino, Builder::sino);
+    b.build(options)
 }
 
 #[derive(Default)]

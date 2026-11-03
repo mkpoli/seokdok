@@ -10,6 +10,8 @@ set -euo pipefail
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/.." && pwd)"
 targets=(aarch64-apple-ios aarch64-apple-ios-sim)
+# Match the deployment target in project.yml.
+export IPHONEOS_DEPLOYMENT_TARGET=16.0
 for t in "${targets[@]}"; do
   cargo build --release --target "$t" -p seokdok-ffi --manifest-path "$root/Cargo.toml"
 done
@@ -25,6 +27,10 @@ module SeokdokCore {
 }
 MAP
 
+if ! command -v xcodebuild >/dev/null; then
+  echo "built the libraries in $root/target/*/release; the XCFramework needs Xcode" >&2
+  exit 1
+fi
 out="$here/SeokdokCore.xcframework"
 rm -rf "$out"
 args=()

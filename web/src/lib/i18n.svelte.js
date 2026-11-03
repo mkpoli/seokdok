@@ -1,5 +1,7 @@
 // Interface strings. Korean is the default; Japanese and English follow the
 // browser, and the choice is remembered.
+import { options } from './options.svelte.js'
+import SINO from './sino-chars.json'
 
 const ko = {
   nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '{個言|낱말}', convert: '{變換|변환}', old: '{古|예}ㅅ{韓㐎|한글}', install: '{設置|설치}', join: '{會|모임}' },
@@ -434,6 +436,7 @@ const en = {
 // 'ko': Korean in 釋讀 with Hangul ruby; 'kore': the same, Hanja only; 'en'.
 const all = { ko, kore: ko, en }
 
+
 function initial() {
   try {
     const saved = localStorage.getItem('seokdok:lang')
@@ -457,16 +460,49 @@ export function t() {
   return all[i18n.lang]
 }
 
-const MARK = /\{([^|}]+)\|([^}]+)\}/g
+const MARK = /\{([^|}]+)\|([^}]+)\}([ㄱ-ㅎ])?/g
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
+
+/** A mark read by its characters' own Sino-Korean readings (音讀). */
+export function isSino(hanja, reading) {
+  const h = [...hanja]
+  const k = [...reading]
+  return h.length === k.length && h.every((c, i) => SINO[c]?.includes(k[i]))
+}
+
+// Final consonants as they follow a syllable without one (되 + ㅂ → 됩).
+const FINALS = ' ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ'
+function attach(word, jamo) {
+  if (!jamo) return word
+  const last = word.codePointAt(word.length - 1) - 0xac00
+  const f = FINALS.indexOf(jamo)
+  if (last < 0 || last > 11171 || last % 28 !== 0 || f < 1) return word + jamo
+  return word.slice(0, -1) + String.fromCodePoint(0xac00 + last + f)
+}
+
+/** In 國漢文混用 mode a 訓讀 mark shows its Hangul reading. */
+const hangulOnly = (h, k) => options.sinoOnly && !isSino(h, k)
+
+function render(s, ruby, html) {
+  const text = html ? esc(s) : s
+  return text.replace(MARK, (_, h, k, j = '') => {
+    if (hangulOnly(h, k)) return attach(k, j)
+    if (!html) return (ruby ? k : h) + j
+    return (ruby ? `<ruby>${h}<rt>${k}</rt></ruby>` : h) + j
+  })
+}
 
 /** Rich text: ruby over each marked word in 한, the bare Hanja in 韓. */
 export function r(s) {
-  if (i18n.lang === 'ko') return esc(s).replace(MARK, (_, h, k) => `<ruby>${h}<rt>${k}</rt></ruby>`)
-  return esc(s).replace(MARK, (_, h) => h)
+  return render(s, i18n.lang === 'ko', true)
+}
+
+/** Rich text with ruby in every language (the hero slogan). */
+export function rk(s) {
+  return render(s, i18n.lang !== 'kore', true)
 }
 
 /** Plain text for attributes: Hangul readings in 한, Hanja in 韓. */
 export function plain(s) {
-  return s.replace(MARK, (_, h, k) => (i18n.lang === 'ko' ? k : h))
+  return render(s, i18n.lang === 'ko', false)
 }

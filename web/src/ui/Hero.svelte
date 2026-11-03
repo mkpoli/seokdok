@@ -1,5 +1,7 @@
 <script>
-  import { t, r, plain } from '../lib/i18n.svelte.js'
+  import { t, r, rk, plain } from '../lib/i18n.svelte.js'
+
+  const SLOGAN = '{音讀|음독}에{疲|지치}ㄴ {當身|당신}을{爲|위}한、'
 
   // The wall of 訓讀 verbs, after the third 釋讀會 poster: each Hanja with its
   // own reading as ruby, then the 送韓字. All are dictionary entries attested
@@ -18,10 +20,7 @@
 <section class="hero-band" id="top">
 <div class="hero">
   <div class="text">
-    <p class="slogan" aria-label="音讀에 疲ㄴ 當身을 爲한">
-      <ruby>音讀<rt>음독</rt></ruby>에<ruby>疲<rt>지치</rt></ruby>ㄴ
-      <ruby>當身<rt>당신</rt></ruby>을<ruby>爲<rt>위</rt></ruby>한、
-    </p>
+    <p class="slogan" aria-label={plain(SLOGAN)}>{@html rk(SLOGAN)}</p>
     <p class="club">{@html r(t().hero.kicker)}</p>
     <h1 class="title" aria-label="釋讀 seokdok">
       <span class="big">釋讀</span>

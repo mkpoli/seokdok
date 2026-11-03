@@ -8,7 +8,7 @@
   "type": "module",
   "scripts": {
     "wasm": "cd ../crates/seokdok-wasm && wasm-pack build --release --target web --out-dir ../../web/pkg --out-name seokdok",
-    "dict": "bun scripts/bundle-dict.mjs",
+    "dict": "bun scripts/bundle-dict.mjs && bun scripts/sino-chars.mjs",
     "dev": "vite",
     "build": "bun run wasm && bun run dict && vite build",
     "preview": "vite preview",

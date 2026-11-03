@@ -147,6 +147,7 @@ struct Config: Codable, Equatable {
         var codaAlways = false
         var resyllabify = false
         var hadaKun = false
+        var sinoOnly = false
         var maxCandidates = 12
     }
 

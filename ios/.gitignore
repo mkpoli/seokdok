@@ -1,0 +1,5 @@
+# Written by xcodegen from project.yml.
+/App/Info.plist
+/App/Seokdok.entitlements
+/Keyboard/Info.plist
+/Keyboard/SeokdokKeyboard.entitlements

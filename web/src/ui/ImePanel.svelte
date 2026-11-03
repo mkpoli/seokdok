@@ -260,6 +260,9 @@
       <label class="ui-field" title={plain(t().options.oldTip)}>
         <input class="ui-switch" type="checkbox" role="switch" bind:checked={options.oldClusters} />{@html r(t().options.oldSwitch)}
       </label>
+      <label class="ui-field" title={plain(t().options.sinoTip)}>
+        <input class="ui-switch" type="checkbox" role="switch" bind:checked={options.sinoOnly} />{@html r(t().options.sinoSwitch)}
+      </label>
       <details class="opts">
         <summary class="btn" data-size="sm">{@html r(t().options.title)}</summary>
         <div class="opts-body card">

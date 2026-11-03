@@ -50,8 +50,8 @@ lemma	written	pos	class	source	count	note
 건너다	渡다	동사		community	3	
 건지다	撈다	동사		community	1	
 걷다	步다	동사		community	5	
-것	物	명사		community	34	複數登載
-것	件	명사		community	86	複數登載
+것	物	명사		community	10	複數登載
+것	件	명사		community	69	複數登載
 게	蟹	명사		community	1	
 게우다	嘔다	동사		community	1	
 게으르다	怠르다	형용사		community		
@@ -110,7 +110,7 @@ lemma	written	pos	class	source	count	note
 그믐	晦	명사		community	1	
 그위	政	명사		community	4	
 그윽하다	幽하다	동사		community		
-글	字	명사		community	109	
+글	字	명사		community	110	
 긁다	搔다	동사		community		
 기다	匍다	동사		community		
 기다리다	待다	동사		community	4	
@@ -660,8 +660,8 @@ lemma	written	pos	class	source	count	note
 이웃	鄰	명사		community	1	
 익다	熟다	동사		community	1	
 익히다	習다	동사		community	11	
-일	事	명사		community	46	
-일	事	명사		community	46	
+일	事	명사		community	14	
+일	事	명사		community	14	
 일다	起다	동사		community	2	
 일어나다	起어出다	동사		community		
 읽다	讀다	동사		community	294	
@@ -785,7 +785,7 @@ lemma	written	pos	class	source	count	note
 풀	糊	명사		community		
 풀다	解다	동사		community	11	
 피	血	명사		community	6	
-하늘	天	명사		community	14	
+하늘	天	명사		community		
 하다	爲다	동사		community	98	
 해	日	명사		community	106	
 해오라기	鷺	명사		community	2	

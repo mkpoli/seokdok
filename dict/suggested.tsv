@@ -1091,7 +1091,7 @@ lemma	written	pos	class	source	count	note
 째다	裂다	verb		suggested	2	tear open
 째다	割다	verb		suggested	9	cut open
 째다	切다	verb		suggested	13	cut
-한번	一番	adv		suggested	15	once
+한번	一番	adv		suggested		once
 한번	一日	noun		suggested	9	someday
 다들	皆	adv		suggested		everyone
 다들	諸	adv		suggested		all
@@ -1551,7 +1551,7 @@ lemma	written	pos	class	source	count	note
 이대로	如此	adv		suggested	5	as it is
 이참	此番	noun		suggested	12	this chance
 이태	二年	noun		suggested	2	two years
-일하다	事하다	verb		suggested	5	work
+일하다	事하다	verb		suggested	3	work
 일하다	勞하다	verb		suggested		labor
 자시다	食시다	verb		suggested	14	eat (honorific)
 젖먹이	乳兒	noun		suggested		suckling
@@ -1842,7 +1842,7 @@ lemma	written	pos	class	source	count	note
 영원히	永遠히	adv		suggested	3	forever
 예상하다	豫想하다	verb		suggested	1	expect
 오늘날	今日	noun		suggested		these days
-오라버님	兄님	noun		suggested	1	older brother (honorific)
+오라버님	兄님	noun		suggested		older brother (honorific)
 오름	昇	noun		suggested	4	ascent
 올라가다	上라가다	verb		suggested	3	go up
 올라가다	登라가다	verb		suggested		ascend

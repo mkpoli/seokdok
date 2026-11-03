@@ -40,6 +40,10 @@ pub struct Options {
     pub resyllabify: bool,
     /// Prefer 爲 for the light verb 하다 (安寧爲세요 over 安寧하세요).
     pub hada_kun: bool,
+    /// 國漢文混用: write only 音讀 words in Hanja and leave native words in
+    /// Hangul. Native words still take part in segmentation, so 나라 stays
+    /// 나라 instead of splitting into Sino syllables.
+    pub sino_only: bool,
     /// Maximum number of whole-phrase candidates.
     pub max_candidates: usize,
 }
@@ -52,12 +56,16 @@ impl Default for Options {
             coda_always: false,
             resyllabify: false,
             hada_kun: false,
+            sino_only: false,
             max_candidates: 12,
         }
     }
 }
 
 const NONE: u32 = u32::MAX;
+
+/// The honorific suffix 님 as conjoining jamo.
+const NIM: [char; 3] = ['\u{1102}', '\u{1175}', '\u{11B7}'];
 
 /// A prefix trie over jamo, flat from the start: each node is its key and
 /// two links (first child, next sibling), with no allocation of its own; the
@@ -266,6 +274,9 @@ struct Reverse {
     max_sino: usize,
     /// Native written keys that contain Hangul between characters.
     compounds: Vec<String>,
+    /// Inflected forms of the verbs that make Sino-Korean verbs (하다, 되다
+    /// …): 釋讀하면 reads 석독 + 하면.
+    light: std::collections::HashSet<String>,
 }
 
 const RAW_COST: f32 = 4.5;
@@ -540,7 +551,14 @@ impl Engine {
                     if boundary(q) {
                         // A bare native word inside a longer run is usually a misparse
                         // of an unknown word (나라 ≠ 吾+라).
-                        let inside = if q == n { 0.0 } else if crate::jamo::syllable_count(&entry.stem) == 1 { 5.0 } else { 3.0 };
+                        // The honorific suffix 님 attaches to any noun (해님, 달님).
+                        let inside = if q == n || comps[q..].starts_with(&NIM) {
+                            0.0
+                        } else if crate::jamo::syllable_count(&entry.stem) == 1 {
+                            5.0
+                        } else {
+                            3.0
+                        };
                         edges.push(Edge { start: s, end: q, cost: base + inside, kind: Kind::Nominal { entry: i, particle: None } });
                     }
                     // Pronouns and bound nouns contract with a following particle:
@@ -644,7 +662,7 @@ impl Engine {
             }
             Kind::Nominal { entry, particle } => {
                 let n = &self.natives[*entry as usize];
-                if n.hanja.is_empty() {
+                if n.hanja.is_empty() || self.options.sino_only {
                     return vec![raw()];
                 }
                 let mut t = n.hanja.clone();
@@ -656,7 +674,7 @@ impl Engine {
             }
             Kind::Verb { entry, allo, ending } => {
                 let n = &self.natives[*entry as usize];
-                if n.hanja.is_empty() {
+                if n.hanja.is_empty() || self.options.sino_only {
                     return vec![raw()];
                 }
                 let al = &n.allos[*allo as usize];
@@ -973,7 +991,11 @@ impl Engine {
                 v.sort_by(|&a, &b| self.native_cost(&self.natives[a]).partial_cmp(&self.native_cost(&self.natives[b])).unwrap());
             }
             let compounds = native.keys().filter(|k| k.chars().any(is_syllable)).cloned().collect();
-            Reverse { sino: sino.into_iter().map(|(k, (r, c, _))| (k, (r, c))).collect(), native, max_sino, compounds }
+            let light = (0..self.natives.len())
+                .filter(|&i| matches!(self.natives[i].lemma.as_str(), "하다" | "되다" | "시키다" | "당하다" | "스럽다"))
+                .flat_map(|i| self.forms_of(i).into_iter().map(|(_, s)| s))
+                .collect();
+            Reverse { sino: sino.into_iter().map(|(k, (r, c, _))| (k, (r, c))).collect(), native, max_sino, compounds, light }
         })
     }
 
@@ -1020,7 +1042,8 @@ impl Engine {
     fn read_token(&self, han: &str, tail: &str) -> String {
         let r = self.reverse();
         let (sino, sc) = self.read_sino(han);
-        let mut best = (sc + if self.is_particle_tail(tail) { 0.0 } else { 4.0 }, format!("{sino}{tail}"));
+        let plain = self.is_particle_tail(tail) || r.light.contains(tail);
+        let mut best = (sc + if plain { 0.0 } else { 4.0 }, format!("{sino}{tail}"));
         let cs: Vec<char> = han.chars().collect();
         let written_tail = |k: usize| format!("{}{tail}", cs[k..].iter().collect::<String>());
         for k in 0..cs.len() {

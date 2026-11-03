@@ -308,8 +308,8 @@ pub unsafe extern "C" fn seokdok_mode(ime: *mut Ime) -> i32 {
     }
 }
 
-/// Switch to mode `mode` (0 釋讀, 1 Hangul, 2 Latin), committing any
-/// composition as it stands. Other values are ignored.
+/// Switch to mode 0 釋讀, 1 Hangul or 2 Latin, committing any composition
+/// (read it with [`seokdok_take_commit`]). Other values are ignored.
 ///
 /// # Safety
 /// `ime` is a live session.
@@ -344,6 +344,13 @@ pub extern "C" fn seokdok_ready() -> bool {
 #[no_mangle]
 pub extern "C" fn seokdok_alt_toggles() -> bool {
     config::current().input.alt_toggles
+}
+
+/// Whether Space converts (from the settings); when false, only the convert
+/// key does.
+#[no_mangle]
+pub extern "C" fn seokdok_space_converts() -> bool {
+    config::current().input.space_converts
 }
 
 fn owned(s: String) -> *mut c_char {
@@ -430,13 +437,14 @@ mod tests {
             assert!(!seokdok_key(ime, SK_LETTER, 'g' as u32, false));
             seokdok_set_mode(ime, 1);
             assert_eq!(seokdok_mode(ime), 1);
-            for k in "gksrmf".chars() {
+            for k in "gksmf".chars() {
                 assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
             }
             seokdok_set_mode(ime, 0);
             let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
-            assert_eq!(c, "한글");
+            assert_eq!(c, "하늘");
             assert_eq!(seokdok_mode(ime), 0);
+            assert_eq!(seokdok_preedit_len(ime), 0);
             seokdok_free(ime);
         }
     }

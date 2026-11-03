@@ -8,7 +8,7 @@
 //! seokdok [options] add LEMMA WRITTEN POS [CLASS]   add to DIR/user.tsv
 //!
 //! Options: --dict DIR (default ./dict), --morpheme, --letter, --coda,
-//! --resyllabify, --hada. Without TEXT, lines are read from stdin.
+//! --resyllabify, --hada, --sino (音讀 only). Without TEXT, lines are read from stdin.
 
 use seokdok_core::{Engine, Fragment, Options, Style};
 use std::io::BufRead;
@@ -31,6 +31,7 @@ fn main() {
             "--coda" => o.coda_always = true,
             "--resyllabify" => o.resyllabify = true,
             "--hada" => o.hada_kun = true,
+            "--sino" => o.sino_only = true,
             _ => rest.push(std::mem::take(&mut args[i])),
         }
         i += 1;

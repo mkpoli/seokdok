@@ -40,6 +40,10 @@ pub struct Options {
     pub resyllabify: bool,
     /// Prefer 爲 for the light verb 하다 (安寧爲세요 over 安寧하세요).
     pub hada_kun: bool,
+    /// 國漢文混用: write only 音讀 words in Hanja and leave native words in
+    /// Hangul. Native words still take part in segmentation, so 나라 stays
+    /// 나라 instead of splitting into Sino syllables.
+    pub sino_only: bool,
     /// Maximum number of whole-phrase candidates.
     pub max_candidates: usize,
 }
@@ -52,6 +56,7 @@ impl Default for Options {
             coda_always: false,
             resyllabify: false,
             hada_kun: false,
+            sino_only: false,
             max_candidates: 12,
         }
     }
@@ -644,7 +649,7 @@ impl Engine {
             }
             Kind::Nominal { entry, particle } => {
                 let n = &self.natives[*entry as usize];
-                if n.hanja.is_empty() {
+                if n.hanja.is_empty() || self.options.sino_only {
                     return vec![raw()];
                 }
                 let mut t = n.hanja.clone();
@@ -656,7 +661,7 @@ impl Engine {
             }
             Kind::Verb { entry, allo, ending } => {
                 let n = &self.natives[*entry as usize];
-                if n.hanja.is_empty() {
+                if n.hanja.is_empty() || self.options.sino_only {
                     return vec![raw()];
                 }
                 let al = &n.allos[*allo as usize];

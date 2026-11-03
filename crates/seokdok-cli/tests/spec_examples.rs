@@ -66,6 +66,15 @@ fn coda_options() {
 }
 
 #[test]
+fn sino_only_leaves_native_words_in_hangul() {
+    check(Options { sino_only: true, ..Options::default() }, &[
+        ("나라를 사랑하는 마음", "나라를 사랑하는 마음"),
+        ("선생님께서 공부하셨다", "先生님께서 工夫하셨다"),
+        ("학교에 가서 친구를 만났다", "學校에 가서 親舊를 만났다"),
+    ]);
+}
+
+#[test]
 fn etymology_comes_before_homophones_but_after_kun() {
     let e = engine(Options::default());
     let first = |s: &str| e.convert(s)[0].text.clone();

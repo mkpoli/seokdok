@@ -96,8 +96,9 @@ class KeyboardView(context: Context, private val listener: KeyboardListener) : L
                 key.old = false
                 continue
             }
-            val main = Session.jamo(if (s.shift) up else ch) ?: ch.toString()
-            val other = Session.jamo(if (s.shift) ch else up)
+            val shifted = s.shift || s.capsLock
+            val main = Session.jamo(if (shifted) up else ch) ?: ch.toString()
+            val other = Session.jamo(if (shifted) ch else up)
             val hint = other.takeIf { it != main }
             key.main = shown(main)
             key.hint = hint?.let { shown(it) }

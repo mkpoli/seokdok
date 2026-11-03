@@ -1,0 +1,87 @@
+name: iOS
+
+on:
+  push:
+    branches: [main, "ci/ios*"]
+    paths: ["ios/**", "crates/**", "dict/**", "Cargo.toml", "Cargo.lock", ".github/workflows/ios.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: ios-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust targets
+        run: rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ios
+
+      - name: Rust library (SeokdokCore.xcframework)
+        run: ios/build-rust.sh
+
+      - name: Xcode project
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen
+          cd ios && xcodegen
+
+      # Unsigned device build. The entitlements (the App Group) are attached
+      # with an ad-hoc signature so that a sideloading tool, which re-signs
+      # the app with the user's Apple ID, knows what to request.
+      - name: Build for device
+        working-directory: ios
+        run: |
+          xcodebuild -quiet build -project Seokdok.xcodeproj -scheme Seokdok \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+
+      - name: Package unsigned IPA
+        working-directory: ios
+        run: |
+          app=build/Build/Products/Release-iphoneos/Seokdok.app
+          ./adhoc-sign.sh "$app"
+          rm -rf Payload && mkdir Payload && cp -R "$app" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload Seokdok-unsigned.ipa
+          ls -l Seokdok-unsigned.ipa
+          du -sh "$app" "$app/PlugIns"/*.appex
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Seokdok-unsigned-ipa
+          path: ios/Seokdok-unsigned.ipa
+          if-no-files-found: error
+
+      - name: Build for simulator
+        working-directory: ios
+        run: |
+          xcodebuild -quiet build -project Seokdok.xcodeproj -scheme Seokdok \
+            -configuration Debug -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+          ./adhoc-sign.sh build/Build/Products/Debug-iphonesimulator/Seokdok.app
+
+      - name: Run on a simulator and screenshot
+        working-directory: ios
+        run: |
+          set -x
+          udid=$(xcrun simctl list devices available -j | jq -r '[.devices[] | .[] | select(.name | test("^iPhone"))][0].udid')
+          xcrun simctl boot "$udid"
+          xcrun simctl bootstatus "$udid" -b
+          mkdir -p shots
+          xcrun simctl install "$udid" build/Build/Products/Debug-iphonesimulator/Seokdok.app
+          xcrun simctl launch "$udid" li.mkpo.seokdok
+          sleep 5
+          xcrun simctl io "$udid" screenshot shots/app.png
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: simulator-screenshots
+          path: ios/shots/
+          if-no-files-found: ignore

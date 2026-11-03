@@ -65,7 +65,7 @@ These rebuild `community.tsv`, `gloss.tsv` and `sino.tsv` and refresh the usage 
 ## References
 
 - 釋讀會 (풀어읽기모임), Telegram group: https://t.me/pimsdh. Its spellings and usage counts come from the group's chat.
-- 標準國語釋讀辭典, the group's community dictionary (Google Sheets, no licence stated).
+- 標準國語釋讀辭典, the group's community dictionary (Google Sheets).
 - Choe Hwanjin (2005–2006) [libhangul](https://github.com/libhangul/libhangul) `hanja.txt`.
 - [JMdict](https://www.edrdg.org/jmdict/j_jmdict.html), English Wiktionary via [kaikki.org](https://kaikki.org/), FusionIME and OpenCC; see [dict/README.md](dict/README.md) for what each supplies.
 
@@ -77,4 +77,4 @@ I build seokdok on my own, with no funding behind it, and it's free for everyone
 
 ## License
 
-Code: MIT © 2026 mkpoli. Each dictionary keeps the licence of the work it comes from (BSD-3-Clause, CC BY-SA 4.0, GPL-3.0, or none stated); see [dict/README.md](dict/README.md).
+Code: MIT © 2026 mkpoli. Each dictionary keeps the licence of the work it comes from; see [dict/README.md](dict/README.md).

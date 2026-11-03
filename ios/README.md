@@ -85,9 +85,6 @@ and the extension's memory gauge in Xcode) before relying on it.
 ## Licences
 
 The bundled dictionaries keep their own licences (`../dict/README.md`).
-`fusion.tsv` is GPL-3.0; the App Store's terms are widely held to conflict
-with the GPL, so check this before distributing through the App Store, or
-leave the file out of the bundle. `community.tsv` has no stated licence.
 
 ## Status
 

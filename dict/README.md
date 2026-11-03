@@ -8,7 +8,7 @@ comments; the header line names the columns.
 | `user.tsv`, `user-sino.tsv` | your own entries (not shipped) | you | yours |
 | `corpus.tsv` | 訓讀 spellings attested in the 釋讀會 chat | project editors | MIT (this repository) |
 | `editorial.tsv` | 訓讀 entries added by the editors, with reasons | project editors | MIT |
-| `community.tsv` | 標準國語釋讀辭典 | 釋讀會 members | none stated; see below |
+| `community.tsv` | 標準國語釋讀辭典 | 釋讀會 members | used with the editors' permission |
 | `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested | language model, unreviewed | MIT |
 | `kun-ja.tsv` | 訓讀 found through Japanese 訓読み words with the same English gloss | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `kun-ja-weak.tsv` | weaker Japanese links, kept so no candidate is lost | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
@@ -123,9 +123,8 @@ with `source` set to `user`. Check a file with
   ranks last.
 - **標準國語釋讀辭典**, Google Sheets
   https://docs.google.com/spreadsheets/d/1J7bPuQ4buOM17hvLR6UHLfcrERfYhaVVj1H-3szh7J0,
-  compiled by 釋讀會 members from June 2022, fetched 2026-11-03. No licence is
-  stated. Publishing this repository with `community.tsv` requires the
-  editors' consent. Five rows are skipped with a warning because lemma and
+  compiled by 釋讀會 members from June 2022, fetched 2026-11-03, used with the
+  editors' permission. Five rows are skipped with a warning because lemma and
   written form disagree (가득한 = 滿하다, 거리 = 街다 as a verb, 끼다 = 介이다,
   말 = 言하다, 사랑 = 살다).
 - **釋讀會 chat corpus** (t.me/pimsdh), export to 2026-10-29: used for counts

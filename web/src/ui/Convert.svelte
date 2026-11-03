@@ -5,6 +5,7 @@
   import { t, r, plain } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
   import { input, output } from '../lib/custom.svelte.js'
+  import { options } from '../lib/options.svelte.js'
 
   let text = $state(t().convert.sample)
   /** @type {{ reading: string, candidates: { text: string, note: string }[], pick: number }[][]} */
@@ -12,13 +13,18 @@
   let copied = $state(false)
   let timer
 
-  // Re-convert after typing pauses; lines that did not change keep their picks.
+  // Re-convert after typing pauses; lines that did not change keep their picks
+  // until the spelling options change.
+  let convertedWith = ''
   $effect(() => {
     const src = text
+    const opts = JSON.stringify(options)
     if (!status.ready) return
     clearTimeout(timer)
     timer = setTimeout(async () => {
-      const old = new Map(lines.map((segs) => [segs.map((s) => s.reading).join(''), segs]))
+      const keep = opts === convertedWith
+      convertedWith = opts
+      const old = new Map(keep ? lines.map((segs) => [segs.map((s) => s.reading).join(''), segs]) : [])
       lines = await Promise.all(
         src.split('\n').map(async (line) => {
           if (old.has(line)) return old.get(line)

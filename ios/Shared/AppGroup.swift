@@ -2,8 +2,9 @@ import Foundation
 
 /// The App Group the app and the keyboard share. Sideloading tools re-sign
 /// the app under the user's Apple ID and may rename the group, so the name in
-/// force is read from the provisioning profile embedded by the signer; the
-/// name in Info.plist is the one a build signed as configured uses.
+/// force is read from the provisioning profile embedded by the signer. The
+/// name in Info.plist comes first and the profile's names are sorted, so the
+/// app and the keyboard, which have separate profiles, settle on the same one.
 enum AppGroup {
     private static let resolved: (id: String, url: URL)? = {
         for id in candidates() {
@@ -21,11 +22,8 @@ enum AppGroup {
     static var defaults: UserDefaults? { resolved.flatMap { UserDefaults(suiteName: $0.id) } }
 
     private static func candidates() -> [String] {
-        var ids = provisionedGroups()
-        if let id = Bundle.main.object(forInfoDictionaryKey: "SeokdokAppGroup") as? String {
-            ids.append(id)
-        }
-        return ids
+        let configured = Bundle.main.object(forInfoDictionaryKey: "SeokdokAppGroup") as? String
+        return [configured].compactMap { $0 } + provisionedGroups().sorted()
     }
 
     /// `com.apple.security.application-groups` of embedded.mobileprovision,

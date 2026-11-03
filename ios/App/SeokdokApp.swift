@@ -23,6 +23,8 @@ struct ContentView: View {
     @AppStorage("hadaKun", store: Settings.store) private var hadaKun = false
     @AppStorage("sinoOnly", store: Settings.store) private var sinoOnly = false
     @AppStorage("maxCandidates", store: Settings.store) private var maxCandidates = 12
+    @State private var trial = ""
+    @FocusState private var trialFocused: Bool
 
     var body: some View {
         NavigationStack {
@@ -36,6 +38,11 @@ struct ContentView: View {
                             UIApplication.shared.open(url)
                         }
                     }
+                }
+                Section("試驗 · Try it") {
+                    TextField("여기에 입력 · Type here", text: $trial, axis: .vertical)
+                        .focused($trialFocused)
+                        .accessibilityIdentifier("trial")
                 }
                 Section("入力 · Input") {
                     Picker("始作 모드 · Start in", selection: $defaultMode) {
@@ -84,7 +91,11 @@ struct ContentView: View {
             .onChange(of: hadaKun) { _ in Settings.write() }
             .onChange(of: sinoOnly) { _ in Settings.write() }
             .onChange(of: maxCandidates) { _ in Settings.write() }
-            .onAppear { Settings.write() }
+            .onAppear {
+                Settings.write()
+                // Launch argument for the simulator check: `-focusTrial YES`.
+                trialFocused = UserDefaults.standard.bool(forKey: "focusTrial")
+            }
         }
     }
 }

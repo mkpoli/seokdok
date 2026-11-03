@@ -71,13 +71,28 @@ jobs:
         run: |
           set -x
           udid=$(xcrun simctl list devices available -j | jq -r '[.devices[] | .[] | select(.name | test("^iPhone"))][0].udid')
+          # Show the on-screen keyboard, and make 釋讀 the only one enabled.
+          defaults write com.apple.iphonesimulator ConnectHardwareKeyboard -bool false
           xcrun simctl boot "$udid"
           xcrun simctl bootstatus "$udid" -b
+          xcrun simctl spawn "$udid" defaults write .GlobalPreferences AppleKeyboards -array li.mkpo.seokdok.keyboard
+          xcrun simctl spawn "$udid" defaults write .GlobalPreferences AppleKeyboardsExpanded -int 1
           mkdir -p shots
           xcrun simctl install "$udid" build/Build/Products/Debug-iphonesimulator/Seokdok.app
           xcrun simctl launch "$udid" li.mkpo.seokdok
           sleep 5
           xcrun simctl io "$udid" screenshot shots/app.png
+          xcrun simctl terminate "$udid" li.mkpo.seokdok
+          xcrun simctl launch "$udid" li.mkpo.seokdok -focusTrial YES
+          sleep 15
+          xcrun simctl io "$udid" screenshot shots/keyboard.png
+          # What jetsam would count for the extension, on the Mac's simulator.
+          pid=$(pgrep -x SeokdokKeyboard || true)
+          if [ -n "$pid" ]; then
+            footprint "$pid" | tee shots/footprint.txt | head -30 || true
+          else
+            echo "keyboard extension is not running"
+          fi
 
       - uses: actions/upload-artifact@v4
         if: always()

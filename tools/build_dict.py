@@ -222,6 +222,85 @@ def build_sino(texts):
     out = []
     for (reading, han) in words:
         out.append((reading, han, sub.get(han, 0), "lexicon"))
+    out.extend(corpus_words(texts, words))
+    out.sort(key=lambda x: (x[0], -x[2], x[1]))
+    return out
+
+
+def native_hanja():
+    """Hanja parts of the hand-made 訓讀 entries (昔前, 有, 何處)."""
+    out = set()
+    for f in ("corpus.tsv", "editorial.tsv", "community.tsv"):
+        p = DICT / f
+        if not p.exists():
+            continue
+        for line in p.open(encoding="utf-8"):
+            if line.startswith("#") or line.startswith("lemma\t"):
+                continue
+            w = line.split("\t")[1] if "\t" in line else ""
+            m = re.match(HANJA + "+", w)
+            if m:
+                out.add(m.group(0))
+    return out
+
+
+def corpus_words(texts, words, min_count=5):
+    """Whole Hanja runs of 2-4 characters that the chat uses at least
+    `min_count` times but no lexicon lists (釋讀, 釋讀會). Each character is
+    read as it is most often read at that position in lexicon words, so the
+    initial-sound rule (리 → 이) comes from the data."""
+    by_pos = collections.defaultdict(collections.Counter)
+    for (reading, han) in words:
+        for i, (h, r) in enumerate(zip(han, reading)):
+            by_pos[(h, i == 0)][r] += 1
+    known = {h for (_, h) in words}
+    native = native_hanja()
+    runs = collections.Counter()
+    for t in texts:
+        for run in re.findall(HANJA + "+", t):
+            if 2 <= len(run) <= 4:
+                runs[run] += 1
+    out = []
+    for run, n in runs.items():
+        if n < min_count or run in known or run in native:
+            continue
+        # A known word followed by a 訓讀 character (滋味+有) is no new word.
+        if any(run[:k] in known and run[k:].replace("為", "爲") in native for k in range(2, len(run))):
+            continue
+        reading = []
+        for i, h in enumerate(run):
+            c = by_pos.get((h, i == 0)) or by_pos.get((h, i != 0))
+            if not c:
+                break
+            reading.append(c.most_common(1)[0][0])
+        else:
+            out.append(("".join(reading), run, n, "corpus"))
+    return out
+
+
+def build_fusion():
+    """Sino-Korean words with usage frequencies from FusionIME (十八字).
+    Definitions are dropped; count = round(cbrt(frequency)), damped so that the
+    scale is close to the corpus counts in sino.tsv."""
+    out = []
+    p = SRC / "fusion-ime" / "ko_dict_all.tsv"
+    for line in p.open(encoding="utf-8"):
+        f = line.rstrip("\n").split("\t")
+        if len(f) < 3:
+            continue
+        reading, han, freq = f[0], f[1], f[2]
+        if not reading or not all(syl(c) for c in reading) or len(reading) != len(han):
+            continue
+        # Pure Hanja, or Hanja mixed with the matching Hangul (加之에).
+        if not any(re.match(HANJA, c) for c in han):
+            continue
+        if any(not re.match(HANJA, h) and h != r for h, r in zip(han, reading)):
+            continue
+        try:
+            n = int(freq)
+        except ValueError:
+            n = 0
+        out.append((reading, han, round(n ** (1 / 3)), "fusion"))
     out.sort(key=lambda x: (x[0], -x[2], x[1]))
     return out
 
@@ -258,6 +337,12 @@ def main():
         "(BSD-3-Clause, Copyright (c) 2005,2006 Choe Hwanjin; see dict/README.md).",
         "Lemmas reconstructed from adnominal glosses (읽을 → 읽다); checked against Wiktionary",
         "headwords where available. Unchecked guesses are kept: this tier ranks last.",
+    ])
+    write(DICT / "fusion.tsv", ["reading", "hanja", "count", "source"], build_fusion(), [
+        "Sino-Korean words with usage frequencies from FusionIME (十八字) by Lee0701,",
+        "https://github.com/Lee0701/FusionIME commit 450829df (2026-10-31), ko_dict_all.tsv.",
+        "Licensed GPL-3.0 (see dict/LICENSE-fusion.txt); its data comes from 표준국어대사전 and libhangul.",
+        "Definitions removed; count = round(cbrt(frequency)).",
     ])
     write(DICT / "sino.tsv", ["reading", "hanja", "count", "source"], sino, [
         "Sino-Korean words and characters from libhangul hanja.txt (BSD-3-Clause,",

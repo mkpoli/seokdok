@@ -12,7 +12,7 @@ root="$(cd "$here/../.." && pwd)"
 out="$root/target/fcitx5"
 mkdir -p "$out"
 
-cargo build --release -p seokdok-fcitx5 --manifest-path "$root/Cargo.toml"
+cargo build --release -p seokdok-ffi --manifest-path "$root/Cargo.toml"
 
 if [[ -n "${FCITX5_INCLUDE:-}" ]]; then
   cflags="-I$FCITX5_INCLUDE/Core -I$FCITX5_INCLUDE/Config -I$FCITX5_INCLUDE/Utils"
@@ -25,8 +25,8 @@ fi
 
 # shellcheck disable=SC2086
 g++ -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -Wall -Wextra -Wno-unused-parameter \
-  $cflags -o "$out/libseokdok.so" "$here/addon/seokdok.cpp" \
-  -Wl,--whole-archive "$root/target/release/libseokdok_fcitx5.a" -Wl,--no-whole-archive \
+  $cflags -I"$root/crates/seokdok-ffi/include" -o "$out/libseokdok.so" "$here/addon/seokdok.cpp" \
+  -Wl,--whole-archive "$root/target/release/libseokdok_ffi.a" -Wl,--no-whole-archive \
   -Wl,--exclude-libs,ALL $libs -lpthread -ldl -lm
 strip --strip-unneeded "$out/libseokdok.so"
 echo "$out/libseokdok.so"

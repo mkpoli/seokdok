@@ -109,7 +109,14 @@ pub struct Config {
 }
 
 impl Config {
+    /// The folder holding config.toml and custom.json: $SEOKDOK_CONFIG_DIR
+    /// when set (the iOS app and keyboard share an App Group container),
+    /// else %APPDATA%\seokdok on Windows and $XDG_CONFIG_HOME/seokdok or
+    /// ~/.config/seokdok elsewhere.
     pub fn user_dir() -> Option<PathBuf> {
+        if let Some(d) = std::env::var_os("SEOKDOK_CONFIG_DIR").map(PathBuf::from).filter(|p| p.is_absolute()) {
+            return Some(d);
+        }
         if cfg!(windows) {
             return Some(PathBuf::from(std::env::var_os("APPDATA")?).join("seokdok"));
         }
@@ -290,6 +297,17 @@ pub fn ensure_file() {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn the_ios_app_partial_file_parses() {
+        // What ios/App/SeokdokApp.swift writes; missing keys keep defaults.
+        let c = Config::parse("[input]\ndefault_mode = \"latin\"\nspace_converts = false\nold_clusters = true\n");
+        assert_eq!(c.input.default_mode, InputMode::Latin);
+        assert!(!c.input.space_converts);
+        assert!(c.input.old_clusters);
+        assert!(c.input.alt_toggles);
+        assert_eq!(c.conversion, Config::default().conversion);
+    }
 
     fn non_default() -> Config {
         Config {

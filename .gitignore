@@ -7,3 +7,5 @@ __pycache__/
 !/data/sources/README.md
 /.playwright-mcp/
 /web/public/downloads/
+/ios/SeokdokCore.xcframework/
+/ios/Seokdok.xcodeproj/

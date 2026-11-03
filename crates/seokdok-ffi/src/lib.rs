@@ -1,5 +1,6 @@
-//! A C interface over the shared input-method session, for the fcitx5 addon
-//! in `addon/seokdok.cpp`.
+//! A C interface over the shared input-method session, declared in
+//! `include/seokdok.h`: used by the fcitx5 addon (crates/seokdok-fcitx5) and
+//! the iOS keyboard (ios/).
 //!
 //! The addon feeds keys in and reads back a view: text to commit, the preedit
 //! runs and the candidate page. Strings returned by the getters stay valid
@@ -300,6 +301,20 @@ pub unsafe extern "C" fn seokdok_mode(ime: *mut Ime) -> i32 {
         Mode::Hangul => 1,
         Mode::Latin => 2,
     }
+}
+
+/// The jamo a 두벌식 key types (`key` is a Latin letter, upper case for the
+/// Shift layer), or 0. For labelling on-screen keys.
+#[no_mangle]
+pub extern "C" fn seokdok_key_jamo(key: u32) -> u32 {
+    char::from_u32(key).and_then(seokdok_core::dubeolsik::key_to_jamo).map_or(0, |j| j as u32)
+}
+
+/// Whether the dictionaries have finished loading (conversion works before
+/// that, but offers only Hangul).
+#[no_mangle]
+pub extern "C" fn seokdok_ready() -> bool {
+    HOST.is_ready()
 }
 
 /// Whether Alt tapped alone should switch modes (from the settings).

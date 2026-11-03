@@ -179,7 +179,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "seokdok-fcitx5"
+name = "seokdok-ffi"
 version = "0.1.0"
 dependencies = [
  "seokdok-core",

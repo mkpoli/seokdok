@@ -7,7 +7,7 @@ web="$(cd "$(dirname "$0")/.." && pwd)"
 root="$(cd "$web/.." && pwd)"
 "$root/crates/seokdok-tsf/package.sh"
 "$root/crates/seokdok-fcitx5/package.sh"
-version=$(cargo metadata --no-deps --format-version 1 --manifest-path "$root/Cargo.toml" | jq -r '.packages[] | select(.name=="seokdok-fcitx5") | .version')
+version=$(cargo metadata --no-deps --format-version 1 --manifest-path "$root/Cargo.toml" | jq -r '.packages[] | select(.name=="seokdok-ffi") | .version')
 win="seokdok-${version}-x86_64-windows.zip"
 linux="seokdok-${version}-x86_64-linux-fcitx5.tar.gz"
 rm -rf "$web/public/downloads"

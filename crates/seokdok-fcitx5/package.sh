@@ -6,7 +6,7 @@
 # Usage: crates/seokdok-fcitx5/package.sh  (FCITX5_INCLUDE as for build.sh)
 set -euo pipefail
 cd "$(dirname "$0")/../.."
-version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name=="seokdok-fcitx5") | .version')
+version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name=="seokdok-ffi") | .version')
 crates/seokdok-fcitx5/build.sh
 name="seokdok-${version}-x86_64-linux-fcitx5"
 stage="target/stage/${name}"

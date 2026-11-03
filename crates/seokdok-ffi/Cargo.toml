@@ -1,6 +1,6 @@
 [package]
-name = "seokdok-fcitx5"
-description = "釋讀 (seokdok) input method for Linux: C interface for the fcitx5 addon"
+name = "seokdok-ffi"
+description = "釋讀 (seokdok) input method: C interface to the session, for the fcitx5 addon and the iOS keyboard"
 version.workspace = true
 edition.workspace = true
 license.workspace = true
@@ -8,7 +8,7 @@ authors.workspace = true
 publish = false
 
 [lib]
-name = "seokdok_fcitx5"
+name = "seokdok_ffi"
 crate-type = ["staticlib", "rlib"]
 
 [dependencies]

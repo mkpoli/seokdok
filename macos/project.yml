@@ -1,0 +1,50 @@
+# XcodeGen spec: `brew install xcodegen && cd macos && xcodegen` writes
+# Seokdok.xcodeproj. Run macos/build-rust.sh first for build/lib and
+# build/include.
+name: Seokdok
+options:
+  bundleIdPrefix: li.mkpo
+  deploymentTarget:
+    macOS: "13.0"
+settings:
+  base:
+    SWIFT_VERSION: "5.9"
+    MARKETING_VERSION: "0.1.0"
+    CURRENT_PROJECT_VERSION: "1"
+targets:
+  Seokdok:
+    type: application
+    platform: macOS
+    scheme: {}
+    sources:
+      - path: Seokdok
+        excludes:
+          - "Info.plist"
+          - "**/*.py"
+    settings:
+      base:
+        PRODUCT_NAME: Seokdok
+        # IMK looks for ".inputmethod." in the bundle identifier.
+        PRODUCT_BUNDLE_IDENTIFIER: li.mkpo.inputmethod.seokdok
+        INFOPLIST_FILE: Seokdok/Info.plist
+        GENERATE_INFOPLIST_FILE: NO
+        # The Rust core: a universal static library and its module map.
+        SWIFT_INCLUDE_PATHS: $(PROJECT_DIR)/build/include
+        LIBRARY_SEARCH_PATHS: $(PROJECT_DIR)/build/lib
+        OTHER_LDFLAGS: -lseokdok_ffi
+        ARCHS: "arm64 x86_64"
+        ONLY_ACTIVE_ARCH: NO
+        # Signed to run locally; set DEVELOPMENT_TEAM and a Developer ID to
+        # hand the app to others.
+        CODE_SIGN_STYLE: Manual
+        CODE_SIGN_IDENTITY: "-"
+        ENABLE_HARDENED_RUNTIME: NO
+        ENABLE_USER_SCRIPT_SANDBOXING: NO
+        COMBINE_HIDPI_IMAGES: NO
+    postCompileScripts:
+      - name: Copy dictionaries
+        basedOnDependencyAnalysis: false
+        script: |
+          dest="$TARGET_BUILD_DIR/$UNLOCALIZED_RESOURCES_FOLDER_PATH/dict"
+          mkdir -p "$dest"
+          rsync -a --delete --exclude 'user*.tsv' "$PROJECT_DIR/../dict/" "$dest/"

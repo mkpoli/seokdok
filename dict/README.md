@@ -10,7 +10,8 @@ comments; the header line names the columns.
 | `editorial.tsv` | 訓讀 entries added by the editors, with reasons | project editors | MIT |
 | `community.tsv` | 標準國語釋讀辭典 | 釋讀會 members | none stated; see below |
 | `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
-| `sino.tsv` | 音讀 words and characters | libhangul | BSD-3-Clause |
+| `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
+| `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
 
 Earlier files win ties: an entry in `user.tsv` ranks above the same word
 elsewhere.
@@ -51,6 +52,18 @@ with `source` set to `user`. Check a file with
 `cargo run -p seokdok-cli -- check`.
 
 ## Licences and provenance
+
+- **FusionIME (十八字)** by Lee0701, https://github.com/Lee0701/FusionIME
+  commit `450829df` (2026-10-31), `ko_dict_all.tsv`: GPL-3.0, full text in
+  `LICENSE-fusion.txt`. FusionIME states its Korean data comes from
+  표준국어대사전 (stdict.korean.go.kr) and libhangul. Definitions are removed;
+  frequencies are damped to `round(cbrt(frequency))` because they come from a
+  different corpus than the chat counts. `fusion.tsv` stays under GPL-3.0
+  wherever it is distributed; the code remains MIT.
+- **Chat-attested Sino-Korean words** in `sino.tsv` (source `corpus`): Hanja
+  runs used at least five times in the chat that no lexicon lists (釋讀,
+  釋讀會, 末音添記). Readings are each character's most common reading at
+  that position in libhangul words, so a rare reading may be wrong.
 
 - **libhangul** `data/hanja/hanja.txt`, commit `23d2cd9d` (2026-10-11):
   Copyright (c) 2005,2006 Choe Hwanjin. All rights reserved.

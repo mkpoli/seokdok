@@ -5,6 +5,9 @@ import init, { Engine } from '../../pkg/seokdok.js'
 
 let engine = null
 const queue = []
+// Kept so the engine can be rebuilt with the reader's own words.
+let base = { native: '', sino: '' }
+let lastOptions = {}
 
 async function fetchText(url, onBytes) {
   const res = await fetch(url)
@@ -38,13 +41,29 @@ async function load() {
     fetchText('/dict/native.bin', tick),
     fetchText('/dict/sino.bin', tick),
   ])
+  base = { native, sino }
   engine = new Engine([['native.tsv', native]], [['sino.tsv', sino]])
   postMessage({ ready: true })
   for (const m of queue.splice(0)) handle(m)
 }
 
 const ops = {
-  options: (o) => engine.setOptions(JSON.stringify(o)),
+  options: (o) => {
+    lastOptions = o
+    engine.setOptions(JSON.stringify(o))
+  },
+  // Rebuild with user entries in front (user.tsv / user-sino.tsv formats);
+  // returns the lines that could not be read.
+  user: ([userNative, userSino]) => {
+    const next = new Engine(
+      [['user.tsv', userNative], ['native.tsv', base.native]],
+      [['user-sino.tsv', userSino], ['sino.tsv', base.sino]],
+    )
+    engine.free?.()
+    engine = next
+    engine.setOptions(JSON.stringify(lastOptions))
+    return JSON.parse(engine.errors()).filter((e) => e.startsWith('user'))
+  },
   convert: (text) => JSON.parse(engine.convert(text)),
   segments: (text) => JSON.parse(engine.segments(text)),
   read: (text) => engine.read(text),

@@ -26,6 +26,7 @@
   </a>
   <nav aria-label="sections">
     <a href="#ime">{@html r(t().nav.ime)}</a>
+    <a href="#custom">{@html r(t().nav.custom)}</a>
     <a href="#rules">{@html r(t().nav.rules)}</a>
     <a href="#words">{@html r(t().nav.words)}</a>
     <a href="#join">{@html r(t().nav.join)}</a>

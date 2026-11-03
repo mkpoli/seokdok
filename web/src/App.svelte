@@ -11,11 +11,14 @@
   import Join from './ui/Join.svelte'
   import Footer from './ui/Footer.svelte'
   import Samples from './ui/Samples.svelte'
+  import Custom from './ui/Custom.svelte'
+  import { input, output } from './lib/custom.svelte.js'
 
+  // Custom rules wrap the engine: input rules before, output rules after.
   const ime = new Ime(
     new Composer(),
-    (text) => engine.segments(text),
-    (text) => engine.convert(text),
+    async (text) => (await engine.segments(input(text))).map((s) => ({ ...s, candidates: output(s.candidates) })),
+    async (text) => output(await engine.convert(input(text))),
   )
 
   /** Put a word into the input method and convert it (from the word grid). */
@@ -36,6 +39,7 @@
 <main>
   <Hero />
   <ImePanel {ime} />
+  <Custom />
   <Samples onopen={tryWord} />
   <Rules />
   <Words onpick={tryWord} />

@@ -6,6 +6,7 @@
   import Keyboard from './Keyboard.svelte'
   import Ruby from './Ruby.svelte'
   import { PAGE } from '../lib/ime.svelte.js'
+  import { input, output } from '../lib/custom.svelte.js'
 
   /** @type {{ ime: import('../lib/ime.svelte.js').Ime }} */
   let { ime } = $props()
@@ -79,7 +80,7 @@
       return
     }
     timer = setTimeout(async () => {
-      const r = await engine.convert(pre)
+      const r = output(await engine.convert(input(pre)))
       if (ime.pre === pre) preview = r[0]?.text ?? ''
     }, 90)
   })

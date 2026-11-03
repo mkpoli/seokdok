@@ -71,6 +71,9 @@ $dict = @(
 if (-not $dict) { throw "dict folder not found next to the script or in the checkout." }
 
 New-Item -ItemType Directory -Force -Path $installDir | Out-Null
+# Copies set aside by earlier installs; the ones still loaded stay until the next time.
+Get-ChildItem $installDir -Filter 'seokdok-old-*.dll' -ErrorAction SilentlyContinue |
+    Remove-Item -Force -ErrorAction SilentlyContinue
 Move-LockedAside $dst
 Copy-Item $src $dst -Force
 $dictDst = Join-Path $installDir 'dict'

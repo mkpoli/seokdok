@@ -341,6 +341,13 @@ pub extern "C" fn seokdok_alt_toggles() -> bool {
     config::current().input.alt_toggles
 }
 
+/// Whether Space converts (from the settings); when false, only the convert
+/// key does.
+#[no_mangle]
+pub extern "C" fn seokdok_space_converts() -> bool {
+    config::current().input.space_converts
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

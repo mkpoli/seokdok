@@ -169,9 +169,10 @@ yet to settle these ("副詞類도 언젠가 一番에 釋讀 表記를 考案�
 
 ### 6.4 하다
 
-하다 after a Sino-Korean word stays in Hangul unless the `hada_kun` option is
-set, which prefers 爲 (安寧爲세요, 工夫爲다). 하다 on its own is 爲다 in the
-community dictionary.
+seokdok writes 하다 in Hangul, after a Sino-Korean word or on its own
+(安寧하세요, 했다), and lists 爲 as the next candidate (安寧爲세요, 爲ㅆ다).
+The `hada_kun` option makes 爲 the first choice. The community dictionary
+writes 하다 on its own as 爲다.
 
 ## 7. Options summary
 

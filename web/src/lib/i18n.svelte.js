@@ -491,11 +491,13 @@ const hangulOnly = (h, k) => options.sinoOnly && !isSino(h, k)
 
 function render(s, ruby, html) {
   const text = html ? esc(s) : s
-  return text.replace(MARK, (_, h, k, j = '') => {
+  const out = text.replace(MARK, (_, h, k, j = '') => {
     if (hangulOnly(h, k)) return attach(k, j)
     if (!html) return (ruby ? k : h) + j
     return (ruby ? `<ruby>${h}<rt>${k}</rt></ruby>` : h) + j
   })
+  // One span, so a flex parent (button, label) sees one item and not a piece per ruby.
+  return html ? `<span>${out}</span>` : out
 }
 
 /** Rich text: ruby over each marked word in 한, the bare Hanja in 韓. */

@@ -22,7 +22,12 @@ The spelling rules and their options are in
   configured style.
 - `crates/seokdok-cli`: `seokdok` command for trying conversions and checking
   dictionaries.
+- `crates/seokdok-session`: the platform-independent IME: key handling,
+  conversion state, candidates, settings and the user's custom.json.
 - `crates/seokdok-tsf`: the Windows IME (Text Services Framework).
+- `crates/seokdok-fcitx5`: the Linux IME, an fcitx5 addon. `build.sh` links
+  the Rust core into `libseokdok.so`, `e2e.sh` drives it through a private
+  fcitx5 over D-Bus, `package.sh` stages the release tarball.
 - `crates/seokdok-wasm`: WebAssembly bindings (`Engine`, `Composer`) for
   JavaScript, built with `wasm-pack`.
 - `web/`: https://seokdok.mkpo.li/, an in-browser IME with a 두벌식 keyboard,

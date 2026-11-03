@@ -1,0 +1,16 @@
+[package]
+name = "seokdok-fcitx5"
+description = "釋讀 (seokdok) input method for Linux: C interface for the fcitx5 addon"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[lib]
+name = "seokdok_fcitx5"
+crate-type = ["staticlib", "rlib"]
+
+[dependencies]
+seokdok-core = { path = "../seokdok-core" }
+seokdok-session = { path = "../seokdok-session" }

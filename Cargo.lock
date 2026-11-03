@@ -179,6 +179,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "seokdok-fcitx5"
+version = "0.1.0"
+dependencies = [
+ "seokdok-core",
+ "seokdok-session",
+]
+
+[[package]]
 name = "seokdok-session"
 version = "0.1.0"
 dependencies = [

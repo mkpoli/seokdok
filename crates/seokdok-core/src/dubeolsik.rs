@@ -1,44 +1,50 @@
-//! 두벌식 (KS X 5002) Hangul composition.
+//! 두벌식 (KS X 5002) Hangul composition, with old Hangul (옛한글).
 //!
-//! The composition is a plain string. Only its last character is ever
-//! "open": a syllable that can still take another jamo, or a lone jamo. All
-//! other characters are final, so the automaton needs no state beyond the
-//! string and backspace removes one jamo at a time.
+//! The composition is a plain string. Only its last syllable is ever "open":
+//! one that can still take another jamo, or a lone jamo. Everything before it
+//! is final, so the automaton needs no state beyond the string, and backspace
+//! removes one typed letter at a time.
+//!
+//! A syllable is three runs of typed letters: initial, medial, final. Modern
+//! syllables are written precomposed (한); anything else as conjoining jamo
+//! (ᄒᆞ = U+1112 U+119E). The old letters ㅿ ㆁ ㆆ ㆍ and the sibilants
+//! ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ sit on the Shift layer, as on Microsoft Old Hangul. Clusters
+//! made only of modern letters (ㅅ+ㄱ → ᄭ, ㅂ+ㅇ → ㅸ) need the `old`
+//! switch, because without it ordinary typing such as ㅎㅎ must stay apart.
+
+use crate::old_jamo;
 
 const CHO: &str = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
 const JUNG: &str = "ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ";
 const JONG: &str = "ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ";
+/// Modern letters that have a key; everything else typed is an old letter.
+const MODERN_LETTERS: &str = "ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎㅏㅐㅑㅒㅓㅔㅕㅖㅗㅛㅜㅠㅡㅣ";
+const OLD_VOWELS: &str = "ㆍ";
 
 const SBASE: u32 = 0xAC00;
+const L_FILL: char = '\u{115F}';
+const V_FILL: char = '\u{1160}';
 
-/// Two-jamo vowels: (first, second, result).
-const VOWEL_PAIRS: [(char, char, char); 7] = [
-    ('ㅗ', 'ㅏ', 'ㅘ'),
-    ('ㅗ', 'ㅐ', 'ㅙ'),
-    ('ㅗ', 'ㅣ', 'ㅚ'),
-    ('ㅜ', 'ㅓ', 'ㅝ'),
-    ('ㅜ', 'ㅔ', 'ㅞ'),
-    ('ㅜ', 'ㅣ', 'ㅟ'),
-    ('ㅡ', 'ㅣ', 'ㅢ'),
-];
-
-/// Two-jamo codas: (first, second, result).
-const CODA_PAIRS: [(char, char, char); 11] = [
-    ('ㄱ', 'ㅅ', 'ㄳ'),
-    ('ㄴ', 'ㅈ', 'ㄵ'),
-    ('ㄴ', 'ㅎ', 'ㄶ'),
-    ('ㄹ', 'ㄱ', 'ㄺ'),
-    ('ㄹ', 'ㅁ', 'ㄻ'),
-    ('ㄹ', 'ㅂ', 'ㄼ'),
-    ('ㄹ', 'ㅅ', 'ㄽ'),
-    ('ㄹ', 'ㅌ', 'ㄾ'),
-    ('ㄹ', 'ㅍ', 'ㄿ'),
-    ('ㄹ', 'ㅎ', 'ㅀ'),
-    ('ㅂ', 'ㅅ', 'ㅄ'),
+/// Modern two-letter vowels and finals, as typed.
+const VOWEL_PAIRS: [(&str, char); 7] =
+    [("ㅗㅏ", 'ㅘ'), ("ㅗㅐ", 'ㅙ'), ("ㅗㅣ", 'ㅚ'), ("ㅜㅓ", 'ㅝ'), ("ㅜㅔ", 'ㅞ'), ("ㅜㅣ", 'ㅟ'), ("ㅡㅣ", 'ㅢ')];
+const CODA_PAIRS: [(&str, char); 11] = [
+    ("ㄱㅅ", 'ㄳ'),
+    ("ㄴㅈ", 'ㄵ'),
+    ("ㄴㅎ", 'ㄶ'),
+    ("ㄹㄱ", 'ㄺ'),
+    ("ㄹㅁ", 'ㄻ'),
+    ("ㄹㅂ", 'ㄼ'),
+    ("ㄹㅅ", 'ㄽ'),
+    ("ㄹㅌ", 'ㄾ'),
+    ("ㄹㅍ", 'ㄿ'),
+    ("ㄹㅎ", 'ㅀ'),
+    ("ㅂㅅ", 'ㅄ'),
 ];
 
 /// The jamo on a 두벌식 key. Lowercase letters are the plain layer, uppercase
-/// letters the Shift layer; only ㅃㅉㄸㄲㅆㅒㅖ differ between the layers.
+/// letters the Shift layer: ㅃㅉㄸㄲㅆㅒㅖ as usual, and the old letters
+/// ㅿ ㆁ ㆆ ㆍ ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ where Microsoft Old Hangul puts them.
 pub fn key_to_jamo(c: char) -> Option<char> {
     Some(match c {
         'q' => 'ㅂ',
@@ -58,95 +64,189 @@ pub fn key_to_jamo(c: char) -> Option<char> {
         'T' => 'ㅆ',
         'O' => 'ㅒ',
         'P' => 'ㅖ',
-        'a' | 'A' => 'ㅁ',
+        'a' => 'ㅁ',
+        'A' => 'ㅿ',
         's' | 'S' => 'ㄴ',
-        'd' | 'D' => 'ㅇ',
+        'd' => 'ㅇ',
+        'D' => 'ㆁ',
         'f' | 'F' => 'ㄹ',
-        'g' | 'G' => 'ㅎ',
+        'g' => 'ㅎ',
+        'G' => 'ㆆ',
         'h' | 'H' => 'ㅗ',
         'j' | 'J' => 'ㅓ',
-        'k' | 'K' => 'ㅏ',
+        'k' => 'ㅏ',
+        'K' => 'ㆍ',
         'l' | 'L' => 'ㅣ',
-        'z' | 'Z' => 'ㅋ',
-        'x' | 'X' => 'ㅌ',
-        'c' | 'C' => 'ㅊ',
-        'v' | 'V' => 'ㅍ',
-        'b' | 'B' => 'ㅠ',
-        'n' | 'N' => 'ㅜ',
+        'z' => 'ㅋ',
+        'Z' => 'ᄼ',
+        'x' => 'ㅌ',
+        'X' => 'ᄾ',
+        'c' => 'ㅊ',
+        'C' => 'ᅎ',
+        'v' => 'ㅍ',
+        'V' => 'ᅐ',
+        'b' => 'ㅠ',
+        'B' => 'ᅔ',
+        'n' => 'ㅜ',
+        'N' => 'ᅕ',
         'm' | 'M' => 'ㅡ',
         _ => return None,
     })
 }
 
 pub fn is_vowel(j: char) -> bool {
-    JUNG.contains(j)
+    JUNG.contains(j) || OLD_VOWELS.contains(j)
 }
 
-pub fn is_consonant(j: char) -> bool {
-    CHO.contains(j) || JONG.contains(j)
+#[derive(Clone, Copy, PartialEq, Eq)]
+enum Part {
+    Cho,
+    Jung,
+    Jong,
 }
 
-/// A syllable block under construction. All fields are compatibility jamo.
-#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+fn table(p: Part) -> &'static [(&'static str, char)] {
+    match p {
+        Part::Cho => old_jamo::CHO,
+        Part::Jung => old_jamo::JUNG,
+        Part::Jong => old_jamo::JONG,
+    }
+}
+
+/// The conjoining jamo for a run of typed letters.
+fn jamo(p: Part, seq: &str) -> Option<char> {
+    table(p).iter().find(|r| r.0 == seq).map(|r| r.1)
+}
+
+/// The typed letters of a conjoining jamo.
+fn letters(p: Part, c: char) -> Option<&'static str> {
+    table(p).iter().find(|r| r.1 == c).map(|r| r.0)
+}
+
+/// The modern compatibility jamo a run spells, if it is modern.
+fn modern(p: Part, seq: &str) -> Option<char> {
+    let one = |set: &str| {
+        let mut cs = seq.chars();
+        match (cs.next(), cs.next()) {
+            (Some(c), None) if set.contains(c) => Some(c),
+            _ => None,
+        }
+    };
+    match p {
+        Part::Cho => one(CHO),
+        Part::Jung => one(JUNG).or_else(|| VOWEL_PAIRS.iter().find(|r| r.0 == seq).map(|r| r.1)),
+        Part::Jong => one(JONG).or_else(|| CODA_PAIRS.iter().find(|r| r.0 == seq).map(|r| r.1)),
+    }
+}
+
+fn modern_letters(p: Part, c: char) -> Option<String> {
+    match p {
+        Part::Jung => VOWEL_PAIRS.iter().find(|r| r.1 == c).map(|r| r.0.to_string()),
+        Part::Jong => CODA_PAIRS.iter().find(|r| r.1 == c).map(|r| r.0.to_string()),
+        Part::Cho => None,
+    }
+    .or_else(|| Some(c.to_string()))
+}
+
+/// A syllable under construction: the typed letters of each part.
+#[derive(Clone, Debug, Default, PartialEq, Eq)]
 struct Syl {
-    cho: Option<char>,
-    jung: Option<char>,
-    jong: Option<char>,
+    l: String,
+    v: String,
+    t: String,
 }
 
 impl Syl {
-    fn from_char(c: char) -> Option<Syl> {
-        if is_vowel(c) {
-            return Some(Syl { jung: Some(c), ..Syl::default() });
+    fn of(j: char) -> Syl {
+        if is_vowel(j) {
+            Syl { v: j.to_string(), ..Syl::default() }
+        } else {
+            Syl { l: j.to_string(), ..Syl::default() }
         }
-        if is_consonant(c) {
-            return Some(Syl { cho: Some(c), ..Syl::default() });
+    }
+
+    fn render(&self) -> String {
+        let compat = |c: char| old_jamo::COMPAT.iter().find(|r| r.0 == c).map(|r| r.1);
+        if self.v.is_empty() {
+            let l = jamo(Part::Cho, &self.l).expect("valid initial");
+            return compat(l).map(String::from).unwrap_or_else(|| format!("{l}{V_FILL}"));
         }
-        let s = (c as u32).checked_sub(SBASE)?;
-        if s >= 19 * 21 * 28 {
+        let v = jamo(Part::Jung, &self.v).expect("valid medial");
+        if self.l.is_empty() {
+            return compat(v).map(String::from).unwrap_or_else(|| format!("{L_FILL}{v}"));
+        }
+        let (ml, mv) = (modern(Part::Cho, &self.l), modern(Part::Jung, &self.v));
+        let mt = if self.t.is_empty() { Some(None) } else { modern(Part::Jong, &self.t).map(Some) };
+        if let (Some(l), Some(v), Some(t)) = (ml, mv, mt) {
+            let li = CHO.chars().position(|c| c == l).unwrap() as u32;
+            let vi = JUNG.chars().position(|c| c == v).unwrap() as u32;
+            let ti = t.map_or(0, |t| JONG.chars().position(|c| c == t).unwrap() as u32 + 1);
+            return char::from_u32(SBASE + (li * 21 + vi) * 28 + ti).unwrap().to_string();
+        }
+        let l = jamo(Part::Cho, &self.l).expect("valid initial");
+        let t = if self.t.is_empty() { None } else { jamo(Part::Jong, &self.t) };
+        let mut s = format!("{l}{v}");
+        s.extend(t);
+        s
+    }
+}
+
+/// The last syllable of `buf` that may still grow: its byte offset and parts.
+fn open_syllable(buf: &str) -> Option<(usize, Syl)> {
+    let mut it = buf.char_indices().rev();
+    let (i, last) = it.next()?;
+    // A precomposed syllable.
+    if let Some(s) = (last as u32).checked_sub(SBASE).filter(|s| *s < 19 * 21 * 28) {
+        let (l, v, t) = ((s / 588) as usize, (s % 588 / 28) as usize, (s % 28) as usize);
+        let v = JUNG.chars().nth(v).unwrap();
+        let t = if t == 0 { String::new() } else { modern_letters(Part::Jong, JONG.chars().nth(t - 1).unwrap()).unwrap() };
+        return Some((i, Syl { l: CHO.chars().nth(l).unwrap().to_string(), v: modern_letters(Part::Jung, v).unwrap(), t }));
+    }
+    // A lone compatibility jamo.
+    if ('\u{3131}'..='\u{318E}').contains(&last) {
+        let c = old_jamo::COMPAT.iter().find(|r| r.1 == last).map(|r| r.0)?;
+        if let Some(l) = letters(Part::Cho, c) {
+            return Some((i, Syl { l: l.into(), ..Syl::default() }));
+        }
+        let v = letters(Part::Jung, c)?;
+        return Some((i, Syl { v: v.into(), ..Syl::default() }));
+    }
+    // Conjoining jamo: [initial or filler] [medial or filler] [final].
+    let mut start = i;
+    let mut s = Syl::default();
+    let mut cur = Some((i, last));
+    if let Some(t) = letters(Part::Jong, last) {
+        s.t = t.into();
+        cur = it.next();
+    }
+    if let Some((j, c)) = cur {
+        if c == V_FILL || letters(Part::Jung, c).is_some() {
+            if c != V_FILL {
+                s.v = letters(Part::Jung, c).unwrap().into();
+            }
+            start = j;
+            cur = it.next();
+        } else if !s.t.is_empty() {
             return None;
         }
-        let (l, v, t) = ((s / 588) as usize, (s % 588 / 28) as usize, (s % 28) as usize);
-        Some(Syl {
-            cho: CHO.chars().nth(l),
-            jung: JUNG.chars().nth(v),
-            jong: if t == 0 { None } else { JONG.chars().nth(t - 1) },
-        })
     }
-
-    fn to_char(self) -> char {
-        match (self.cho, self.jung) {
-            (Some(l), Some(v)) => {
-                let li = CHO.chars().position(|c| c == l).unwrap() as u32;
-                let vi = JUNG.chars().position(|c| c == v).unwrap() as u32;
-                let ti = self
-                    .jong
-                    .map_or(0, |t| JONG.chars().position(|c| c == t).unwrap() as u32 + 1);
-                char::from_u32(SBASE + (li * 21 + vi) * 28 + ti).unwrap()
+    if let Some((j, c)) = cur {
+        if c == L_FILL || letters(Part::Cho, c).is_some() {
+            if c != L_FILL {
+                s.l = letters(Part::Cho, c).unwrap().into();
             }
-            (Some(l), None) => l,
-            (None, Some(v)) => v,
-            (None, None) => unreachable!("empty syllable"),
+            start = j;
         }
     }
-}
-
-fn pair(table: &[(char, char, char)], a: char, b: char) -> Option<char> {
-    table.iter().find(|p| p.0 == a && p.1 == b).map(|p| p.2)
-}
-
-fn split(table: &[(char, char, char)], r: char) -> Option<(char, char)> {
-    table.iter().find(|p| p.2 == r).map(|p| (p.0, p.1))
-}
-
-fn can_be_coda(j: char) -> bool {
-    JONG.contains(j)
+    let valid = (!s.l.is_empty() || !s.v.is_empty()) && (s.t.is_empty() || !s.v.is_empty());
+    valid.then_some((start, s))
 }
 
 /// The Hangul composition buffer.
 #[derive(Clone, Debug, Default, PartialEq, Eq)]
 pub struct Composer {
     buf: String,
+    old: bool,
 }
 
 impl Composer {
@@ -155,11 +255,25 @@ impl Composer {
     }
 
     pub fn from_text(text: &str) -> Self {
-        Composer { buf: text.to_string() }
+        Composer { buf: text.to_string(), old: false }
+    }
+
+    /// Let modern letters form old clusters (ㅅ+ㄱ → ᄭ, ㅂ+ㅇ → ㅸ, ㆍ+ㆍ is
+    /// always allowed since it holds an old letter).
+    pub fn set_old(&mut self, old: bool) {
+        self.old = old;
+    }
+
+    pub fn old(&self) -> bool {
+        self.old
     }
 
     pub fn text(&self) -> &str {
         &self.buf
+    }
+
+    pub fn set_text(&mut self, text: &str) {
+        self.buf = text.to_string();
     }
 
     pub fn is_empty(&self) -> bool {
@@ -190,88 +304,88 @@ impl Composer {
         }
     }
 
-    /// Feed one compatibility jamo.
+    /// Whether a run of letters may form this part of a syllable.
+    fn allowed(&self, p: Part, seq: &str) -> bool {
+        jamo(p, seq).is_some()
+            && (self.old || modern(p, seq).is_some() || seq.chars().any(|c| !MODERN_LETTERS.contains(c)))
+    }
+
+    /// Feed one jamo (as returned by [`key_to_jamo`]).
     pub fn input_jamo(&mut self, j: char) {
-        let open = self.buf.chars().next_back().and_then(Syl::from_char);
-        let Some(mut s) = open else {
-            self.buf.push(j);
+        let Some((at, mut s)) = open_syllable(&self.buf) else {
+            self.buf.push_str(&Syl::of(j).render());
             return;
         };
-        self.buf.pop();
-        if is_vowel(j) {
-            match (s.cho, s.jung, s.jong) {
-                // 갃 + ㅏ → 각사, 갂 + ㅏ → 가까
-                (Some(_), Some(_), Some(t)) => {
-                    let (keep, moved) = match split(&CODA_PAIRS, t) {
-                        Some((a, b)) => (Some(a), b),
-                        None => (None, t),
-                    };
-                    s.jong = keep;
-                    self.buf.push(s.to_char());
-                    let next = Syl { cho: Some(moved), jung: Some(j), jong: None };
-                    self.buf.push(next.to_char());
-                }
-                (cho, Some(v), None) => match pair(&VOWEL_PAIRS, v, j) {
-                    Some(w) => {
-                        self.buf.push(Syl { cho, jung: Some(w), jong: None }.to_char());
-                    }
-                    None => {
-                        self.buf.push(s.to_char());
-                        self.buf.push(j);
-                    }
-                },
-                (Some(l), None, _) => {
-                    self.buf.push(Syl { cho: Some(l), jung: Some(j), jong: None }.to_char());
-                }
-                _ => {
-                    self.buf.push(s.to_char());
-                    self.buf.push(j);
-                }
+        self.buf.truncate(at);
+        let push = |buf: &mut String, a: &Syl, b: Option<&Syl>| {
+            buf.push_str(&a.render());
+            if let Some(b) = b {
+                buf.push_str(&b.render());
             }
+        };
+        let lone = Syl::of(j);
+        if is_vowel(j) {
+            if !s.t.is_empty() {
+                // 갃 + ㅏ → 각사: the last final letter starts the next syllable.
+                let mut t: Vec<char> = s.t.chars().collect();
+                let moved = t.pop().unwrap().to_string();
+                let rest: String = t.into_iter().collect();
+                if self.allowed(Part::Cho, &moved) && (rest.is_empty() || self.allowed(Part::Jong, &rest)) {
+                    s.t = rest;
+                    let next = Syl { l: moved, v: j.to_string(), t: String::new() };
+                    push(&mut self.buf, &s, Some(&next));
+                } else {
+                    push(&mut self.buf, &s, Some(&lone));
+                }
+            } else if !s.v.is_empty() {
+                let v = format!("{}{j}", s.v);
+                if self.allowed(Part::Jung, &v) {
+                    s.v = v;
+                    push(&mut self.buf, &s, None);
+                } else {
+                    push(&mut self.buf, &s, Some(&lone));
+                }
+            } else {
+                s.v = j.to_string();
+                push(&mut self.buf, &s, None);
+            }
+        } else if s.v.is_empty() {
+            let l = format!("{}{j}", s.l);
+            if self.allowed(Part::Cho, &l) {
+                s.l = l;
+                push(&mut self.buf, &s, None);
+            } else {
+                push(&mut self.buf, &s, Some(&lone));
+            }
+        } else if s.l.is_empty() {
+            push(&mut self.buf, &s, Some(&lone));
         } else {
-            match (s.cho, s.jung, s.jong) {
-                (Some(_), Some(_), None) if can_be_coda(j) => {
-                    s.jong = Some(j);
-                    self.buf.push(s.to_char());
-                }
-                (Some(_), Some(_), Some(t)) => match pair(&CODA_PAIRS, t, j) {
-                    Some(c) => {
-                        s.jong = Some(c);
-                        self.buf.push(s.to_char());
-                    }
-                    None => {
-                        self.buf.push(s.to_char());
-                        self.buf.push(j);
-                    }
-                },
-                _ => {
-                    self.buf.push(s.to_char());
-                    self.buf.push(j);
-                }
+            let t = format!("{}{j}", s.t);
+            if self.allowed(Part::Jong, &t) {
+                s.t = t;
+                push(&mut self.buf, &s, None);
+            } else {
+                push(&mut self.buf, &s, Some(&lone));
             }
         }
     }
 
-    /// Remove one jamo (or one literal character). Returns false when empty.
+    /// Remove one typed letter (or one literal character). Returns false when empty.
     pub fn backspace(&mut self) -> bool {
-        let Some(last) = self.buf.pop() else {
-            return false;
+        let Some((at, mut s)) = open_syllable(&self.buf) else {
+            return self.buf.pop().is_some();
         };
-        let Some(mut s) = Syl::from_char(last) else {
-            return true;
-        };
-        if let Some(t) = s.jong {
-            s.jong = split(&CODA_PAIRS, t).map(|p| p.0);
-        } else if let Some(v) = s.jung {
-            match split(&VOWEL_PAIRS, v) {
-                Some((a, _)) => s.jung = Some(a),
-                None => s.jung = None,
-            }
+        self.buf.truncate(at);
+        let part = if !s.t.is_empty() {
+            &mut s.t
+        } else if !s.v.is_empty() {
+            &mut s.v
         } else {
-            s.cho = None;
-        }
-        if s.cho.is_some() || s.jung.is_some() {
-            self.buf.push(s.to_char());
+            &mut s.l
+        };
+        part.pop();
+        if !s.l.is_empty() || !s.v.is_empty() {
+            self.buf.push_str(&s.render());
         }
         true
     }
@@ -282,7 +396,12 @@ mod tests {
     use super::*;
 
     fn type_keys(keys: &str) -> String {
+        type_with(keys, false)
+    }
+
+    fn type_with(keys: &str, old: bool) -> String {
         let mut c = Composer::new();
+        c.set_old(old);
         for k in keys.chars() {
             if !c.input(k) {
                 c.push_literal(k);
@@ -301,15 +420,20 @@ mod tests {
         assert_eq!(key_to_jamo('T'), Some('ㅆ'));
         assert_eq!(key_to_jamo('O'), Some('ㅒ'));
         assert_eq!(key_to_jamo('P'), Some('ㅖ'));
-        assert_eq!(key_to_jamo('K'), Some('ㅏ'));
         assert_eq!(key_to_jamo('m'), Some('ㅡ'));
         assert_eq!(key_to_jamo('1'), None);
         assert_eq!(key_to_jamo(' '), None);
     }
 
     #[test]
+    fn old_letters_on_the_shift_layer() {
+        let got: String = "ADGKZXCVBN".chars().map(|c| key_to_jamo(c).unwrap()).collect();
+        assert_eq!(got, "ㅿㆁㆆㆍᄼᄾᅎᅐᅔᅕ");
+    }
+
+    #[test]
     fn every_letter_key_has_a_jamo() {
-        for c in 'a'..='z' {
+        for c in ('a'..='z').chain('A'..='Z') {
             assert!(key_to_jamo(c).is_some(), "{c}");
         }
     }
@@ -354,7 +478,6 @@ mod tests {
 
     #[test]
     fn complex_codas() {
-        assert_eq!(type_keys("rkrt"), "갃");
         assert_eq!(type_keys("rksw"), "갅");
         assert_eq!(type_keys("rksg"), "갆");
         assert_eq!(type_keys("rkfr"), "갉");
@@ -376,7 +499,6 @@ mod tests {
 
     #[test]
     fn non_coda_consonants_start_a_new_syllable() {
-        // ㄸ ㅃ ㅉ cannot close a syllable.
         assert_eq!(type_keys("rkE"), "가ㄸ");
         assert_eq!(type_keys("rkEk"), "가따");
         assert_eq!(type_keys("rkQ"), "가ㅃ");
@@ -393,6 +515,7 @@ mod tests {
     fn lone_jamo() {
         assert_eq!(type_keys("r"), "ㄱ");
         assert_eq!(type_keys("rr"), "ㄱㄱ");
+        assert_eq!(type_keys("gg"), "ㅎㅎ");
         assert_eq!(type_keys("k"), "ㅏ");
         assert_eq!(type_keys("kk"), "ㅏㅏ");
         assert_eq!(type_keys("rk k"), "가 ㅏ");
@@ -415,6 +538,48 @@ mod tests {
     fn sentence() {
         assert_eq!(type_keys("dlfmf dkfma"), "이를 아름");
         assert_eq!(type_keys("tjsrl"), "선기");
+    }
+
+    #[test]
+    fn arae_a_and_the_old_letters() {
+        assert_eq!(type_keys("gK"), "\u{1112}\u{119E}"); // ᄒᆞ
+        assert_eq!(type_keys("gKdu"), "\u{1112}\u{119E}여"); // ᄒᆞ여
+        assert_eq!(type_keys("gKs"), "\u{1112}\u{119E}\u{11AB}"); // ᄒᆞᆫ
+        assert_eq!(type_keys("gKsk"), "\u{1112}\u{119E}나");
+        assert_eq!(type_keys("rKl"), "\u{1100}\u{11A1}"); // ᄀᆡ
+        assert_eq!(type_keys("rKK"), "\u{1100}\u{11A2}"); // ᄀᆢ
+        assert_eq!(type_keys("Ak"), "\u{1140}\u{1161}"); // ᅀᅡ
+        assert_eq!(type_keys("Dk"), "\u{114C}\u{1161}"); // ᅌᅡ
+        assert_eq!(type_keys("rkD"), "\u{1100}\u{1161}\u{11F0}"); // 가 + final ㆁ
+        assert_eq!(type_keys("K"), "ㆍ");
+        assert_eq!(type_keys("A"), "ㅿ");
+        assert_eq!(type_keys("Zk"), "\u{113C}\u{1161}");
+    }
+
+    #[test]
+    fn modern_letters_cluster_only_when_old_is_on() {
+        assert_eq!(type_keys("trna"), "ㅅ굼"); // plain: ᄭ is not formed
+        assert_eq!(type_with("trna", true), "\u{112D}\u{116E}\u{11B7}"); // ᄭᅮᆷ
+        assert_eq!(type_with("qdk", true), "\u{112B}\u{1161}"); // ᄫᅡ
+        assert_eq!(type_with("qtrk", true), "\u{1122}\u{1161}"); // ᄢᅡ
+        assert_eq!(type_with("gg", true), "ㆅ"); // ᅘ alone, in its compatibility form
+        // Modern syllables stay precomposed.
+        assert_eq!(type_with("gksrmf", true), "한글");
+    }
+
+    #[test]
+    fn old_text_reopens_and_backspaces_by_letter() {
+        let mut c = Composer::from_text("ᄒᆞᆫ");
+        c.backspace();
+        assert_eq!(c.text(), "\u{1112}\u{119E}");
+        c.backspace();
+        assert_eq!(c.text(), "ㅎ");
+        let mut c = Composer::from_text("\u{1100}\u{11A2}");
+        c.backspace();
+        assert_eq!(c.text(), "\u{1100}\u{119E}");
+        let mut c = Composer::from_text("\u{1112}\u{119E}");
+        c.input('s');
+        assert_eq!(c.text(), "\u{1112}\u{119E}\u{11AB}");
     }
 
     #[test]
@@ -476,8 +641,10 @@ mod tests {
 
     #[test]
     fn syllable_round_trip() {
-        for ch in ['가', '힣', '값', '뷁', '꽁', '의'] {
-            assert_eq!(Syl::from_char(ch).unwrap().to_char(), ch);
+        for ch in ["가", "힣", "값", "뷁", "꽁", "의", "\u{1112}\u{119E}", "\u{112D}\u{116E}\u{11B7}"] {
+            let (at, s) = open_syllable(ch).unwrap();
+            assert_eq!(at, 0);
+            assert_eq!(s.render(), ch);
         }
     }
 }

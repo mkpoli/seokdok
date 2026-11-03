@@ -7,6 +7,7 @@ pub mod custom;
 pub mod jamo;
 pub mod dict;
 pub mod dubeolsik;
+mod old_jamo;
 pub mod engine;
 pub mod particles;
 

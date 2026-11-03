@@ -5,3 +5,4 @@ __pycache__/
 .venv/
 /data/sources/*
 !/data/sources/README.md
+/.playwright-mcp/

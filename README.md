@@ -31,6 +31,9 @@ The spelling rules and their options are in
   the Rust core into `libseokdok.so`, `e2e.sh` drives it through a private
   fcitx5 over D-Bus, `package.sh` stages the release tarball.
 - `ios/`: the iOS keyboard and its app (Swift); see [ios/README.md](ios/README.md).
+- `crates/seokdok-jni`: JNI bindings over `seokdok-ffi` for the Android keyboard.
+- `android/`: the Android keyboard and its settings (Kotlin); see
+  [android/README.md](android/README.md).
 - `crates/seokdok-wasm`: WebAssembly bindings (`Engine`, `Composer`) for
   JavaScript, built with `wasm-pack`.
 - `web/`: https://seokdok.mkpo.li/, an in-browser IME with a 두벌식 keyboard,

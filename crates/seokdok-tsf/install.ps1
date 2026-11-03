@@ -77,6 +77,25 @@ if ($LASTEXITCODE -ne 0) {
     throw "regsvr32 failed to register $dst (exit $LASTEXITCODE). Sign out and in, or reboot once, then retry."
 }
 Write-Host "Registered."
+
+# Add the profile to the user's Korean input methods (Settings > Time &
+# language > Language > Korean > Keyboards), so it shows in Win+Space.
+try {
+    $clsid = '{AAF18869-67ED-48A1-A3F6-42E961E994A1}'
+    $prof = (Get-ChildItem "HKLM:\SOFTWARE\Microsoft\CTF\TIP\$clsid\LanguageProfile\0x00000412").PSChildName | Select-Object -First 1
+    $tip = "0412:$clsid$prof"
+    $list = Get-WinUserLanguageList
+    $ko = $list | Where-Object { $_.LanguageTag -like 'ko*' } | Select-Object -First 1
+    if (-not $ko) {
+        $list.Add('ko')
+        $ko = $list | Where-Object { $_.LanguageTag -like 'ko*' } | Select-Object -First 1
+    }
+    if ($ko.InputMethodTips -notcontains $tip) { $ko.InputMethodTips.Add($tip) }
+    Set-WinUserLanguageList $list -Force -WarningAction SilentlyContinue
+    Write-Host "Enabled under Korean."
+} catch {
+    Write-Host "Could not add it to the Korean keyboards; add it in Settings > Language > Korean > Keyboards."
+}
 Write-Host ""
 Write-Host "Switch input (Win+Space) to 釋讀 (seokdok), listed under Korean."
 Write-Host "User dictionaries go in %APPDATA%\seokdok (user.tsv, user-sino.tsv)."

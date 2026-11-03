@@ -219,7 +219,7 @@ const en = {
   nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', convert: 'Convert', old: 'Old Hangul', install: 'Install', join: 'Group' },
   theme: { light: 'Light', dark: 'Dark', auto: 'Auto' },
   hero: {
-    kicker: '釋讀會 御製: royally composed by 풀어읽기모임',
+    kicker: '釋讀會 御製',
     title1: 'Type Hangul,',
     title2: 'write it out in Hanja',
     lede: 'Sino-Korean words by sound, native words by meaning. Type Korean as usual, press Space, and get 音讀, 訓讀 and 送韓字 at once. No input method to install: try it on this page.',

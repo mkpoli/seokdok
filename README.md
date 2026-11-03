@@ -23,6 +23,12 @@ The spelling rules and their options are in
 - `crates/seokdok-cli`: `seokdok` command for trying conversions and checking
   dictionaries.
 - `crates/seokdok-tsf`: the Windows IME (Text Services Framework).
+- `crates/seokdok-wasm`: WebAssembly bindings (`Engine`, `Composer`) for
+  JavaScript, built with `wasm-pack`.
+- `web/`: https://seokdok.mkpo.li/, an in-browser IME with a 두벌식 keyboard,
+  a reader and the landing page (Svelte, Cloudflare static assets).
+  `bun run build` in `web/` builds the WASM package, packs the dictionaries
+  and builds the site; `bun run deploy` publishes it.
 - `dict/`: dictionaries, see [dict/README.md](dict/README.md).
 - `tools/`: scripts that rebuild `dict/` from the sources.
 

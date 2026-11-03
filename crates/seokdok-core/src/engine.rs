@@ -274,6 +274,9 @@ struct Reverse {
     max_sino: usize,
     /// Native written keys that contain Hangul between characters.
     compounds: Vec<String>,
+    /// Inflected forms of the verbs that make Sino-Korean verbs (하다, 되다
+    /// …): 釋讀하면 reads 석독 + 하면.
+    light: std::collections::HashSet<String>,
 }
 
 const RAW_COST: f32 = 4.5;
@@ -988,7 +991,11 @@ impl Engine {
                 v.sort_by(|&a, &b| self.native_cost(&self.natives[a]).partial_cmp(&self.native_cost(&self.natives[b])).unwrap());
             }
             let compounds = native.keys().filter(|k| k.chars().any(is_syllable)).cloned().collect();
-            Reverse { sino: sino.into_iter().map(|(k, (r, c, _))| (k, (r, c))).collect(), native, max_sino, compounds }
+            let light = (0..self.natives.len())
+                .filter(|&i| matches!(self.natives[i].lemma.as_str(), "하다" | "되다" | "시키다" | "당하다" | "스럽다"))
+                .flat_map(|i| self.forms_of(i).into_iter().map(|(_, s)| s))
+                .collect();
+            Reverse { sino: sino.into_iter().map(|(k, (r, c, _))| (k, (r, c))).collect(), native, max_sino, compounds, light }
         })
     }
 
@@ -1035,7 +1042,8 @@ impl Engine {
     fn read_token(&self, han: &str, tail: &str) -> String {
         let r = self.reverse();
         let (sino, sc) = self.read_sino(han);
-        let mut best = (sc + if self.is_particle_tail(tail) { 0.0 } else { 4.0 }, format!("{sino}{tail}"));
+        let plain = self.is_particle_tail(tail) || r.light.contains(tail);
+        let mut best = (sc + if plain { 0.0 } else { 4.0 }, format!("{sino}{tail}"));
         let cs: Vec<char> = han.chars().collect();
         let written_tail = |k: usize| format!("{}{tail}", cs[k..].iter().collect::<String>());
         for k in 0..cs.len() {

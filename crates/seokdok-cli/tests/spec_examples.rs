@@ -91,6 +91,10 @@ fn reading_back_prefers_the_usual_reading() {
     assert_eq!(e.read("先生님"), "선생님");
     // The chat writes 一番 for 한번 (editorial.tsv).
     assert_eq!(e.read("一番씩"), "한번씩");
+    // 音讀 + 하다/되다 stays 音讀 (not 讀하다 = 구독하다).
+    assert_eq!(e.read("釋讀하면"), "석독하면");
+    assert_eq!(e.read("飜譯해서"), "번역해서");
+    assert_eq!(e.read("登載되어"), "등재되어");
 }
 
 #[test]

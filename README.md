@@ -26,11 +26,13 @@ The spelling rules and their options are in
   conversion state, candidates, settings and the user's custom.json.
 - `crates/seokdok-tsf`: the Windows IME (Text Services Framework).
 - `crates/seokdok-ffi`: a C interface to the session (`include/seokdok.h`),
-  used by the fcitx5 addon and the iOS keyboard.
+  used by the fcitx5 addon, the iOS keyboard and the macOS input method.
 - `crates/seokdok-fcitx5`: the Linux IME, an fcitx5 addon. `build.sh` links
   the Rust core into `libseokdok.so`, `e2e.sh` drives it through a private
   fcitx5 over D-Bus, `package.sh` stages the release tarball.
 - `ios/`: the iOS keyboard and its app (Swift); see [ios/README.md](ios/README.md).
+- `macos/`: the macOS input method (InputMethodKit, Swift); see
+  [macos/README.md](macos/README.md).
 - `crates/seokdok-wasm`: WebAssembly bindings (`Engine`, `Composer`) for
   JavaScript, built with `wasm-pack`.
 - `web/`: https://seokdok.mkpo.li/, an in-browser IME with a 두벌식 keyboard,

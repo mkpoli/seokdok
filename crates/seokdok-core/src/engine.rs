@@ -887,7 +887,8 @@ impl Engine {
                 }
             }
             if !out.iter().any(|c| c.text == text) {
-                out.push(Candidate { text, note: notes.join(" / ") });
+                let note = whole_note(&text, &notes);
+                out.push(Candidate { text, note });
             }
         }
         out
@@ -898,7 +899,12 @@ impl Engine {
         let mut out = Vec::new();
         for (is_h, run) in runs(input) {
             if is_h {
-                out.extend(self.convert_run(&run).1);
+                out.extend(self.convert_run(&run).1.into_iter().map(|mut s| {
+                    for c in &mut s.candidates {
+                        c.note = whole_note(&c.text, std::slice::from_ref(&c.note));
+                    }
+                    s
+                }));
             } else {
                 out.push(Segment { reading: run.clone(), candidates: vec![Candidate { text: run, note: String::new() }] });
             }
@@ -1114,6 +1120,15 @@ impl Engine {
 fn simple_coda(stem: &[char]) -> bool {
     let k = stem.iter().rev().take_while(|&&c| is_t(c)).count();
     k == 1
+}
+
+/// The notes of a candidate's pieces. A piece that makes up the whole
+/// candidate is not named again: 良心 is noted "양심 · 音讀".
+fn whole_note(text: &str, notes: &[String]) -> String {
+    match notes {
+        [one] => one.strip_prefix(text).and_then(|r| r.strip_prefix(' ')).unwrap_or(one).to_string(),
+        _ => notes.join(" / "),
+    }
 }
 
 /// What a 訓讀 candidate is: "讀 읽다 +아/어 · 訓讀".

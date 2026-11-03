@@ -116,3 +116,12 @@ fn determiners_attach_to_the_next_noun() {
     assert_eq!(e.convert("첫사랑")[0].text, "初ㅅ愛");
 }
 
+#[test]
+fn notes_do_not_repeat_the_candidate() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("양심")[0].note, "양심 · 音讀");
+    let seg = &e.segments("양심")[0].candidates[0];
+    assert_eq!((seg.text.as_str(), seg.note.as_str()), ("良心", "양심 · 音讀"));
+    // A phrase still names each piece.
+    assert_eq!(e.convert("나라를 사랑")[0].note, "國 나라 · 訓讀 / 愛 사랑 · 訓讀");
+}

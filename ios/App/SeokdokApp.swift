@@ -44,6 +44,13 @@ struct ContentView: View {
                         }
                     }
                 }
+                if AppGroup.containerURL == nil {
+                    Section {
+                        Text("이 署名에는 共有 컨테이너가 없어 아래 設定이 키보드에 傳해지지 않습니다. 키보드는 基本 設定으로 動作합니다.")
+                        Text("This signature grants no shared container, so the settings below do not reach the keyboard. It runs on the defaults.")
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 Section("入力 · Input") {
                     Picker("始作 모드 · Start in", selection: $defaultMode) {
                         Text("釋讀").tag("seokdok")
@@ -57,11 +64,6 @@ struct ContentView: View {
                     }
                 }
                 Section {
-                    if AppGroup.containerURL == nil {
-                        Text("이 署名에는 共有 컨테이너가 없어 아래 設定이 키보드에 傳해지지 않습니다. 키보드는 基本 設定으로 動作합니다.")
-                        Text("This signature grants no shared container, so these settings do not reach the keyboard. It runs on the defaults.")
-                            .foregroundStyle(.secondary)
-                    }
                     Toggle("國漢文混用 · Hanja for Sino-Korean words only", isOn: $sinoOnly)
                     Picker("表記 · Style", selection: $style) {
                         Text("表音式 見ㅆ다").tag("surface")

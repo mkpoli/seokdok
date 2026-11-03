@@ -24,12 +24,14 @@ use windows::Win32::UI::WindowsAndMessaging::{
     WS_VISIBLE, WS_VSCROLL,
 };
 
-use crate::config::{Config, FragmentOpt, InputMode, StyleOpt};
+use crate::config::{Config, FragmentOpt, InputMode, Layout, StyleOpt};
 
 const CLASS_NAME: PCWSTR = w!("SeokdokSettingsDialog");
 
 const ID_MODE: i32 = 1001; // input.default_mode (3-way)
 const ID_SPACE: i32 = 1002; // input.space_converts
+const ID_ALT: i32 = 1003; // input.alt_toggles
+const ID_LAYOUT: i32 = 1004; // input.candidate_layout (2-way)
 const ID_STYLE: i32 = 1010; // conversion.style (2-way)
 const ID_FRAGMENT: i32 = 1011; // conversion.fragment (2-way)
 const ID_CODA: i32 = 1012; // conversion.coda_always
@@ -42,13 +44,17 @@ const MODE_ITEMS: [(PCWSTR, InputMode); 3] = [
     (w!("한글 / Hangul"), InputMode::Hangul),
     (w!("A / Latin"), InputMode::Latin),
 ];
+const LAYOUT_ITEMS: [(PCWSTR, Layout); 2] = [
+    (w!("縱 / Vertical"), Layout::Vertical),
+    (w!("橫 / Horizontal  (← → move)"), Layout::Horizontal),
+];
 const STYLE_ITEMS: [(PCWSTR, StyleOpt); 2] = [
     (w!("表音式 / Surface  (見ㅆ다)"), StyleOpt::Surface),
     (w!("形態式 / Morpheme  (見았다)"), StyleOpt::Morpheme),
 ];
 const FRAGMENT_ITEMS: [(PCWSTR, FragmentOpt); 2] = [
-    (w!("吸收 / Absorb  (見라)"), FragmentOpt::Absorb),
-    (w!("字母 / Letter  (見ㅏ라)"), FragmentOpt::Letter),
+    (w!("漢字에 吸收 / Absorb  (見라)"), FragmentOpt::Absorb),
+    (w!("字母로 / Letter  (見ㅏ라)"), FragmentOpt::Letter),
 ];
 
 fn gui_font() -> WPARAM {
@@ -65,7 +71,7 @@ pub fn show(parent: HWND) {
         .encode_utf16()
         .collect();
 
-    let (w, h) = (470, 440);
+    let (w, h) = (470, 500);
     // SAFETY: GetSystemMetrics is always safe.
     let (sx, sy) = unsafe { (GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)) };
     let (x, y) = ((sx - w).max(0) / 2, (sy - h).max(0) / 2);
@@ -249,35 +255,38 @@ unsafe fn build_controls(hwnd: HWND) {
     let mut y = 8;
 
     // --- Input ---
-    group(w!("入力 / Input"), y, 86);
-    label(w!("開始モード / Start in:"), gx, y + 28, 150);
+    group(w!("入力 / Input"), y, 146);
+    label(w!("始作 模式 / Start in:"), gx, y + 28, 150);
     combo(hwnd, ID_MODE, (gx + 160, y + 24, 220, 200), &MODE_ITEMS, cfg.input.default_mode);
+    label(w!("候補 窓 / Candidates:"), gx, y + 62, 150);
+    combo(hwnd, ID_LAYOUT, (gx + 160, y + 58, 220, 200), &LAYOUT_ITEMS, cfg.input.candidate_layout);
     check(
         ID_SPACE,
-        w!("Space で変換 / Space converts (off: Hanja key, F7, Tab)"),
-        y + 54,
+        w!("Space로 變換 / Space converts (off: Hanja key, F7, Tab)"),
+        y + 90,
         cfg.input.space_converts,
     );
-    y += 98;
+    check(ID_ALT, w!("Alt 한 番으로 韓/A 轉換 / Tap Alt to switch"), y + 116, cfg.input.alt_toggles);
+    y += 158;
 
     // --- Conversion ---
-    group(w!("変換 / Conversion"), y, 210);
+    group(w!("表記 / Spelling"), y, 210);
     let mut cy = y + 24;
     label(w!("送韓字 / Style:"), gx, cy + 4, 150);
     combo(hwnd, ID_STYLE, (gx + 160, cy, 220, 200), &STYLE_ITEMS, cfg.conversion.style);
     cy += 34;
-    label(w!("縮約 / Fragment:"), gx, cy + 4, 150);
+    label(w!("남는 母音 / Leftover vowel:"), gx, cy + 4, 150);
     combo(hwnd, ID_FRAGMENT, (gx + 160, cy, 220, 200), &FRAGMENT_ITEMS, cfg.conversion.fragment);
     cy += 34;
     for (id, text, on) in [
-        (ID_CODA, w!("末音添記を常に / Always write the final consonant"), cfg.conversion.coda_always),
-        (ID_RESYL, w!("末音を次の音節へ / Resyllabify  (在쓰면)"), cfg.conversion.resyllabify),
-        (ID_HADA, w!("하다 を 爲 で / Prefer 爲 for 하다"), cfg.conversion.hada_kun),
+        (ID_CODA, w!("末音添記 늘 / Always write the final consonant  (有ㅆ다)"), cfg.conversion.coda_always),
+        (ID_RESYL, w!("받침 넘기기 / Resyllabify  (在쓰면)"), cfg.conversion.resyllabify),
+        (ID_HADA, w!("하다를 爲로 / Prefer 爲 for 하다"), cfg.conversion.hada_kun),
     ] {
         check(id, text, cy, on);
         cy += 26;
     }
-    label(w!("最大候補数 / Max candidates:"), gx, cy + 4, 190);
+    label(w!("最大 候補 數 / Max candidates:"), gx, cy + 4, 190);
     let maxtext: Vec<u16> = format!("{}\0", cfg.conversion.max_candidates).encode_utf16().collect();
     child(
         hwnd,
@@ -301,7 +310,7 @@ unsafe fn build_controls(hwnd: HWND) {
     child(
         hwnd,
         w!("BUTTON"),
-        w!("キャンセル / Cancel"),
+        w!("取消 / Cancel"),
         WINDOW_STYLE(BS_PUSHBUTTON as u32) | WS_TABSTOP,
         (pad + cw - 105, y, 105, 28),
         IDCANCEL.0,
@@ -327,6 +336,10 @@ unsafe fn apply(hwnd: HWND) {
         cfg.input.default_mode = *v;
     }
     cfg.input.space_converts = checked(ID_SPACE);
+    cfg.input.alt_toggles = checked(ID_ALT);
+    if let Some((_, v)) = selected(hwnd, ID_LAYOUT).and_then(|i| LAYOUT_ITEMS.get(i)) {
+        cfg.input.candidate_layout = *v;
+    }
     if let Some((_, v)) = selected(hwnd, ID_STYLE).and_then(|i| STYLE_ITEMS.get(i)) {
         cfg.conversion.style = *v;
     }

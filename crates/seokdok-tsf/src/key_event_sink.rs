@@ -12,6 +12,21 @@ use crate::engine_host::HOST;
 use crate::keys::Key;
 use crate::text_service::TextService_Impl;
 
+thread_local! {
+    /// Alt went down with no other key since: releasing it switches modes.
+    static ALT_ALONE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+}
+
+fn is_alt(wparam: WPARAM) -> bool {
+    let vk = (wparam.0 & 0xFFFF) as u16;
+    vk == VK_MENU.0 || vk == 0xA4 || vk == 0xA5
+}
+
+/// Track Alt on its own: down marks it, any other key clears it.
+fn note_key_down(wparam: WPARAM) {
+    ALT_ALONE.with(|a| a.set(is_alt(wparam) && !key_down(VK_CONTROL.0 as i32) && !key_down(VK_SHIFT.0 as i32)));
+}
+
 fn key_down(vk: i32) -> bool {
     // SAFETY: GetKeyState is always safe to call.
     (unsafe { GetKeyState(vk) } as u16) & 0x8000 != 0
@@ -50,6 +65,7 @@ impl TextService_Impl {
         let (requested, effects) = {
             let mut state = self.inner_mut();
             state.session.set_space_converts(cfg.input.space_converts);
+            state.session.set_horizontal(cfg.input.candidate_layout == crate::config::Layout::Horizontal);
             let requested = state.mode.take_request();
             let effects = requested.map(|m| state.session.set_mode(m)).unwrap_or_default();
             (requested, effects)
@@ -71,6 +87,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         wparam: WPARAM,
         lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
+        note_key_down(wparam);
         let Some(key) = decode(wparam, lparam) else {
             return Ok(false.into());
         };
@@ -83,10 +100,11 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
     fn OnTestKeyUp(
         &self,
         _pic: Ref<'_, ITfContext>,
-        _wparam: WPARAM,
+        wparam: WPARAM,
         _lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
-        Ok(false.into())
+        let tap = is_alt(wparam) && ALT_ALONE.with(|a| a.get()) && crate::config::current().input.alt_toggles;
+        Ok(tap.into())
     }
 
     fn OnKeyDown(
@@ -95,6 +113,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         wparam: WPARAM,
         lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
+        note_key_down(wparam);
         let Some(key) = decode(wparam, lparam) else {
             return Ok(false.into());
         };
@@ -123,11 +142,29 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
 
     fn OnKeyUp(
         &self,
-        _pic: Ref<'_, ITfContext>,
-        _wparam: WPARAM,
+        pic: Ref<'_, ITfContext>,
+        wparam: WPARAM,
         _lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
-        Ok(false.into())
+        let tap = is_alt(wparam) && ALT_ALONE.with(|a| a.replace(false)) && crate::config::current().input.alt_toggles;
+        if !tap {
+            return Ok(false.into());
+        }
+        let Some(context) = pic.as_ref() else {
+            return Ok(false.into());
+        };
+        self.sync(context);
+        let output = self.inner_mut().session.handle(Key::HangulToggle, &HOST);
+        {
+            let state = self.inner();
+            let mode = state.session.mode();
+            if state.mode.shown() != mode {
+                state.mode.show(mode);
+            }
+        }
+        let _ = self.apply(context, output.effects);
+        // Eating the key-up keeps Alt from opening the window menu.
+        Ok(true.into())
     }
 
     fn OnPreservedKey(&self, _pic: Ref<'_, ITfContext>, _rguid: *const GUID) -> windows::core::Result<BOOL> {

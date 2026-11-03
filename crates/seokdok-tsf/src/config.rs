@@ -38,6 +38,14 @@ pub enum FragmentOpt {
     Letter,
 }
 
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Layout {
+    #[default]
+    Vertical,
+    Horizontal,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Input {
@@ -45,11 +53,16 @@ pub struct Input {
     /// Space converts the composition. When false, Space inserts a space and
     /// only the Hanja key, F7 and Tab convert.
     pub space_converts: bool,
+    /// Alt pressed and released on its own switches 釋讀 ↔ Latin, like the
+    /// Han/Eng key.
+    pub alt_toggles: bool,
+    /// Candidate window direction; horizontal lets ← → walk the candidates.
+    pub candidate_layout: Layout,
 }
 
 impl Default for Input {
     fn default() -> Self {
-        Input { default_mode: InputMode::Seokdok, space_converts: true }
+        Input { default_mode: InputMode::Seokdok, space_converts: true, alt_toggles: true, candidate_layout: Layout::Vertical }
     }
 }
 
@@ -160,6 +173,16 @@ default_mode = \"{mode}\"
 # Space converts the composition.  (true | false)
 # When false, Space inserts a space; the Hanja key, F7 and Tab convert.
 space_converts = {space}
+# Alt pressed and released alone switches 釋讀 ↔ Latin, like Han/Eng.  (true | false)
+alt_toggles = {alt}
+# Candidate window direction.
+#   vertical   = a column
+#   horizontal = a row; ← → move through the candidates
+candidate_layout = \"{layout}\"
+
+# Own words, phrases and rewrite rules: export them from
+# https://seokdok.mkpo.li/#custom and save the file as
+# %APPDATA%\\seokdok\\custom.json beside this one.
 
 [conversion]
 # How the Hangul after a 訓讀 stem is written.
@@ -181,6 +204,11 @@ max_candidates = {max}
 ",
             mode = mode,
             space = self.input.space_converts,
+            alt = self.input.alt_toggles,
+            layout = match self.input.candidate_layout {
+                Layout::Vertical => "vertical",
+                Layout::Horizontal => "horizontal",
+            },
             style = style,
             fragment = fragment,
             coda = c.coda_always,
@@ -243,7 +271,7 @@ mod tests {
 
     fn non_default() -> Config {
         Config {
-            input: Input { default_mode: InputMode::Hangul, space_converts: false },
+            input: Input { default_mode: InputMode::Hangul, space_converts: false, alt_toggles: false, candidate_layout: Layout::Horizontal },
             conversion: Conversion {
                 style: StyleOpt::Morpheme,
                 fragment: FragmentOpt::Letter,

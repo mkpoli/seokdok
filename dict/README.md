@@ -15,6 +15,7 @@ comments; the header line names the columns.
 | `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
 | `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
 | `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
+| `etym.tsv` | Hanja spellings the files above lack, including words Sino-Korean only by origin (대충 大總, 재미 滋味, 김치 沉菜) | English Wiktionary (kaikki.org) | CC BY-SA 4.0 |
 
 Earlier files win ties: an entry in `user.tsv` ranks above the same word
 elsewhere.
@@ -55,6 +56,18 @@ with `source` set to `user`. Check a file with
 `cargo run -p seokdok-cli -- check`.
 
 ## Licences and provenance
+
+- **Wiktionary** (`etym.tsv`, `tools/etym_hanja.py`): English Wiktionary's
+  Korean entries as extracted by kaikki.org (wiktextract; enwiktionary dump of
+  2026-10-01, extracted 2026-10-30, fetched 2026-11-03; Ylonen, "Wiktextract",
+  LREC 2022). Three kinds of row: words Wiktionary marks as nativised from a
+  Sino-Korean word (`ko-etym-nativised`, kept only when that word starts like
+  the headword), words coined in Korea from Chinese morphemes (`der` + `ltc-l`),
+  and Hanja forms as long as the word. Only pairs missing from `fusion.tsv` and
+  `sino.tsv` are kept. CC BY-SA 4.0
+  (https://en.wiktionary.org/wiki/Wiktionary:Copyrights). Wiktionary's
+  etymologies are crowd-edited and some are disputed (사랑 思量); the file
+  records them as Wiktionary has them.
 
 - **FusionIME (十八字)** by Lee0701, https://github.com/Lee0701/FusionIME
   commit `450829df` (2026-10-31), `ko_dict_all.tsv`: GPL-3.0, full text in

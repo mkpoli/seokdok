@@ -219,7 +219,7 @@ impl Engine {
 
     /// Native dictionaries loaded by [`Engine::from_dir`], in order.
     pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
-    pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "fusion.tsv", "sino.tsv"];
+    pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv"];
 
     /// Load every known dictionary file present in `dir`.
     pub fn from_dir(dir: &std::path::Path, options: Options) -> std::io::Result<(Engine, Vec<String>)> {

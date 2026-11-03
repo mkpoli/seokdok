@@ -2,10 +2,10 @@
   "version": "0.1.0",
   "windows": {
     "file": "seokdok-0.1.0-x86_64-windows.zip",
-    "size": 6933481
+    "size": 6964598
   },
   "linux": {
     "file": "seokdok-0.1.0-x86_64-linux-fcitx5.tar.gz",
-    "size": 7695551
+    "size": 7728006
   }
 }

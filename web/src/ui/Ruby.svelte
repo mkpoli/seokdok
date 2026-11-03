@@ -1,6 +1,7 @@
 <script>
   // Text with the reading of every 釋讀 word above it.
   import { engine, status } from '../lib/engine.svelte.js'
+  import { rubify } from '../lib/rubify.js'
 
   let { text } = $props()
   const cache = new Map()
@@ -22,4 +23,4 @@
   })
 </script>
 
-{#each parts as p}{#if p.word && p.reading && p.reading !== p.text}<ruby>{p.text}<rt>{p.reading}</rt></ruby>{:else}{p.text}{/if}{/each}
+{#each parts as p}{@const rb = p.word ? rubify(p.text, p.reading) : null}{#if rb}<ruby>{rb.base}<rt>{rb.rt}</rt></ruby>{rb.tail}{:else}{p.text}{/if}{/each}

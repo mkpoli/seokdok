@@ -280,6 +280,9 @@ struct Reverse {
 }
 
 const RAW_COST: f32 = 4.5;
+/// The ending index of a bare stem (않 → 不ㅎ), typed alone to be continued
+/// in Hangul.
+const BARE: u16 = u16::MAX;
 /// Extra cost for one-syllable words, which are the most ambiguous.
 const SHORT_COST: f32 = 2.5;
 const EDGE_COST: f32 = 1.0;
@@ -589,6 +592,16 @@ impl Engine {
                     let entry = &self.natives[i as usize];
                     let ctx = entry.allos[a as usize].ctx;
                     let Some(et) = self.endings.get(&ctx) else { continue };
+                    // A bare stem at the end of the input: the stem as the
+                    // inflected forms write it, with the ending still to come.
+                    if q == n && entry.allos[a as usize].comps == entry.stem {
+                        edges.push(Edge {
+                            start: s,
+                            end: q,
+                            cost: EDGE_COST + self.native_cost(entry) + 1.0,
+                            kind: Kind::Verb { entry: i, allo: a, ending: BARE },
+                        });
+                    }
                     if boundary(q) {
                         for &ei in self.zero_endings.get(&ctx).into_iter().flatten() {
                             edges.push(Edge {
@@ -684,7 +697,7 @@ impl Engine {
                 let mut out: Vec<String> = Vec::new();
                 let rs = o.resyllabify;
                 let surf = |frag: Fragment, coda: bool| self.surface(n, &al.comps, tail, frag, coda, rs);
-                let morph = |coda: bool| self.morpheme(n, *ending as usize, coda, rs);
+                let morph = |coda: bool| if *ending == BARE { None } else { self.morpheme(n, *ending as usize, coda, rs) };
                 let other_frag = if o.fragment == Fragment::Absorb { Fragment::Letter } else { Fragment::Absorb };
                 let order: Vec<Option<String>> = match o.style {
                     Style::Surface => vec![
@@ -706,14 +719,14 @@ impl Engine {
                 let other_rs = [
                     Some(self.surface(n, &al.comps, tail, o.fragment, o.coda_always, !rs)),
                     Some(self.surface(n, &al.comps, tail, o.fragment, !o.coda_always, !rs)),
-                    self.morpheme(n, *ending as usize, o.coda_always, !rs),
+                    if *ending == BARE { None } else { self.morpheme(n, *ending as usize, o.coda_always, !rs) },
                 ];
                 for t in order.into_iter().chain(other_rs).flatten() {
                     if !out.contains(&t) {
                         out.push(t);
                     }
                 }
-                let nt = note(n, Some(*ending as usize));
+                let nt = note(n, (*ending != BARE).then_some(*ending as usize));
                 out.into_iter().map(|text| Candidate { text, note: nt.clone() }).collect()
             }
         }

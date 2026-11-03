@@ -128,3 +128,13 @@ fn notes_do_not_repeat_the_candidate() {
     // A phrase still names each piece.
     assert_eq!(e.convert("나라를 사랑")[0].note, "國 나라 · 訓讀 / 愛 사랑 · 訓讀");
 }
+
+#[test]
+fn bare_stems_convert_alone() {
+    // A stem typed alone, to be continued in Hangul: 不ㅎ + 고.
+    let e = engine(Options::default());
+    assert_eq!(e.convert("않")[0].text, "不ㅎ");
+    assert_eq!(e.convert("읽")[0].text, "讀");
+    assert_eq!(e.convert("어떻")[0].text, "何떻");
+    assert!(offers(&e, "있", "在ㅆ"));
+}

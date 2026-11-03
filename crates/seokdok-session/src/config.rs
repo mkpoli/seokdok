@@ -301,12 +301,18 @@ mod tests {
     #[test]
     fn the_ios_app_partial_file_parses() {
         // What ios/App/SeokdokApp.swift writes; missing keys keep defaults.
-        let c = Config::parse("[input]\ndefault_mode = \"latin\"\nspace_converts = false\nold_clusters = true\n");
+        let c = Config::parse(
+            "[input]\ndefault_mode = \"latin\"\nspace_converts = false\ncandidate_layout = \"vertical\"\nold_clusters = true\n\n\
+             [conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = false\nhada_kun = true\nmax_candidates = 20\n",
+        );
         assert_eq!(c.input.default_mode, InputMode::Latin);
         assert!(!c.input.space_converts);
         assert!(c.input.old_clusters);
         assert!(c.input.alt_toggles);
-        assert_eq!(c.conversion, Config::default().conversion);
+        assert_eq!(c.conversion.style, StyleOpt::Morpheme);
+        assert_eq!(c.conversion.fragment, FragmentOpt::Letter);
+        assert!(c.conversion.coda_always && c.conversion.hada_kun && !c.conversion.resyllabify);
+        assert_eq!(c.conversion.max_candidates, 20);
     }
 
     fn non_default() -> Config {

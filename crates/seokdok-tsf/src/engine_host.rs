@@ -6,6 +6,7 @@ use std::path::Path;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::{Arc, RwLock};
 
+use seokdok_core::custom::Custom;
 use seokdok_core::{Candidate, Engine, Options, Segment};
 
 use crate::session::Converter;
@@ -14,8 +15,27 @@ use crate::session::Converter;
 /// (`user.tsv`, `user-sino.tsv`), and build the engine. A user file comes
 /// before the shipped file of the same name, so it takes priority.
 pub fn load_engine(dict_dir: &Path, user_dir: Option<&Path>, options: Options) -> (Engine, Vec<String>) {
+    load_engine_with(dict_dir, user_dir, None, options)
+}
+
+/// The customisation exported from seokdok.mkpo.li (`custom.json` in the
+/// user directory), if present and readable.
+pub fn load_custom(user_dir: Option<&Path>) -> Option<Custom> {
+    let text = std::fs::read_to_string(user_dir?.join("custom.json")).ok()?;
+    Custom::from_json(&text).ok()
+}
+
+/// As [`load_engine`], with the words and phrases of `custom` in front.
+pub fn load_engine_with(dict_dir: &Path, user_dir: Option<&Path>, custom: Option<&Custom>, options: Options) -> (Engine, Vec<String>) {
+    let (custom_native, custom_sino) = custom.map(Custom::user_tsv).unwrap_or_default();
     let read = |names: &[&str]| -> Vec<(String, String)> {
         let mut v = Vec::new();
+        if names.contains(&"user.tsv") && !custom_native.is_empty() {
+            v.push(("custom.json".to_string(), custom_native.clone()));
+        }
+        if names.contains(&"user-sino.tsv") && !custom_sino.is_empty() {
+            v.push(("custom.json".to_string(), custom_sino.clone()));
+        }
         for n in names {
             let user_file = n.starts_with("user");
             let dirs = [user_dir.filter(|_| user_file), Some(dict_dir)];
@@ -37,12 +57,14 @@ pub fn load_engine(dict_dir: &Path, user_dir: Option<&Path>, options: Options) -
 #[derive(Default)]
 pub struct Host {
     engine: RwLock<Option<Arc<Engine>>>,
+    /// Rewrite rules from custom.json, applied around the engine.
+    custom: RwLock<Option<Arc<Custom>>>,
     generation: AtomicU64,
 }
 
 impl Host {
     pub const fn new() -> Self {
-        Host { engine: RwLock::new(None), generation: AtomicU64::new(0) }
+        Host { engine: RwLock::new(None), custom: RwLock::new(None), generation: AtomicU64::new(0) }
     }
 
     pub fn is_ready(&self) -> bool {
@@ -65,8 +87,12 @@ impl Host {
     pub fn start_load(&'static self, dict_dir: std::path::PathBuf, user_dir: Option<std::path::PathBuf>, options: Options) {
         let generation = self.generation.fetch_add(1, Ordering::SeqCst) + 1;
         std::thread::spawn(move || {
-            let (engine, _errors) = load_engine(&dict_dir, user_dir.as_deref(), options);
+            let custom = load_custom(user_dir.as_deref());
+            let (engine, _errors) = load_engine_with(&dict_dir, user_dir.as_deref(), custom.as_ref(), options);
             if self.generation.load(Ordering::SeqCst) == generation {
+                if let Ok(mut g) = self.custom.write() {
+                    *g = custom.map(Arc::new);
+                }
                 self.set(engine);
             }
         });
@@ -76,12 +102,38 @@ impl Host {
 impl Converter for Host {
     fn segments(&self, input: &str) -> Vec<Segment> {
         let engine = self.engine.read().ok().and_then(|g| g.clone());
+        let custom = self.custom.read().ok().and_then(|g| g.clone());
         match engine {
-            Some(e) => e.segments(input),
+            Some(e) => {
+                let text = custom.as_ref().map(|c| c.rewrite_input(input)).unwrap_or_else(|| input.to_string());
+                let mut segs = e.segments(&text);
+                if let Some(c) = &custom {
+                    for s in &mut segs {
+                        s.candidates = c.rewrite_output(std::mem::take(&mut s.candidates));
+                    }
+                }
+                segs
+            }
             None => vec![Segment {
                 reading: input.to_string(),
                 candidates: vec![Candidate { text: input.to_string(), note: String::new() }],
             }],
+        }
+    }
+
+    fn whole(&self, input: &str) -> Vec<Candidate> {
+        let engine = self.engine.read().ok().and_then(|g| g.clone());
+        let custom = self.custom.read().ok().and_then(|g| g.clone());
+        match engine {
+            Some(e) => {
+                let text = custom.as_ref().map(|c| c.rewrite_input(input)).unwrap_or_else(|| input.to_string());
+                let cands = e.convert(&text);
+                match &custom {
+                    Some(c) => c.rewrite_output(cands),
+                    None => cands,
+                }
+            }
+            None => vec![Candidate { text: input.to_string(), note: String::new() }],
         }
     }
 }
@@ -115,6 +167,26 @@ mod tests {
         let segs = engine.segments("가게");
         let _ = std::fs::remove_dir_all(&dir);
         assert!(segs.iter().flat_map(|s| &s.candidates).any(|c| c.text == "鋪"));
+    }
+
+    #[test]
+    fn custom_json_words_and_rules_apply() {
+        let dir = std::env::temp_dir().join(format!("seokdok-custom-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        std::fs::write(
+            dir.join("custom.json"),
+            r#"{"format":"seokdok-custom","phrases":[{"reading":"석독회","text":"釋讀會X"}],"words":[],
+              "rules":[{"on":true,"stage":"output","mode":"xform","regex":false,"pattern":"天","replace":"乾"}]}"#,
+        )
+        .unwrap();
+        let custom = load_custom(Some(&dir)).unwrap();
+        let (engine, _) = load_engine_with(&dict_dir(), Some(&dir), Some(&custom), Options::default());
+        let _ = std::fs::remove_dir_all(&dir);
+        let host = Host::new();
+        host.set(engine);
+        *host.custom.write().unwrap() = Some(Arc::new(custom));
+        assert_eq!(host.segments("석독회")[0].candidates[0].text, "釋讀會X");
+        assert!(host.segments("하늘").iter().flat_map(|s| &s.candidates).all(|c| c.text != "天"));
     }
 
     #[test]

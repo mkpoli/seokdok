@@ -150,6 +150,9 @@ pub struct Engine {
     nominals: Trie<u32>,
     sino: Trie<u32>,
     endings: HashMap<Ctx, Trie<u16>>,
+    /// Endings that leave no letters of their own after a stem: 가+아 → 가,
+    /// 서+어 → 서, so 사 (주세요) is 사다 in its 아/어 form.
+    zero_endings: HashMap<Ctx, Vec<u16>>,
     particles: Vec<Particle>,
     particle_trie: Trie<u16>,
     /// Reverse indexes for [`Engine::read`], built on first use.
@@ -209,6 +212,7 @@ impl Engine {
             nominals: Trie::new(),
             sino: Trie::new(),
             endings: HashMap::new(),
+            zero_endings: HashMap::new(),
             particles: particles(),
             particle_trie: Trie::new(),
             reverse: std::sync::OnceLock::new(),
@@ -245,15 +249,19 @@ impl Engine {
             if n.pos.inflects() {
                 for (a, al) in n.allos.iter().enumerate() {
                     self.stems.insert(&al.comps, (i as u32, a as u16));
-                    self.endings.entry(al.ctx).or_insert_with(|| {
+                    if !self.endings.contains_key(&al.ctx) {
                         let mut t = Trie::new();
+                        let mut zero = Vec::new();
                         for (comps, idx) in ending_surfaces(al.ctx) {
-                            if !comps.is_empty() {
+                            if comps.is_empty() {
+                                zero.push(idx as u16);
+                            } else {
                                 t.insert(&comps, idx as u16);
                             }
                         }
-                        t
-                    });
+                        self.endings.insert(al.ctx, t);
+                        self.zero_endings.insert(al.ctx, zero);
+                    }
                 }
             } else {
                 self.nominals.insert(&n.stem, i as u32);
@@ -397,6 +405,16 @@ impl Engine {
                     let entry = &self.natives[i as usize];
                     let ctx = entry.allos[a as usize].ctx;
                     let Some(et) = self.endings.get(&ctx) else { continue };
+                    if boundary(q) {
+                        for &ei in self.zero_endings.get(&ctx).into_iter().flatten() {
+                            edges.push(Edge {
+                                start: s,
+                                end: q,
+                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + mid(q),
+                                kind: Kind::Verb { entry: i, allo: a, ending: ei },
+                            });
+                        }
+                    }
                     for (r, eis) in et.prefixes(comps, q) {
                         if !boundary(r) {
                             continue;

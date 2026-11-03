@@ -193,7 +193,7 @@
   }
   /* The hero text arrives in sequence on load. */
   .text > * {
-    animation: rise 800ms var(--ease) both;
+    animation: rise 800ms var(--ease) backwards;
   }
   .text > :nth-child(2) {
     animation-delay: 90ms;

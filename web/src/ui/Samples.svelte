@@ -12,6 +12,8 @@
   let conv = $state({})
   /** id → how many segments have turned into 釋讀 so far. */
   let shown = $state({})
+  /** id → converted again after a mode change: no flip animation. */
+  let still = $state({})
 
   const kinds = ['all', 'classic', 'poem', 'wiki', 'law']
   const list = $derived(kind === 'all' ? SAMPLES : SAMPLES.filter((s) => s.kind === kind))
@@ -24,16 +26,15 @@
   $effect(() => {
     if (options.sinoOnly === mode) return
     mode = options.sinoOnly
-    // The engine gets the new options first (ImePanel); then convert.
-    setTimeout(() => {
-      for (const id of Object.keys(conv)) {
-        const sample = SAMPLES.find((x) => x.id === id)
-        engine.segments(sample.text).then((segs) => {
-          conv[id] = segs.map((s) => ({ reading: s.reading, text: s.candidates[0]?.text ?? s.reading }))
-          shown[id] = conv[id].length
-        })
-      }
-    }, 50)
+    // ImePanel's effect runs first, so the worker has the new options.
+    for (const id of Object.keys(conv)) {
+      const sample = SAMPLES.find((x) => x.id === id)
+      engine.segments(sample.text).then((segs) => {
+        still[id] = true
+        conv[id] = segs.map((s) => ({ reading: s.reading, text: s.candidates[0]?.text ?? s.reading }))
+        shown[id] = conv[id].length
+      })
+    }
   })
 
   async function play(sample) {
@@ -77,7 +78,7 @@
         </header>
         <p class="out" lang="ko">
           {#if conv[s.id]}
-            {#each conv[s.id] as g, j}{#if j < (shown[s.id] ?? 0) && g.text !== g.reading}{@const rb = i18n.lang === 'ko' ? rubify(g.text, g.reading) : null}{#if rb}<span class="turn"><ruby>{rb.base}<rt>{rb.rt}</rt></ruby>{rb.tail}</span>{:else}<span class="turn">{g.text}</span>{/if}{:else}<span class:pending={j >= (shown[s.id] ?? 0)}>{g.reading}</span>{/if}{/each}
+            {#each conv[s.id] as g, j}{#if j < (shown[s.id] ?? 0) && g.text !== g.reading}{@const rb = i18n.lang === 'ko' ? rubify(g.text, g.reading) : null}{#if rb}<span class="turn" class:still={still[s.id]}><ruby>{rb.base}<rt>{rb.rt}</rt></ruby>{rb.tail}</span>{:else}<span class="turn" class:still={still[s.id]}>{g.text}</span>{/if}{:else}<span class:pending={j >= (shown[s.id] ?? 0)}>{g.reading}</span>{/if}{/each}
           {:else}
             <span class="pending">{s.text}</span>
           {/if}
@@ -159,7 +160,10 @@
   .turn {
     display: inline-block;
     color: var(--c-ink);
-    animation: turn 420ms var(--ease) both;
+    animation: turn 420ms var(--ease) backwards;
+  }
+  .turn.still {
+    animation: none;
   }
   @keyframes turn {
     from {

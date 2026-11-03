@@ -202,6 +202,34 @@ def build_gloss(lex, sino_readings):
 
 # --------------------------------------------------------------------- sino
 
+def chat_counts(texts):
+    """Hanja substring counts and Hangul word-prefix counts in the chats."""
+    sub = collections.Counter()
+    pre = collections.Counter()
+    for t in texts:
+        for run in re.findall(HANJA + "+", t):
+            n = len(run)
+            for i in range(n):
+                for j in range(i + 1, min(n, i + 6) + 1):
+                    sub[run[i:j]] += 1
+        for w in re.findall("[\uac00-\ud7a3]+", t):
+            for k in range(1, min(len(w), 4) + 1):
+                pre[w[:k]] += 1
+    return sub, pre
+
+
+def mark_hangul(rows, sub, pre, min_hangul=5):
+    """A reading the chat writes in Hangul at least `min_hangul` times while
+    never writing this Hanja form is almost always a native word (사랑, 아아):
+    mark the entry so the engine prefers Hangul there."""
+    out = []
+    for reading, han, count, source in rows:
+        if len(reading) >= 2 and pre.get(reading, 0) >= min_hangul and sub.get(han, 0) == 0:
+            source = "hangul"
+        out.append((reading, han, count, source))
+    return out
+
+
 def build_sino(texts):
     words = {}
     for line in (SRC / "libhangul" / "hanja.txt").open(encoding="utf-8"):
@@ -214,18 +242,12 @@ def build_sino(texts):
         if not all(syl(c) for c in reading) or len(reading) != len(han):
             continue
         words.setdefault((reading, han), 0)
-    # Corpus counts: count every Hanja substring up to 6 characters.
-    sub = collections.Counter()
-    for t in texts:
-        for run in re.findall(HANJA + "+", t):
-            n = len(run)
-            for i in range(n):
-                for j in range(i + 1, min(n, i + 6) + 1):
-                    sub[run[i:j]] += 1
+    sub, pre = chat_counts(texts)
     out = []
     for (reading, han) in words:
         out.append((reading, han, sub.get(han, 0), "lexicon"))
     out.extend(corpus_words(texts, words))
+    out = mark_hangul(out, sub, pre)
     out.sort(key=lambda x: (x[0], -x[2], x[1]))
     return out
 
@@ -281,7 +303,7 @@ def corpus_words(texts, words, min_count=5):
     return out
 
 
-def build_fusion():
+def build_fusion(texts):
     """Sino-Korean words with usage frequencies from FusionIME (十八字).
     Definitions are dropped; count = round(cbrt(frequency)), damped so that the
     scale is close to the corpus counts in sino.tsv."""
@@ -304,6 +326,8 @@ def build_fusion():
         except ValueError:
             n = 0
         out.append((reading, han, round(n ** (1 / 3)), "fusion"))
+    sub, pre = chat_counts(texts)
+    out = mark_hangul(out, sub, pre)
     out.sort(key=lambda x: (x[0], -x[2], x[1]))
     return out
 
@@ -342,7 +366,7 @@ def main():
         "Lemmas reconstructed from adnominal glosses (읽을 → 읽다); checked against Wiktionary",
         "headwords where available. Unchecked guesses are kept: this tier ranks last.",
     ])
-    write(DICT / "fusion.tsv", ["reading", "hanja", "count", "source"], build_fusion(), [
+    write(DICT / "fusion.tsv", ["reading", "hanja", "count", "source"], build_fusion(corpus_texts(("telegram.jsonl", "telegram-hanja.jsonl"))), [
         "Sino-Korean words with usage frequencies from FusionIME (十八字) by Lee0701,",
         "https://github.com/Lee0701/FusionIME commit 450829df (2026-10-31), ko_dict_all.tsv.",
         "Licensed GPL-3.0 (see dict/LICENSE-fusion.txt); its data comes from 표준국어대사전 and libhangul.",

@@ -17,6 +17,14 @@
 //   Esc            close the window; again, back to Hangul
 //   Backspace      back to Hangul
 //   any other key  confirm everything, then type it
+// Editing (nothing composed):
+//   ← → Home End   move the caret; a click places it
+//   Backspace / Delete  delete before / after the caret
+//
+// Word spacing (띄어쓰기): a conversion started with Space marks a word break,
+// so the next Hangul typed after it is preceded by a space. Enter and
+// punctuation confirm without one. With spaceMode 'space', Space types a
+// space and Tab, ↓ or the convert key convert.
 
 /** @typedef {{ text: string, note: string }} Candidate */
 /** @typedef {{ reading: string, candidates: Candidate[], pick: number }} Seg */
@@ -27,6 +35,10 @@ const HANGUL = /[가-힣]/
 export class Ime {
   /** Committed text. */
   doc = $state('')
+  /** Caret position in `doc`, in code points. */
+  cursor = $state(0)
+  /** 'convert': Space converts (Japanese style); 'space': Space types a space. */
+  spaceMode = $state('convert')
   /** Hangul being composed. */
   pre = $state('')
   /** Text the reader's own IME is still composing. */
@@ -53,6 +65,50 @@ export class Ime {
     this.whole = whole ?? (async (t) => (await segment(t)).flatMap((s) => s.candidates))
   }
 
+  #wordBreak = false
+  #spaced = false
+  /** Keys pressed while a conversion is in flight, replayed in order. */
+  #queue = []
+
+  #drain() {
+    while (this.#queue.length && !this.busy) this.key(this.#queue.shift())
+  }
+
+  get before() {
+    return [...this.doc].slice(0, this.cursor).join('')
+  }
+
+  get after() {
+    return [...this.doc].slice(this.cursor).join('')
+  }
+
+  /** Insert text at the caret. */
+  #insert(text) {
+    const a = [...this.doc]
+    const t = [...text]
+    a.splice(this.cursor, 0, ...t)
+    this.doc = a.join('')
+    this.cursor += t.length
+  }
+
+  /** Replace the whole document (clear, paste into the editor). */
+  setDoc(text) {
+    this.doc = text
+    this.cursor = [...text].length
+  }
+
+  /** Place the caret (a click in the text). */
+  setCursor(i) {
+    if (this.segs || this.pre) this.commit()
+    this.cursor = Math.max(0, Math.min([...this.doc].length, i))
+    this.#wordBreak = false
+  }
+
+  #space() {
+    const prev = [...this.before].pop()
+    if (prev && !/\s/.test(prev)) this.#insert(' ')
+  }
+
   get current() {
     return this.segs?.[this.focus] ?? null
   }
@@ -77,8 +133,10 @@ export class Ime {
     return (this.segs ?? []).map((s, i) => (s.candidates.length > 1 || HANGUL.test(s.reading) ? i : -1)).filter((i) => i >= 0)
   }
 
-  async convert() {
+  /** @param {boolean} [spaced] started by Space: confirming implies a word break */
+  async convert(spaced = false) {
     if (!this.pre || !HANGUL.test(this.pre)) return false
+    this.#spaced = spaced
     this.busy = true
     try {
       const segs = await this.segment(this.pre)
@@ -88,12 +146,14 @@ export class Ime {
       return true
     } finally {
       this.busy = false
+      this.#drain()
     }
   }
 
   /** Confirm everything. */
   commit() {
-    this.doc += this.segs ? this.converted : this.pre
+    if (this.segs) this.#wordBreak = this.#spaced
+    this.#insert(this.segs ? this.converted : this.pre)
     this.segs = null
     this.open = false
     this.composer.clear()
@@ -105,11 +165,12 @@ export class Ime {
     if (!this.segs) return
     const done = this.segs.slice(0, i + 1)
     const rest = this.segs.slice(i + 1)
-    this.doc += done.map((s) => s.candidates[s.pick]?.text ?? s.reading).join('')
+    this.#insert(done.map((s) => s.candidates[s.pick]?.text ?? s.reading).join(''))
     this.open = false
     const left = rest.map((s) => s.reading).join('')
     if (!rest.length || !HANGUL.test(left)) {
-      this.doc += left
+      this.#insert(left)
+      this.#wordBreak = this.#spaced
       this.segs = null
       this.composer.clear()
       this.#sync()
@@ -192,6 +253,7 @@ export class Ime {
       this.open = false
     } finally {
       this.busy = false
+      this.#drain()
     }
   }
 
@@ -203,6 +265,8 @@ export class Ime {
   /** Text from the reader's own IME (composition end, paste). */
   insertText(s) {
     if (this.segs) this.commit()
+    if (this.#wordBreak && !this.pre && HANGUL.test(s)) this.#space()
+    this.#wordBreak = false
     this.composer.setText(this.pre + s)
     this.#sync()
   }
@@ -216,33 +280,68 @@ export class Ime {
     if (k.ctrl || k.meta || k.alt) return false
     const key = k.key
     this.lastKey = key
+    if (this.busy) {
+      this.#queue.push(k)
+      return true
+    }
     if (this.segs) return this.#converting(k)
+    const brk = this.#wordBreak
+    this.#wordBreak = false
     switch (key) {
       case ' ':
-        if (k.shift && this.pre) {
+        if (this.pre && (k.shift || this.spaceMode === 'space')) {
           this.composer.pushLiteral(' ')
           this.#sync()
         } else if (this.pre) {
-          this.convert()
+          this.convert(true)
         } else {
-          this.doc += ' '
+          this.#insert(' ')
         }
         return true
       case 'Tab':
+      case 'ArrowDown':
+      case 'Convert':
         if (!this.pre) return false
-        this.convert()
+        this.convert(false)
         return true
       case 'Backspace':
         if (this.pre) {
           this.composer.backspace()
           this.#sync()
-        } else if (this.doc) {
-          this.doc = [...this.doc].slice(0, -1).join('')
+        } else if (this.cursor > 0) {
+          const a = [...this.doc]
+          a.splice(this.cursor - 1, 1)
+          this.doc = a.join('')
+          this.cursor--
         } else return false
         return true
+      case 'Delete':
+        if (this.pre) return true
+        if (this.cursor < [...this.doc].length) {
+          const a = [...this.doc]
+          a.splice(this.cursor, 1)
+          this.doc = a.join('')
+        }
+        return true
+      case 'ArrowLeft':
+      case 'ArrowRight':
+      case 'Home':
+      case 'End': {
+        if (this.pre) this.commit()
+        const n = [...this.doc].length
+        const b = this.before
+        if (key === 'ArrowLeft') this.cursor = Math.max(0, this.cursor - 1)
+        else if (key === 'ArrowRight') this.cursor = Math.min(n, this.cursor + 1)
+        else if (key === 'Home') this.cursor = [...b.slice(0, b.lastIndexOf('\n') + 1)].length
+        else {
+          const nl = this.after.indexOf('\n')
+          this.cursor = nl < 0 ? n : this.cursor + [...this.after.slice(0, nl)].length
+        }
+        return true
+      }
       case 'Enter':
         if (this.pre) this.commit()
-        else this.doc += '\n'
+        else this.#insert('\n')
         return true
       case 'Escape':
         if (!this.pre) return false
@@ -252,6 +351,7 @@ export class Ime {
     }
     if (key.length !== 1) return false
     if (this.mode === 'sim' && /[a-zA-Z]/.test(key)) {
+      if (brk && !this.pre) this.#space()
       this.composer.input(key)
       this.#sync()
       return true
@@ -260,18 +360,25 @@ export class Ime {
       this.composer.pushLiteral(key)
       this.#sync()
     } else {
-      this.doc += key
+      if (brk && HANGUL.test(key)) this.#space()
+      this.#insert(key)
     }
     return true
   }
 
   #converting(k) {
-    if (this.busy) return true
     const { key, shift } = k
     switch (key) {
       case ' ':
+        if (this.spaceMode === 'space' && !this.open) {
+          this.commit()
+          this.#wordBreak = false
+          this.#insert(' ')
+          return true
+        }
         this.cycle(shift ? -1 : 1)
         return true
+      case 'Convert':
       case 'ArrowDown':
         this.cycle(1)
         return true

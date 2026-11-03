@@ -6428,3 +6428,1438 @@ lemma	written	pos	class	source	count	note
 힘없다	力없다	adj		suggested		powerless
 힘주다	力주다	verb		suggested		exert strength
 힘차다	力차다	adj		suggested		vigorous
+하	嘆	interj		suggested		sigh
+하	噫	interj		suggested	2	sigh
+아	嗚	interj		suggested	4	oh, ah
+아	噫	interj		suggested	2	oh, ah
+아	嗟	interj		suggested	1	ah, lament
+에	哼	interj		suggested		hmph, displeased
+네	唯	interj		suggested	17	yes, assent
+네	諾	interj		suggested	3	yes, assent
+네	然	interj		suggested	2	yes, so
+어	唯	interj		suggested	17	uh-huh, yes
+어	諾	interj		suggested	3	uh-huh, yes
+오	噫	interj		suggested	2	wow, pleasant surprise
+오	嗟	interj		suggested	1	wow
+다	皆	adv		suggested		all
+다	悉	adv		suggested	3	all, completely
+다	咸	adv		suggested	2	all
+다	盡	adv		suggested	11	all, completely
+와	蝟	adv		suggested		converging in crowds
+음	唔	interj		suggested	1	hmm, pondering
+흠	哼	interj		suggested		hm
+아하	噫	interj		suggested	2	aha
+왜	何	adv		suggested	65	why
+왜	胡	adv		suggested	8	why
+왜	奚	adv		suggested	2	why
+그래	然	adv		suggested	2	so, like that
+노	常	adv		suggested		always
+노	恒	adv		suggested	2	always
+노	每	adv		suggested	1	always
+써	以	adv		suggested	28	by means of
+야	噫	interj		suggested	2	hey
+많이	多	adv		suggested	45	much, many
+많이	衆	adv		suggested	1	many
+아마	殆	adv		suggested	11	perhaps
+올	噫	interj		suggested	2	wow, amazement
+올	嗟	interj		suggested	1	wow
+그리	甚	adv		suggested	5	so much
+그럼	然	adv		suggested	2	then, in that case
+그럼	固	interj		suggested	11	of course
+이렇게	如是	adv		suggested		like this
+아니면	否	adv		suggested	18	or if not
+아니면	不然	adv		suggested		or if not
+거의	垂	adv		suggested		almost
+꽤	頗	adv		suggested	14	rather, fairly
+그리고	且	adv		suggested	11	and, also
+그리고	又	adv		suggested	57	and, also
+그리고	及	adv		suggested	23	and
+때문에	因	adv		suggested	9	because of this
+채	未	adv		suggested	9	not yet
+들이	妄	adv		suggested		carelessly, wildly
+들이	猛	adv		suggested	2	violently
+참	眞	adv		suggested	9	truly
+참	誠	adv		suggested	3	truly
+참	寔	adv		suggested		truly
+참	實	adv		suggested	18	truly
+참	噫	interj		suggested	2	oh, sudden thought
+같이	與	adv		suggested	16	together
+같이	俱	adv		suggested	7	together
+그래도	然	adv		suggested	2	nevertheless
+그래도	猶	adv		suggested	11	nevertheless
+그렇게	如是	adv		suggested		so
+그렇게	甚	adv		suggested	5	so much
+다시	再	adv		suggested	17	again
+하긴	誠	adv		suggested	3	indeed
+하긴	固	adv		suggested	11	indeed
+영	頗	adv		suggested	10	quite
+이에	乃	adv		suggested	5	hereupon
+이에	於是	adv		suggested	2	hereupon
+얘	噫	interj		suggested	2	surprise
+얘	咦	interj		suggested	2	surprise
+아서	勿	interj		suggested	10	forbidden, do not
+아서	休	interj		suggested	8	stop
+막	適	adv		suggested	9	just now
+막	方	adv		suggested	22	just now
+쉬	噓	interj		suggested	2	shh
+쉬	噤	interj		suggested		hush
+엄청	太	adv		suggested	3	awfully
+언제	何日	adv		suggested	2	when
+워	吁	interj		suggested		whoa, halt
+엇	咦	interj		suggested	2	mild surprise
+엇	噫	interj		suggested	2	mild surprise
+바로	卽	adv		suggested	11	right away
+어째	胡	adv		suggested	8	why
+어째	奚	adv		suggested	2	why
+그러면	然則	adv		suggested	4	if so
+그러면	則	adv		suggested	13	if so
+헉	噫	adv		suggested	2	gasp
+헉	嘻	interj		suggested		gasp
+굿	善	interj		suggested	26	good
+굿	好	interj		suggested	33	good
+푸	吁	interj		suggested		whew
+따로	各	adv		suggested	14	separately
+갑자기	突	adv		suggested	1	suddenly
+갑자기	遽	adv		suggested	2	suddenly
+갑자기	俄	adv		suggested	6	suddenly
+늘	常	adv		suggested		always
+늘	恒	adv		suggested	2	always
+늘	恆	adv		suggested		always
+똑	正	adv		suggested		exactly
+맨	唯	adv		suggested	15	only
+맨	只	adv		suggested	10	only
+이야	噫	interj		suggested	2	wow
+그런데	然	adv		suggested	2	but, however
+그런데	而	adv		suggested	32	but
+다만	特	adv		suggested	3	only
+아무튼	總	adv		suggested	3	anyway
+아무튼	要	adv		suggested	6	anyway
+저기	那	interj		suggested	5	um, hesitation
+함께	偕	adv		suggested		together
+함께	同	adv		suggested	22	together
+먼저	首	adv		suggested	3	first
+곧	卽	adv		suggested	13	at once
+곧	便	adv		suggested	27	at once
+곧	輒	adv		suggested	1	at once
+곧	旋	adv		suggested	1	soon
+및	及	adv		suggested	22	and
+및	曁	adv		suggested		and
+엥	咦	interj		suggested	2	huh
+벌써	業	adv		suggested	2	already
+아예	絕	adv		suggested		entirely
+체	嘖	interj		suggested		tch, disapproval
+체	咄	interj		suggested		tch
+한번	試	adv		suggested	1	sometime
+가끔	或	adv		suggested	28	occasionally
+가끔	間	adv		suggested	1	from time to time
+다들	衆	adv		suggested	1	everyone
+아니요	否	interj		suggested	22	no
+아니요	不	interj		suggested	186	no
+아니요	非	interj		suggested	37	no
+아니요	未	interj		suggested	9	no
+없이	無	adv		suggested	53	without
+없이	毋	adv		suggested		without
+길이	永	adv		suggested	2	forever
+길이	永遠	adv		suggested		forever
+길이	長	adv		suggested	16	forever
+아무래도	終	adv		suggested	14	anyway
+아무래도	恐	adv		suggested	11	probably
+어제	昨日	adv		suggested	13	yesterday
+꼭	必	adv		suggested	9	surely
+꼭	應	adv		suggested	7	surely
+꼭	須	adv		suggested		surely
+드디어	乃	adv		suggested	5	finally
+딱히	特	adv		suggested	3	particularly
+딱히	殊	adv		suggested		particularly
+빵	砰	interj		suggested		bang
+제대로	善	adv		suggested	25	properly
+죄	悉	adv		suggested	3	all
+죄	盡	adv		suggested	11	all
+죄	咸	adv		suggested	2	all
+죄	皆	adv		suggested		all
+그나저나	且說	adv		suggested	2	by the way
+그나저나	然	adv		suggested	2	anyway
+또는	抑	adv		suggested		or, alternatively
+살짝	稍	adv		suggested	2	slightly
+살짝	潛	adv		suggested		subtly
+설마	豈	adv		suggested	2	surely not
+설마	莫	adv		suggested	3	surely not
+설마	寧	adv		suggested	8	surely not
+아까	曩	adv		suggested		a while ago
+아까	向	adv		suggested	7	a while ago
+아이고	嗚呼	interj		suggested	25	lament
+아이고	噫	interj		suggested	2	lament
+아이고	嗟	interj		suggested	1	ouch, lament
+아이고	哀	interj		suggested		alas
+어라	咦	interj		suggested	2	light surprise
+어라	噫	interj		suggested	2	light surprise
+어째서	何	adv		suggested	65	why
+어째서	胡	adv		suggested	8	why
+하도	太	adv		suggested	3	too much
+하도	殊	adv		suggested		so
+게다가	加之	adv		suggested	1	moreover
+게다가	又	adv		suggested	57	moreover
+김치	醃	interj		suggested	1	photo cheese
+내리	降	adv		suggested	17	downwards
+아마도	殆	adv		suggested	11	maybe
+아아	嗚呼	interj		suggested	25	ah, alas
+아아	嗟	interj		suggested	1	ah, alas
+아아	噫	interj		suggested	2	ah, alas
+굳이	强	adv		suggested	7	obstinately
+굳이	硬	adv		suggested		obstinately
+그러나	然而	adv		suggested		but
+그러나	但	adv		suggested	12	but
+마치	似	adv		suggested	6	as if
+보통	常	adv		suggested		usually
+보통	凡	adv		suggested	1	generally
+이어	連	adv		suggested	4	following
+이어	繼	adv		suggested	4	following
+덜	減	adv		suggested	4	less
+덜	少	adv		suggested	11	less
+마침	會	adv		suggested	8	just in time
+아무리	雖	adv		suggested	2	no matter how
+저렇게	如彼	adv		suggested	1	like that
+적어도	至少	adv		suggested		at least
+적어도	最少	adv		suggested	1	at least
+되게	頗	adv		suggested	14	very
+빨리	急	adv		suggested	5	quickly
+어쨌든	總	adv		suggested	3	anyway
+어쨌든	要	adv		suggested	6	anyway
+억	噫	interj		suggested	2	shock
+억	嘔	interj		suggested	1	disgust
+요새	近日	adv		suggested	1	lately
+그동안	間	adv		suggested	1	meanwhile
+두루	普	adv		suggested	1	widely
+두루	彌	adv		suggested		widely
+훨씬	遠	adv		suggested	4	much more
+훨씬	大	adv		suggested	3	much more
+그나마	猶	adv		suggested	11	at least
+그나마	尙	adv		suggested		still
+더욱	益	adv		suggested	2	more so
+더욱	彌	adv		suggested		more so
+아야	痛	interj		suggested		ouch
+아야	噫	interj		suggested	2	ouch
+얼마나	幾	adv		suggested	3	how much
+얼마나	幾許	adv		suggested	1	how much
+엉	諾	interj		suggested	5	okay, yes
+엉	唯	interj		suggested	15	okay, yes
+일찍	夙	adv		suggested		early
+일찍	曾	adv		suggested	5	early
+주로	多	adv		suggested	45	mainly
+차마	不忍	adv		suggested	2	cannot bear
+멀리	遙	adv		suggested		afar
+따라서	因此	adv		suggested	1	therefore
+따라서	是以	adv		suggested		therefore
+맹	竟	adv		suggested		after all
+맹	果	adv		suggested		as expected
+앞으로	將	adv		suggested	4	from now on
+앞으로	今後	adv		suggested	2	from now on
+앞으로	前	adv		suggested		forward
+확실히	確	adv		suggested	3	certainly
+확실히	的	adv		suggested	27	certainly
+확실히	信	adv		suggested	3	certainly
+흥	哼	interj		suggested		humph
+흥	呸	interj		suggested		bah
+그렇지	然	adv		suggested	2	yes
+그렇지	諾	adv		suggested	3	yes
+글쎄	未知	interj		suggested	4	well
+글쎄	唔	interj		suggested	1	well
+마구	濫	adv		suggested	2	recklessly
+마기	終	adv		suggested	14	ultimately
+마기	竟	adv		suggested		ultimately
+마저	悉	adv		suggested	3	all, remainder
+어느정도	稍	adv		suggested	2	somewhat
+어느정도	頗	adv		suggested	14	somewhat
+어이	噫	interj		suggested	2	hey
+어이	喂	interj		suggested		hey
+어이	奚	adv		suggested	2	how
+오직	獨	adv		suggested	5	only
+익히	夙	adv		suggested		well known
+일부러	故意	adv		suggested	1	deliberately
+자꾸	數	adv		suggested	9	repeatedly
+헐	噫	interj		suggested	2	oh my
+헐	嗟	interj		suggested	1	oh my
+휴	噓	interj		suggested	2	phew
+휴	吁	interj		suggested		phew
+그러니까	故	adv		suggested	19	therefore
+그러니까	是故	adv		suggested		therefore
+그러니까	然	interj		suggested	2	agreement
+그러니까	諾	interj		suggested	3	agreement
+글쎄요	唔	interj		suggested	1	well
+글쎄요	未知	interj		suggested	4	well
+때로	時	adv		suggested		occasionally
+때로	或	adv		suggested	19	occasionally
+언제나	每	adv		suggested	1	always
+언젠가	嘗	adv		suggested	4	sometime
+언젠가	某時	adv		suggested		sometime
+언젠가	他日	adv		suggested	1	some day
+얼른	疾	adv		suggested	1	quickly
+얼른	旋	adv		suggested	1	quickly
+차라리	寗	adv		suggested	3	rather
+차라리	毋寧	adv		suggested		rather
+한편	又	adv		suggested	51	on the other hand
+거꾸로	反	adv		suggested	10	inside out
+그다지	甚	adv		suggested	5	so much
+그다지	頗	adv		suggested	14	to that extent
+그저	但	adv		suggested	12	just
+마음대로	任意	adv		suggested	3	as one pleases
+마음대로	恣	adv		suggested		as one pleases
+마음대로	縱	adv		suggested		as one pleases
+마주	相對	adv		suggested		face to face
+에이	嘖	interj		suggested		disappointment
+에이	咄	interj		suggested		disappointment
+왠지	不知何	adv		suggested		somehow
+이대로	仍	adv		suggested	1	as it is
+잠깐	瞬	adv		suggested		for a moment
+잠깐	少	adv		suggested	11	briefly
+제법	稍	adv		suggested	2	fairly
+제법	可	adv		suggested	32	fairly
+좀더	稍	adv		suggested	2	a little more
+흔히	多	adv		suggested	45	commonly
+흔히	屢	adv		suggested		often
+고대	方	adv		suggested	19	just now
+고대	適	adv		suggested	10	just now
+고마워	謝	interj		suggested	8	thanks
+고마워	多謝	interj		suggested		thanks
+곳곳	到處	adv		suggested		everywhere
+내내	恒	adv		suggested	2	all the time
+내내	盡	adv		suggested	11	throughout
+더불어	偕	adv		suggested		together with
+더불어	共	adv		suggested	11	together with
+똑같이	同	adv		suggested	22	equally
+똑같이	均	adv		suggested		equally
+맨날	日日	adv		suggested	1	every day
+맨날	常	adv		suggested		every day
+몹시	痛	adv		suggested		exceedingly
+비록	縱	adv		suggested		even if
+비록	假令	adv		suggested		even if
+사뭇	殊	adv		suggested		utterly
+사뭇	頗	adv		suggested	10	utterly
+시장	今	adv		suggested	4	now
+시장	方	adv		suggested	22	now
+썩	頗	adv		suggested	10	exceedingly
+썩	甚	adv		suggested	5	exceedingly
+썩	極	adv		suggested	3	exceedingly
+어쩌다	偶然	adv		suggested	6	by chance
+어쩌다	或	adv		suggested	19	by chance
+이른바	所云	adv		suggested		so-called
+인제	方今	adv		suggested	12	now
+인제	今方	adv		suggested	3	now
+정말로	眞	adv		suggested	8	really
+정말로	實	adv		suggested	6	really
+정말로	誠	adv		suggested	3	truly
+죄다	咸	adv		suggested	2	all
+하나하나	逐	adv		suggested		one by one
+홀로	孑	adv		suggested		alone
+감사합니다	謝	interj		suggested	8	thank you
+감사합니다	感謝	interj		suggested	27	thank you
+겨우	纔	adv		suggested		barely
+겨우	才	adv		suggested	1	barely
+고로	是故	adv		suggested		therefore
+고로	是以	adv		suggested		therefore
+그만	止	adv		suggested	6	no more
+그만	休	adv		suggested	8	no more
+날로	日	adv		suggested		day by day
+너무나	太	adv		suggested	3	excessively
+막상	眞	adv		suggested	9	when it comes to
+머시기	某	interj		suggested	12	filler, so-and-so
+매달	月月	adv		suggested		monthly
+솔직히	直	adv		suggested	21	honestly
+솔직히	坦	adv		suggested		honestly
+솔직히	實	adv		suggested	6	honestly
+섯	止	interj		suggested	6	stop
+섯	住	interj		suggested	5	stop
+어머	噫	interj		suggested	2	oh my
+어머	嗟	interj		suggested	1	oh my
+어머	呀	interj		suggested		oh my
+억지로	强	adv		suggested	7	forcibly
+억지로	勉	adv		suggested		forcibly
+영원히	永	adv		suggested	2	forever
+영원히	恒	adv		suggested	2	forever
+영원히	長	adv		suggested	16	forever
+완전히	全	adv		suggested	50	completely
+완전히	悉	adv		suggested	3	completely
+완전히	盡	adv		suggested	11	completely
+완전히	完	adv		suggested	6	completely
+워낙	甚	adv		suggested	5	very
+워낙	殊	adv		suggested		so
+은근히	潛	adv		suggested		quietly
+은근히	暗	adv		suggested	1	secretly
+은근히	微	adv		suggested	1	subtly
+일찍이	早	adv		suggested	20	early
+일찍이	曾	adv		suggested	4	once
+일찍이	嘗	adv		suggested	4	once
+정확히	正	adv		suggested	5	exactly
+정확히	確	adv		suggested	3	accurately
+정확히	準	adv		suggested		accurately
+중에서	中	adv		suggested		among
+중에서	間	adv		suggested		among
+참으로	誠	adv		suggested	3	truly
+참으로	眞	adv		suggested	8	truly
+참으로	實	adv		suggested	6	truly
+참으로	寔	adv		suggested		truly
+가즈아	行	interj		suggested		let's go
+가즈아	往	interj		suggested	6	let's go
+고루	均	adv		suggested		equally
+고루	平	adv		suggested	5	equally
+고루	遍	adv		suggested		evenly
+그렇지만	然	adv		suggested	2	nonetheless
+그렇지만	但	adv		suggested	12	nonetheless
+그리하여	於是	adv		suggested	2	and so
+그리하여	遂	adv		suggested	2	and thus
+그리하여	乃	adv		suggested	5	and thus
+그야말로	眞	adv		suggested	8	really
+그야말로	實	adv		suggested	6	indeed
+그야말로	正	adv		suggested	5	really
+길이길이	永永	adv		suggested	1	forever
+길이길이	永遠	adv		suggested		forever
+길이길이	長	adv		suggested	16	forever
+다정히	親	adv		suggested	2	affectionately
+다정히	慇	adv		suggested		kindly
+당연히	當	adv		suggested	11	of course
+당연히	固	adv		suggested	11	naturally
+당연히	宜	adv		suggested	5	of course
+당연히	應	adv		suggested	3	of course
+맙소사	嗚呼	interj		suggested	25	good heavens
+맙소사	天	interj		suggested		oh God
+맙소사	嗟	interj		suggested	1	oh my God
+반드시	必	adv		suggested	8	surely
+반드시	堅	adv		suggested	2	surely
+반드시	須	adv		suggested		without fail
+분명히	明	adv		suggested	15	obviously
+분명히	分明	adv		suggested	2	obviously
+분명히	的	adv		suggested	27	obviously
+아자	奮	interj		suggested		encouragement
+아자	勉	interj		suggested		encouragement
+어마	噫	interj		suggested	2	oh my
+어마	呀	interj		suggested		oh my
+어마	嗟	interj		suggested	1	oh my
+어주	嘖	interj		suggested		deride
+어주	嗤	interj		suggested		mock
+어쩐지	怪	adv		suggested		for some reason
+어쩐지	何故	adv		suggested	14	for some reason
+여태	迄今	adv		suggested		until now
+여태	至今	adv		suggested	3	until now
+여태	尙	adv		suggested		so far
+열심히	勤	adv		suggested	1	diligently
+열심히	熱	adv		suggested	1	enthusiastically
+열심히	力	adv		suggested		with dedication
+열심히	勉	adv		suggested		with dedication
+오로지	專	adv		suggested	1	only
+오로지	唯	adv		suggested	17	only
+오로지	惟	adv		suggested		only
+오로지	獨	adv		suggested	5	solely
+우연히	偶	adv		suggested	1	by chance
+우연히	偶然	adv		suggested	6	by chance
+이내	旋	adv		suggested	1	right away
+이내	卽	adv		suggested	11	right away
+이내	輒	adv		suggested	1	promptly
+일로	此方	adv		suggested	1	hither
+일일이	一一	adv		suggested	3	one by one
+일일이	逐	adv		suggested		one by one
+제발	請	adv		suggested	7	please
+제발	乞	adv		suggested	4	please
+제발	願	adv		suggested	2	please
+조금씩	漸	adv		suggested		bit by bit
+조금씩	稍稍	adv		suggested	1	bit by bit
+차렷	立正	interj		suggested		attention
+한꺼번에	一時	adv		suggested	13	at the same time
+한꺼번에	同時	adv		suggested	3	at the same time
+한꺼번에	一併	adv		suggested		at once
+한창	方	adv		suggested	22	in full swing
+한창	正	adv		suggested		in full swing
+한창	盛	adv		suggested	7	in full swing
+향후	今後	adv		suggested	2	henceforth
+향후	向後	adv		suggested		henceforth
+향후	後	adv		suggested		henceforth
+호호	呵呵	interj		suggested	8	laughing
+호호	嘻嘻	interj		suggested		laughing
+혹은	或	adv		suggested	28	or
+혹은	抑	adv		suggested		or else
+가까이	近	adv		suggested	5	close
+가까이	邇	adv		suggested		nearby
+가끔씩	時	adv		suggested	2	sometimes
+가끔씩	或	adv		suggested	28	sometimes
+가만	靜	adv		suggested	1	quietly
+가만	默	adv		suggested		quietly
+가만	且	interj		suggested	11	wait, quiet
+간신히	僅	adv		suggested	1	barely
+간신히	纔	adv		suggested		barely
+간신히	艱	adv		suggested		with difficulty
+갈수록	愈	adv		suggested	2	more and more
+갈수록	益	adv		suggested	2	more and more
+갈수록	逾	adv		suggested		more and more
+거듭	再	adv		suggested	17	repeatedly
+거듭	重	adv		suggested	2	repeatedly
+거듭	申	adv		suggested	7	repeatedly
+거듭	疊	adv		suggested		repeatedly
+곧장	直	adv		suggested	20	straight
+곧장	卽	adv		suggested	13	straight away
+골고루	均	adv		suggested		evenly
+골고루	遍	adv		suggested		all round
+골고루	普	adv		suggested	1	evenly
+공연히	徒	adv		suggested	7	in vain
+공연히	空	adv		suggested		in vain
+공연히	虛	adv		suggested	2	for nothing
+공연히	枉	adv		suggested		in vain
+관계없이	無關	adv		suggested	4	irrespectively
+관계없이	不問	adv		suggested	1	regardless
+굉장히	甚	adv		suggested	5	very
+굉장히	極	adv		suggested	3	very
+굉장히	壯	adv		suggested	2	greatly
+기꺼이	喜	adv		suggested		gladly
+기꺼이	欣	adv		suggested		gladly
+기꺼이	樂	adv		suggested	15	willingly
+기꺼이	甘	adv		suggested	3	willingly
+깡그리	悉	adv		suggested	3	all
+깡그리	盡	adv		suggested	11	completely
+깡그리	皆	adv		suggested		all
+꾹	堅	adv		suggested	2	firmly
+꾹	緊	adv		suggested	1	tightly
+꾹	牢	adv		suggested		firmly
+나란히	並	adv		suggested	1	side by side
+나란히	比	adv		suggested	4	side by side
+나란히	雙	adv		suggested	5	side by side
+나이스	佳	interj		suggested		nice
+나이스	善	interj		suggested	25	nice
+나이스	好	interj		suggested	36	nice
+날마다	日日	adv		suggested	1	every day
+날마다	每日	adv		suggested	6	every day
+날마다	日	adv		suggested		every day
+너머로	越	adv		suggested	9	beyond
+달마다	每月	adv		suggested		every month
+달마다	月月	adv		suggested		every month
+단순히	單	adv		suggested	1	simply
+단순히	但	adv		suggested	12	simply
+단순히	只	adv		suggested	12	simply
+당최	全	adv		suggested	50	at all
+당최	斷	adv		suggested	2	at all
+당최	絕	adv		suggested		at all
+대체로	大抵	adv		suggested		on the whole
+대체로	大都	adv		suggested		on the whole
+대체로	概	adv		suggested		on the whole
+더욱더	愈	adv		suggested	1	more and more
+더욱더	益	adv		suggested	2	more and more
+더욱더	愈益	adv		suggested		more and more
+더욱이	且	adv		suggested	11	moreover
+더욱이	況	adv		suggested		moreover
+더욱이	尤	adv		suggested		besides
+더욱이	加之	adv		suggested	1	furthermore
+도리어	反	adv		suggested	10	instead
+도리어	却	adv		suggested	3	instead
+도리어	覆	adv		suggested		instead
+도리어	倒	adv		suggested	1	rather
+도무지	全	adv		suggested	50	at all
+도무지	斷	adv		suggested	2	at all
+도무지	殊	adv		suggested		at all
+례하면	例	adv		suggested	26	for example
+례하면	譬	adv		suggested		for example
+마음껏	恣	adv		suggested		to heart's content
+마음껏	縱	adv		suggested		to heart's content
+마음껏	盡	adv		suggested	11	to heart's content
+마침내	終	adv		suggested	14	finally
+마침내	遂	adv		suggested	2	finally
+마침내	竟	adv		suggested		in the end
+마침내	卒	adv		suggested		in the end
+만날	每日	adv		suggested	7	every day
+만날	常	adv		suggested		always
+만날	恒	adv		suggested	2	always
+몰래	暗	adv		suggested	1	secretly
+몰래	潛	adv		suggested		secretly
+몰래	陰	adv		suggested	6	secretly
+몰래	竊	adv		suggested		secretly
+못내	不勝	adv		suggested	1	immeasurably
+못내	不禁	adv		suggested		inconceivably
+무릇	凡	adv		suggested	1	in general
+무릇	夫	adv		suggested	4	in general
+무릇	大凡	adv		suggested		generally
+무어	何	interj		suggested	65	surprise, what
+무어	咦	interj		suggested	2	surprise
+무척	甚	adv		suggested	5	very
+무척	極	adv		suggested	3	very
+무척	殊	adv		suggested		extremely
+무척	頗	adv		suggested	10	very
+반듯이	正	adv		suggested	5	straight
+반듯이	直	adv		suggested	21	straight
+반듯이	端	adv		suggested	3	upright
+비로소	始	adv		suggested	14	for the first time
+비로소	纔	adv		suggested		only after
+비로소	乃	adv		suggested	5	for the first time
+비로소	肇	adv		suggested		for the first time
+빨리빨리	速速	adv		suggested		quickly
+빨리빨리	急急	adv		suggested	1	quickly
+빨리빨리	疾	adv		suggested	2	fast
+새삼	新	adv		suggested	25	once again
+새삼	更	adv		suggested	10	once again
+새삼	復	adv		suggested	9	once again
+슬그머니	潛	adv		suggested		stealthily
+슬그머니	暗	adv		suggested	1	secretly
+슬그머니	陰	adv		suggested	6	secretly
+슬며시	潛	adv		suggested		subtly
+슬며시	微	adv		suggested	1	subtly
+슬며시	暗	adv		suggested	1	subtly
+실은	實	adv		suggested	18	actually
+실은	其實	adv		suggested		in fact
+아멘	然	interj		suggested	2	amen, so be it
+아멘	誠然	interj		suggested		amen
+아스라이	遙	adv		suggested		far, distant
+아스라이	遠	adv		suggested	4	far, distant
+아스라이	邈	adv		suggested		far, distant
+앞서	先	adv		suggested	11	previously
+앞서	前	adv		suggested		previously
+앞서	曩	adv		suggested		previously
+앞에서	前	adv		suggested		in front
+어따	嘖	interj		suggested		sarcasm
+어따	嗤	interj		suggested		sarcasm
+어렴풋이	依稀	adv		suggested		vaguely
+어렴풋이	彷彿	adv		suggested		vaguely
+어렴풋이	微	adv		suggested	1	slightly
+여전히	依然	adv		suggested		still
+여전히	猶	adv		suggested	11	still
+여전히	仍	adv		suggested	1	still
+여전히	尙	adv		suggested		still
+여전히	依舊	adv		suggested	1	just as before
+여태껏	迄今	adv		suggested		until now
+여태껏	至今	adv		suggested	4	until now
+여태껏	尙	adv		suggested		so far
+연신	連	adv		suggested	4	continuously
+연신	頻	adv		suggested	23	continuously
+연신	屢	adv		suggested		keep ...ing
+옆으로	側	adv		suggested	5	sideways
+옆으로	旁	adv		suggested		to the side
+예컨대	例如	adv		suggested		for example
+예컨대	譬如	adv		suggested	1	for example
+예컨대	比如	adv		suggested		for instance
+왜냐하면	蓋	adv		suggested	4	because
+왜냐하면	何則	adv		suggested		because
+왜냐하면	所以	adv		suggested	9	because
+외로	左	adv		suggested	2	leftward
+요사이	近	adv		suggested	5	recently
+요사이	近來	adv		suggested	2	recently
+요사이	近頃	adv		suggested		recently
+우아	嗚	interj		suggested	4	wow
+우아	噫	interj		suggested	2	wow
+우아	嗟	interj		suggested	1	wow
+유난히	殊	adv		suggested		particularly
+유난히	特	adv		suggested	3	especially
+유난히	尤	adv		suggested		exceptionally
+유난히	異常	adv		suggested	8	unusually
+의외로	意外	adv		suggested	11	unexpectedly
+의외로	不意	adv		suggested		unexpectedly
+이를테면	譬如	adv		suggested	1	for example
+이를테면	謂	adv		suggested	2	so to speak
+이윽고	旣而	adv		suggested		eventually
+이윽고	俄而	adv		suggested	1	finally
+이윽고	尋	adv		suggested	6	eventually
+이윽고	終	adv		suggested	14	at last
+인자	今	adv		suggested		now
+인자	方今	adv		suggested	12	now
+저리	如彼	adv		suggested	1	like that
+저마다	各	adv		suggested	14	each
+저마다	各自	adv		suggested	4	each
+저마다	皆	adv		suggested		each
+저만큼	彼程	adv		suggested		that much
+저절로	自	adv		suggested		by itself
+저절로	自然	adv		suggested		naturally
+저절로	自動	adv		suggested	1	automatically
+적당히	適	adv		suggested	10	moderately
+적당히	宜	adv		suggested	5	moderately
+적당히	適度	adv		suggested		moderately
+제멋대로	恣	adv		suggested		as one pleases
+제멋대로	任意	adv		suggested	3	as one pleases
+제멋대로	擅	adv		suggested		as one pleases
+젠장	咄	interj		suggested		damn it
+젠장	嗟	interj		suggested	1	damn it
+젠장	嘖	interj		suggested		damn it
+짐짓	佯	adv		suggested		pretending
+짐짓	故	adv		suggested	4	pretension
+짐짓	詐	adv		suggested		in disguise
+차츰	漸	adv		suggested		gradually
+차츰	稍	adv		suggested	2	gradually
+차츰	次第	adv		suggested		gradually
+토록	至	adv		suggested	15	to the extent of
+토록	及	adv		suggested	22	to the extent of
+퉤	唾	interj		suggested		spitting
+퉤	呸	interj		suggested		spitting
+틈틈이	暇	adv		suggested	1	in spare time
+틈틈이	隙	adv		suggested		in every gap
+틈틈이	閒	adv		suggested		in spare time
+한바탕	一場	adv		suggested		grandly
+가난히	貧	adv		suggested	1	in poverty
+가난히	窶	adv		suggested		in poverty
+가다가	或	adv		suggested	19	sometimes
+가다가	時	adv		suggested		now and then
+가득가득	滿滿	adv		suggested		full
+가득가득	盈	adv		suggested		full
+가득가득	滿	adv		suggested		full
+가득히	滿	adv		suggested	2	fully
+가득히	盈	adv		suggested		fully
+가득히	充	adv		suggested	1	fully
+가련히	憐	adv		suggested		pitifully
+가련히	哀	adv		suggested		pathetically
+가련히	可憐	adv		suggested	1	pitifully
+가만가만	靜靜	adv		suggested		softly
+가만가만	默默	adv		suggested		without noise
+가만가만	悄悄	adv		suggested		softly
+가만히	靜	adv		suggested	1	still
+가만히	默	adv		suggested		still
+가만히	黙	adv		suggested	1	quietly
+가없이	無涯	adv		suggested		endlessly
+가없이	無窮	adv		suggested		limitlessly
+가없이	無限	adv		suggested	3	limitlessly
+각중에	忽	adv		suggested	10	suddenly
+각중에	猝	adv		suggested		suddenly
+각중에	俄	adv		suggested	6	unexpectedly
+간간이	時時	adv		suggested	2	from time to time
+간간이	間間	adv		suggested		occasionally
+간간이	時	adv		suggested		occasionally
+간단히	簡	adv		suggested	1	simply
+간단히	易	adv		suggested	11	easily
+간단히	略	adv		suggested	2	simply
+간대르사	豈	adv		suggested	2	surely not
+간대르사	莫	adv		suggested	3	surely not
+간데없이	無蹤	adv		suggested		without a trace
+간데없이	無跡	adv		suggested		without a trace
+간사히	奸	adv		suggested		deceitfully
+간사히	詐	adv		suggested		deceitfully
+갈가리	裂	adv		suggested	2	to pieces
+갈가리	碎	adv		suggested	1	to shreds
+갈기갈기	裂裂	adv		suggested		to shreds
+갈기갈기	碎	adv		suggested	1	into small pieces
+갈기갈기	裂	adv		suggested	2	into small pieces
+갑작스레	忽	adv		suggested	10	suddenly
+갑작스레	突	adv		suggested	1	suddenly
+갑작스레	驟	adv		suggested		suddenly
+강력히	强	adv		suggested	7	strongly
+강력히	力	adv		suggested		strongly
+강력히	堅	adv		suggested	2	firmly
+갠신이	僅	adv		suggested	1	barely
+갠신이	纔	adv		suggested		barely
+갠이	徒	adv		suggested	7	in vain
+갠이	空	adv		suggested		in vain
+갸웃	傾	adv		suggested	2	tilting one's head
+갸웃	歪	adv		suggested	2	cocking
+거슥	某	interj		suggested	12	filler
+거저	徒	adv		suggested	7	for free
+거저	白	adv		suggested	8	for nothing
+거저	空	adv		suggested		for nothing
+거저	無償	adv		suggested		for free
+건강히	健	adv		suggested	1	healthily
+건강히	康	adv		suggested		in good health
+걸핏	輒	adv		suggested	1	quickly, at the slightest
+걸핏	動輒	adv		suggested		at the slightest
+걸핏	每	adv		suggested	1	often
+겁나	甚	adv		suggested	5	awfully
+겁나	極	adv		suggested	3	very
+겁나	太	adv		suggested	3	awfully
+겁나게	甚	adv		suggested	5	awfully
+겁나게	極	adv		suggested	3	very
+겁나게	太	adv		suggested	3	awfully
+겨우내	冬	adv		suggested		all winter
+겨우내	終冬	adv		suggested		all winter
+겨우내	竟冬	adv		suggested		all winter long
+결코	絕	adv		suggested		at all
+결코	決	adv		suggested		at all
+결코	斷	adv		suggested	2	at all
+결코	毫	adv		suggested		at all
+겹겹이	重重	adv		suggested		in layers
+겹겹이	層層	adv		suggested		in layers
+겹겹이	疊疊	adv		suggested		in layers
+겹겹이	重	adv		suggested	2	one over another
+경례	敬禮	interj		suggested	1	bow, salute
+근데	然而	adv		suggested		but, however
+근데	但	adv		suggested	12	but, however
+널리	廣	adv		suggested	5	widely
+널리	普	adv		suggested	1	widely
+널리	彌	adv		suggested		widely
+곰곰이	熟	adv		suggested	3	deeply, carefully
+곰곰이	深	adv		suggested	2	deeply
+예	唯	interj		suggested	17	yes
+예	諾	interj		suggested	3	yes
+예	然	interj		suggested	2	yes
+앗	噫	interj		suggested	2	oh
+앗	呀	interj		suggested		oh
+아이	咄	interj		suggested		impatience
+이자	方今	adv		suggested	12	now
+흐	噫	interj		suggested	2	hmm
+빈둥빈둥	懶	adv		suggested	1	lazily
+빈둥빈둥	怠	adv		suggested	1	idly
+고래고래	大聲	adv		suggested		loud shouting
+고작	僅	adv		suggested		only, at most
+고작	纔	adv		suggested		only, at most
+곧바로	直	adv		suggested	21	straight, immediately
+곧바로	卽	adv		suggested	11	immediately
+곧이어	卽	adv		suggested	11	soon after
+곧이어	仍	adv		suggested	1	following on
+곧잘	頗	adv		suggested	10	quite well
+곧추	直	adv		suggested	21	upright, straight
+곧추	正	adv		suggested	5	upright
+공으로	空	adv		suggested		for nothing
+공짜로	空	adv		suggested		for nothing
+괜히	徒	adv		suggested	7	in vain
+괜히	空	adv		suggested		for nothing
+괜히	虛	adv		suggested	2	in vain
+구석구석	處處	adv		suggested	4	every corner
+구석구석	隅隅	adv		suggested		every corner
+군데군데	處處	adv		suggested	3	here and there
+군데군데	間間	adv		suggested		here and there
+그다음	次	adv		suggested	13	next
+그다음	後	adv		suggested	3	after that
+그랴	然	interj		suggested	2	assent, so
+그러더니	旣而	adv		suggested		then
+그러더니	已而	adv		suggested		then
+그러므로	故	adv		suggested	19	therefore
+그러므로	是以	adv		suggested		therefore
+그러므로	是故	adv		suggested		therefore
+그러자	於是	adv		suggested	2	and then
+그러자	乃	adv		suggested	5	and then
+그만큼	其程	adv		suggested		that much
+그토록	如是	adv		suggested		so much
+그토록	如此	adv		suggested	4	so much
+금세	俄	adv		suggested	6	soon, in a moment
+금세	旋	adv		suggested	1	soon
+금세	須臾	adv		suggested		in a moment
+급격히	急	adv		suggested	5	suddenly, rapidly
+급격히	驟	adv		suggested		suddenly
+기껏	僅	adv		suggested		at most
+기껏	纔	adv		suggested		at most
+기어	然	interj		suggested	2	yes
+기어	諾	interj		suggested	3	yes
+기어이	必	adv		suggested	8	at all costs
+기어이	竟	adv		suggested		finally, at last
+기어이	遂	adv		suggested	2	at last
+긴히	緊	adv		suggested	1	urgently
+깔끔히	潔	adv		suggested	1	neatly
+깨끗이	淨	adv		suggested		clean
+깨끗이	潔	adv		suggested	1	clean
+꼼꼼히	密	adv		suggested	2	meticulously
+꼼꼼히	細	adv		suggested	1	carefully
+꼼꼼히	審	adv		suggested		carefully
+꾸준히	恒	adv		suggested	2	steadily
+꾸준히	常	adv		suggested		constantly
+꿋꿋이	剛	adv		suggested	1	firmly
+꿋꿋이	毅	adv		suggested		firmly
+끊임없이	不絶	adv		suggested		ceaselessly
+끊임없이	不斷	adv		suggested		continuously
+끊임없이	恒	adv		suggested	2	constantly
+끝없이	無窮	adv		suggested		endlessly
+끝없이	無盡	adv		suggested		endlessly
+나날이	日日	adv		suggested	1	day after day
+나날이	日	adv		suggested		day by day
+난데없이	忽	adv		suggested	10	suddenly
+난데없이	突然	adv		suggested		suddenly
+날래	速	adv		suggested	4	quickly
+날래	疾	adv		suggested	2	quickly
+남김없이	盡	adv		suggested	11	entirely
+남김없이	悉	adv		suggested	3	entirely
+남김없이	皆	adv		suggested		entirely
+낱낱이	箇箇	adv		suggested	1	one by one
+낱낱이	悉	adv		suggested	3	entirely
+냅다	急	adv		suggested	5	swiftly, forcefully
+너나없이	皆	adv		suggested		all together
+너나없이	均	adv		suggested		all alike
+넌지시	暗	adv		suggested	1	discreetly
+넌지시	微	adv		suggested	1	implicitly
+노상	常	adv		suggested		always
+노상	恒	adv		suggested	2	always
+노상	每	adv		suggested	1	always
+누누이	屢屢	adv		suggested		again and again
+누누이	屢	adv		suggested		repeatedly
+늘상	常	adv		suggested		always
+늘상	恒	adv		suggested	2	always
+다부	復	adv		suggested	9	again
+다부	更	adv		suggested	10	again
+다행히	幸	adv		suggested	3	fortunately
+단디	堅	adv		suggested	2	thoroughly, firmly
+단디	嚴	adv		suggested		properly
+단번에	一擧	adv		suggested		at once
+단번에	立	adv		suggested		immediately
+대단히	甚	adv		suggested	5	very
+대단히	極	adv		suggested	3	extremely
+대단히	太	adv		suggested	3	very much
+더구나	且	adv		suggested	11	furthermore
+더구나	況	adv		suggested		furthermore
+더구나	加之	adv		suggested	1	furthermore
+더없이	至	adv		suggested	15	exceedingly
+더없이	極	adv		suggested	3	exceedingly
+도저히	萬	adv		suggested	10	possibly (with negative)
+도저히	斷	adv		suggested	2	not at all
+도저히	決	adv		suggested		not at all
+듬뿍	多	adv		suggested	41	plentifully
+듬뿍	滿	adv		suggested		plentifully
+때때로	時時	adv		suggested	2	sometimes
+때때로	時	adv		suggested		sometimes
+때때로	或	adv		suggested	19	sometimes
+때마침	適	adv		suggested	9	just in time
+때마침	會	adv		suggested	8	just in time
+땔싹	甚	adv		suggested	5	very
+땔싹	極	adv		suggested	3	extremely
+떼지어	群	adv		suggested	4	in groups
+떼지어	羣	adv		suggested		in groups
+똑바로	直	adv		suggested	21	straight
+똑바로	正	adv		suggested	5	upright
+뜻대로	隨意	adv		suggested		as one pleases
+뜻대로	如意	adv		suggested	1	as one pleases
+뜻밖에	意外	adv		suggested	11	unexpectedly
+뜻밖에	不意	adv		suggested		unexpectedly
+뜻밖에	忽	adv		suggested	10	suddenly
+말없이	默	adv		suggested		silently
+말없이	無言	adv		suggested		without a word
+맹세코	誓	adv		suggested	1	I swear
+맹세코	必	adv		suggested	8	surely
+머냐	初	adv		suggested	38	first time
+멀찌감치	遠	adv		suggested	4	far away
+멀찍이	遠	adv		suggested	4	far off
+멋대로	恣	adv		suggested		as one pleases
+멋대로	任意	adv		suggested	3	as one pleases
+면밀히	密	adv		suggested	2	carefully
+면밀히	細	adv		suggested	1	closely
+면밀히	審	adv		suggested		carefully
+모름지기	須	adv		suggested		necessarily
+모름지기	必	adv		suggested	8	necessarily
+모름지기	宜	adv		suggested	5	ought to
+모조리	悉	adv		suggested	3	without exception
+모조리	盡	adv		suggested	11	completely
+모조리	皆	adv		suggested		all
+모조리	咸	adv		suggested	2	all
+모지리	甚	adv		suggested	5	exceedingly
+모지리	極	adv		suggested	3	exceedingly
+모처럼	特	adv		suggested	3	especially
+모처럼	曠	adv		suggested		after a long while
+목청껏	高聲	adv		suggested		at the top of one's voice
+몫몫이	各	adv		suggested	14	share by share
+몽땅	悉	adv		suggested	2	entirely
+몽땅	盡	adv		suggested	11	entirely
+몽땅	全	adv		suggested	48	entirely
+몽땅	皆	adv		suggested		all
+무사히	無事	adv		suggested	2	safely
+무사히	安	adv		suggested	4	safely
+무새	何	adv		suggested	65	for what reason
+무새	胡	adv		suggested	8	for what reason
+무심히	無心	adv		suggested		indifferently
+무심히	漫	adv		suggested	1	heedlessly
+무장	愈	adv		suggested	2	increasingly
+무장	益	adv		suggested	2	more and more
+무장	彌	adv		suggested		more and more
+무지	甚	adv		suggested	5	very
+무지	極	adv		suggested	3	extremely
+묵묵히	默	adv		suggested		silently
+묵묵히	默默	adv		suggested		in silence
+미안	謝	interj		suggested	4	I'm sorry
+미안	愧	interj		suggested		I'm sorry
+미안하다	謝	interj		suggested	8	I'm sorry
+미안하다	愧	interj		suggested		I'm sorry
+미주알고주알	細	adv		suggested	1	to the last details
+미주알고주알	悉	adv		suggested	2	thoroughly
+바야흐로	方	adv		suggested	19	now, just at this time
+바야흐로	將	adv		suggested	4	about to
+바투	近	adv		suggested	5	closely
+바투	密	adv		suggested	2	tightly
+반가이	歡	adv		suggested	8	welcomingly
+밤낮없이	晝夜	adv		suggested		day and night
+밤낮없이	日夜	adv		suggested		day and night
+밤내	終夜	adv		suggested		all night
+밤내	竟夜	adv		suggested		all night
+밤늦게	夜深	adv		suggested		late at night
+밤늦게	夜	adv		suggested	2	at night
+방긋	莞	adv		suggested		with a smile
+방긋	粲	adv		suggested	1	with a smile
+배불리	飽	adv		suggested		with a full stomach
+벅벅이	必	adv		suggested	8	certainly
+번번이	每	adv		suggested	1	every time
+번번이	屢	adv		suggested		every time
+번번이	每每	adv		suggested		every time
+변함없이	如舊	adv		suggested		as ever
+변함없이	恒	adv		suggested	2	constantly
+변함없이	依然	adv		suggested		as ever
+보아하니	見	adv		suggested	1	apparently
+보아하니	觀	adv		suggested	6	apparently
+보아하니	看來	adv		suggested		apparently
+부탁해요	請	adv		suggested	6	please
+부리나케	急	adv		suggested	5	urgently
+부리나케	速	adv		suggested	4	very quickly
+부리나케	疾	adv		suggested	2	very quickly
+불쌍히	憐	adv		suggested		pitifully
+불쌍히	哀	adv		suggested		pitifully
+불행히	不幸	adv		suggested		unfortunately
+불행히	惜	adv		suggested	3	unfortunately
+빌어먹을	咄	interj		suggested		damn it
+뿔뿔이	散	adv		suggested	2	scattered
+뿔뿔이	各	adv		suggested	14	separately
+뿔뿔이	分散	adv		suggested		dispersedly
+사정없이	無情	adv		suggested		mercilessly
+사정없이	嚴	adv		suggested		severely
+살그머니	潛	adv		suggested		stealthily
+살그머니	竊	adv		suggested		secretly
+살그머니	密	adv		suggested	2	secretly
+살며시	潛	adv		suggested		subtly
+살며시	微	adv		suggested	1	gently
+살포시	微	adv		suggested	1	gently
+살포시	輕	adv		suggested		gently
+살푸시	微	adv		suggested	1	somewhat gently
+살푸시	輕	adv		suggested		somewhat gently
+상구	常	adv		suggested		constantly
+상구	恒	adv		suggested	2	continuously
+상그	尙	adv		suggested		still
+상그	猶	adv		suggested	11	still
+상기	尙	adv		suggested		still
+상기	猶	adv		suggested	11	still
+상기	未	adv		suggested	9	not yet
+샅샅이	悉	adv		suggested	3	thoroughly
+샅샅이	遍	adv		suggested		everywhere
+샅샅이	徧	adv		suggested		everywhere
+서서히	徐	adv		suggested		slowly
+서서히	漸	adv		suggested		gradually
+서서히	徐徐	adv		suggested		slowly
+선낫	少	adv		suggested	11	a little
+선낫	稍	adv		suggested	2	a bit
+섣불리	輕	adv		suggested		rashly
+섣불리	妄	adv		suggested		rashly
+섣불리	遽	adv		suggested	2	hastily
+세날	少	adv		suggested	11	a little
+세날	稍	adv		suggested	2	a little
+속속들이	徹	adv		suggested	1	to the core
+속속들이	悉	adv		suggested	3	thoroughly
+송두리째	全	adv		suggested	50	completely
+송두리째	盡	adv		suggested	11	completely
+송두리째	悉	adv		suggested	3	completely
+송이송이	朶朶	adv		suggested		in bunches
+송이송이	朵朵	adv		suggested		in bunches
+수시로	隨時	adv		suggested		at any time
+수시로	時	adv		suggested		sometimes
+수없이	無數	adv		suggested	1	innumerably
+수없이	屢	adv		suggested		many times
+쉬이	易	adv		suggested	11	easily
+쉽사리	易	adv		suggested	11	easily
+쉽사리	輕易	adv		suggested		easily
+쉿	噤	interj		suggested		requesting silence
+쉿	嘘	interj		suggested		requesting silence
+스리슬쩍	潛	adv		suggested		secretly
+스리슬쩍	竊	adv		suggested		secretly
+슬쩍	微	adv		suggested	1	slightly
+슬쩍	竊	adv		suggested		subtly
+슬쩍슬쩍	微微	adv		suggested		repeatedly slightly
+슬쩍슬쩍	屢	adv		suggested		repeatedly
+슬피	悲	adv		suggested		sadly
+슬피	哀	adv		suggested		sadly
+시나브로	漸	adv		suggested		little by little
+시나브로	徐徐	adv		suggested		little by little
+실컷	盡	adv		suggested	11	to one's heart's content
+실컷	飽	adv		suggested		heartily
+실컷	極	adv		suggested	3	heartily
+심봤다	得	interj		suggested	14	jackpot
+심봤다	獲	interj		suggested		jackpot
+심히	甚	adv		suggested	5	very
+심히	極	adv		suggested	3	extremely
+심히	太	adv		suggested	3	too much
+싸게	速	adv		suggested	4	quickly
+싸게	疾	adv		suggested	2	quickly
+싸구려	賤	interj		suggested	2	inviting customers to buy cheap goods
+쌀쌀히	冷	adv		suggested	6	coldly
+쌀쌀히	寒	adv		suggested	3	chillily
+쏜살같이	飛	adv		suggested	3	swiftly
+쏜살같이	疾	adv		suggested	2	swiftly
+쏜살같이	如矢	adv		suggested		like an arrow
+쑥쑥	速	adv		suggested	3	rapidly
+쓱	潛	adv		suggested		stealthily
+쓱	竊	adv		suggested		surreptitiously
+씨엄히	甚	adv		suggested	5	very
+씨엄히	大	adv		suggested	8	greatly
+씻은듯이	淨	adv		suggested		cleanly
+씻은듯이	盡	adv		suggested	11	completely
+씻은듯이	悉	adv		suggested	3	entirely
+아니야	否	interj		suggested	22	no
+아니야	不	interj		suggested	186	no
+아니야	非	interj		suggested	37	no
+아따	咄	interj		suggested		sarcastic remark
+아따	噫	interj		suggested	2	sarcastic remark
+아련히	依稀	adv		suggested		dimly
+아련히	隱約	adv		suggested		faintly
+아련히	微	adv		suggested	1	faintly
+아뿔싸	嗟	interj		suggested	1	alas
+아뿔싸	噫	interj		suggested	2	alas
+아뿔싸	噫嘻	interj		suggested		alas
+아서라	止	interj		suggested	7	stop
+아서라	休	interj		suggested	8	stop
+아서라	勿	interj		suggested	10	do not
+아싸리	寧	adv		suggested	8	rather
+아싸리	毋寧	adv		suggested		rather
+아울러	倂	adv		suggested		in addition
+아울러	且	adv		suggested	11	furthermore
+아울러	兼	adv		suggested	4	as well as
+아으	嗟	interj		suggested	1	ugh
+아으	噫	interj		suggested	2	ugh
+아이구	噫	interj		suggested	2	lament
+아이구	嗟	interj		suggested	1	lament
+아이구	哀哉	interj		suggested		lament
+아휴	噫	interj		suggested	2	sigh of lament
+아휴	嗟	interj		suggested	1	sigh of lament
+악착같이	堅忍	adv		suggested		tenaciously
+악착같이	固	adv		suggested	11	doggedly
+안녕히	安	adv		suggested	4	in peace
+앗싸	善	interj		suggested	25	awesome
+앗싸	快	interj		suggested	6	awesome
+앵콜	再	interj		suggested	17	again, encore
+어느결에	忽	adv		suggested	10	in an instant
+어느결에	俄	adv		suggested	6	in an instant
+어느새	已	adv		suggested	24	already
+어느새	忽	adv		suggested	10	suddenly
+어느새	俄	adv		suggested	6	suddenly
+어렵사리	難	adv		suggested	38	with difficulty
+어렵사리	艱	adv		suggested		with difficulty
+어머나	嗟	interj		suggested	1	surprise
+어머나	噫	interj		suggested	2	surprise
+어슬렁어슬렁	徐徐	adv		suggested		slowly
+어슬렁어슬렁	徐	adv		suggested		slowly
+어시	甚	adv		suggested	5	very
+어이구	噫	interj		suggested	2	surprise, lament
+어이구	嗟	interj		suggested	1	surprise, lament
+어이구머니	噫	interj		suggested	2	surprise
+어이구머니	嗟	interj		suggested	1	surprise
+어저께	昨日	adv		suggested	13	yesterday
+어저께	昨	adv		suggested	1	yesterday
+어쩌면	或	adv		suggested	28	perhaps
+어쩌면	恐	adv		suggested	11	perhaps
+어쩌면	儻	adv		suggested		perhaps
+어쩌면	如何	interj		suggested	24	how
+어쩌면	何	interj		suggested	43	how
+어쭈	咄	interj		suggested		derision
+어쭈	嗤	interj		suggested		derision
+억수로	甚	adv		suggested	5	very
+억수로	極	adv		suggested	3	very
+언제까지나	永	adv		suggested	2	forever
+언제까지나	永遠	adv		suggested		forever
+언제까지나	恒	adv		suggested	2	forever
+언제든지	何時	adv		suggested	15	whenever
+언제든지	隨時	adv		suggested		anytime
+얼레리꼴레리	羞	interj		suggested	5	teasing
+얼쑤	好	interj		suggested	36	encouragement
+얼쑤	善	interj		suggested	25	encouragement
+얼씨구	好	interj		suggested	36	rhythmic exclamation
+얼씨구	善	interj		suggested	25	rhythmic exclamation
+얼씬	乍	adv		suggested		appearing briefly
+엄숙히	嚴	adv		suggested		solemnly
+엄숙히	肅	adv		suggested	2	solemnly
+엉겁결에	不覺	adv		suggested		unintentionally
+엉겁결에	忽	adv		suggested	10	unexpectedly
+엉겁결에	倉卒	adv		suggested		in haste
+엊그제	昨今	adv		suggested		a few days ago
+엊그제	日前	adv		suggested	1	a few days ago
+에기	嘖	interj		suggested		resigned frustration
+에기	咄	interj		suggested		resigned frustration
+에잇	咄	interj		suggested		damn
+에잇	嘖	interj		suggested		damn
+엥간히	頗	adv		suggested	14	fairly
+엥간히	稍	adv		suggested	2	fairly
+엥간히	可	adv		suggested	33	fairly
+여기저기	處處	adv		suggested	3	here and there
+여기저기	到處	adv		suggested		everywhere
+여기저기	此彼	adv		suggested		here and there
+여보세요	喂	interj		suggested		hello on the phone
+여보세요	餵	interj		suggested		hello on the phone
+여적지	至今	adv		suggested	3	until now
+여적지	迄今	adv		suggested		until now
+여하튼	何如	adv		suggested	4	anyway
+여하튼	要之	adv		suggested		anyway
+여하튼	總之	adv		suggested		anyway
+연거푸	連	adv		suggested	4	continuously
+연거푸	連續	adv		suggested		continuously
+연거푸	仍	adv		suggested	1	repeatedly
+열백번	屢	adv		suggested		numerous times
+열백번	百十	adv		suggested		numerous times
+열중쉬어	休	interj		suggested	8	at ease
+영차	擧	interj		suggested	4	heave-ho
+영차	嗨	interj		suggested		heave-ho
+오노	嗚呼	interj		suggested	25	oh no
+오노	噫	interj		suggested	2	oh no
+오도카니	獨	adv		suggested	5	alone
+오도카니	兀	adv		suggested		standing still
+오도카니	呆	adv		suggested	2	dazed
+오래간	久	adv		suggested		for a long time
+오래간	長	adv		suggested	18	for a long time
+오래간만입니다	久違	interj		suggested		long time no see
+오래간만입니다	久別	interj		suggested		long time no see
+오롯이	全	adv		suggested	50	completely
+오롯이	純	adv		suggested	1	entirely
+오롯이	完	adv		suggested	6	completely
+오명가명	往來	adv		suggested		coming and going
+오죽	何	adv		suggested	43	how much
+오죽	何其	adv		suggested		how much
+온종일	終日	adv		suggested	1	all day
+온종일	竟日	adv		suggested		all day
+온종일	終朝	adv		suggested		all day
+올바로	正	adv		suggested	5	properly
+올바로	適	adv		suggested	10	properly
+옳아	然	interj		suggested	2	yes, right
+옳아	是	interj		suggested	76	yes, right
+옳아	諾	interj		suggested	3	yes
+와리가리	往來	adv		suggested		back and forth
+와리가리	往復	adv		suggested		back and forth
+왐마	嗟	interj		suggested	1	surprise
+왐마	噫	interj		suggested	2	surprise
+왕창	甚	adv		suggested	5	a lot
+왕창	多	adv		suggested	41	a lot
+왕창	大	adv		suggested	3	a lot
+왜서	何故	adv		suggested	14	why
+왜서	胡	adv		suggested	8	why
+요컨대	要之	adv		suggested		in short
+요컨대	要	adv		suggested	7	in short
+요컨대	總之	adv		suggested		in short
+용케	幸	adv		suggested	3	luckily
+용케	能	adv		suggested	7	managing to
+우두커니	獨	adv		suggested	5	alone
+우두커니	兀	adv		suggested		standing still
+우두커니	呆	adv		suggested	2	dazed
+우라질	咄	interj		suggested		damn it
+우라질	嘖	interj		suggested		damn it
+우어	止	interj		suggested	7	halt
+우어	嗚	interj		suggested	4	whoa
+우엑	嘔	interj		suggested	1	nausea
+우엑	噦	interj		suggested		nausea
+유달시리	特	adv		suggested	3	especially
+유달시리	殊	adv		suggested		especially
+유달시리	尤	adv		suggested		especially
+으레	例	adv		suggested	63	customarily
+으레	常	adv		suggested		typically
+으레	固	adv		suggested	11	naturally
+으레	自	adv		suggested		naturally
+으쌰	擧	interj		suggested	4	let's do it
+으이구	噫	interj		suggested	2	surprise, lament
+으이구	嗟	interj		suggested	1	surprise, lament
+이따가	少頃	adv		suggested		a little later
+이따가	俄	adv		suggested	6	a little later
+이따가	須臾	adv		suggested		a little later
+이따가	旋	adv		suggested	1	a little later
+이랴	駕	interj		suggested		giddyup
+이리저리	往來	adv		suggested		back and forth
+이리저리	處處	adv		suggested	3	from place to place
+이리저리	東西	adv		suggested		this way and that
+이만큼	此程	adv		suggested		this much
+이봐요	喂	interj		suggested		hey
+이봐요	呼	interj		suggested	20	hey
+이빠이	多	adv		suggested	45	a lot
+이빠이	滿	adv		suggested	2	to the full
+이빠이	極	adv		suggested	3	to a great extent
+이토록	如是	adv		suggested		so much
+이토록	如此	adv		suggested	4	so much
+인저	今	adv		suggested		now
+인저	方今	adv		suggested	12	now
+일찌감치	早	adv		suggested	20	early
+일찌감치	夙	adv		suggested		early
+입때	至今	adv		suggested	3	until now
+입때	迄今	adv		suggested		until now
+입때	尙	adv		suggested		still
+자그마치	凡	adv		suggested		as much as
+자그마치	足	adv		suggested		as much as
+자기절로	自	adv		suggested		by oneself
+자기절로	自然	adv		suggested		by oneself
+자나깨나	寤寐	adv		suggested		asleep or awake
+자나깨나	晝夜	adv		suggested		all the time
+자나깨나	常	adv		suggested		all the time
+자연히	自然	adv		suggested		naturally
+자연히	自	adv		suggested		by itself
+자칫하면	幾	adv		suggested		nearly
+자칫하면	差	adv		suggested	3	nearly
+작작	適	adv		suggested	9	moderately
+작작	宜	adv		suggested	4	just enough
+작히	多少	adv		suggested	4	how much
+작히	何其	adv		suggested		how much
+잔뜩	滿	adv		suggested		very, heavily
+잔뜩	極	adv		suggested	3	very
+잔뜩	甚	adv		suggested	5	very
+잠깐만	暫	interj		suggested	1	just a moment
+잠깐만	且	interj		suggested	11	just a moment
+잠깐만	少待	interj		suggested		wait a moment
+잠자코	默	adv		suggested		quietly
+잠자코	默然	adv		suggested		quietly
+잠자코	無言	adv		suggested		without speech
+재비로	自	adv		suggested		oneself
+재비로	獨	adv		suggested	5	by oneself
+재빨리	速	adv		suggested	4	quickly
+재빨리	疾	adv		suggested	2	quickly
+재빨리	捷	adv		suggested		nimbly
+재빨리	敏	adv		suggested	6	nimbly
+재우	急	adv		suggested	5	quickly
+재우	速	adv		suggested	4	quickly
+재우	疾	adv		suggested	2	quickly
+저저마다	各	adv		suggested	14	each
+저저마다	各各	adv		suggested	14	each
+저토록	如彼	adv		suggested	1	like that
+저토록	如是	adv		suggested		like that
+절로	自	adv		suggested		by oneself
+절로	自然	adv		suggested		naturally
+절실히	切	adv		suggested	10	keenly
+절실히	切實	adv		suggested		keenly
+절실히	痛	adv		suggested		acutely
+접때	曩	adv		suggested		the other day
+접때	向	adv		suggested	7	some time ago
+접때	前日	adv		suggested	2	the other day
+제각기	各	adv		suggested	14	individually
+제각기	各自	adv		suggested	4	individually
+제각기	各各	adv		suggested	14	respectively
+제기랄	咄	interj		suggested		damn it
+제기랄	嘖	interj		suggested		damn it
+조깨	少	adv		suggested	13	a little
+조깨	稍	adv		suggested	2	a little
+조심스레	愼	adv		suggested		carefully
+조심스레	謹	adv		suggested	3	carefully
+조용조용	靜靜	adv		suggested		quietly
+조용조용	靜	adv		suggested	1	quietly
+조용조용히	靜靜	adv		suggested		quietly
+조용조용히	靜	adv		suggested	1	quietly
+조용히	靜	adv		suggested	1	quietly
+조용히	默	adv		suggested		silently
+존나	甚	adv		suggested	5	extremely
+존나	極	adv		suggested	3	extremely
+졸라	甚	adv		suggested	5	extremely
+졸라	極	adv		suggested	3	extremely
+좀처럼	罕	adv		suggested		seldom
+좀처럼	稀	adv		suggested	1	rarely
+좀처럼	難	adv		suggested	39	hardly
+좆나	甚	adv		suggested	5	extremely
+좆나	極	adv		suggested	3	extremely
+좋았쓰	好	interj		suggested	36	nice
+좋았쓰	善	interj		suggested	25	nice
+좋이	善	adv		suggested	25	well
+좋이	好	adv		suggested	36	well
+줄곧	一直	adv		suggested		all the time
+줄곧	恒	adv		suggested	2	constantly
+줄곧	常	adv		suggested		constantly
+줄곧	終	adv		suggested	13	throughout
+줄기줄기	條條	adv		suggested		in ridges
+즐거이	樂	adv		suggested	15	joyfully
+즐거이	歡	adv		suggested	8	happily
+즐거이	悅	adv		suggested	1	pleasantly
+지극히	至	adv		suggested	15	extremely
+지극히	極	adv		suggested	3	extremely
+지극히	甚	adv		suggested	5	extremely
+지레	預	adv		suggested		beforehand
+지레	先	adv		suggested	11	in advance
+지레	早	adv		suggested	20	in advance
+진뗑이	眞	adv		suggested	8	really
+진뗑이	實	adv		suggested	6	actually
+짜다라	不甚	adv		suggested		not really
+짜다라	未必	adv		suggested		not necessarily
+짧게	短	adv		suggested	1	short
+차근차근	漸次	adv		suggested	6	step by step
+차근차근	循序	adv		suggested		in orderly fashion
+차근차근	徐徐	adv		suggested		calmly
+참말	眞	adv		suggested	8	truly
+참말	誠	adv		suggested	3	truly
+참말	實	adv		suggested	18	truly
+참말로	眞	adv		suggested	8	really
+참말로	誠	adv		suggested	3	really
+참말로	實	adv		suggested	6	really
+천만에요	不敢	interj		suggested		you're welcome
+천만에요	無	interj		suggested	53	not at all
+천만에요	豈	interj		suggested	2	not at all
+천천히	徐	adv		suggested		slowly
+천천히	緩	adv		suggested	2	slowly
+천천히	徐徐	adv		suggested		slowly
+철저히	徹	adv		suggested	1	thoroughly
+철저히	悉	adv		suggested	3	exhaustively
+촘촘히	密	adv		suggested	2	densely
+촘촘히	稠	adv		suggested	1	thickly
+촘촘히	緊	adv		suggested	1	tightly
+충공깽	驚	interj		suggested	10	shocking
+켜켜이	層層	adv		suggested		layer upon layer
+켜켜이	重重	adv		suggested		layer upon layer
+탈탈	盡	adv		suggested	11	shaking clean
+톰빨리	速	adv		suggested	4	quickly
+톰빨리	疾	adv		suggested	2	quickly
+통째로	全	adv		suggested	50	entirely
+통째로	整	adv		suggested		whole
+통째로	盡	adv		suggested	11	altogether
+튼튼히	堅	adv		suggested	2	firmly
+튼튼히	固	adv		suggested	11	firmly
+튼튼히	牢	adv		suggested		firmly
+틀림없이	必	adv		suggested	8	surely
+틀림없이	確	adv		suggested	3	certainly
+틀림없이	的	adv		suggested	27	certainly
+틀림없이	無誤	adv		suggested		without error
+팍	驟	adv		suggested		suddenly, strongly
+퍽	頗	adv		suggested	10	quite
+퍽	甚	adv		suggested	5	very much
+퍽	殊	adv		suggested		quite
+펄쩍	驟	adv		suggested		suddenly
+펄쩍	忽	adv		suggested	11	abruptly
+편안히	安	adv		suggested	4	comfortably
+편안히	便	adv		suggested	9	easily
+편안히	寧	adv		suggested	8	peacefully
+포도시	僅	adv		suggested	1	barely
+포도시	纔	adv		suggested		barely
+포도시	艱	adv		suggested		with difficulty
+푹	深	adv		suggested	2	deeply
+푹	熟	adv		suggested	3	soundly
+푹	全	adv		suggested	48	totally
+푸탕이나	咄	interj		suggested		curse
+하나또	一	adv		suggested		even a little
+하나또	毫	adv		suggested		even a little
+하낱도	一	adv		suggested		even a little
+하낱도	毫	adv		suggested		even a little
+하냥	常	adv		suggested		always
+하냥	恒	adv		suggested	2	always
+하냥	共	adv		suggested	12	together
+하루빨리	速	adv		suggested	4	as soon as possible
+하루빨리	早	adv		suggested	20	as soon as possible
+하마	已	adv		suggested	24	already
+하마	曾	adv		suggested	4	already
+하마	旣	adv		suggested	6	already
+하마	幾	adv		suggested	3	almost
+하매	已	adv		suggested	24	already
+하매	曾	adv		suggested	4	already
+하매	旣	adv		suggested	6	already
+하여튼	何如	adv		suggested	4	anyway
+하여튼	總之	adv		suggested		anyway
+하여튼	且	adv		suggested	11	anyway
+한껏	極	adv		suggested	3	to the limit
+한껏	盡	adv		suggested	11	to the limit
+한낱	僅	adv		suggested		merely
+한낱	纔	adv		suggested		merely
+한낱	徒	adv		suggested	2	merely
+한낱	只	adv		suggested	10	merely
+한동안	暫	adv		suggested	1	for a while
+한동안	久	adv		suggested		for a while
+한동안	良久	adv		suggested		for a while
+한아름	一抱	adv		suggested		an armful
+한층	愈	adv		suggested	2	even more
+한층	益	adv		suggested	2	even more
+한층	更	adv		suggested	10	even more
+한층	尤	adv		suggested	1	even more
+함부로	妄	adv		suggested		carelessly
+함부로	濫	adv		suggested	2	recklessly
+함부로	輕	adv		suggested		thoughtlessly
+함부로	漫	adv		suggested	1	thoughtlessly
+해마다	每年	adv		suggested	1	every year
+해마다	年年	adv		suggested		every year
+허투루	虛	adv		suggested	2	carelessly
+허투루	徒	adv		suggested	7	carelessly
+허투루	漫	adv		suggested	1	carelessly
+혹시나	或	adv		suggested	19	by chance
+혹시나	倘	adv		suggested	1	by chance
+혹여나	或	adv		suggested	19	by any chance
+혹여나	倘	adv		suggested	1	by any chance
+홀랑	全	adv		suggested	48	entirely
+홀랑	盡	adv		suggested	11	completely
+홉빡	多	adv		suggested	41	many
+홉빡	衆	adv		suggested	1	many
+화끈	紅	adv		suggested	8	red
+활짝	大	adv		suggested	3	wide open
+활짝	豁	adv		suggested		wide open
+활짝	盛	adv		suggested	7	in full bloom
+후유	吁	interj		suggested		whew
+후유	噫	interj		suggested	2	whew
+희한히	稀	adv		suggested	3	rarely
+희한히	罕	adv		suggested		rarely
+히사시부리	久違	interj		suggested		long time no see
+히사시부리	久別	interj		suggested		long time no see
+힘껏	極力	adv		suggested		with all one's might
+힘껏	盡力	adv		suggested		with all one's might
+힘껏	力	adv		suggested		with might
+너무	太	adv		suggested	3	too, excessively
+너무	甚	adv		suggested	5	extremely
+너무	過	adv		suggested	11	exceeding
+좀	稍	adv		suggested	2	a little, somewhat
+좀	些	adv		suggested		a little
+좀	略	adv		suggested	1	roughly, a little
+좀	微	adv		suggested	1	slightly

@@ -13,7 +13,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent.parent
 DICT = ROOT / "dict"
-POS = {"verb", "adj", "adv", "noun", "pron", "det", "num"}
+POS = {"verb", "adj", "adv", "noun", "pron", "det", "num", "interj"}
 
 
 def existing():

@@ -1,2 +1,31 @@
 @import '../design/tokens.css';
 @import '../design/base.css';
+@import '../design/controls.css';
+
+/* Reading progress along the top edge, driven by the page scroll where the
+   browser supports scroll timelines. */
+.progress {
+  position: fixed;
+  inset: 0 0 auto;
+  z-index: 30;
+  height: 3px;
+  background: var(--c-accent);
+  transform-origin: left;
+  transform: scaleX(0);
+}
+@supports (animation-timeline: scroll()) {
+  .progress {
+    animation: progress linear both;
+    animation-timeline: scroll(root);
+  }
+}
+@keyframes progress {
+  to {
+    transform: scaleX(1);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .progress {
+    display: none;
+  }
+}

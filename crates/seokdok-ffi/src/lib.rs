@@ -1,6 +1,6 @@
 //! A C interface over the shared input-method session, declared in
-//! `include/seokdok.h`: used by the fcitx5 addon (crates/seokdok-fcitx5) and
-//! the iOS keyboard (ios/).
+//! `include/seokdok.h`: used by the fcitx5 addon (crates/seokdok-fcitx5), the
+//! iOS keyboard (ios/) and the macOS input method (macos/).
 //!
 //! The addon feeds keys in and reads back a view: text to commit, the preedit
 //! runs and the candidate page. Strings returned by the getters stay valid
@@ -308,6 +308,24 @@ pub unsafe extern "C" fn seokdok_mode(ime: *mut Ime) -> i32 {
     }
 }
 
+/// Switch to mode `mode` (0 釋讀, 1 Hangul, 2 Latin), committing any
+/// composition as it stands. Other values are ignored.
+///
+/// # Safety
+/// `ime` is a live session.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_set_mode(ime: *mut Ime, mode: i32) {
+    let ime = &mut *ime;
+    let m = match mode {
+        0 => Mode::Seokdok,
+        1 => Mode::Hangul,
+        2 => Mode::Latin,
+        _ => return,
+    };
+    let fx = ime.session.set_mode(m);
+    ime.apply(fx);
+}
+
 /// The jamo a 두벌식 key types (`key` is a Latin letter, upper case for the
 /// Shift layer), or 0. For labelling on-screen keys.
 #[no_mangle]
@@ -332,8 +350,12 @@ pub extern "C" fn seokdok_alt_toggles() -> bool {
 mod tests {
     use super::*;
 
+    /// The tests share the process environment and the cached settings.
+    static SERIAL: Mutex<()> = Mutex::new(());
+
     #[test]
     fn typing_and_converting_through_the_c_interface() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
         let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
         let c = CString::new(dict.to_str().unwrap()).unwrap();
         unsafe {
@@ -359,6 +381,15 @@ mod tests {
             assert!(seokdok_key(ime, SK_TOGGLE, 0, false));
             assert_eq!(seokdok_mode(ime), 2);
             assert!(!seokdok_key(ime, SK_LETTER, 'g' as u32, false));
+            seokdok_set_mode(ime, 1);
+            assert_eq!(seokdok_mode(ime), 1);
+            for k in "gksrmf".chars() {
+                assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
+            }
+            seokdok_set_mode(ime, 0);
+            let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
+            assert_eq!(c, "한글");
+            assert_eq!(seokdok_mode(ime), 0);
             seokdok_free(ime);
         }
     }

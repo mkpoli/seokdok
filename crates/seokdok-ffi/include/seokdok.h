@@ -28,6 +28,7 @@ size_t seokdok_popup_len(Ime *ime);
 const char *seokdok_popup_item(Ime *ime, size_t i, const char **note);
 void seokdok_popup_info(Ime *ime, size_t *selected, size_t *position, size_t *total, bool *horizontal);
 int32_t seokdok_mode(Ime *ime);
+void seokdok_set_mode(Ime *ime, int32_t mode);
 uint32_t seokdok_key_jamo(uint32_t key);
 bool seokdok_ready(void);
 bool seokdok_alt_toggles(void);

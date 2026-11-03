@@ -21,6 +21,7 @@ struct ContentView: View {
     @AppStorage("codaAlways", store: Settings.store) private var codaAlways = false
     @AppStorage("resyllabify", store: Settings.store) private var resyllabify = false
     @AppStorage("hadaKun", store: Settings.store) private var hadaKun = false
+    @AppStorage("sinoOnly", store: Settings.store) private var sinoOnly = false
     @AppStorage("maxCandidates", store: Settings.store) private var maxCandidates = 12
 
     var body: some View {
@@ -46,6 +47,7 @@ struct ContentView: View {
                     Toggle("옛한글 겹자모 · Old Hangul clusters (ㅅㄱ→ᄭ)", isOn: $oldClusters)
                 }
                 Section {
+                    Toggle("國漢文混用 · Hanja for Sino-Korean words only", isOn: $sinoOnly)
                     Picker("表記 · Style", selection: $style) {
                         Text("表音式 見ㅆ다").tag("surface")
                         Text("形態式 見았다").tag("morpheme")
@@ -75,6 +77,7 @@ struct ContentView: View {
             .onChange(of: codaAlways) { _ in Settings.write() }
             .onChange(of: resyllabify) { _ in Settings.write() }
             .onChange(of: hadaKun) { _ in Settings.write() }
+            .onChange(of: sinoOnly) { _ in Settings.write() }
             .onChange(of: maxCandidates) { _ in Settings.write() }
             .onAppear { Settings.write() }
         }
@@ -106,6 +109,7 @@ enum Settings {
         coda_always = \(bool("codaAlways", false))
         resyllabify = \(bool("resyllabify", false))
         hada_kun = \(bool("hadaKun", false))
+        sino_only = \(bool("sinoOnly", false))
         max_candidates = \(s.object(forKey: "maxCandidates") as? Int ?? 12)
 
         """

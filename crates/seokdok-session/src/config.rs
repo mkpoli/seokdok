@@ -309,7 +309,7 @@ mod tests {
         // What ios/App/SeokdokApp.swift writes; missing keys keep defaults.
         let c = Config::parse(
             "[input]\ndefault_mode = \"latin\"\nspace_converts = false\ncandidate_layout = \"vertical\"\nold_clusters = true\n\n\
-             [conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = false\nhada_kun = true\nmax_candidates = 20\n",
+             [conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = false\nhada_kun = true\nsino_only = true\nmax_candidates = 20\n",
         );
         assert_eq!(c.input.default_mode, InputMode::Latin);
         assert!(!c.input.space_converts);
@@ -317,7 +317,7 @@ mod tests {
         assert!(c.input.alt_toggles);
         assert_eq!(c.conversion.style, StyleOpt::Morpheme);
         assert_eq!(c.conversion.fragment, FragmentOpt::Letter);
-        assert!(c.conversion.coda_always && c.conversion.hada_kun && !c.conversion.resyllabify);
+        assert!(c.conversion.coda_always && c.conversion.hada_kun && !c.conversion.resyllabify && c.conversion.sino_only);
         assert_eq!(c.conversion.max_candidates, 20);
     }
 

@@ -243,19 +243,16 @@
       </div>
       <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" bind:checked={showRuby} />{@html r(t().ime.ruby)}</label>
       <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" bind:checked={showKeys} />{@html r(t().ime.keyboard)}</label>
+      <div class="seg" role="group" aria-label={plain(t().options.layout)} title={plain(t().options.layoutTip)}>
+        <button aria-pressed={options.layout === 'vertical'} onclick={() => (options.layout = 'vertical')}>{@html r(t().options.vertical)}</button>
+        <button aria-pressed={options.layout === 'horizontal'} onclick={() => (options.layout = 'horizontal')}>{@html r(t().options.horizontal)}</button>
+      </div>
+      <label class="ui-field" title={plain(t().options.spaceTip)}>
+        <input class="ui-switch" type="checkbox" role="switch" checked={options.spaceMode === 'convert'} onchange={(e) => (options.spaceMode = e.currentTarget.checked ? 'convert' : 'space')} />{@html r(t().options.spaceSwitch)}
+      </label>
       <details class="opts">
         <summary class="btn" data-size="sm">{@html r(t().options.title)}</summary>
         <div class="opts-body card">
-          <fieldset>
-            <legend>{@html r(t().options.layout)}</legend>
-            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.layout} value="vertical" />{@html r(t().options.vertical)}</label>
-            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.layout} value="horizontal" />{@html r(t().options.horizontal)}</label>
-          </fieldset>
-          <fieldset>
-            <legend>{@html r(t().options.spaceKey)}</legend>
-            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.spaceMode} value="convert" />{@html r(t().options.spaceConvert)}</label>
-            <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.spaceMode} value="space" />{@html r(t().options.spaceSpace)}</label>
-          </fieldset>
           <fieldset>
             <legend>{@html r(t().options.style)}</legend>
             <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.style} value="surface" />{@html r(t().options.surface)}</label>

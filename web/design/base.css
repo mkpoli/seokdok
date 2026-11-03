@@ -180,3 +180,7 @@ nav a:has(ruby) {
 nav rt {
   font-size: 0.5em;
 }
+.btn[data-variant='primary'] rt {
+  color: inherit;
+  opacity: 0.8;
+}

@@ -104,3 +104,7 @@ lemma	written	pos	class	source	count	note
 싶다	欲ㅍ다	adj		corpus	1	欲ㅍ네요: final ㅍ written out (2026-11-03)
 좀	聊	adv		corpus	2	聊(좀) (2026-11-03)
 쓰다	使다	verb		corpus	30	使는 (2026-11-03)
+모든	諸	det		corpus		諸 漢字와 諸 表記 (車魄, 2026-11-03)
+모든	諸ㄴ	det		corpus		final ㄴ written out (mkpoli, 2026-11-03)
+모든	皆ㄴ	det		corpus		皆 다·모두 개
+모두	皆	adv		corpus		

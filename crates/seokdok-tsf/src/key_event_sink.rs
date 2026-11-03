@@ -95,7 +95,9 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         if let Some(context) = pic.as_ref() {
             self.sync(context);
         }
-        Ok(self.inner().session.eats(key).into())
+        let eats = self.inner().session.eats(key);
+        crate::debug_log::log(|| format!("OnTestKeyDown vk={:#x} eats={eats} ctx={:?}", wparam.0, pic.as_ref().map(|c| windows::core::Interface::as_raw(c))));
+        Ok(eats.into())
     }
 
     fn OnTestKeyUp(
@@ -125,6 +127,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         // Release the borrow before touching the document: TSF calls back
         // into this object during edit sessions.
         let output = self.inner_mut().session.handle(key, &HOST);
+        crate::debug_log::log(|| format!("OnKeyDown vk={:#x} eaten={} effects={:?} ctx={:?}", wparam.0, output.eaten, output.effects, windows::core::Interface::as_raw(context)));
         if !output.eaten {
             return Ok(false.into());
         }
@@ -133,11 +136,16 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             let mode = state.session.mode();
             if state.mode.shown() != mode {
                 state.mode.show(mode);
+                if let Some(tm) = state.thread_mgr.as_ref() {
+                    crate::compartment::publish(tm, state.client_id, mode);
+                }
             }
         }
         // An edit failure still consumed the key; a failed session leaves the
         // document unchanged.
-        let _ = self.apply(context, output.effects);
+        if let Err(e) = self.apply(context, output.effects) {
+            crate::debug_log::log(|| format!("apply failed: {e:?}"));
+        }
         Ok(true.into())
     }
 
@@ -161,6 +169,9 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             let mode = state.session.mode();
             if state.mode.shown() != mode {
                 state.mode.show(mode);
+                if let Some(tm) = state.thread_mgr.as_ref() {
+                    crate::compartment::publish(tm, state.client_id, mode);
+                }
             }
         }
         let _ = self.apply(context, output.effects);

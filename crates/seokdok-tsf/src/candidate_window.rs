@@ -1,5 +1,7 @@
 //! The candidate popup: a GDI window listing one page of candidates, each as
 //! a number, the text and a dimmer note, with the position in the list below.
+//! For IMM32 applications it also carries the text being composed on a line
+//! of its own above the candidates (see `composition.rs`).
 //!
 //! Display only: `WS_EX_NOACTIVATE` + `SW_SHOWNOACTIVATE` keep focus in the
 //! document. The key handler drives selection through the session; this
@@ -25,7 +27,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
 };
 
 use crate::dll_instance;
-use crate::session::Popup;
+use crate::session::{Attr, Popup, Run};
 
 const CLASS_NAME: PCWSTR = w!("SeokdokCandidateWindow");
 const FACE: PCWSTR = w!("Malgun Gothic");
@@ -34,7 +36,10 @@ const GAP: i32 = 14;
 
 /// What the window procedure paints.
 struct Paint {
-    popup: Popup,
+    /// Text being composed, drawn on the first line, and its height.
+    preedit: Option<Vec<Run>>,
+    top: i32,
+    popup: Option<Popup>,
     font: HFONT,
     row_height: i32,
     /// Horizontal layout: left edge and width of each item.
@@ -141,29 +146,36 @@ impl CandidateWindow {
         Some(Self { hwnd, font, line_height })
     }
 
-    /// Show `popup` below `anchor` (screen coordinates), or near the focus
-    /// caret when the application did not report a position.
-    pub fn show(&self, popup: &Popup, anchor: Option<(i32, i32)>) {
+    /// Show the preedit line (if any) and `popup` (if any) below `anchor`
+    /// (screen coordinates), or near the focus caret when the application did
+    /// not report a position.
+    pub fn show(&self, preedit: Option<&[Run]>, popup: Option<&Popup>, anchor: Option<(i32, i32)>) {
+        let empty = Popup { items: Vec::new(), selected: 0, position: 0, total: 0, horizontal: false };
+        let list = popup.unwrap_or(&empty);
         // Measure with the popup's font.
         // SAFETY: hwnd valid; the DC is released below.
-        let (number_width, text_width, note_width) = unsafe {
+        let (number_width, text_width, note_width, preedit_width) = unsafe {
             let hdc = GetDC(Some(self.hwnd));
             let old = SelectObject(hdc, self.font.into());
             let n = text_extent(hdc, "9.");
-            let t = popup.items.iter().map(|i| text_extent(hdc, &i.0)).max().unwrap_or(0);
-            let o = popup.items.iter().map(|i| text_extent(hdc, &i.1)).max().unwrap_or(0);
+            let t = list.items.iter().map(|i| text_extent(hdc, &i.0)).max().unwrap_or(0);
+            let o = list.items.iter().map(|i| text_extent(hdc, &i.1)).max().unwrap_or(0);
+            let p = preedit.map_or(0, |runs| runs.iter().map(|r| text_extent(hdc, &r.text)).sum());
             SelectObject(hdc, old);
             ReleaseDC(Some(self.hwnd), hdc);
-            (n, t, o)
+            (n, t, o, p)
         };
+        let top = if preedit.is_some() { self.line_height + if popup.is_some() { PAD } else { 0 } } else { 0 };
         // Horizontal: the candidates in one row, the note and position below.
         let mut cells = Vec::new();
-        let (width, height) = if popup.horizontal {
+        let (width, height) = if popup.is_none() {
+            (0, PAD * 2)
+        } else if list.horizontal {
             // SAFETY: hwnd valid; the DC is released below.
             let widths: Vec<i32> = unsafe {
                 let hdc = GetDC(Some(self.hwnd));
                 let old = SelectObject(hdc, self.font.into());
-                let w = popup.items.iter().map(|i| number_width + GAP / 2 + text_extent(hdc, &i.0) + GAP).collect();
+                let w = list.items.iter().map(|i| number_width + GAP / 2 + text_extent(hdc, &i.0) + GAP).collect();
                 SelectObject(hdc, old);
                 ReleaseDC(Some(self.hwnd), hdc);
                 w
@@ -177,17 +189,21 @@ impl CandidateWindow {
             let foot = PAD * 2 + note_width + GAP + number_width * 4;
             (row.max(foot), PAD * 2 + 2 * self.line_height)
         } else {
-            let footer = popup.total > popup.items.len();
-            let rows = popup.items.len() as i32 + footer as i32;
+            let footer = list.total > list.items.len();
+            let rows = list.items.len() as i32 + footer as i32;
             (
                 PAD * 2 + number_width + GAP + text_width + if note_width > 0 { GAP + note_width } else { 0 },
                 PAD * 2 + rows * self.line_height,
             )
         };
+        let width = width.max(PAD * 2 + preedit_width);
+        let height = height + top;
 
         PAINT.with(|p| {
             *p.borrow_mut() = Some(Paint {
-                popup: popup.clone(),
+                preedit: preedit.map(<[Run]>::to_vec),
+                top,
+                popup: popup.cloned(),
                 font: self.font,
                 row_height: self.line_height,
                 cells,
@@ -274,35 +290,63 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
         SetBkMode(hdc, TRANSPARENT);
         let highlight = CreateSolidBrush(colorref(0xCC, 0xE4, 0xF7));
 
-        if paint.popup.horizontal {
+        // The text being composed: input underlined, the focused segment
+        // highlighted, converted text plain.
+        if let Some(runs) = &paint.preedit {
+            let mut x = PAD;
+            let line = CreateSolidBrush(colorref(0x40, 0x40, 0x40));
+            for run in runs {
+                let w = text_extent(hdc, &run.text);
+                let cell = RECT { left: x, top: PAD, right: x + w, bottom: PAD + paint.row_height };
+                if run.attr == Attr::Focus {
+                    FillRect(hdc, &cell, highlight);
+                }
+                SetTextColor(hdc, colorref(0x10, 0x10, 0x10));
+                let mut t = wide(&run.text);
+                let mut r = cell;
+                DrawTextW(hdc, &mut t, &mut r, DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
+                let under = RECT { left: x, top: cell.bottom - 2, right: x + w, bottom: cell.bottom - 1 };
+                FillRect(hdc, &under, line);
+                x += w;
+            }
+            let _ = DeleteObject(line.into());
+        }
+        let Some(popup) = &paint.popup else {
+            let _ = DeleteObject(highlight.into());
+            SelectObject(hdc, old_font);
+            return;
+        };
+        let base = paint.top;
+
+        if popup.horizontal {
             let draw = |s: &str, r: RECT, color: COLORREF| {
                 SetTextColor(hdc, color);
                 let mut line = wide(s);
                 let mut r = r;
                 DrawTextW(hdc, &mut line, &mut r, DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
             };
-            for (i, ((text, _), (x, w))) in paint.popup.items.iter().zip(&paint.cells).enumerate() {
-                let cell = RECT { left: *x, top: PAD, right: x + w - GAP / 2, bottom: PAD + paint.row_height };
-                if i == paint.popup.selected {
+            for (i, ((text, _), (x, w))) in popup.items.iter().zip(&paint.cells).enumerate() {
+                let cell = RECT { left: *x, top: base + PAD, right: x + w - GAP / 2, bottom: base + PAD + paint.row_height };
+                if i == popup.selected {
                     FillRect(hdc, &cell, highlight);
                 }
                 draw(&format!("{}", i + 1), RECT { left: x + 4, ..cell }, colorref(0x70, 0x70, 0x70));
                 draw(text, RECT { left: x + 4 + paint.number_width, ..cell }, colorref(0x10, 0x10, 0x10));
             }
-            let top = PAD + paint.row_height;
+            let top = base + PAD + paint.row_height;
             let foot = RECT { left: PAD, top, right: rc.right - PAD, bottom: top + paint.row_height };
-            let note = paint.popup.items.get(paint.popup.selected).map(|i| i.1.as_str()).unwrap_or("");
-            draw(&format!("{}  {} / {}", note, paint.popup.position, paint.popup.total), foot, colorref(0x80, 0x80, 0x80));
+            let note = popup.items.get(popup.selected).map(|i| i.1.as_str()).unwrap_or("");
+            draw(&format!("{}  {} / {}", note, popup.position, popup.total), foot, colorref(0x80, 0x80, 0x80));
             let _ = DeleteObject(highlight.into());
             SelectObject(hdc, old_font);
             return;
         }
         let text_x = PAD + paint.number_width + GAP;
         let note_x = text_x + paint.text_width + GAP;
-        for (i, (text, note)) in paint.popup.items.iter().enumerate() {
-            let top = PAD + i as i32 * paint.row_height;
+        for (i, (text, note)) in popup.items.iter().enumerate() {
+            let top = base + PAD + i as i32 * paint.row_height;
             let row = RECT { left: 1, top, right: rc.right - 1, bottom: top + paint.row_height };
-            if i == paint.popup.selected {
+            if i == popup.selected {
                 FillRect(hdc, &row, highlight);
             }
             let draw = |s: &str, x: i32, color: COLORREF| {
@@ -317,11 +361,11 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
                 draw(note, note_x, colorref(0x80, 0x80, 0x80));
             }
         }
-        if paint.popup.total > paint.popup.items.len() {
-            let top = PAD + paint.popup.items.len() as i32 * paint.row_height;
+        if popup.total > popup.items.len() {
+            let top = base + PAD + popup.items.len() as i32 * paint.row_height;
             let mut r = RECT { left: PAD, top, right: rc.right - PAD, bottom: top + paint.row_height };
             SetTextColor(hdc, colorref(0x80, 0x80, 0x80));
-            let mut line = wide(&format!("{} / {}", paint.popup.position, paint.popup.total));
+            let mut line = wide(&format!("{} / {}", popup.position, popup.total));
             DrawTextW(hdc, &mut line, &mut r, DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
         }
         let _ = DeleteObject(highlight.into());

@@ -5,19 +5,43 @@
 use std::mem::ManuallyDrop;
 
 use windows::core::{IUnknownImpl, Interface, Ref};
-use windows::Win32::Foundation::{E_FAIL, RECT};
+use windows::Win32::Foundation::RECT;
 use windows::Win32::System::Variant::{
     VARIANT, VARIANT_0, VARIANT_0_0, VARIANT_0_0_0, VT_I4,
 };
 use windows::Win32::UI::TextServices::{
     ITfComposition, ITfCompositionSink, ITfCompositionSink_Impl, ITfContext, ITfContextComposition,
     ITfInsertAtSelection, ITfRange, GUID_PROP_ATTRIBUTE, TF_AE_NONE, TF_ANCHOR_END,
-    TF_ANCHOR_START, TF_IAS_QUERYONLY, TF_SELECTION, TF_SELECTIONSTYLE, TF_ST_CORRECTION,
+    TF_ANCHOR_START, TF_DEFAULT_SELECTION, TF_IAS_QUERYONLY, TF_SELECTION, TF_SELECTIONSTYLE, TS_SS_TRANSITORY,
 };
 
 use crate::edit_session::run_sync;
-use crate::session::{Attr, Effect, Popup, Run};
+use crate::session::{Attr, Effect, Run};
 use crate::text_service::TextService_Impl;
+
+/// See [`TextService_Impl::composer`].
+struct Composer {
+    current: Option<ITfComposition>,
+    cc: ITfContextComposition,
+    insert: ITfInsertAtSelection,
+    sink: ITfCompositionSink,
+}
+
+impl Composer {
+    /// The composition, started at the selection if there is none.
+    ///
+    /// # Safety
+    /// `ec` must be a valid read-write edit cookie.
+    unsafe fn get(&self, ec: u32) -> windows::core::Result<ITfComposition> {
+        if let Some(c) = &self.current {
+            return Ok(c.clone());
+        }
+        let range = self.insert.InsertTextAtSelection(ec, TF_IAS_QUERYONLY, &[])?;
+        let comp = self.cc.StartComposition(ec, &range, &self.sink);
+        crate::debug_log::log(|| format!("StartComposition: {:?}", comp.as_ref().map(|c| c.as_raw())));
+        comp
+    }
+}
 
 /// Build a `VT_I4` VARIANT holding `value` (a display-attribute atom).
 fn variant_i4(value: i32) -> VARIANT {
@@ -51,6 +75,16 @@ unsafe fn set_single_selection(ctx: &ITfContext, ec: u32, range: &ITfRange) -> w
     result
 }
 
+/// Whether the document is an IMM32 application seen through the system's
+/// bridge (CUAS). Under a Korean keyboard layout that bridge accepts only a
+/// one-character "interim" composition and ends any other at once, so these
+/// documents get no composition while typing: the preedit is drawn in the
+/// popup and the text arrives when it is confirmed.
+fn is_transitory(context: &ITfContext) -> bool {
+    // SAFETY: context is a valid ITfContext.
+    unsafe { context.GetStatus() }.is_ok_and(|s| s.dwStaticFlags & TS_SS_TRANSITORY != 0)
+}
+
 fn utf16_len(s: &str) -> i32 {
     s.encode_utf16().count() as i32
 }
@@ -58,47 +92,60 @@ fn utf16_len(s: &str) -> i32 {
 impl TextService_Impl {
     /// Apply effects in order.
     pub(crate) fn apply(&self, context: &ITfContext, effects: Vec<Effect>) -> windows::core::Result<()> {
+        let floating = is_transitory(context);
         let mut result = Ok(());
         for effect in effects {
+            crate::debug_log::log(|| format!("apply {effect:?} floating={floating}"));
             let r = match effect {
+                Effect::Preedit(runs) if floating => {
+                    self.float_preedit(context, runs);
+                    Ok(())
+                }
                 Effect::Preedit(runs) => self.set_preedit(context, &runs),
-                Effect::Commit(text) => self.commit(context, &text),
+                Effect::Commit(text) => {
+                    self.inner_mut().floating = None;
+                    let r = self.commit(context, &text);
+                    self.redraw();
+                    r
+                }
+                Effect::Cancel if floating => {
+                    self.inner_mut().floating = None;
+                    self.redraw();
+                    Ok(())
+                }
                 Effect::Cancel => self.cancel(context),
                 Effect::Popup(p) => {
-                    self.show_popup(p);
+                    self.inner_mut().popup = p;
+                    self.redraw();
                     Ok(())
                 }
             };
-            if r.is_err() {
+            if let Err(e) = &r {
+                crate::debug_log::log(|| format!("  -> {e:?}"));
                 result = r;
             }
         }
         result
     }
 
-    fn start_composition(&self, context: &ITfContext) -> windows::core::Result<()> {
-        let cc: ITfContextComposition = context.cast()?;
-        let insert: ITfInsertAtSelection = context.cast()?;
-        let sink: ITfCompositionSink = self.to_interface();
-        let cid = self.inner().client_id;
-
-        let comp = run_sync(cid, context, move |ec| {
-            // SAFETY: ec is a valid edit cookie inside the session.
-            unsafe {
-                let range = insert.InsertTextAtSelection(ec, TF_IAS_QUERYONLY, &[])?;
-                cc.StartComposition(ec, &range, &sink)
-            }
-        })?;
-        self.inner_mut().composition = Some(comp);
-        Ok(())
+    /// What an edit session needs to write into the composition: the current
+    /// one, or the means to start one at the selection inside that same
+    /// session. Starting it in a session of its own leaves it empty when the
+    /// session ends, and the IMM32 bridge that Qt and other IMM32 applications
+    /// go through terminates such a composition at once, so every keystroke
+    /// would arrive as finished text.
+    fn composer(&self, context: &ITfContext) -> windows::core::Result<Composer> {
+        Ok(Composer {
+            current: self.inner().composition.clone(),
+            cc: context.cast()?,
+            insert: context.cast()?,
+            sink: self.to_interface(),
+        })
     }
 
     /// Replace the composition text by `runs`, each with its display attribute.
     fn set_preedit(&self, context: &ITfContext, runs: &[Run]) -> windows::core::Result<()> {
-        if self.inner().composition.is_none() {
-            self.start_composition(context)?;
-        }
-        let comp = self.inner().composition.clone().ok_or(E_FAIL)?;
+        let composer = self.composer(context)?;
         let text: Vec<u16> = runs.iter().flat_map(|r| r.text.encode_utf16()).collect();
         let atoms = self.inner().display_atoms;
         let cid = self.inner().client_id;
@@ -114,11 +161,12 @@ impl TextService_Impl {
                 .collect()
         };
 
-        let anchor = run_sync(cid, context, move |ec| {
+        let (comp, anchor) = run_sync(cid, context, move |ec| {
             // SAFETY: ec valid; comp/ctx/ranges are valid TSF objects.
             unsafe {
+                let comp = composer.get(ec)?;
                 let range = comp.GetRange()?;
-                range.SetText(ec, TF_ST_CORRECTION, &text)?;
+                range.SetText(ec, 0, &text)?;
 
                 let prop = ctx.GetProperty(&GUID_PROP_ATTRIBUTE)?;
                 let mut anchor = None;
@@ -146,23 +194,22 @@ impl TextService_Impl {
                 // Caret after the preedit.
                 range.Collapse(ec, TF_ANCHOR_END)?;
                 set_single_selection(&ctx, ec, &range)?;
-                Ok(anchor)
+                Ok((comp, anchor))
             }
         })?;
-        self.inner_mut().anchor = anchor;
+        let mut state = self.inner_mut();
+        state.composition = Some(comp);
+        state.anchor = anchor;
         Ok(())
     }
 
     /// Replace the composition by final text and end it. With no composition
     /// the text is inserted at the selection.
     fn commit(&self, context: &ITfContext, text: &str) -> windows::core::Result<()> {
-        if self.inner().composition.is_none() {
-            if text.is_empty() {
-                return Ok(());
-            }
-            self.start_composition(context)?;
+        if self.inner().composition.is_none() && text.is_empty() {
+            return Ok(());
         }
-        let comp = self.inner().composition.clone().ok_or(E_FAIL)?;
+        let composer = self.composer(context)?;
         let wide: Vec<u16> = text.encode_utf16().collect();
         let cid = self.inner().client_id;
         let ctx = context.clone();
@@ -170,8 +217,9 @@ impl TextService_Impl {
         run_sync(cid, context, move |ec| {
             // SAFETY: ec valid; comp/ctx/range valid.
             unsafe {
+                let comp = composer.get(ec)?;
                 let range = comp.GetRange()?;
-                range.SetText(ec, TF_ST_CORRECTION, &wide)?;
+                range.SetText(ec, 0, &wide)?;
                 ctx.GetProperty(&GUID_PROP_ATTRIBUTE)?.Clear(ec, &range)?;
                 range.Collapse(ec, TF_ANCHOR_END)?;
                 set_single_selection(&ctx, ec, &range)?;
@@ -196,7 +244,7 @@ impl TextService_Impl {
             // SAFETY: ec valid; comp/ctx/range valid.
             unsafe {
                 let range = comp.GetRange()?;
-                range.SetText(ec, TF_ST_CORRECTION, &[])?;
+                range.SetText(ec, 0, &[])?;
                 ctx.GetProperty(&GUID_PROP_ATTRIBUTE)?.Clear(ec, &range)?;
                 comp.EndComposition(ec)?;
                 Ok(())
@@ -210,19 +258,51 @@ impl TextService_Impl {
         Ok(())
     }
 
-    fn show_popup(&self, popup: Option<Popup>) {
+    /// Draw the preedit in the popup at the caret (see [`is_transitory`]).
+    fn float_preedit(&self, context: &ITfContext, runs: Vec<Run>) {
+        let cid = self.inner().client_id;
+        let ctx = context.clone();
+        let anchor = run_sync(cid, context, move |ec| {
+            // SAFETY: ec valid inside the session; ctx valid.
+            unsafe {
+                let mut sel = [TF_SELECTION::default()];
+                let mut fetched = 0;
+                ctx.GetSelection(ec, TF_DEFAULT_SELECTION, &mut sel, &mut fetched)?;
+                let range = ManuallyDrop::into_inner(std::mem::take(&mut sel[0].range));
+                Ok(range.and_then(|r| text_position(&ctx, ec, &r)))
+            }
+        })
+        .ok()
+        .flatten();
+        let mut state = self.inner_mut();
+        if anchor.is_some() || state.floating.is_none() {
+            state.anchor = anchor;
+        }
+        state.floating = (!runs.is_empty()).then_some(runs);
+        drop(state);
+        self.redraw();
+    }
+
+    /// Show the floating preedit and the candidates, or hide the popup.
+    fn redraw(&self) {
         let state = self.inner();
         let Some(win) = state.candidate_window.as_ref() else {
             return;
         };
-        match popup {
-            Some(p) => win.show(&p, state.anchor),
-            None => win.hide(),
+        if state.floating.is_none() && state.popup.is_none() {
+            win.hide();
+        } else {
+            win.show(state.floating.as_deref(), state.popup.as_ref(), state.anchor);
         }
     }
 
     pub(crate) fn hide_popup(&self) {
-        self.show_popup(None);
+        {
+            let mut state = self.inner_mut();
+            state.popup = None;
+            state.floating = None;
+        }
+        self.redraw();
     }
 }
 
@@ -248,6 +328,7 @@ impl ITfCompositionSink_Impl for TextService_Impl {
         _pcomposition: Ref<'_, ITfComposition>,
     ) -> windows::core::Result<()> {
         // The document ended the composition (focus change, app reset).
+        crate::debug_log::log(|| "OnCompositionTerminated".to_string());
         {
             let mut state = self.inner_mut();
             state.composition = None;

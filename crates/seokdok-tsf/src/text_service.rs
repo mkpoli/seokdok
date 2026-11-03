@@ -16,7 +16,7 @@ use windows::Win32::UI::TextServices::{
 
 use crate::candidate_window::CandidateWindow;
 use crate::lang_bar::ModeShared;
-use crate::session::{Mode, Session};
+use crate::session::{Mode, Popup, Run, Session};
 
 pub struct TextServiceState {
     pub thread_mgr: Option<ITfThreadMgr>,
@@ -33,6 +33,11 @@ pub struct TextServiceState {
     pub candidate_window: Option<CandidateWindow>,
     /// Screen position (left, bottom) of the focused segment, for the popup.
     pub anchor: Option<(i32, i32)>,
+    /// Text being composed, drawn in the popup instead of the document for
+    /// IMM32 applications (see `composition.rs`).
+    pub floating: Option<Vec<Run>>,
+    /// The candidate page last shown.
+    pub popup: Option<Popup>,
 }
 
 impl Default for TextServiceState {
@@ -49,6 +54,8 @@ impl Default for TextServiceState {
             langbar_item: None,
             candidate_window: None,
             anchor: None,
+            floating: None,
+            popup: None,
         }
     }
 }

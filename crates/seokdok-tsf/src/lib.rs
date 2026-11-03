@@ -10,6 +10,7 @@ pub use seokdok_session::{config, engine_host, keys, session};
 #[cfg(windows)]
 mod candidate_window;
 #[cfg(windows)]
+mod compartment;
 mod composition;
 #[cfg(windows)]
 mod configure;
@@ -22,7 +23,8 @@ mod edit_session;
 #[cfg(windows)]
 mod factory;
 #[cfg(windows)]
-mod guids;
+pub mod guids;
+mod debug_log;
 #[cfg(windows)]
 mod key_event_sink;
 #[cfg(windows)]

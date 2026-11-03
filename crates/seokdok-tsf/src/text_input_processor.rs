@@ -111,6 +111,7 @@ impl TextService_Impl {
             state.session = Session::new(mode, cfg.input.space_converts);
             state.mode.show(mode);
         }
+        crate::compartment::publish(thread_mgr, tid, mode);
 
         // Load the dictionaries in the background; typing works meanwhile and
         // conversion starts to produce results once the load finishes.

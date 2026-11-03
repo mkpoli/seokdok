@@ -1,3 +1,4 @@
+import { chars } from './chars.js'
 // The in-page input method, modelled on Japanese IMEs (MS-IME, Google 日本語入力).
 //
 // Composing (Hangul in the preedit):
@@ -35,7 +36,7 @@ const HANGUL = /[가-힣]/
 export class Ime {
   /** Committed text. */
   doc = $state('')
-  /** Caret position in `doc`, in code points. */
+  /** Caret position in `doc`, in characters (grapheme clusters). */
   cursor = $state(0)
   /** The other end of the selection, or null when nothing is selected. */
   anchor = $state(null)
@@ -81,11 +82,11 @@ export class Ime {
   }
 
   get before() {
-    return [...this.doc].slice(0, this.cursor).join('')
+    return chars(this.doc).slice(0, this.cursor).join('')
   }
 
   get after() {
-    return [...this.doc].slice(this.cursor).join('')
+    return chars(this.doc).slice(this.cursor).join('')
   }
 
   // Edit history: snapshots of the committed text, caret and selection.
@@ -154,19 +155,19 @@ export class Ime {
 
   get selectedText() {
     const s = this.selection
-    return s ? [...this.doc].slice(s[0], s[1]).join('') : ''
+    return s ? chars(this.doc).slice(s[0], s[1]).join('') : ''
   }
 
   /** Select [a, b) with the caret at b. */
   setSelection(a, b) {
     if (this.segs || this.pre) this.commit()
-    const n = [...this.doc].length
+    const n = chars(this.doc).length
     this.anchor = Math.max(0, Math.min(n, a))
     this.cursor = Math.max(0, Math.min(n, b))
   }
 
   selectAll() {
-    this.setSelection(0, [...this.doc].length)
+    this.setSelection(0, chars(this.doc).length)
   }
 
   /** Delete the selection; true when there was one. */
@@ -175,7 +176,7 @@ export class Ime {
     this.anchor = null
     if (!s) return false
     if (record) this.#record('delete')
-    const a = [...this.doc]
+    const a = chars(this.doc)
     a.splice(s[0], s[1] - s[0])
     this.doc = a.join('')
     this.cursor = s[0]
@@ -186,10 +187,10 @@ export class Ime {
   /** @param {string} text @param {string} [kind] history step kind */
   #insert(text, kind) {
     if (!text) return
-    this.#record(kind ?? ([...text].length === 1 ? 'type' : 'insert'))
+    this.#record(kind ?? (chars(text).length === 1 ? 'type' : 'insert'))
     this.deleteSelection(false)
-    const a = [...this.doc]
-    const t = [...text]
+    const a = chars(this.doc)
+    const t = chars(text)
     a.splice(this.cursor, 0, ...t)
     this.doc = a.join('')
     this.cursor += t.length
@@ -200,19 +201,19 @@ export class Ime {
     if (text !== this.doc) this.#record('set')
     this.doc = text
     this.anchor = null
-    this.cursor = [...text].length
+    this.cursor = chars(text).length
   }
 
   /** Place the caret (a click in the text). */
   setCursor(i) {
     if (this.segs || this.pre) this.commit()
-    this.cursor = Math.max(0, Math.min([...this.doc].length, i))
+    this.cursor = Math.max(0, Math.min(chars(this.doc).length, i))
     this.anchor = null
     this.#wordBreak = false
   }
 
   #space() {
-    const prev = [...this.before].pop()
+    const prev = chars(this.before).pop()
     if (prev && !/\s/.test(prev)) this.#insert(' ')
   }
 
@@ -344,8 +345,8 @@ export class Ime {
     const segs = this.segs
     if (!segs) return
     const i = this.focus
-    const cur = [...segs[i].reading]
-    const next = segs[i + 1] ? [...segs[i + 1].reading] : []
+    const cur = chars(segs[i].reading)
+    const next = segs[i + 1] ? chars(segs[i + 1].reading) : []
     if (d < 0 && cur.length <= 1) return
     if (d > 0 && !next.length) return
     const a = d < 0 ? cur.slice(0, -1) : [...cur, next[0]]
@@ -432,7 +433,7 @@ export class Ime {
           // removed the selection
         } else if (this.cursor > 0) {
           this.#record('erase')
-          const a = [...this.doc]
+          const a = chars(this.doc)
           a.splice(this.cursor - 1, 1)
           this.doc = a.join('')
           this.cursor--
@@ -441,9 +442,9 @@ export class Ime {
       case 'Delete':
         if (this.pre) return true
         if (this.deleteSelection()) return true
-        if (this.cursor < [...this.doc].length) {
+        if (this.cursor < chars(this.doc).length) {
           this.#record('erase')
-          const a = [...this.doc]
+          const a = chars(this.doc)
           a.splice(this.cursor, 1)
           this.doc = a.join('')
         }
@@ -453,7 +454,7 @@ export class Ime {
       case 'Home':
       case 'End': {
         if (this.pre) this.commit()
-        const n = [...this.doc].length
+        const n = chars(this.doc).length
         const b = this.before
         const sel = this.selection
         if (k.shift) {
@@ -466,10 +467,10 @@ export class Ime {
         }
         if (key === 'ArrowLeft') this.cursor = Math.max(0, this.cursor - 1)
         else if (key === 'ArrowRight') this.cursor = Math.min(n, this.cursor + 1)
-        else if (key === 'Home') this.cursor = [...b.slice(0, b.lastIndexOf('\n') + 1)].length
+        else if (key === 'Home') this.cursor = chars(b.slice(0, b.lastIndexOf('\n') + 1)).length
         else {
           const nl = this.after.indexOf('\n')
-          this.cursor = nl < 0 ? n : this.cursor + [...this.after.slice(0, nl)].length
+          this.cursor = nl < 0 ? n : this.cursor + chars(this.after.slice(0, nl)).length
         }
         return true
       }

@@ -3,10 +3,11 @@ Noto Serif KR and Noto Sans KR do not serve (e.g. 㐎 in 韓㐎), so visitors
 without a CJK font see them in the same design instead of a random fallback.
 
 Usage: uv run --with fonttools --with brotli scripts/rare-glyphs.py
+Also writes old-*.woff2: all old-Hangul jamo, for typed and pasted text.
 Reads the page sources under src/ and index.html, the live Google Fonts CSS
 for the coverage, and the Noto CJK .ttc files installed on this machine
 (Noto CJK, SIL OFL 1.1). Writes public/fonts/rare-*.woff2 and
-design/rare-glyphs.css (families Seokdok Rare Serif / Sans, listed after the
+design/rare-glyphs.css (families Seokdok Rare Serif / Sans, listed before the
 Google families in design/tokens.css).
 """
 import re
@@ -21,15 +22,28 @@ WEB = Path(__file__).resolve().parent.parent
 NOTO = Path("/usr/share/fonts/opentype/noto")
 UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/130 Safari/537.36"
 # (output, collection, Google family whose coverage is checked, own family, weight)
-# The faces get their own family names, listed after Google's in the font
-# stacks: sharing Google's name would make browsers pick these faces for every
-# character and drop to a local font for the rest.
+# The faces get their own family names, listed before Google's in the font
+# stacks (sharing Google's name would make browsers pick these faces for every
+# character and drop to a local font for the rest). Coming first keeps an old
+# syllable such as ᄒᆞ in one font: Google's fonts hold the modern conjoining
+# jamo but not ᆞ.
 FACES = [
     ("rare-serif-500", "NotoSerifCJK-Medium.ttc", "Noto+Serif+KR", "Seokdok Rare Serif", "500"),
     ("rare-serif-700", "NotoSerifCJK-Bold.ttc", "Noto+Serif+KR", "Seokdok Rare Serif", "700"),
     ("rare-serif-900", "NotoSerifCJK-Black.ttc", "Noto+Serif+KR", "Seokdok Rare Serif", "900"),
     ("rare-sans-400", "NotoSansCJK-Regular.ttc", "Noto+Sans+KR", "Seokdok Rare Sans", "400"),
     ("rare-sans-700", "NotoSansCJK-Bold.ttc", "Noto+Sans+KR", "Seokdok Rare Sans", "700"),
+]
+# Old Hangul: conjoining jamo and the compatibility jamo, with the OpenType
+# features (ljmo, vjmo, tjmo) that compose them into syllables. Served in their
+# own files, which browsers fetch only when such text is on screen.
+# Compatibility jamo from U+3165 only: the modern ones (ㄱ…ㅣ) must not pull in these files.
+OLD_RANGES = [(0x1100, 0x11FF), (0x3165, 0x318E), (0xA960, 0xA97F), (0xD7B0, 0xD7FF)]
+OLD_FACES = [
+    ("old-serif-500", "NotoSerifCJK-Medium.ttc", "Seokdok Rare Serif", "500"),
+    ("old-serif-700", "NotoSerifCJK-Bold.ttc", "Seokdok Rare Serif", "700"),
+    ("old-sans-400", "NotoSansCJK-Regular.ttc", "Seokdok Rare Sans", "400"),
+    ("old-sans-700", "NotoSansCJK-Bold.ttc", "Seokdok Rare Sans", "700"),
 ]
 CJK = re.compile(r"[⺀-鿿豈-﫿\U00020000-\U0003134f]")
 
@@ -83,6 +97,21 @@ def main():
         font.flavor = "woff2"
         font.save(WEB / "public" / "fonts" / f"{out}.woff2")
         ranges = ", ".join(f"U+{ord(c):X}" for c in missing)
+        css.append(f"@font-face {{\n  font-family: '{own}';\n  font-weight: {weight};\n"
+                   f"  font-display: swap;\n  src: url('/fonts/{out}.woff2') format('woff2');\n"
+                   f"  unicode-range: {ranges};\n}}")
+    for out, ttc, own, weight in OLD_FACES:
+        font = korean_font(ttc)
+        opts = Options()
+        opts.flavor = "woff2"
+        opts.layout_features = ["*"]
+        opts.name_IDs = ["*"]
+        sub = Subsetter(opts)
+        sub.populate(unicodes=[c for a, b in OLD_RANGES for c in range(a, b + 1)])
+        sub.subset(font)
+        font.flavor = "woff2"
+        font.save(WEB / "public" / "fonts" / f"{out}.woff2")
+        ranges = ", ".join(f"U+{a:X}-{b:X}" for a, b in OLD_RANGES)
         css.append(f"@font-face {{\n  font-family: '{own}';\n  font-weight: {weight};\n"
                    f"  font-display: swap;\n  src: url('/fonts/{out}.woff2') format('woff2');\n"
                    f"  unicode-range: {ranges};\n}}")

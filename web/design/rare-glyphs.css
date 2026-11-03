@@ -35,3 +35,31 @@
   src: url('/fonts/rare-sans-700.woff2') format('woff2');
   unicode-range: U+340E, U+70BA, U+8AAD;
 }
+@font-face {
+  font-family: 'Seokdok Rare Serif';
+  font-weight: 500;
+  font-display: swap;
+  src: url('/fonts/old-serif-500.woff2') format('woff2');
+  unicode-range: U+1100-11FF, U+3165-318E, U+A960-A97F, U+D7B0-D7FF;
+}
+@font-face {
+  font-family: 'Seokdok Rare Serif';
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/old-serif-700.woff2') format('woff2');
+  unicode-range: U+1100-11FF, U+3165-318E, U+A960-A97F, U+D7B0-D7FF;
+}
+@font-face {
+  font-family: 'Seokdok Rare Sans';
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/old-sans-400.woff2') format('woff2');
+  unicode-range: U+1100-11FF, U+3165-318E, U+A960-A97F, U+D7B0-D7FF;
+}
+@font-face {
+  font-family: 'Seokdok Rare Sans';
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/old-sans-700.woff2') format('woff2');
+  unicode-range: U+1100-11FF, U+3165-318E, U+A960-A97F, U+D7B0-D7FF;
+}

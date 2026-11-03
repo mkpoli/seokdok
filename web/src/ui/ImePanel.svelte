@@ -6,6 +6,7 @@
   import Keyboard from './Keyboard.svelte'
   import Ruby from './Ruby.svelte'
   import { PAGE } from '../lib/ime.svelte.js'
+  import { chars } from '../lib/chars.js'
   import { input, output } from '../lib/custom.svelte.js'
 
   /** @type {{ ime: import('../lib/ime.svelte.js').Ime }} */
@@ -36,14 +37,14 @@
     if (!el || !textEl?.contains(el)) return null
     let n = Number(el.dataset.off)
     if (node === el) {
-      for (const c of [...el.childNodes].slice(0, offset)) n += [...(c.textContent ?? '')].length
+      for (const c of [...el.childNodes].slice(0, offset)) n += chars(c.textContent ?? '').length
       return n
     }
     for (const c of el.childNodes) {
       if (c === node) break
-      n += [...(c.textContent ?? '')].length
+      n += chars(c.textContent ?? '').length
     }
-    return n + [...(node.textContent ?? '').slice(0, offset)].length
+    return n + chars((node.textContent ?? '').slice(0, offset)).length
   }
 
   function pointOffset(x, y) {
@@ -66,7 +67,7 @@
     } else if (!ime.segs && !ime.pre) {
       const at = showRuby ? null : pointOffset(e.clientX, e.clientY)
       if (at !== null) ime.setCursor(at)
-      else if (e.target === e.currentTarget || e.target === textEl) ime.setCursor([...ime.doc].length)
+      else if (e.target === e.currentTarget || e.target === textEl) ime.setCursor(chars(ime.doc).length)
     }
     sink.focus({ preventScroll: true })
   }
@@ -75,22 +76,22 @@
     if (showRuby || ime.segs || ime.pre) return
     const at = pointOffset(e.clientX, e.clientY)
     if (at === null) return
-    const chars = [...ime.doc]
+    const cs = chars(ime.doc)
     const word = (c) => c && !/[\s.,!?、。，！？]/.test(c)
     let a = at
     let b = at
-    while (a > 0 && word(chars[a - 1])) a--
-    while (b < chars.length && word(chars[b])) b++
+    while (a > 0 && word(cs[a - 1])) a--
+    while (b < cs.length && word(cs[b])) b++
     ime.setSelection(a, b)
     sink.focus({ preventScroll: true })
   }
 
   // The committed text in pieces around the selection and the caret.
   const pieces = $derived.by(() => {
-    const chars = [...ime.doc]
-    const n = chars.length
+    const cs = chars(ime.doc)
+    const n = cs.length
     const sel = ime.selection
-    const cut = (a, b, selected = false) => ({ text: chars.slice(a, b).join(''), off: a, selected })
+    const cut = (a, b, selected = false) => ({ text: cs.slice(a, b).join(''), off: a, selected })
     if (!sel) return { head: [cut(0, ime.cursor)], tail: [cut(ime.cursor, n)] }
     const [a, b] = sel
     const mid = cut(a, b, true)
@@ -134,6 +135,7 @@
   $effect(() => {
     ime.spaceMode = options.spaceMode
     ime.layout = options.layout
+    ime.composer.setOld(options.oldClusters)
   })
 
   // Options go to the engine; an open conversion is redone under them.
@@ -256,6 +258,9 @@
       </div>
       <label class="ui-field" title={plain(t().options.spaceTip)}>
         <input class="ui-switch" type="checkbox" role="switch" checked={options.spaceMode === 'convert'} onchange={(e) => (options.spaceMode = e.currentTarget.checked ? 'convert' : 'space')} />{@html r(t().options.spaceSwitch)}
+      </label>
+      <label class="ui-field" title={plain(t().options.oldTip)}>
+        <input class="ui-switch" type="checkbox" role="switch" bind:checked={options.oldClusters} />{@html r(t().options.oldSwitch)}
       </label>
       <details class="opts">
         <summary class="btn" data-size="sm">{@html r(t().options.title)}</summary>

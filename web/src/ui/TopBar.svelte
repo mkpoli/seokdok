@@ -29,6 +29,7 @@
     <a href="#custom">{@html r(t().nav.custom)}</a>
     <a href="#rules">{@html r(t().nav.rules)}</a>
     <a href="#words">{@html r(t().nav.words)}</a>
+    <a href="#old">{@html r(t().nav.old)}</a>
     <a href="#install">{@html r(t().nav.install)}</a>
     <a href="#join">{@html r(t().nav.join)}</a>
   </nav>

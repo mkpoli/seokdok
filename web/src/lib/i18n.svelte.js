@@ -2,7 +2,7 @@
 // browser, and the choice is remembered.
 
 const ko = {
-  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '낱{言|말}', install: '{設置|설치}', join: '{會|모임}' },
+  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '낱{言|말}', old: '옛{韓㐎|한글}', install: '{設置|설치}', join: '{會|모임}' },
   theme: { light: '{明|밝}게', dark: '{暗|어둡}게', auto: '{自動|자동}' },
   hero: {
     kicker: '{釋讀會|풀어읽기모임} {御製|어제}',
@@ -64,6 +64,8 @@ const ko = {
     horizontal: '{橫|가로}',
     spaceSwitch: 'Space {變換|변환}',
     spaceTip: '{押|누르}면 Space로 {變換|변환}합니다. {解|끄}면 Space는 띄어{書|쓰}기, Tab·↓로 {變換|변환}.',
+    oldSwitch: '옛{韓㐎|한글} 겹{字母|자모}',
+    oldTip: 'ㅅ ㄱ → ᄭ, ㅂ ㅇ → ㅸ처럼 {現代|현대} {字母|자모}를 {連|이}어 {打|치}면 옛 겹{字母|자모}가 {成|됩}니다. ㆍ ㅿ ㆁ ㆆ는 {此|이} {設定|설정}과 {關係|관계}{無|없}이 Shift로 {打|칩}니다.',
     style: '{送韓字|송한자}',
     surface: '{表音式|표음식} 見ㅆ다',
     morpheme: '{形態式|형태식} 見았다',
@@ -160,6 +162,29 @@ const ko = {
     president: '{會長|회장} 車魄',
     button: 't.me/pimsdh {入|들어}가기',
   },
+  old: {
+    eyebrow: '옛{韓㐎|한글}',
+    title: 'ㆍ와 옛 {字母|자모} {打|치}기',
+    lede: 'Microsoft 옛한글 {字板|자판}처럼 Shift {段|단}에 옛 {字母|자모}가 {有|있}습니다. {此|이} {頁|쪽}의 {入力器|입력기}와 Windows·Linux {入力器|입력기}가 {皆|모두} {同|같}습니다.',
+    shift: 'Shift로 {打|치}는 {字母|자모}',
+    names: {
+      araea: '{下|아래}아',
+      pansios: '{半齒音|반치음}',
+      yesieung: '옛이응',
+      yeorinhieuh: '{弱|여린}히읗',
+      chitueumS: '{齒頭音|치두음} ㅅ',
+      ceongchieumS: '{正齒音|정치음} ㅅ',
+      chitueumJ: '{齒頭音|치두음} ㅈ',
+      ceongchieumJ: '{正齒音|정치음} ㅈ',
+      chitueumCh: '{齒頭音|치두음} ㅊ',
+      ceongchieumCh: '{正齒音|정치음} ㅊ',
+    },
+    examples: '{例|예}',
+    clusters: '겹{字母|자모}',
+    clustersNote: '{現代|현대} {字母|자모}를 {連|이}어 {打|쳐} 옛 겹{字母|자모}를 {作|만드}는 것은 「옛{韓㐎|한글} 겹{字母|자모}」를 {押|켜}야 {成|됩}니다. {入力器|입력기} {窓|창}의 {道具|도구} {欄|줄}, Windows {設定|설정} {窓|창}, {或|또}는 config.toml의 old_clusters = true.',
+    conversion: '옛{韓㐎|한글} {音節|음절}은 {打|친} 그대로 {殘|남}고, {其|그} {前後|앞뒤}의 {現代|현대} {韓㐎|한글}만 {漢字|한자}로 {變換|변환}됩니다.',
+    fonts: '{此|이} {頁|쪽}은 옛{韓㐎|한글} 글꼴을 {自|스스로} {讀|불러}옵니다. {他|다른} 앱에서는 Noto Serif CJK KR, Noto Sans CJK KR, 함초롬바탕처럼 옛{韓㐎|한글}을 {支援|지원}하는 글꼴이 {要|필요}합니다.',
+  },
   install: {
     eyebrow: '{設置|설치}',
     title: '{自己|제} 컴퓨터에서 {書|쓰}기',
@@ -188,7 +213,7 @@ const ko = {
 }
 
 const en = {
-  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', install: 'Install', join: 'Group' },
+  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', old: 'Old Hangul', install: 'Install', join: 'Group' },
   theme: { light: 'Light', dark: 'Dark', auto: 'Auto' },
   hero: {
     kicker: '釋讀會 御製: royally composed by 풀어읽기모임',
@@ -250,6 +275,8 @@ const en = {
     horizontal: 'Horizontal',
     spaceSwitch: 'Space converts',
     spaceTip: 'On: Space converts. Off: Space types a space and Tab or ↓ converts.',
+    oldSwitch: 'Old clusters',
+    oldTip: 'Modern letters typed in a row join into old clusters: ㅅ ㄱ → ᄭ, ㅂ ㅇ → ㅸ. ㆍ ㅿ ㆁ ㆆ are on Shift either way.',
     style: '送韓字',
     surface: 'Surface 見ㅆ다',
     morpheme: 'Morpheme 見았다',
@@ -345,6 +372,29 @@ const en = {
     disclaimerSource: 'from the group’s poster: a hobby club in the spirit of a constructed language',
     president: '車魄, head of the group',
     button: 'Join t.me/pimsdh',
+  },
+  old: {
+    eyebrow: 'Old Hangul',
+    title: 'Typing ㆍ and the old letters',
+    lede: 'As on Microsoft Old Hangul, the old letters sit on the Shift layer. The same keys work on this page and in the Windows and Linux input methods.',
+    shift: 'Letters on Shift',
+    names: {
+      araea: 'arae-a',
+      pansios: 'pansios (bansiot)',
+      yesieung: 'old ieung',
+      yeorinhieuh: 'yeorin hieuh',
+      chitueumS: 'dental ㅅ (chidueum)',
+      ceongchieumS: 'retroflex ㅅ (jeongchieum)',
+      chitueumJ: 'dental ㅈ (chidueum)',
+      ceongchieumJ: 'retroflex ㅈ (jeongchieum)',
+      chitueumCh: 'dental ㅊ (chidueum)',
+      ceongchieumCh: 'retroflex ㅊ (jeongchieum)',
+    },
+    examples: 'Examples',
+    clusters: 'Clusters',
+    clustersNote: 'Joining modern letters into old clusters needs “Old clusters” switched on: in the input method’s toolbar, in the Windows settings window, or old_clusters = true in config.toml.',
+    conversion: 'Old syllables stay as typed; only the modern Hangul around them is converted to Hanja.',
+    fonts: 'This page loads its own old-Hangul font. Other apps need a font that supports old Hangul, such as Noto Serif CJK KR, Noto Sans CJK KR or HCR Batang.',
   },
   install: {
     eyebrow: 'Install',

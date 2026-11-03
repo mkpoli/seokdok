@@ -284,3 +284,14 @@ test('undo and redo restore text, caret and conversions', async () => {
   expect(m.pre).toBe('')
   expect(m.doc).toBe('天12')
 })
+
+test('the caret steps over an old-Hangul syllable as one character', () => {
+  const m = ime()
+  m.setDoc('ᄒᆞ여') // ᄒᆞ여
+  expect(m.cursor).toBe(2)
+  m.key({ key: 'ArrowLeft' })
+  m.key({ key: 'ArrowLeft' })
+  expect(m.cursor).toBe(0)
+  m.key({ key: 'Delete' })
+  expect(m.doc).toBe('여')
+})

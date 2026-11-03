@@ -2,6 +2,19 @@
   import { i18n, setLang, t, r, plain } from '../lib/i18n.svelte.js'
   import { options } from '../lib/options.svelte.js'
 
+  // The switch moves at once; the page re-renders on the next frame.
+  let pending = $state(null)
+  const sino = $derived(pending ?? options.sinoOnly)
+  function setMode(v) {
+    pending = v
+    requestAnimationFrame(() =>
+      setTimeout(() => {
+        options.sinoOnly = v
+        pending = null
+      }),
+    )
+  }
+
   let theme = $state(document.documentElement.dataset.theme ?? 'auto')
 
   function cycleTheme() {
@@ -37,9 +50,9 @@
   </nav>
   <div class="tools">
     <div class="mode" title={plain(t().options.sinoTip)}>
-      <button class="side" aria-pressed={options.sinoOnly} onclick={() => (options.sinoOnly = true)}>{@html r(t().options.sinoSwitch)}</button>
-      <input class="ui-switch" type="checkbox" role="switch" checked={!options.sinoOnly} onchange={(e) => (options.sinoOnly = !e.currentTarget.checked)} aria-label={plain(t().options.seokdokSide)} />
-      <button class="side" aria-pressed={!options.sinoOnly} onclick={() => (options.sinoOnly = false)}>{@html r(t().options.seokdokSide)}</button>
+      <button class="side" aria-pressed={sino} onclick={() => setMode(true)}>{@html r(t().options.sinoSwitch)}</button>
+      <input class="ui-switch" type="checkbox" role="switch" checked={!sino} onchange={(e) => setMode(!e.currentTarget.checked)} aria-label={plain(t().options.seokdokSide)} />
+      <button class="side" aria-pressed={!sino} onclick={() => setMode(false)}>{@html r(t().options.seokdokSide)}</button>
     </div>
     <div class="seg" role="group" aria-label="language">
       {#each langs as [code, label, lang]}

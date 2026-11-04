@@ -585,3 +585,12 @@ fn the_plural_is_also_written_with_hanja() {
     }
     assert_eq!(e.read("人等은"), e.read("人들은"));
 }
+
+#[test]
+fn the_adverb_kkwae_is_hanja_inside_a_phrase() {
+    let e = engine(Options::default());
+    for (input, want) in [("꽤", "頗"), ("꽤많다", "頗多다"), ("꽤좋다", "頗好다"), ("꽤나", "頗나")] {
+        assert_eq!(e.convert(input)[0].text, want, "{input}");
+    }
+    assert!(offers(&e, "꽤많다", "꽤多다"));
+}

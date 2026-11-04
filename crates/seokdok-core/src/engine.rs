@@ -694,8 +694,9 @@ impl Engine {
                         // The honorific suffix 님 attaches to any noun (해님, 달님), and
                         // a determiner always precedes one (옛한글, 첫사랑).
                         // The bound noun 수 runs straight into 있다 and 없다 when typed
-                        // without a space (수있다, 볼수없었던).
-                        let inside = if q == n || comps[q..].starts_with(&NIM) || entry.pos == Pos::Det || is_su_before_existence(entry, &comps[q..]) {
+                        // without a space (수있다, 볼수없었던). No word starts with the
+                        // adverb 꽤, which goes before whatever it modifies (꽤많다).
+                        let inside = if q == n || comps[q..].starts_with(&NIM) || entry.pos == Pos::Det || matches!(entry.lemma.as_str(), "꽤" | "꽤나") || is_su_before_existence(entry, &comps[q..]) {
                             0.0
                         } else if crate::jamo::syllable_count(&entry.stem) == 1 {
                             5.0

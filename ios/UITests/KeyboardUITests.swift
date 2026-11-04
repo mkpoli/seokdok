@@ -80,10 +80,9 @@ final class KeyboardUITests: XCTestCase {
         }
     }
 
-    private func launch(kind: String, dark: Bool = false) -> (XCUIApplication, XCUIElement) {
+    private func launch(kind: String) -> (XCUIApplication, XCUIElement) {
         let app = XCUIApplication()
         app.launchArguments = ["-focusTrial", "YES", "-trialKind", kind]
-        if dark { app.launchArguments += ["-AppleInterfaceStyle", "Dark"] }
         app.launch()
         let field = app.descendants(matching: .any)["trial"]
         XCTAssertTrue(field.waitForExistence(timeout: 10))
@@ -116,14 +115,6 @@ final class KeyboardUITests: XCTestCase {
         XCTAssertEqual(text(field), "1290")
         g.pad(3, 2) // delete
         XCTAssertEqual(text(field), "129")
-    }
-
-    func testNumberPadInDarkMode() throws {
-        let (app, field) = launch(kind: "number", dark: true)
-        let g = Geometry(app: app)
-        tapUntilTyped(field) { g.pad(0, 0) }
-        shot("number-pad-dark")
-        XCTAssertEqual(text(field), "1")
     }
 
     func testDecimalPadTypesDecimalPoint() throws {

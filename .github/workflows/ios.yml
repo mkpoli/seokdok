@@ -100,6 +100,10 @@ jobs:
           xcrun simctl ui "$UDID" appearance dark
           sleep 3
           xcrun simctl io "$UDID" screenshot shots/keyboard-dark.png
+          xcrun simctl terminate "$UDID" li.mkpo.seokdok
+          xcrun simctl launch "$UDID" li.mkpo.seokdok -focusTrial YES -trialKind number
+          sleep 8
+          xcrun simctl io "$UDID" screenshot shots/number-pad-dark.png
 
       - uses: actions/upload-artifact@v4
         if: always()

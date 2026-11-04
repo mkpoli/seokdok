@@ -57,13 +57,13 @@ final class KeyboardUITests: XCTestCase {
 
     // MARK: The app
 
-    /// Every screen of the app in light and dark, English and Korean.
+    /// Every screen of the app in English and Korean. The workflow runs this
+    /// again in dark mode.
     func testSettingsScreens() throws {
-        for (look, appearance) in [("light", XCUIDevice.Appearance.light), ("dark", .dark)] {
-            XCUIDevice.shared.appearance = appearance
+        do {
             for language in ["en", "ko"] {
                 let app = XCUIApplication()
-                let name = "settings-\(language)-\(look)"
+                let name = "settings-\(language)"
                 app.launchArguments = ["-AppleLanguages", "(\(language))"]
                 app.launch()
                 XCTAssertTrue(app.cells["conversion"].waitForExistence(timeout: 10) || app.buttons["conversion"].waitForExistence(timeout: 5))
@@ -89,7 +89,6 @@ final class KeyboardUITests: XCTestCase {
                 app.terminate()
             }
         }
-        XCUIDevice.shared.appearance = .light
 
         // The link leads to this app's page in Settings.
         let app = XCUIApplication()

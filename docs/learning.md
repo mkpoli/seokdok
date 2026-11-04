@@ -14,7 +14,7 @@ The table holds (reading, written form) entries, each counted separately.
   its second pick last wins. So two recent picks beat any number of old ones, and
   one recent pick changes nothing.
 - Committing the first candidate stores nothing for a reading with no entries.
-  For a reading that has entries, it counts for that form if it has an entry, and
+  For a reading that has entries, it counts for that form if the form has an entry, and
   it drops rivals that have one pick. An old slip and a new slip therefore do not
   add up to two picks.
 - The threshold is 2 (`THRESHOLD`). At 1 a slip would reorder the list. At 3 people
@@ -52,9 +52,10 @@ table does not hold.
 ```
 
 The columns are reading, form, count, the previous pick and the last pick. The last
-two are the table's own counter, with no clock times. Readings must contain Hangul
-and have at most 32 characters, forms at most 48, and neither may contain
-whitespace, so phrases, sentences and numbers are not kept.
+two are the table's own counter, with no clock times. A reading must be all Hangul,
+with at most 12 syllables and no spaces, and a form has at most 24, so numbers and
+long or spaced phrases are not kept. A short phrase typed without spaces looks like
+a word and can be kept.
 
 The table holds 4096 entries and evicts the oldest pick. Full, with four-syllable
 words, it takes about 400 KiB of memory and 140 KiB on disk
@@ -71,9 +72,11 @@ the old file, so a crash leaves one version or the other and can lose at most th
 last second of picks. On Unix the file is readable only by its owner.
 
 Each application hosts its own input method on Windows, so several processes can
-share the file. A save reads the file and applies this process's picks on top, and
-each conversion checks whether the file changed and reloads it in the background.
-Two saves in the same instant can still lose one's picks; the file stays whole.
+share the file. A save reads the file, applies this process's picks on top, and
+tries again later if the file changed in the meantime. If the file is gone, someone
+chose to forget, so the waiting picks go too. Each conversion checks whether the
+file changed and reloads it in the background. Two saves in the same instant can
+still lose one's picks; the file stays whole.
 
 A folder that cannot be written costs nothing visible: the table goes on working in
 memory until the process ends, and each later pick tries the file again.

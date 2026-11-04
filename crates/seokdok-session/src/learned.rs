@@ -15,7 +15,7 @@ use std::sync::atomic::{AtomicUsize, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::time::Duration;
 
-use seokdok_core::jamo::is_hangul;
+use seokdok_core::jamo::{is_hangul, units};
 use seokdok_core::Candidate;
 
 use crate::config::{stamp_of, Config, FileStamp};
@@ -30,10 +30,10 @@ pub const MAX_ENTRIES: usize = 4096;
 /// The file beside config.toml.
 pub const FILE_NAME: &str = "learned.tsv";
 
-/// Longer spans are phrases or sentences, which this table does not keep.
-/// Counted in `char`s: an old-Hangul syllable takes three.
-const MAX_READING_CHARS: usize = 32;
-const MAX_TEXT_CHARS: usize = 48;
+/// Longer spans are phrases, which this table does not keep. Counted in
+/// syllables, so an old-Hangul syllable counts as one.
+const MAX_READING_UNITS: usize = 12;
+const MAX_TEXT_UNITS: usize = 24;
 /// Adjacent segments that a learned reading may join.
 const MAX_JOINED_SEGMENTS: usize = 4;
 const HEADER: &str = "# seokdok learned picks 1";
@@ -62,10 +62,11 @@ pub struct Learned {
     clock: u64,
 }
 
-/// What may be kept at all: a short run of Hangul, never a phrase or a number.
+/// What may be kept at all: a reading of nothing but Hangul, short enough to
+/// be a word. A short phrase typed without spaces looks the same and can pass.
 fn learnable(reading: &str, text: &str) -> bool {
-    let clean = |s: &str, max: usize| !s.is_empty() && s.chars().count() <= max && !s.chars().any(|c| c.is_whitespace() || c.is_control());
-    clean(reading, MAX_READING_CHARS) && clean(text, MAX_TEXT_CHARS) && reading.chars().any(is_hangul)
+    let clean = |s: &str, max: usize| !s.is_empty() && units(s).len() <= max && !s.chars().any(|c| c.is_whitespace() || c.is_control());
+    clean(reading, MAX_READING_UNITS) && clean(text, MAX_TEXT_UNITS) && reading.chars().all(is_hangul)
 }
 
 impl Learned {
@@ -437,6 +438,20 @@ impl Store {
         st.stamp = stamp;
     }
 
+    /// The file this table came from is gone: someone chose to forget. Picks
+    /// not yet saved go with it. Returns false: there is nothing left to save.
+    fn forgotten_elsewhere(&self, epoch: u64) -> bool {
+        let mut st = self.state();
+        if st.epoch == epoch {
+            st.table.clear();
+            st.pending.clear();
+            st.stamp = None;
+            st.epoch += 1;
+        }
+        st.saving = st.saving && !st.pending.is_empty();
+        st.saving
+    }
+
     fn save_after_delay(&self) {
         loop {
             std::thread::sleep(SAVE_DELAY);
@@ -452,14 +467,18 @@ impl Store {
     /// learned lasts as long as the process.
     fn save_pass(&self) -> std::io::Result<bool> {
         let Some(path) = &self.path else { return Ok(false) };
-        let (batch, epoch) = {
+        let (batch, epoch, known) = {
             let mut st = self.state();
-            (std::mem::take(&mut st.pending), st.epoch)
+            (std::mem::take(&mut st.pending), st.epoch, st.stamp)
         };
         if batch.is_empty() {
             let mut st = self.state();
             st.saving = st.saving && !st.pending.is_empty();
             return Ok(st.saving);
+        }
+        let base = stamp_of(path);
+        if known.is_some() && base.is_none() {
+            return Ok(self.forgotten_elsewhere(epoch));
         }
         let mut merged = read_table(path);
         for p in &batch {
@@ -474,6 +493,14 @@ impl Store {
             st.pending.drain(..excess);
             st.saving = false;
         };
+        if st.epoch != epoch {
+            // Forgotten meanwhile. What arrived since is the new table's.
+            if let Ok(tmp) = &written {
+                let _ = std::fs::remove_file(tmp);
+            }
+            st.saving = st.saving && !st.pending.is_empty();
+            return Ok(st.saving);
+        }
         let tmp = match written {
             Ok(tmp) => tmp,
             Err(e) => {
@@ -481,10 +508,16 @@ impl Store {
                 return Err(e);
             }
         };
-        if st.epoch != epoch {
-            // Forgotten meanwhile. What arrived since is the new table's.
+        let current = stamp_of(path);
+        if current != base {
+            // Another process wrote or deleted the file since it was read.
             let _ = std::fs::remove_file(&tmp);
-            st.saving = st.saving && !st.pending.is_empty();
+            if current.is_none() {
+                drop(st);
+                return Ok(self.forgotten_elsewhere(epoch));
+            }
+            let newer = std::mem::replace(&mut st.pending, batch);
+            st.pending.extend(newer);
             return Ok(st.saving);
         }
         // Under the lock, so `forget` cannot delete between this and a write.
@@ -504,6 +537,8 @@ impl Store {
 }
 
 /// The file's table; a missing, oversized or malformed file is an empty one.
+///
+/// Used by saves too, which is what keeps another process's picks.
 fn read_table(path: &Path) -> Learned {
     let fits = std::fs::metadata(path).is_ok_and(|m| m.len() <= MAX_FILE_BYTES);
     fits.then(|| std::fs::read_to_string(path).ok()).flatten().and_then(|t| Learned::parse(&t)).unwrap_or_default()
@@ -611,6 +646,11 @@ mod tests {
 
     const NA: [&str; 3] = ["吾", "出", "我"];
 
+    /// A different reading of Hangul for each number.
+    fn word(i: usize) -> String {
+        [i / 100, i % 100].iter().map(|k| char::from_u32(0xAC00 + *k as u32).unwrap()).collect()
+    }
+
     #[test]
     fn one_pick_changes_nothing_and_two_come_first() {
         let mut t = Learned::new();
@@ -695,7 +735,7 @@ mod tests {
         t.commit("나", "我", false);
         t.commit("나", "我", false);
         for i in 0..MAX_ENTRIES - 1 {
-            t.commit(&format!("가{i}"), "x", false);
+            t.commit(&word(i), "x", false);
         }
         assert!(t.commit("나", "我", true));
         t.commit("다", "x", false);
@@ -710,7 +750,7 @@ mod tests {
         t.commit("옛", "昔", false);
         t.commit("둘", "二", false);
         for i in 0..MAX_ENTRIES - 2 {
-            t.commit(&format!("가{i}"), "x", false);
+            t.commit(&word(i), "x", false);
         }
         assert_eq!(t.len(), MAX_ENTRIES);
         assert!(t.promotes("옛"));
@@ -724,11 +764,13 @@ mod tests {
     #[test]
     fn phrases_numbers_and_field_breakers_are_not_kept() {
         let mut t = Learned::new();
-        let long = "가".repeat(MAX_READING_CHARS + 1);
-        for (r, x) in [("1234", "x"), ("나 는", "我 는"), (long.as_str(), "x"), ("나", "a\tb"), ("나", "a\nb"), ("", "x"), ("나", "")] {
+        let long = "가".repeat(MAX_READING_UNITS + 1);
+        for (r, x) in [("1234", "x"), ("나1234", "我1234"), ("나 는", "我 는"), (long.as_str(), "x"), ("나", "a\tb"), ("나", "a\nb"), ("", "x"), ("나", "")] {
             assert!(!t.commit(r, x, false), "{r:?} {x:?}");
         }
         assert!(t.is_empty());
+        // Old-Hangul syllables count as syllables.
+        assert!(t.commit(&"\u{1112}\u{119E}\u{11AF}".repeat(MAX_READING_UNITS), "x", false));
     }
 
     #[test]
@@ -900,6 +942,44 @@ mod tests {
         other.refresh();
         assert!(other.is_empty(), "a deleted file empties the table at once");
         assert!(!opened(&path).promotes("나"));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn a_save_due_in_another_process_does_not_undo_forgetting() {
+        let dir = scratch("forget-other");
+        let path = dir.join(FILE_NAME);
+        let here = opened(&path);
+        here.commit("나", "我", false);
+        here.commit("나", "我", false);
+        here.save_now().unwrap();
+        let other = opened(&path);
+        other.commit("너", "汝", false);
+        here.forget().unwrap();
+        // The other process's save comes due after the file went.
+        other.save_now().unwrap();
+        assert!(!path.exists(), "forgotten picks came back");
+        assert!(other.is_empty());
+        // A pick made after that is the new table's.
+        other.commit("다", "多", false);
+        other.save_now().unwrap();
+        let text = std::fs::read_to_string(&path).unwrap();
+        assert!(text.contains("多") && !text.contains("我") && !text.contains("汝"));
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn a_failed_save_does_not_bring_back_what_was_forgotten() {
+        let dir = scratch("forget-failed");
+        let blocked = dir.join("blocked");
+        std::fs::write(&blocked, "").unwrap();
+        let s = opened(&blocked.join(FILE_NAME));
+        s.commit("나", "我", false);
+        assert!(s.save_now().is_err());
+        assert_eq!(s.state().pending.len(), 1);
+        // The file cannot be reached to delete it either; memory still empties.
+        let _ = s.forget();
+        assert!(s.state().pending.is_empty());
         let _ = std::fs::remove_dir_all(&dir);
     }
 

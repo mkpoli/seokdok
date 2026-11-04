@@ -39,14 +39,14 @@ jobs:
         run: choco upgrade innosetup -y --no-progress
 
       - name: Compile installer
-        shell: bash
+        shell: pwsh
         run: |
-          version=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
-          iscc="$(cygpath -u "${PROGRAMFILES(X86)}")/Inno Setup 6/ISCC.exe"
-          mkdir -p target/installer
-          "$iscc" /Q "/DMyAppVersion=$version" "/DStage=$PWD/target/stage/windows" \
-            "/O$PWD/target/installer" crates/seokdok-tsf/installer/seokdok.iss
-          ls -l target/installer
+          $version = (Select-String -Path Cargo.toml -Pattern '^version = "(.*)"' | Select-Object -First 1).Matches[0].Groups[1].Value
+          $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          New-Item -ItemType Directory -Force target/installer | Out-Null
+          & $iscc /Q "/DMyAppVersion=$version" "/DStage=$PWD\target\stage\windows" "/O$PWD\target\installer" crates\seokdok-tsf\installer\seokdok.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem target/installer
 
       - uses: actions/upload-artifact@v4
         id: upload

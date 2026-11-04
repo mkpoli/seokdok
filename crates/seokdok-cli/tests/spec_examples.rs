@@ -296,3 +296,23 @@ fn interrogatives_in_hanja() {
     assert_eq!(e.convert("이에요")[0].text, "乃요");
     assert_eq!(e.read("何故"), "왜");
 }
+
+#[test]
+fn the_rest_of_the_demonstrative_family() {
+    let e = engine(Options::default());
+    for (input, first) in [
+        ("그분", "其分"), ("이편", "此便"), ("저편", "彼便"), ("어느쪽", "何느쪽"),
+        ("그이", "其人"), ("이이", "此人"), ("이달", "今月"), ("다음주", "來週"), ("이번주", "今週"),
+        ("너희", "汝等"), ("이러다", "此러다"),
+    ] {
+        assert_eq!(e.convert(input)[0].text, first, "{input}");
+    }
+    for (input, other) in [("이분", "此分"), ("저들", "彼等"), ("저만큼", "彼만큼"), ("저대로", "彼대로"), ("저처럼", "彼처럼"), ("저희", "吾等"), ("저희", "僕等")] {
+        assert!(offers(&e, input, other), "{input} → {other}");
+    }
+    // Words that merely contain 그이 or 저이 stay as they are.
+    assert_eq!(e.convert("로그인")[0].text, "로그인");
+    assert_eq!(e.convert("먼저일")[0].text, "먼저일");
+    // 저 still reads as the humble pronoun on its own.
+    assert_eq!(e.convert("저는")[0].text, "自는");
+}

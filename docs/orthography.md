@@ -18,7 +18,9 @@ A 釋讀 sentence is Korean grammar written with three kinds of material.
 |---|---|---|---|
 | 音讀 | A Sino-Korean word, in Hanja by sound | 規則, 歡迎 | 규칙, 환영 |
 | 訓讀 | A native word or stem, in Hanja by meaning | 讀, 天, 有 | 읽-, 하늘, 있- |
-| 送韓字 | The rest of the word, in Hangul | 讀**었다**, 天**을** | 읽었다, 하늘을 |
+| 末音添記, 吐 | The rest of the word, in Hangul | 超**무**, 讀**었다**, 天**을** | 너무, 읽었다, 하늘을 |
+
+The Hangul has two names. 末音添記 (말음첨기, the chat's term, 35 uses) is the last sound written after a word read by meaning, a practice named from 鄕札 spellings such as 夜音 for 밤. 吐 (40 uses) is a grammatical particle or ending. Members compare the whole with Japanese 送り仮名 (오쿠리가나).
 
 Particles, endings and words with no chosen character stay in Hangul.
 Sino-Korean verbs keep 하다 in Hangul by default (安寧하세요, 153 times), with
@@ -220,14 +222,144 @@ form that is also a dictionary form of another word is read as that word:
 | `coda_always` | true, false | false | §5 |
 | `resyllabify` | true, false | false | §5 |
 | `hada_kun` | true, false | false | §6.4 |
+| `old_ha` | true, false | false | §8.1 |
 
 Whatever the options, the input method lists the other spellings as
 alternative candidates, so a writer can switch for a single word.
 
-## 8. Not yet covered
+## 8. Old spellings
 
-- **Archaic Hangul** (ᄒᆞ옵니다, 讀了ᄒᆞ엿ᄉᆞ옵니다) is used by some members as
-  a separate stylistic layer. seokdok outputs modern Hangul only.
+Some members write function syllables in old Hangul: ᄒᆞ고, 追加ᄒᆞᆯ까요,
+工夫ᄒᆞᄂᆞᆫ, 字ᄅᆞᆯ. seokdok offers these spellings and accepts old letters as
+input. Old letters are conjoining jamo (U+1100 block), the ones the old-letter
+keys type.
+
+### 8.1 Offered
+
+In the Hangul after Hanja, and in every inflection of the light verb 하다,
+ten syllables have an old spelling. The counts are occurrences of each old
+syllable in the chat export (telegram.jsonl, 2022-06-17 to 2026-11-03).
+
+| Modern | Old | Count |
+|---|---|---|
+| 하 | ᄒᆞ | 247 |
+| 한 | ᄒᆞᆫ | 43 |
+| 할 | ᄒᆞᆯ | 14 |
+| 함 | ᄒᆞᆷ | 5 |
+| 합 | ᄒᆞᆸ | 2 |
+| 해 | ᄒᆡ | 19 |
+| 는 | ᄂᆞᆫ | 58 |
+| 를 | ᄅᆞᆯ | 41 |
+| 은 | ᄋᆞᆫ | 10 |
+| 을 | ᄋᆞᆯ | 14 |
+
+The table holds only spellings the chat uses. 했 has no old spelling there
+(ᄒᆡᆻ occurs 0 times), so it stays as it is.
+
+The old spelling of the best candidate comes third, or last in a shorter
+list:
+
+| Input | Candidates |
+|---|---|
+| 하고 | 하고, 爲고, ᄒᆞ고 |
+| 추가할까요 | 追加할까요, 追加爲ㄹ까요, 追加ᄒᆞᆯ까요 |
+| 공부하는 | 工夫하는, 工部하는, 工夫ᄒᆞᄂᆞᆫ |
+| 이것을 | 此것을, 此事ㅅ을, 此것ᄋᆞᆯ |
+| 字를 | 字를, 字㔹, 字ᄅᆞᆯ |
+
+In 國漢文混用 (`sino_only`) the rule applies too: 공부하셨다
+offers 工夫ᄒᆞ셨다.
+
+With the option `old_ha` (setting 하 → ᄒᆞ in the settings screens), the
+old spelling of 하 한 할 함 합 해 comes first and the modern spelling right
+behind it: 하고 gives ᄒᆞ고, 하고; 공부한 gives 工夫ᄒᆞᆫ, 工夫한. 는, 를, 은 and 을
+keep their places.
+
+### 8.2 Accepted
+
+A run that holds old letters is looked up by the modern letters they became,
+and by the classes of pronounced spellings in 8.3. At most 24 readings of such
+a run are converted (12 for a run typed in modern letters), ranked by the
+conversion's cost plus a penalty for each rewrite, and what was typed stays one
+of the candidates. The folds of old letters:
+
+| Old letter | Modern letter | Example in the chat |
+|---|---|---|
+| ㆍ (U+119E) | ㅏ or ㅡ; as a guess ㅗ or ㅜ | ᄉᆞ랑 = 사랑, ᄂᆞᆫ = 는, ᄒᆞᆰ = 흙, 아ᄆᆞ리 = 아무리 (3), ᄃᆞᆯ = 돌 (16) |
+| ᆡ (U+11A1, ㆍ+ㅣ) | ㅐ; as a guess ㅔ | ᄇᆡ = 배, ᄒᆡ = 해 (171 in all) |
+| ㅿ (U+1140) | ㅅ | ᅀᅵ = 시 (71) |
+| ㆁ (U+114C) | ㅇ | ᅌᅵ = 이 (22) |
+| ㅸ (U+112B) | ㅂ; as a guess ㅇ | 25 |
+| ᄭ (U+112D), ᄢ | ㄲ | 28 |
+| ᄯ (U+112F), ᄠ (U+1120), ᄣ | ㄸ | ᄯᅩ = 또 (41), ᄠᅳᆮ = 뜻 (8) |
+| ᄲ (U+1132), ᄤ | ㅃ | 8 |
+| ᄶ (U+1136), ᄧ (U+1127), ᄦ | ㅉ | ᄶ 1, ᄧ 2 |
+| ᄡ (U+1121), ᄥ | ㅆ | 14 |
+| final ㆁ (U+11F0), final ㅿ (U+11EB) | final ㅇ, final ㅅ | ᄉᆡᇰ = 생 (41), 6 |
+
+The folds are the usual correspondences between Middle Korean spelling and
+today's, applied letter by letter; no single reference was used, and the
+chat spellings above are the evidence for each. They serve only to find the
+word. ㅿ also became ㅇ in some words (겨울), which is not tried. A letter
+outside the table (such as ᄓ) gives no reading, and the run stays as typed.
+
+Examples: ᄉᆞ랑 offers 愛, 사ᄅᆞᆷ offers 人, 말ᄊᆞᆷ offers 言씀, 있ᄂᆞᆫ
+offers 有ᄂᆞᆫ and 在ㅆᄂᆞᆫ. When the old letters are all function syllables of the
+table in 8.1, the candidates that keep them as typed come first: ᄒᆞ고
+stays first, then 爲고, and 추가ᄒᆞᆯ까요 gives 追加ᄒᆞᆯ까요.
+
+### 8.3 Pronounced spellings
+
+Spellings of the era were often written as pronounced, with modern syllables.
+Each class below rewrites one or two neighbouring syllables into the spelling
+of today, so it combines with the folds above and with the others (사ᄅᆞ미 is
+사람이: a fold and a carry). A class gives a reading only; the engine converts
+it, and a guess counts only when words cover all of it. The evidence column
+names where each class comes from: counts are occurrences of those spellings
+in the chat; "usual correspondence" marks a rewrite that rests on the known
+history of the spelling and is not attested there.
+
+| Class | Rewrites | Examples | Evidence |
+|---|---|---|---|
+| Palatalisation | ㄷ ㅌ before ㅑ ㅕ ㅛ become ㅈ ㅊ before ㅏ ㅓ ㅗ | 텬하 = 천하, 뎌 = 저, 됴 = 조, 댜 = 자, 텨 = 처 | chat: 20, 9, 25, 1, 7 |
+| Palatalisation of 디 티 | 디 티 become 지 치 | 디나거ᄂᆞᆯ = 지나거늘 | chat: ᄒᆞ디, 디만, 엇디 and others, a handful; tried only for words left unconverted, as loanwords have them |
+| Glide after a sibilant | ㅅ ㅈ ㅊ before ㅑ ㅕ ㅛ ㅠ lose the glide | 셔울 = 서울, 죠션 = 조선, 슈작 = 수작 | chat: 4, 1, 1; the rest usual correspondence |
+| Final ㅅ as ㅆ | a final ㅅ after ㅏ ㅐ ㅓ ㅕ ㅣ is ㅆ (not in 것) | 갓다 = 갔다, 잇다 = 있다, 엇다 = 었다 | chat: 3, 6, 2 |
+| Seven finals | ㅂ for ㅄ ㅍ; ㅅ ㄷ for ㅈ ㅊ ㅌ ㅆ; for old input also ㄱ ㄴ ㄹ for their clusters | 업시 = 없이, 업ᄂᆞᆫ = 없는, 놉다 = 높다, 갑ᄋᆞᆫ = 값은 | chat: 4, 5, 3, 1; ㅅ ㄷ ㄱ ㄴ ㄹ rewrites are usual correspondence |
+| ㅎ fusion | ㅎ and a following ㄷ ㄱ ㅈ ㅂ written ㅌ ㅋ ㅊ ㅍ | 됴타 = 좋다, 됴코 = 좋고, 만타 = 많다, 안코 = 않고 | chat: 됴타 2, 됴쿠 1, 됴쿶 1; 만타, 안코 usual correspondence |
+| Carry | a final written as the onset of the next syllable, with ㅡ also read ㅏ | 사르미 = 사람이, 그르슬 = 그릇을, 노ᄑᆞᆫ = 높은, 됴흔 = 좋은 | chat: 노ᄑᆞᆫ 2, 아ᄌᆞ미 1; the rest usual correspondence |
+| Initial ㄴ | ㄴ for ㅇ before ㅣ ㅑ ㅕ ㅛ ㅠ at the start | 니르다 = 이르다, 닙다 = 입다, 녀름 = 여름 | chat: 니르 5, 녀름 1 |
+| ㅡ after a labial | ㅁ ㅂ ㅍ with ㅡ become ㅜ | 믈 = 물, 블 = 불, 플 = 풀 | usual correspondence; the chat's 므레 (2) is 물에 |
+
+The strong classes, palatalisation, final ㅅ as ㅆ and ㅎ fusion at the end of a
+word, are tried for every run that shows them, converted or not, and give their
+readings behind the first candidate (잇다 stays 續다, with 有다 behind it; 만타
+stays 萬朶, with 多다 behind it). The others are tried only for a run of at most
+six syllables that conversion left as typed, which keeps their cost off words
+the dictionary already reads: a run with no mark of any class costs nothing.
+Words such as 곳 (處) and 믈 (typed first) therefore keep their reading.
+
+A syllable that modern words do not use (ㄷ ㅌ before ㅑ ㅛ, or before ㅕ with a
+final other than ㅆ) puts the converted reading first and what was typed second,
+when the reading is two syllables or more and every word of it is an entry with
+a count of at least three (the chat's count, or FusionIME's frequency where the
+chat has none): 텬하 gives 天下, 됴타 gives 好다. A reading of one syllable or
+from a rare entry is offered behind what was typed. 뎌 and 텨 alone are the
+endings of 견뎌 and 버텨, so they are not in that set. In the 20000 most
+frequent Hangul tokens of the chat this changes the first candidate of 10 words
+(둏도다, 됴션, 텬동, 됴타, 텬문, 됴션인, 됴하셔, 뎡쥬, 됴흔, 텬운); 둏, 뎍, 댜, 됴한, 됴츙 and
+뎜다 keep what was typed first. All are spellings of the era; none is a
+loanword or a name. Guesses add to the candidates of a run: every modern
+candidate and the literal input stay selectable.
+
+`read` turns the function syllables of 8.1 back into modern ones (工夫ᄒᆞᄂᆞᆫ reads
+공부하는) and leaves other old letters as they are.
+
+## 9. Not yet covered
+
+- **Archaic Hangul beyond §8** (ᄒᆞ옵니다, 讀了ᄒᆞ엿ᄉᆞ옵니다): only the ten
+  syllables of §8.1 are written in old letters. Other old letters are
+  accepted as input but not offered.
 - **Gugyeol letters for bare jamo** (用ㅂ니다 → 用邑니다) were proposed once
   (2022-09-18) and are not supported.
 - **Classical Chinese word order** (此處 頗有興趣) is outside the scope of an

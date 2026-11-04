@@ -4,7 +4,7 @@
   const SLOGAN = '{音讀|음독}에{疲|지치}ㄴ {當身|당신}을{爲|위}한、'
 
   // The wall of 訓讀 verbs, after the third 釋讀會 poster: each Hanja with its
-  // own reading as ruby, then the 送韓字. All are dictionary entries attested
+  // own reading as ruby, then the 末音添記. All are dictionary entries attested
   // in the group's chat.
   const WALL = [
     ['爲', '다', '하'], ['在', '다', '있'], ['成', '다', '되'], ['無', '다', '없'], ['不', 'ㅎ다', '안'], ['非', '다', '아니'],

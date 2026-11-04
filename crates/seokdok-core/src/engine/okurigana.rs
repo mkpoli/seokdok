@@ -1,4 +1,4 @@
-//! 送韓字 strategies: other ways to write the Hangul after a word's Hanja.
+//! 末音添記 strategies: other ways to write the Hangul after a word's Hanja.
 //!
 //! A 訓讀 entry has one dictionary form (超무, 初음, 近다). The same word is
 //! also written with more or less of its reading after the Hanja. The
@@ -42,7 +42,7 @@ fn last_letter(comps: &[char]) -> Vec<char> {
 }
 
 impl Engine {
-    /// The 送韓字 variants of an edge whose dictionary forms are `dict`, new
+    /// The 末音添記 variants of an edge whose dictionary forms are `dict`, new
     /// texts only, in the order of the module docs. `comps` is the whole
     /// input the edge lies in. `hanja_only` adds the form with the Hanja
     /// alone (nouns); [`Engine::read`] leaves it out and keeps reading such

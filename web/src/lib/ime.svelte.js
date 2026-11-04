@@ -1,4 +1,4 @@
-import { chars } from './chars.js'
+import { chars, splitsChar, HANGUL, WORD } from './chars.js'
 // The in-page input method, modelled on Japanese IMEs (MS-IME, Google 日本語入力).
 //
 // Composing (Hangul in the preedit):
@@ -35,7 +35,6 @@ import { chars } from './chars.js'
 /** @typedef {{ reading: string, candidates: Candidate[], pick: number }} Seg */
 
 export const PAGE = 9
-const HANGUL = /[가-힣]/
 
 export class Ime {
   /** Committed text. */
@@ -195,11 +194,10 @@ export class Ime {
     if (!text) return
     this.#record(kind ?? (chars(text).length === 1 ? 'type' : 'insert'))
     this.deleteSelection(false)
-    const a = chars(this.doc)
-    const t = chars(text)
-    a.splice(this.cursor, 0, ...t)
-    this.doc = a.join('')
-    this.cursor += t.length
+    // Counted again: the text can join the character before it (ᄒ + ᆞ).
+    const head = this.before + text
+    this.doc = head + this.after
+    this.cursor = chars(head).length
   }
 
   /** Replace the whole document (clear, paste into the editor). */
@@ -244,17 +242,17 @@ export class Ime {
 
   /** Segments the cursor can visit: those with a real choice. */
   #stops() {
-    return (this.segs ?? []).map((s, i) => (s.candidates.length > 1 || HANGUL.test(s.reading) ? i : -1)).filter((i) => i >= 0)
+    return (this.segs ?? []).map((s, i) => (s.candidates.length > 1 || WORD.test(s.reading) ? i : -1)).filter((i) => i >= 0)
   }
 
   /** @param {boolean} [spaced] started by Space: confirming implies a word break */
   async convert(spaced = false) {
-    if (this.hangulOnly || !this.pre || !HANGUL.test(this.pre)) return false
+    if (this.hangulOnly || !this.pre || !WORD.test(this.pre)) return false
     this.#spaced = spaced
     this.busy = true
     try {
       const text = this.pre
-      const segs = await this.segment(text)
+      const segs = await this.#wholeChars(await this.segment(text))
       // 韓㐎 專用 may have been turned on, or the text committed, meanwhile.
       if (this.hangulOnly || this.pre !== text) return false
       this.segs = segs.map((s) => ({ ...s, pick: 0 }))
@@ -265,6 +263,19 @@ export class Ime {
       this.busy = false
       this.#drain()
     }
+  }
+
+  /** A character never spans two segments: rejoin those a boundary cuts. */
+  async #wholeChars(segs) {
+    const out = []
+    for (const s of segs) {
+      const last = out.at(-1)
+      if (last && splitsChar(last.reading, s.reading)) {
+        const reading = last.reading + s.reading
+        out[out.length - 1] = { reading, candidates: await this.#span(reading) }
+      } else out.push(s)
+    }
+    return out
   }
 
   /** Confirm everything. */
@@ -285,7 +296,7 @@ export class Ime {
     this.#insert(done.map((s) => s.candidates[s.pick]?.text ?? s.reading).join(''), 'commit')
     this.open = false
     const left = rest.map((s) => s.reading).join('')
-    if (!rest.length || !HANGUL.test(left)) {
+    if (!rest.length || !WORD.test(left)) {
       this.#insert(left)
       this.#wordBreak = this.#spaced
       this.segs = null
@@ -399,7 +410,7 @@ export class Ime {
   /** Text from the reader's own IME (composition end, paste). */
   insertText(s) {
     if (this.segs) this.commit()
-    if (this.#wordBreak && !this.pre && HANGUL.test(s)) this.#space()
+    if (this.#wordBreak && !this.pre && WORD.test(s)) this.#space()
     this.#wordBreak = false
     this.composer.setText(this.pre + s)
     this.#sync()

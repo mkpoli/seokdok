@@ -67,6 +67,7 @@ class SettingsActivity : Activity() {
         column.addView(toggle(R.string.coda_always, "conversion.coda_always"))
         column.addView(toggle(R.string.resyllabify, "conversion.resyllabify"))
         column.addView(toggle(R.string.hada_kun, "conversion.hada_kun"))
+        column.addView(toggle(R.string.old_ha, "conversion.old_ha"))
         column.addView(number(R.string.max_candidates, "conversion.max_candidates"))
 
         column.addView(header(R.string.section_custom))

@@ -6,7 +6,7 @@
   import Keyboard from './Keyboard.svelte'
   import Ruby from './Ruby.svelte'
   import { PAGE } from '../lib/ime.svelte.js'
-  import { chars } from '../lib/chars.js'
+  import { chars, HANGUL } from '../lib/chars.js'
   import { input, output } from '../lib/custom.svelte.js'
 
   /** @type {{ ime: import('../lib/ime.svelte.js').Ime }} */
@@ -204,7 +204,7 @@
     const v = sink.value
     sink.value = ''
     if (!v) return
-    if (/[가-힣ㄱ-ㆎ]/.test(v)) ime.insertText(v)
+    if (HANGUL.test(v)) ime.insertText(v)
     else for (const c of v) ime.key({ key: c })
   }
 
@@ -293,6 +293,7 @@
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.codaAlways} />{@html r(t().options.coda)}</label>
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.resyllabify} />{@html r(t().options.resyllabify)}</label>
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.hadaKun} />{@html r(t().options.hada)}</label>
+            <label class="ui-field" title={plain(t().options.oldHaTip)}><input class="ui-check" type="checkbox" bind:checked={options.oldHa} />{@html r(t().options.oldHa)}</label>
           </fieldset>
         </div>
       </details>

@@ -1,7 +1,8 @@
 <script>
-  // Hangul text in, 釋讀 out: every word converted, each with its other
+  // Hangul or 釋讀 text in, 釋讀 out: every word converted, each with its other
   // candidates in a menu that opens on hover, focus or tap.
   import { reveal } from '../lib/reveal.js'
+  import { convertLine, byLine, picked } from '../lib/convert.js'
   import { t, r, plain } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
   import { input, output } from '../lib/custom.svelte.js'
@@ -24,19 +25,14 @@
     timer = setTimeout(async () => {
       const keep = opts === convertedWith
       convertedWith = opts
-      const old = new Map(keep ? lines.map((segs) => [segs.map((s) => s.reading).join(''), segs]) : [])
+      const old = keep ? byLine(lines) : new Map()
       lines = await Promise.all(
-        src.split('\n').map(async (line) => {
-          if (old.has(line)) return old.get(line)
-          if (!/[가-힣]/.test(line)) return [{ reading: line, candidates: [{ text: line, note: '' }], pick: 0 }]
-          const segs = await engine.segments(input(line))
-          return segs.map((s) => ({ ...s, candidates: output(s.candidates), pick: 0 }))
-        }),
+        src.split('\n').map(async (line) => old.get(line) ?? (await convertLine(line, { segments: engine.segments, input, output }))),
       )
     }, opts === convertedWith ? 200 : 0)
   })
 
-  const result = $derived(lines.map((segs) => segs.map((s) => s.candidates[s.pick]?.text ?? s.reading).join('')).join('\n'))
+  const result = $derived(picked(lines))
 
   /** Keep an opened menu inside the viewport. */
   function fit(e) {

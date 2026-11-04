@@ -109,10 +109,16 @@ impl Host {
     /// again. False when a conversion on another thread holds the engine and
     /// it kept its old options: the caller then starts a load.
     pub fn apply_options(&self, options: &Options) -> bool {
-        let Ok(mut wanted) = self.options.write() else { return false };
-        if wanted.as_ref() == Some(options) {
+        // Asked at every key, so the usual answer takes no write lock. A load
+        // in progress does not count: the running engine serves until it ends.
+        let settled = |host: &Self| {
+            let wanted = host.options.read().is_ok_and(|w| w.as_ref() == Some(options));
+            wanted && host.engine.read().is_ok_and(|e| e.as_ref().is_none_or(|e| e.options == *options))
+        };
+        if settled(self) {
             return true;
         }
+        let Ok(mut wanted) = self.options.write() else { return false };
         *wanted = Some(options.clone());
         let Ok(mut engine) = self.engine.write() else { return false };
         match engine.as_mut() {
@@ -236,6 +242,17 @@ mod tests {
             assert_eq!(whole(&host), expected);
             assert!(host.apply_options(&Options::default()));
         }
+    }
+
+    #[test]
+    fn options_reach_the_running_engine_during_a_load() {
+        let host = Host::new();
+        host.set(load_engine(&dict_dir(), None, Options::default()).0);
+        let sino = Options { sino_only: true, ..Options::default() };
+        // What `start_load` records while the old engine keeps serving.
+        *host.options.write().unwrap() = Some(sino.clone());
+        assert!(host.apply_options(&sino));
+        assert_eq!(host.engine.read().unwrap().as_ref().unwrap().options, sino);
     }
 
     #[test]

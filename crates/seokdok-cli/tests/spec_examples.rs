@@ -225,3 +225,34 @@ fn demonstratives_take_every_spelling_of_geot() {
         assert_eq!(e.read(&format!("{han}物을")), format!("{ko}것을"));
     }
 }
+
+#[test]
+fn demonstratives_of_place_side_and_time() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("여기")[0].text, "此處");
+    assert_eq!(e.convert("거기")[0].text, "其處");
+    assert_eq!(e.convert("저기")[0].text, "彼處");
+    assert_eq!(e.convert("여기서")[0].text, "此處서");
+    assert_eq!(e.convert("어디서")[0].text, "何處서");
+    assert_eq!(e.convert("여기서도")[0].text, "此處서도");
+    assert_eq!(e.convert("서")[0].text, "立");
+    // The chat writes 此番 twelve times to 今番 once.
+    assert_eq!(e.convert("이번")[0].text, "此番");
+    assert!(offers(&e, "이번", "今番"));
+    // Words ending in 서 keep their own reading.
+    assert_eq!(e.convert("나서")[0].text, "出서");
+    assert_eq!(e.convert("이어서")[0].text, "續어서");
+    assert_eq!(e.convert("이쪽")[0].text, "此쪽");
+    assert!(offers(&e, "저번", "這番"));
+    assert_eq!(e.convert("거기에")[0].text, "其處에");
+    for (input, want) in [
+        ("여기", "此所"), ("여기", "此기"), ("거기", "其기"), ("저기", "彼所"), ("저기", "那"),
+        ("이곳", "此處"), ("이곳", "此곳"), ("저곳", "彼處"), ("이쪽", "此側"), ("저쪽", "彼方"),
+        ("그쪽", "其쪽"), ("저때", "彼時"), ("이날", "此日"), ("이날", "是日"), ("이번", "此番"),
+        ("저번", "彼番"), ("이리", "此리"), ("저리", "彼리"),
+    ] {
+        assert!(offers(&e, input, want), "{input} → {want}");
+    }
+    // 여기다 and its forms are the verb.
+    assert!(offers(&e, "여기다", "思다"));
+}

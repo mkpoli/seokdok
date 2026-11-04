@@ -11,8 +11,9 @@
   import { input, output } from '../lib/custom.svelte.js'
   import { Sink } from '../lib/sink.js'
 
-  /** @type {{ ime: import('../lib/ime.svelte.js').Ime }} */
-  let { ime } = $props()
+  /** @type {{ ime: import('../lib/ime.svelte.js').Ime, picks: import('../lib/learned.js').Picks }} */
+  let { ime, picks } = $props()
+  let forgotten = $state(false)
 
   let sink = $state()
   /** @type {Sink} */
@@ -139,6 +140,7 @@
     }
     timer = setTimeout(async () => {
       const r = output(await engine.convert(input(pre)))
+      ime.learner?.rank(pre, r)
       if (ime.pre === pre) preview = r[0]?.text ?? ''
     }, 90)
   })
@@ -148,6 +150,7 @@
     ime.spaceMode = options.spaceMode
     ime.layout = options.layout
     ime.composer.setOld(options.oldClusters)
+    ime.learner = options.learn ? picks : null
   })
 
   // Options go to the engine; an open conversion is redone under them.
@@ -276,6 +279,17 @@
             <label class="ui-field" title={plain(t().options.oldTip)}>
               <input class="ui-switch" type="checkbox" role="switch" bind:checked={options.oldClusters} />{@html r(t().options.oldSwitch)}
             </label>
+            <label class="ui-field" title={plain(t().options.learnTip)}>
+              <input class="ui-switch" type="checkbox" role="switch" bind:checked={options.learn} />{@html r(t().options.learnSwitch)}
+            </label>
+            <button
+              class="btn forget"
+              data-size="sm"
+              onclick={() => {
+                picks.forget()
+                forgotten = true
+                setTimeout(() => (forgotten = false), 2000)
+              }}>{@html r(forgotten ? t().options.learnForgotten : t().options.learnForget)}</button>
           </fieldset>
           <fieldset>
             <legend>{@html r(t().options.spelling)}</legend>
@@ -466,6 +480,10 @@
     font-weight: 700;
     font-size: 12px;
   }
+  .forget {
+    justify-self: start;
+  }
+
   fieldset label {
     display: flex;
     gap: var(--s-2);

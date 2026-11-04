@@ -36,6 +36,8 @@ internal sealed class Engine
         try
         {
             ime = Native.seokdok_new(dict);
+            // Examples show the usual order, and typing them must not count as picks.
+            Native.seokdok_set_private_field(ime, true);
         }
         catch (Exception e) when (e is DllNotFoundException or EntryPointNotFoundException)
         {

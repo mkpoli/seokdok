@@ -16,6 +16,10 @@
     <string name="default_mode">始作 模式 · Start in</string>
     <string name="space_converts">Space로 變換 · Space converts</string>
     <string name="old_clusters">옛한글 겹자모 · Old Hangul clusters (ㅅㄱ→ᄭ)</string>
+    <string name="learn">자주 고른 候補 먼저 · Put candidates you keep picking first</string>
+    <string name="learn_help">두 번 고른 候補가 그 읽기의 첫 候補가 됩니다. 고른 낱말은 이 機器의 learned.tsv에만 남습니다. · A candidate picked twice comes first for that reading. The words stay on this device in learned.tsv.</string>
+    <string name="learn_forget">고른 것 잊기 · Forget what I picked</string>
+    <string name="learn_forgotten">지웠습니다 · Forgotten</string>
     <string name="candidate_layout">候補 方向 · Candidate layout</string>
 
     <string name="section_keys">物理 키보드 鍵 · Hardware keyboard keys</string>

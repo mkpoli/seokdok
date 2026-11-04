@@ -18,6 +18,8 @@ final class Key: UIView {
     /// Show the pop-up preview while held.
     var previews = false
     var action: (() -> Void)?
+    /// Instead of `action`, once held for half a second (the 釋 key).
+    var onHold: (() -> Void)?
 
     private let label = UILabel()
     private let icon = UIImageView()
@@ -230,6 +232,7 @@ final class KeyPad: UIView {
     private var tracks: [ObjectIdentifier: Track] = [:]
     private var previewing: Key?
     private var repeatTimer: Timer?
+    private var holdTimer: Timer?
     /// How far from a key a touch still belongs to it: wider than the widest
     /// gap between keys, narrower than a blank cell of the number pad. Our choice.
     private static let reach: CGFloat = 16
@@ -284,8 +287,18 @@ final class KeyPad: UIView {
         for touch in touches.sorted(by: { $0.timestamp < $1.timestamp }) {
             rollOver()
             guard let k = key(at: touch.location(in: self)) else { continue }
-            tracks[ObjectIdentifier(touch)] = Track(key: k)
+            let id = ObjectIdentifier(touch)
+            tracks[id] = Track(key: k)
             press(k)
+            if k.onHold != nil {
+                holdTimer?.invalidate()
+                holdTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+                    guard let self, self.tracks[id]?.inside == true else { return }
+                    self.tracks[id]?.inside = false
+                    k.isPressed = false
+                    k.onHold?()
+                }
+            }
         }
     }
 
@@ -356,6 +369,10 @@ final class KeyPad: UIView {
         // Another finger may still hold the same key.
         if tracks.values.contains(where: { $0.key === k }) { return }
         k.isPressed = false
+        if k.onHold != nil {
+            holdTimer?.invalidate()
+            holdTimer = nil
+        }
         if k.repeats {
             repeatTimer?.invalidate()
             repeatTimer = nil

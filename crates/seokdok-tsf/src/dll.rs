@@ -108,7 +108,8 @@ pub unsafe extern "system" fn DllGetClassObject(
 /// COM entry point; only reads the module lock count.
 #[no_mangle]
 pub unsafe extern "system" fn DllCanUnloadNow() -> HRESULT {
-    if LOCK_COUNT.load(Ordering::SeqCst) == 0 {
+    // A thread saving the table of picks runs code in this DLL.
+    if LOCK_COUNT.load(Ordering::SeqCst) == 0 && crate::learned::idle() {
         S_OK
     } else {
         S_FALSE

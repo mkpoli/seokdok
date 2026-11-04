@@ -20,6 +20,9 @@ final class Key: UIView {
     /// Space: held, it turns the keyboard into a trackpad.
     var holdsForCursor = false
     var action: (() -> Void)?
+    /// The click and tap of a press, for keys VoiceOver activates: those touches
+    /// never reach `KeyPad`.
+    static var onActivate: (() -> Void)?
     /// Instead of `action`, once held for half a second (the 釋 key).
     var onHold: (() -> Void)?
 
@@ -181,6 +184,7 @@ final class Key: UIView {
     }
 
     override func accessibilityActivate() -> Bool {
+        Self.onActivate?()
         action?()
         return true
     }
@@ -237,6 +241,8 @@ final class GlobeKey: UIButton {
 /// along and types where it lifts; and a new touch types the letter still held,
 /// so fast two-thumb typing stays in order.
 final class KeyPad: UIView {
+    /// A key went down.
+    var onPress: (() -> Void)?
     /// The key being previewed; nil when none is.
     var onPreview: ((Key?) -> Void)?
     /// Space was held; the keyboard is a trackpad until `onCursorEnd`.
@@ -412,6 +418,7 @@ final class KeyPad: UIView {
 
     private func press(_ k: Key) {
         k.isPressed = true
+        onPress?()
         if k.previews { preview(k) }
         if k.fires == .onPress { k.action?() }
         if k.repeats {

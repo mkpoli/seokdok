@@ -40,6 +40,14 @@ final class BarButton: UIControl {
 /// composition's segments, and beside it the keys to shorten or lengthen the
 /// focused one. Cells exist only while it is open.
 final class CandidateDrawer: UIView {
+    /// Something in the drawer went down.
+    var onTouch: (() -> Void)? {
+        didSet {
+            for control in [close, shorter, longer] as [UIControl] {
+                control.addAction(UIAction { [weak self] _ in self?.onTouch?() }, for: .touchDown)
+            }
+        }
+    }
     var onPick: ((Int) -> Void)?
     var onFocus: ((Int) -> Void)?
     var onResize: ((Int) -> Void)?
@@ -129,6 +137,7 @@ final class CandidateDrawer: UIView {
             shown = list.items
             cells = list.items.enumerated().map { i, item in
                 let cell = CandidateCell(item)
+                cell.addAction(UIAction { [weak self] _ in self?.onTouch?() }, for: .touchDown)
                 cell.addAction(UIAction { [weak self] _ in self?.onPick?(i) }, for: .touchUpInside)
                 scroll.addSubview(cell)
                 return cell
@@ -160,6 +169,7 @@ final class CandidateDrawer: UIView {
             let cell = CandidateCell(.init(text: text, reading: ""))
             cell.isSelected = i == focus
             cell.heightAnchor.constraint(equalToConstant: Self.rowHeight - 8).isActive = true
+            cell.addAction(UIAction { [weak self] _ in self?.onTouch?() }, for: .touchDown)
             cell.addAction(UIAction { [weak self] _ in self?.onFocus?(i) }, for: .touchUpInside)
             segments.addArrangedSubview(cell)
         }

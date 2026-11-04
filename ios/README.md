@@ -139,6 +139,20 @@ access"; requesting it for the shared settings is allowed under that rule.
 The CI run executes the UI test a second time with `RequestsOpenAccess`
 turned off.
 
+## Sound and haptics
+
+Each press clicks with `UIDevice.playInputClick()` and taps with a light
+`UIImpactFeedbackGenerator`, as the finger lands. Apple's guide lists "Ability to
+play audio, including keyboard clicks using the playInputClick method" among what
+Full Access grants
+([App Extension Programming Guide, Custom Keyboard](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/CustomKeyboard.html),
+read 2026-11-05), and the click follows the keyboard clicks setting
+([`playInputClick`](https://developer.apple.com/documentation/uikit/uidevice/playinputclick()),
+read 2026-11-05). The app says so beside its Open in Settings link. Apple says
+nothing on haptics in keyboard extensions, and a custom keyboard cannot read the
+system's Keyboard Feedback → Haptic setting, so they are on whenever Full Access
+is, as in azooKey and Hamster.
+
 ## Layout
 
 - `Keyboard/Session.swift`: the Swift face of the C interface.
@@ -146,6 +160,7 @@ turned off.
   commits and the candidate bar; drops the composition when the
   text changes outside the keyboard.
 - `Keyboard/KeyboardView.swift`: the candidate bar, the 두벌식 and symbol layers.
+- `Keyboard/KeyFeedback.swift`: the click and the haptics.
 - `Keyboard/KeyPad.swift`: the key caps, the touch tracking of all keys (a touch
   belongs to the nearest key, a slide moves along the letters, a new touch types
   the letter still held) and the pop-up preview. The key height and fills are

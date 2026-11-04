@@ -1,0 +1,116 @@
+name: Release macOS
+
+# Signs the input method with a Developer ID certificate, notarizes it and
+# keeps the stapled app as an artifact. Without the secrets, the job is
+# skipped.
+on:
+  push:
+    tags: ["v*"]
+    branches: ["ci/release*"]
+  workflow_dispatch:
+
+concurrency:
+  group: release-macos-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          CERT: ${{ secrets.MACOS_CERT_P12 }}
+          CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+          KEY: ${{ secrets.ASC_KEY_P8 }}
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          if [ -n "$CERT" ] && [ -n "$CERT_PASSWORD" ] && [ -n "$KEY" ] && [ -n "$KEY_ID" ] && [ -n "$ISSUER" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::MACOS_CERT_P12, MACOS_CERT_PASSWORD, ASC_KEY_P8, ASC_KEY_ID or ASC_ISSUER_ID is not set; nothing is signed or notarized."
+          fi
+
+  notarize:
+    needs: check
+    if: needs.check.outputs.ready == 'true'
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      APP: macos/build/DerivedData/Build/Products/Release/Seokdok.app
+      KEY_PATH: ${{ runner.temp }}/AuthKey.p8
+      KEYCHAIN: ${{ runner.temp }}/release.keychain-db
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust targets
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: macos
+
+      - name: Rust library (universal libseokdok_ffi.a)
+        run: macos/build-rust.sh
+
+      - name: Xcode project
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen
+          cd macos && xcodegen
+
+      - name: Build
+        working-directory: macos
+        run: |
+          xcodebuild -quiet build -project Seokdok.xcodeproj -scheme Seokdok \
+            -configuration Release -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Import the Developer ID certificate
+        env:
+          CERT: ${{ secrets.MACOS_CERT_P12 }}
+          CERT_PASSWORD: ${{ secrets.MACOS_CERT_PASSWORD }}
+        run: |
+          pw=$(openssl rand -hex 16)
+          echo "$CERT" | base64 --decode > "$RUNNER_TEMP/cert.p12"
+          security create-keychain -p "$pw" "$KEYCHAIN"
+          security set-keychain-settings -lut 21600 "$KEYCHAIN"
+          security unlock-keychain -p "$pw" "$KEYCHAIN"
+          security import "$RUNNER_TEMP/cert.p12" -k "$KEYCHAIN" -P "$CERT_PASSWORD" -T /usr/bin/codesign
+          security set-key-partition-list -S apple-tool:,apple: -s -k "$pw" "$KEYCHAIN"
+          security list-keychains -d user -s "$KEYCHAIN" login.keychain
+          rm -f "$RUNNER_TEMP/cert.p12"
+
+      - name: Sign
+        run: |
+          codesign --force --options runtime --timestamp --keychain "$KEYCHAIN" \
+            --sign "Developer ID Application" "$APP"
+          codesign --verify --strict --verbose=2 "$APP"
+
+      - name: Notarize and staple
+        env:
+          KEY: ${{ secrets.ASC_KEY_P8 }}
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+        run: |
+          printf '%s\n' "$KEY" > "$KEY_PATH"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" "$RUNNER_TEMP/notarize.zip"
+          xcrun notarytool submit "$RUNNER_TEMP/notarize.zip" --wait \
+            --key "$KEY_PATH" --key-id "$KEY_ID" --issuer "$ISSUER"
+          xcrun stapler staple "$APP"
+          spctl --assess --type execute --verbose "$APP"
+          ditto -c -k --sequesterRsrc --keepParent "$APP" macos/Seokdok.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Seokdok-notarized-app
+          path: macos/Seokdok.zip
+          if-no-files-found: error
+
+      - name: Remove the key and keychain
+        if: always()
+        run: |
+          rm -f "$KEY_PATH"
+          security delete-keychain "$KEYCHAIN" || true

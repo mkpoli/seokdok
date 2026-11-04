@@ -12,6 +12,10 @@ protocol KeyboardViewDelegate: AnyObject {
     func convert()
     func focus(run: Int)
     func resize(_ step: Int)
+    /// Space was held: end any composition so the caret can move.
+    func beginCursor()
+    /// Move the caret this many characters.
+    func moveCursor(by steps: Int)
 }
 
 /// What the text field asks for (`textDocumentProxy.keyboardType` and secure
@@ -137,6 +141,8 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             keysColumn.bottomAnchor.constraint(equalTo: keyPad.bottomAnchor, constant: -3),
         ])
         keyPad.onPreview = { [weak self] key in self?.showPopup(key) }
+        keyPad.onCursorBegin = { [weak self] in self?.delegate?.beginCursor() }
+        keyPad.onCursorMove = { [weak self] steps in self?.delegate?.moveCursor(by: steps) }
 
         letters.axis = .vertical
         letters.spacing = 12
@@ -400,6 +406,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         modeKey.widthAnchor.constraint(equalToConstant: 46).isActive = true
         spaceKey = Key(title: "띄어쓰기", look: .letter)
         spaceKey.action = { [weak self] in self?.tap { $0.space() } }
+        spaceKey.holdsForCursor = true
         enterKey = Key(title: "改行")
         enterKey.action = { [weak self] in self?.tap { $0.enter() } }
         enterKey.widthAnchor.constraint(equalToConstant: 94).isActive = true

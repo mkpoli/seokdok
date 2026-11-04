@@ -34,6 +34,16 @@ final class KeyboardUITests: XCTestCase {
             }
         }
 
+        /// Hold Space, then drag this far with the finger still down.
+        func dragSpace(by dx: CGFloat) {
+            let top = height - 336
+            let y = (top + 237) / height
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: y))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.55 + dx / width, dy: y))
+            start.press(forDuration: 0.9, thenDragTo: end, withVelocity: 60, thenHoldForDuration: 0.5)
+            usleep(400_000)
+        }
+
         /// Hold the letter for a while, for the screen recording.
         func hold(_ ch: Character, seconds: TimeInterval) {
             let w = (width - 6 - 54) / 10
@@ -191,6 +201,36 @@ final class KeyboardUITests: XCTestCase {
         XCTAssertEqual(text(second), "", "the composition leaked into the next field")
         g.letter("d") // typed as Latin in the email field
         XCTAssertEqual(text(second), "d")
+    }
+
+    /// Space held turns the keyboard into a trackpad that moves the caret, and
+    /// what is being composed is committed first.
+    func testHoldingSpaceMovesTheCaret() throws {
+        let (app, field) = launch(kind: "email")
+        let g = Geometry(app: app)
+        tapUntilTyped(field) { g.letter("a") }
+        g.letter("b")
+        XCTAssertEqual(text(field), "ab")
+        g.dragSpace(by: -60)
+        g.letter("c")
+        sleep(1)
+        shot("trackpad-moved")
+        XCTAssertEqual(text(field), "cab", "the caret did not move")
+        g.dragSpace(by: 16) // two steps to the right of c
+        g.letter("d")
+        sleep(1)
+        XCTAssertEqual(text(field), "cabd", "the caret did not move back")
+        app.terminate()
+
+        let (app2, field2) = launch(kind: "default")
+        let g2 = Geometry(app: app2)
+        tapUntilTyped(field2) { g2.letter("r") } // ㄱ
+        g2.letter("k") // ㅏ: 가 is being composed
+        g2.dragSpace(by: -60)
+        g2.letter("s") // ㄴ, before the committed 가
+        sleep(1)
+        shot("trackpad-composition")
+        XCTAssertEqual(text(field2), "ㄴ가", "the composition was not committed before the caret moved")
     }
 
     /// A held letter shows its pop-up; the recording and these frames show it.

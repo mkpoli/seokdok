@@ -17,6 +17,8 @@ final class Key: UIView {
     var repeats = false
     /// Show the pop-up preview while held.
     var previews = false
+    /// Space: held, it turns the keyboard into a trackpad.
+    var holdsForCursor = false
     var action: (() -> Void)?
 
     private let label = UILabel()
@@ -33,6 +35,16 @@ final class Key: UIView {
     /// Shift while it is on.
     var isOn = false {
         didSet { refill() }
+    }
+
+    /// The labels go while the keyboard is a trackpad.
+    var isDimmed = false {
+        didSet {
+            let alpha: CGFloat = isDimmed ? 0 : 1
+            label.alpha = alpha
+            icon.alpha = alpha
+            hint.alpha = alpha
+        }
     }
 
     /// Instant going down; a short fade coming back, as on the system keyboard.
@@ -217,6 +229,11 @@ final class GlobeKey: UIButton {
 final class KeyPad: UIView {
     /// The key being previewed; nil when none is.
     var onPreview: ((Key?) -> Void)?
+    /// Space was held; the keyboard is a trackpad until `onCursorEnd`.
+    var onCursorBegin: (() -> Void)?
+    /// The finger moved this many characters' worth.
+    var onCursorMove: ((Int) -> Void)?
+    var onCursorEnd: (() -> Void)?
     /// The system's next-keyboard handling needs a real control.
     weak var passThrough: UIView?
 
@@ -229,7 +246,15 @@ final class KeyPad: UIView {
     private var tracks: [ObjectIdentifier: Track] = [:]
     private var previewing: Key?
     private var repeatTimer: Timer?
+    private var holdTimer: Timer?
+    /// The touch steering the caret, and what it has moved short of a character.
+    private var cursorTouch: ObjectIdentifier?
+    private var cursorX: CGFloat = 0
     private static let slop: CGFloat = 40
+    /// As long as the system's own: half a second, and a finger's small drag
+    /// moving one character at a time.
+    private static let cursorHold: TimeInterval = 0.5
+    private static let cursorStep: CGFloat = 8
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -274,19 +299,37 @@ final class KeyPad: UIView {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // Other fingers do nothing while one steers the caret.
+        guard cursorTouch == nil else { return }
         for touch in touches {
             rollOver()
             guard let k = key(at: touch.location(in: self)) else { continue }
-            tracks[ObjectIdentifier(touch)] = Track(key: k)
+            let id = ObjectIdentifier(touch)
+            tracks[id] = Track(key: k)
             press(k)
+            if k.holdsForCursor {
+                holdTimer?.invalidate()
+                holdTimer = Timer.scheduledTimer(withTimeInterval: Self.cursorHold, repeats: false) { [weak self, weak touch] _ in
+                    guard let self, let touch else { return }
+                    self.beginCursor(id, at: touch.location(in: self).x)
+                }
+            }
         }
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
             let id = ObjectIdentifier(touch)
-            guard var t = tracks[id], t.key.fires == .onRelease else { continue }
             let p = touch.location(in: self)
+            if id == cursorTouch {
+                let steps = Int((p.x - cursorX) / Self.cursorStep)
+                if steps != 0 {
+                    cursorX += CGFloat(steps) * Self.cursorStep
+                    onCursorMove?(steps)
+                }
+                continue
+            }
+            guard var t = tracks[id], t.key.fires == .onRelease else { continue }
             if t.key.previews {
                 if let next = key(at: p), next !== t.key, next.previews {
                     t.key.isPressed = false
@@ -304,7 +347,12 @@ final class KeyPad: UIView {
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            guard let t = tracks.removeValue(forKey: ObjectIdentifier(touch)) else { continue }
+            let id = ObjectIdentifier(touch)
+            if id == cursorTouch {
+                endCursor()
+                continue
+            }
+            guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
             if t.inside, t.key.fires == .onRelease { t.key.action?() }
         }
@@ -312,7 +360,12 @@ final class KeyPad: UIView {
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            guard let t = tracks.removeValue(forKey: ObjectIdentifier(touch)) else { continue }
+            let id = ObjectIdentifier(touch)
+            if id == cursorTouch {
+                endCursor()
+                continue
+            }
+            guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
         }
     }
@@ -340,8 +393,40 @@ final class KeyPad: UIView {
         }
     }
 
+    private func beginCursor(_ id: ObjectIdentifier, at x: CGFloat) {
+        guard let t = tracks.removeValue(forKey: id) else { return }
+        t.key.isPressed = false
+        // Other keys still down (a thumb on a letter) end with it.
+        for (other, held) in tracks {
+            tracks[other] = nil
+            release(held.key)
+        }
+        cursorTouch = id
+        cursorX = x
+        setDimmed(true)
+        onCursorBegin?()
+    }
+
+    private func endCursor() {
+        cursorTouch = nil
+        setDimmed(false)
+        onCursorEnd?()
+    }
+
+    private func setDimmed(_ dimmed: Bool) {
+        var keys: [Key] = []
+        visibleKeys(in: self, into: &keys)
+        UIView.animate(withDuration: 0.2, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState]) {
+            keys.forEach { $0.isDimmed = dimmed }
+        }
+    }
+
     private func release(_ k: Key) {
         k.isPressed = false
+        if k.holdsForCursor {
+            holdTimer?.invalidate()
+            holdTimer = nil
+        }
         if k.repeats {
             repeatTimer?.invalidate()
             repeatTimer = nil

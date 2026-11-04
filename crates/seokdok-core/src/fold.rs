@@ -324,7 +324,7 @@ fn ops(us: &[Unit], i: usize, mask: u16, strict: bool, out: &mut Vec<Op>) {
         }
     }
     if let Some(&n) = us.get(i + 1) {
-        if mask & FUSION != 0 && (!strict || i + 2 == us.len()) {
+        if mask & FUSION != 0 && (!strict || continues(&us[i + 2..])) {
             let l = match n.l { '\u{1110}' => Some('\u{1103}'), '\u{110F}' => Some('\u{1100}'), '\u{110E}' => Some('\u{110C}'), '\u{1111}' => Some('\u{1107}'), _ => None };
             let t = match u.t { None => Some('\u{11C2}'), Some('\u{11AB}') => Some('\u{11AD}'), Some('\u{11AF}') => Some('\u{11B6}'), _ => None };
             if let (Some(l), Some(t)) = (l, t) {
@@ -353,6 +353,12 @@ fn ops(us: &[Unit], i: usize, mask: u16, strict: bool, out: &mut Vec<Op>) {
     if mask & LABIAL != 0 && matches!(u.l, '\u{1106}' | '\u{1107}' | '\u{1111}') && u.v == '\u{1173}' {
         out.push(one(Unit { v: '\u{116E}', ..u }, 0.7, LABIAL));
     }
+}
+
+/// What may follow a fused ending in a modern-letter run: nothing, or one or
+/// two of the common endings and particles (됴코요, 됴타고, 됴치만).
+fn continues(rest: &[Unit]) -> bool {
+    rest.len() <= 2 && rest.iter().all(|u| u.ch().is_some_and(|c| "요고는은도만지게서며면네다라나니죠야까".contains(c)))
 }
 
 fn units_of(run: &str) -> Vec<Unit> {
@@ -542,6 +548,10 @@ mod tests {
         has("셔울", ALL, true, "서울");
         has("됴흔", ALL, true, "좋은");
         has("됴하셔", ALL, true, "좋아서");
+        // Before the common endings and particles too.
+        has("됴코요", ALL, true, "좋고요");
+        has("됴타고", ALL, true, "좋다고");
+        has("됴치만", ALL, true, "좋지만");
         has("죠션", ALL, true, "조선");
         // Old letters combine with the classes.
         has("사\u{1105}\u{119E}미", ALL, false, "사람이");

@@ -198,6 +198,25 @@ struct Edge {
     kind: Kind,
 }
 
+/// What surrounds the run being converted in the input.
+#[derive(Clone, Copy, Debug)]
+struct Around {
+    /// The run is the only Hangul in the input.
+    alone: bool,
+    /// The next word of the input is a bound noun (때, 것, 수 …), which an
+    /// adnominal verb form before it (불 때, 길 것) needs.
+    bound_next: bool,
+}
+
+impl Default for Around {
+    fn default() -> Self {
+        Around { alone: true, bound_next: false }
+    }
+}
+
+/// Bound nouns that follow an adnominal verb form.
+const BOUND_NEXT: &[&str] = &["때", "것", "수", "줄", "데", "적", "바", "뿐", "듯", "리"];
+
 /// One rendering of a segment.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Candidate {
@@ -574,7 +593,7 @@ impl Engine {
         c
     }
 
-    fn edges(&self, comps: &[char]) -> Vec<Edge> {
+    fn edges(&self, comps: &[char], around: Around) -> Vec<Edge> {
         let n = comps.len();
         let boundary = |p: usize| p == n || is_l(comps[p]);
         // Particles and endings close a word: inside a run they are misparses.
@@ -689,10 +708,11 @@ impl Engine {
                         for &pi in pis {
                             let p = &self.particles[pi as usize];
                             // The copula follows nouns, pronouns and numbers, not
-                            // adverbs (아니+라니 is 아니다+라니; 무어+ㄴ가 contracts), and a one-syllable
+                            // adverbs (아니+라니 is 아니다+라니; 무어라 and 무어+ㄴ가 are
+                            // interjections that take it), and a one-syllable
                             // pronoun with 이다 is rarer than a word that ends
                             // in it (나이+다).
-                            if p.copular && !is_t(p.comps[0]) && matches!(entry.pos, Pos::Adv | Pos::Det | Pos::Interj) {
+                            if p.copular && !is_t(p.comps[0]) && entry.pos == Pos::Adv {
                                 continue;
                             }
                             let lone_pron = if p.full_copula() && entry.pos == Pos::Pron && crate::jamo::syllable_count(&entry.stem) == 1 { 5.0 } else { 0.0 };
@@ -755,9 +775,13 @@ impl Engine {
                 }
             }
         }
-        self.alone_edges(comps, &mut edges);
+        if around.alone {
+            self.alone_edges(comps, &mut edges);
+        }
         self.loan_edges(comps, &mut edges);
-        self.prefer_whole_noun(comps, &mut edges);
+        if !around.bound_next {
+            self.prefer_whole_noun(comps, &mut edges);
+        }
         self.prefer_editorial_word(comps, &mut edges);
         self.prefer_word_over_tail(comps, &mut edges);
         edges
@@ -1104,11 +1128,11 @@ impl Engine {
     /// Whole-run candidates and segments of one run of Hangul. A run with old
     /// letters is looked up by its modern readings; one that conversion left
     /// as it was may be an era spelling.
-    fn convert_run(&self, run: &str, after_hanja: bool) -> (Vec<Candidate>, Vec<Segment>) {
+    fn convert_run(&self, run: &str, after_hanja: bool, around: Around) -> (Vec<Candidate>, Vec<Segment>) {
         if has_old(run) {
             return self.convert_old(run);
         }
-        let Converted { mut whole, mut segments, .. } = self.convert_plain(run, after_hanja, true);
+        let Converted { mut whole, mut segments, .. } = self.convert_plain(run, after_hanja, true, around);
         // Spellings of the era: the strong classes whenever the run shows
         // one, the others when it was left as typed.
         let unconverted = whole.first().is_some_and(|c| c.text == run);
@@ -1166,7 +1190,7 @@ impl Engine {
         // The old spelling of the best reading, as for modern input.
         let (old, ha) = match found.first() {
             Some((_, reading, _, _)) => {
-                let c = self.convert_plain(reading, false, true);
+                let c = self.convert_plain(reading, false, true, Around::default());
                 (c.old, c.ha)
             }
             None => (None, None),
@@ -1222,7 +1246,7 @@ impl Engine {
             if strict && !self.worth_converting(syls, &r) {
                 continue;
             }
-            let c = self.convert_plain(&r.text, false, false);
+            let c = self.convert_plain(&r.text, false, false, Around::default());
             // A guess has to be confirmed by words that cover all of it.
             if let Some(cost) = c.cost.filter(|_| c.covered || !r.optional) {
                 found.push((cost + r.penalty, r.text, c.whole, c.attested));
@@ -1260,9 +1284,9 @@ impl Engine {
 
     /// `full`: also build the segments and the old spellings, which the
     /// readings tried for another run do not need.
-    fn convert_plain(&self, run: &str, after_hanja: bool, full: bool) -> Converted {
+    fn convert_plain(&self, run: &str, after_hanja: bool, full: bool, around: Around) -> Converted {
         let comps = decompose(run);
-        let edges = self.edges(&comps);
+        let edges = self.edges(&comps, around);
         let paths = self.kbest(&comps, &edges, self.options.max_candidates.max(4));
         let mut whole: Vec<Candidate> = Vec::new();
         let push = |c: Candidate, whole: &mut Vec<Candidate>| {
@@ -1463,6 +1487,24 @@ impl Engine {
         Some(self.hun_candidates(&words.concat())).filter(|h| !h.is_empty())
     }
 
+    /// The surroundings of run `i` among the pieces of an input.
+    fn around(&self, pieces: &[(bool, String)], i: usize) -> Around {
+        let hangul = pieces.iter().filter(|(h, _)| *h).count();
+        // The next Hangul word, with only blanks between.
+        let next = match pieces.get(i + 1) {
+            Some((false, gap)) if !gap.is_empty() && gap.chars().all(char::is_whitespace) => pieces.get(i + 2).filter(|(h, _)| *h).map(|(_, w)| w.as_str()),
+            _ => None,
+        };
+        let bound_next = next.is_some_and(|w| {
+            let mut cs = w.chars();
+            let first = cs.next().map(String::from).unwrap_or_default();
+            let rest = cs.as_str();
+            // The bound noun alone or with a particle: 때, 때는, 것을 — not 바람.
+            BOUND_NEXT.contains(&first.as_str()) && (rest.is_empty() || self.particle_trie.prefixes(&decompose(rest), 0).iter().any(|(r, _)| *r == decompose(rest).len()))
+        });
+        Around { alone: hangul == 1, bound_next }
+    }
+
     /// Whole-input candidates, best first. Non-Hangul text passes through.
     /// Number of Sino-Korean (reading, Hanja) pairs loaded.
     pub fn sino_count(&self) -> usize {
@@ -1472,9 +1514,11 @@ impl Engine {
     pub fn convert(&self, input: &str) -> Vec<Candidate> {
         let mut per_run: Vec<Vec<Candidate>> = Vec::new();
         let mut after_hanja = false;
-        for (is_h, run) in runs(input) {
+        let pieces = runs(input);
+        for (i, (is_h, run)) in pieces.iter().enumerate() {
+            let (is_h, run) = (*is_h, run.clone());
             if is_h {
-                per_run.push(self.convert_run(&run, after_hanja).0);
+                per_run.push(self.convert_run(&run, after_hanja, self.around(&pieces, i)).0);
             } else {
                 after_hanja = ends_in_hanja(&run);
                 per_run.push(vec![Candidate { text: run, note: String::new() }]);
@@ -1515,9 +1559,11 @@ impl Engine {
         }
         let mut out = Vec::new();
         let mut after_hanja = false;
-        for (is_h, run) in runs(input) {
+        let pieces = runs(input);
+        for (i, (is_h, run)) in pieces.iter().enumerate() {
+            let (is_h, run) = (*is_h, run.clone());
             if is_h {
-                out.extend(self.convert_run(&run, after_hanja).1.into_iter().map(|mut s| {
+                out.extend(self.convert_run(&run, after_hanja, self.around(&pieces, i)).1.into_iter().map(|mut s| {
                     for c in &mut s.candidates {
                         c.note = whole_note(&c.text, std::slice::from_ref(&c.note));
                     }

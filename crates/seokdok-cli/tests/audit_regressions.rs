@@ -185,6 +185,17 @@ fn a_copula_form_is_listed_once() {
 }
 
 #[test]
+fn context_decides_between_a_verb_and_a_noun_or_particle() {
+    // 무어 is an interjection in the dictionary and still takes 라.
+    first(&[("무어라", "何라"), ("무어라 했니", "何라 했니")]);
+    // A particle that is also a verb form keeps the verb inside a sentence, and is offered both ways alone.
+    first(&[("빨리 와", "速 來"), ("공을 치고", "공을 打고"), ("와", "와"), ("치고", "치고")]);
+    offers(&[("와", "來"), ("치고", "打고")]);
+    // An adnominal verb form before a bound noun keeps its verb; one word alone keeps the noun.
+    first(&[("바람이 불 때", "風이 吹ㄹ 時"), ("길 것 같다", "長ㄹ 事ㅅ 如다"), ("불", "火"), ("길", "道"), ("불 바람", "火 風")]);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "吾ㄹ")]);
 }

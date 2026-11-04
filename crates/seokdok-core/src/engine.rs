@@ -8,6 +8,7 @@ use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify
 use crate::particles::{allowed, particles, Particle};
 use std::collections::HashMap;
 
+mod mixed;
 mod okurigana;
 
 /// How the Hangul after a 訓讀 stem is written.
@@ -1013,6 +1014,11 @@ impl Engine {
     }
 
     pub fn convert(&self, input: &str) -> Vec<Candidate> {
+        self.mixed_convert(input).unwrap_or_else(|| self.convert_plain(input))
+    }
+
+    /// [`Engine::convert`] for text without Hanja words.
+    fn convert_plain(&self, input: &str) -> Vec<Candidate> {
         let mut per_run: Vec<Vec<Candidate>> = Vec::new();
         for (is_h, run) in runs(input) {
             if is_h {
@@ -1046,6 +1052,11 @@ impl Engine {
 
     /// Segmentation of the best analysis, each segment with alternatives.
     pub fn segments(&self, input: &str) -> Vec<Segment> {
+        self.mixed_segments(input).unwrap_or_else(|| self.segments_plain(input))
+    }
+
+    /// [`Engine::segments`] for text without Hanja words.
+    fn segments_plain(&self, input: &str) -> Vec<Segment> {
         if self.spaced_hun(input).is_some() {
             return vec![Segment { reading: input.to_string(), candidates: self.convert(input) }];
         }

@@ -48,6 +48,10 @@ fn step_after(session: &mut Session, script: Script, rotated: impl FnOnce(&mut S
     if script == Script::HangulOnly && !latin {
         return Stepped { config: None, effects: session.set_mode(Mode::Latin) };
     }
+    // Out of Latin or plain 한글, the script on show is this one.
+    if script != Script::HangulOnly && session.mode() != Mode::Seokdok {
+        return Stepped { config: None, effects: session.set_mode(Mode::Seokdok) };
+    }
     match rotated(session) {
         Ok(r) => Stepped { config: Some(r.config), effects: r.effects },
         // A keyboard that cannot write its settings still reaches Latin and back.
@@ -191,6 +195,18 @@ mod tests {
             shown.push(Indicator::of(s.mode(), script).glyph());
         }
         assert_eq!(shown, ["混", "한", "A", "釋", "混", "한", "A", "釋"]);
+    }
+
+    #[test]
+    fn the_on_screen_key_enters_the_current_script_from_a_start_outside_it() {
+        for start in [Mode::Latin, Mode::Hangul] {
+            let path = temp("screen-start");
+            let mut s = Session::new(start, true);
+            let stepped = step_after(&mut s, Script::SinoOnly, |s| rotate_at(&path, s));
+            assert!(stepped.config.is_none());
+            assert_eq!(Indicator::of(s.mode(), Script::SinoOnly), Indicator::Mixed);
+            assert!(!path.exists());
+        }
     }
 
     #[test]

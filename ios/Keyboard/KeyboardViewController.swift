@@ -69,6 +69,7 @@ final class KeyboardViewController: UIInputViewController {
         super.viewWillAppear(animated)
         Session.setConfigDir(configDir())
         session.sync()
+        keys.feedback.hapticsAllowed = hasFullAccess
         updateLayout()
         refresh()
         waitForDictionaries()

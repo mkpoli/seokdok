@@ -58,7 +58,7 @@ struct KeyboardState {
 /// The keyboard: one candidate bar and 두벌식 keys with the Shift layer in each
 /// key's corner. A symbols layer replaces the letters. The bar's chevron opens
 /// a drawer with every candidate and the composition's segments.
-final class KeyboardView: UIView, UIInputViewAudioFeedback {
+final class KeyboardView: UIView {
     weak var delegate: KeyboardViewDelegate?
     /// The input-mode switch key, when the system asks for one.
     private(set) var globe: GlobeKey?
@@ -105,7 +105,8 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         ["[]{}#%^*+=", "_\\|~<>$€£·", ".,?!'"],
     ]
 
-    var enableInputClicksWhenVisible: Bool { true }
+    /// Clicks and haptics for everything pressed in the keyboard.
+    let feedback = KeyFeedback()
 
     init(globe needsGlobe: Bool) {
         super.init(frame: .zero)
@@ -140,8 +141,12 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             keysColumn.trailingAnchor.constraint(equalTo: keyPad.trailingAnchor, constant: -3),
             keysColumn.bottomAnchor.constraint(equalTo: keyPad.bottomAnchor, constant: -3),
         ])
+        keyPad.onPress = { [weak self] in self?.feedback.key() }
         keyPad.onPreview = { [weak self] key in self?.showPopup(key) }
-        keyPad.onCursorBegin = { [weak self] in self?.delegate?.beginCursor() }
+        keyPad.onCursorBegin = { [weak self] in
+            self?.feedback.cursor()
+            self?.delegate?.beginCursor()
+        }
         keyPad.onCursorMove = { [weak self] steps in self?.delegate?.moveCursor(by: steps) }
 
         letters.axis = .vertical
@@ -177,9 +182,10 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             divider.heightAnchor.constraint(equalToConstant: 28),
         ])
         more.addAction(UIAction { [weak self] _ in
-            UIDevice.current.playInputClick()
             self?.setDrawer(open: true)
         }, for: .touchUpInside)
+        more.addAction(UIAction { [weak self] _ in self?.feedback.key() }, for: .touchDown)
+        drawer.onTouch = { [weak self] in self?.feedback.key() }
         drawer.onPick = { [weak self] i in
             self?.setDrawer(open: false)
             self?.tap { $0.pick(i) }
@@ -187,7 +193,6 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         drawer.onFocus = { [weak self] run in self?.tap { $0.focus(run: run) } }
         drawer.onResize = { [weak self] step in self?.tap { $0.resize(step) } }
         drawer.close.addAction(UIAction { [weak self] _ in
-            UIDevice.current.playInputClick()
             self?.setDrawer(open: false)
         }, for: .touchUpInside)
         drawer.isHidden = true
@@ -309,8 +314,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
                 symbolPageKey = Key(title: "#+=")
                 symbolPageKey.action = { [weak self] in
                     guard let self else { return }
-                    UIDevice.current.playInputClick()
-                    self.symbolPage = 1 - self.symbolPage
+                            self.symbolPage = 1 - self.symbolPage
                     self.labelSymbols()
                 }
                 keys = [symbolPageKey!] + keys + [backspaceKey()]
@@ -372,7 +376,6 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         layerKey = Key(title: "123")
         layerKey.action = { [weak self] in
             guard let self else { return }
-            UIDevice.current.playInputClick()
             self.symbolPage = 0
             self.labelSymbols()
             self.letters.isHidden.toggle()
@@ -385,6 +388,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             let g = GlobeKey()
             globe = g
             keyPad.passThrough = g
+            g.addAction(UIAction { [weak self] _ in self?.feedback.key() }, for: .touchDown)
             bottom.addArrangedSubview(g)
             globeWidth = g.widthAnchor.constraint(equalToConstant: 40)
             globeWidth?.isActive = true
@@ -417,7 +421,6 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     }
 
     private func tap(_ act: (KeyboardViewDelegate) -> Void) {
-        UIDevice.current.playInputClick()
         if let d = delegate { act(d) }
     }
 
@@ -552,6 +555,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
                 let cell = CandidateCell(.init(text: input.text, reading: ""))
                 cell.heightAnchor.constraint(equalToConstant: 36).isActive = true
                 cell.accessibilityHint = "Convert"
+                cell.addAction(UIAction { [weak self] _ in self?.feedback.key() }, for: .touchDown)
                 cell.addAction(UIAction { [weak self] _ in self?.tap { $0.convert() } }, for: .touchUpInside)
                 bar.addArrangedSubview(cell)
                 barMessage = cell
@@ -577,6 +581,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             for (i, item) in c.items.enumerated() {
                 let cell = CandidateCell(item)
                 cell.heightAnchor.constraint(equalToConstant: 36).isActive = true
+                cell.addAction(UIAction { [weak self] _ in self?.feedback.key() }, for: .touchDown)
                 cell.addAction(UIAction { [weak self] _ in self?.tap { $0.pick(i) } }, for: .touchUpInside)
                 bar.addArrangedSubview(cell)
             }

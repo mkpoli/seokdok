@@ -227,6 +227,8 @@ final class GlobeKey: UIButton {
 /// it lifts; and a new touch types the letter still held, so fast two-thumb
 /// typing stays in order.
 final class KeyPad: UIView {
+    /// A key went down.
+    var onPress: (() -> Void)?
     /// The key being previewed; nil when none is.
     var onPreview: ((Key?) -> Void)?
     /// Space was held; the keyboard is a trackpad until `onCursorEnd`.
@@ -381,6 +383,7 @@ final class KeyPad: UIView {
 
     private func press(_ k: Key) {
         k.isPressed = true
+        onPress?()
         if k.previews { preview(k) }
         if k.fires == .onPress { k.action?() }
         if k.repeats {

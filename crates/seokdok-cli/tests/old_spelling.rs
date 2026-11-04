@@ -395,3 +395,12 @@ fn a_weak_basis_does_not_put_an_era_reading_first() {
         assert_eq!(texts(&e, typed).0[0], first, "{typed}");
     }
 }
+
+#[test]
+fn the_old_z_also_falls_away() {
+    let e = engine(Options::default());
+    for (input, want) in [("거\u{1140}\u{1175}", "殆"), ("거\u{1140}\u{1174}", "殆"), ("\u{1106}\u{119E}\u{1140}\u{119E}\u{11B7}", "心")] {
+        let list: Vec<String> = e.convert(input).into_iter().map(|c| c.text).collect();
+        assert!(list.iter().any(|t| t == want), "{input}: {list:?}");
+    }
+}

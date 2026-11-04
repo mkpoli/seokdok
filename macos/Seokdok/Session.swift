@@ -168,6 +168,8 @@ struct Config: Codable, Equatable {
         var codaAlways = false
         var resyllabify = false
         var hadaKun = false
+        /// "有", "在" or "在ㅆ".
+        var itda = "有"
         var oldHa = false
         var maxCandidates = 12
     }

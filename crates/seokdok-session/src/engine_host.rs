@@ -27,12 +27,14 @@ pub fn load_custom(user_dir: Option<&Path>) -> Option<Custom> {
 }
 
 /// As [`load_engine`], with the words and phrases of `custom` in front.
-/// Files are read and parsed one at a time, so only one file's text is held
-/// at once (the iOS keyboard extension has little memory).
+/// Files are read a line at a time, so no file's text is held whole (the iOS
+/// keyboard extension has little memory). A file that cannot be read adds the
+/// lines before the failure, if any.
 pub fn load_engine_with(dict_dir: &Path, user_dir: Option<&Path>, custom: Option<&Custom>, options: Options) -> (Engine, Vec<String>) {
     let (custom_native, custom_sino) = custom.map(Custom::user_tsv).unwrap_or_default();
     let mut b = Builder::new();
-    let mut feed = |names: &[&str], custom_text: &str, add: fn(&mut Builder, &str, &str)| {
+    type AddFile = fn(&mut Builder, &str, &Path) -> std::io::Result<()>;
+    let mut feed = |names: &[&str], custom_text: &str, add: fn(&mut Builder, &str, &str), add_file: AddFile| {
         for n in names {
             let user_file = n.starts_with("user");
             if user_file && !custom_text.is_empty() {
@@ -40,14 +42,13 @@ pub fn load_engine_with(dict_dir: &Path, user_dir: Option<&Path>, custom: Option
             }
             let dirs = [user_dir.filter(|_| user_file), Some(dict_dir)];
             for d in dirs.into_iter().flatten() {
-                if let Ok(text) = std::fs::read_to_string(d.join(n)) {
-                    add(&mut b, n, &text);
-                }
+                // A missing file is the usual case for the user's dictionaries.
+                let _ = add_file(&mut b, n, &d.join(n));
             }
         }
     };
-    feed(Engine::NATIVE_FILES, &custom_native, Builder::native);
-    feed(Engine::SINO_FILES, &custom_sino, Builder::sino);
+    feed(Engine::NATIVE_FILES, &custom_native, Builder::native, Builder::native_file);
+    feed(Engine::SINO_FILES, &custom_sino, Builder::sino, Builder::sino_file);
     b.build(options)
 }
 

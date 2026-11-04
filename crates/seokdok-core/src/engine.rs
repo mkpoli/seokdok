@@ -3,7 +3,7 @@
 //! style.
 
 use crate::conj::{ending_label, ending_surfaces, morph_ending, Ctx};
-use crate::dict::{parse_native, parse_sino, tsv_lines, Native, Pos, Source, Tail};
+use crate::dict::{parse_native, parse_sino, tsv_file, tsv_lines, Native, Pos, Source, Tail};
 use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify};
 use crate::fold::{foldable, has_era_only, has_old, modern_mask, parse, readings, Reading, Syl, ALL, MAX_READINGS_MODERN, MAX_READINGS_OLD, STRONG};
 use crate::old_spelling::{ends_in_hanja, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant};
@@ -34,6 +34,18 @@ pub enum Fragment {
     Letter,
 }
 
+/// Which row of 있다 comes first. The others stay offered.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Itda {
+    /// 有다
+    #[default]
+    Yu,
+    /// 在다
+    Jae,
+    /// 在ㅆ다
+    JaeCoda,
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Options {
     pub style: Style,
@@ -46,6 +58,8 @@ pub struct Options {
     pub resyllabify: bool,
     /// Prefer 爲 for the light verb 하다 (安寧爲세요 over 安寧하세요).
     pub hada_kun: bool,
+    /// The spelling of 있다 listed first.
+    pub itda: Itda,
     /// Put the old spelling of 하 (ᄒᆞ ᄒᆞᆫ ᄒᆞᆯ ᄒᆞᆷ ᄒᆞᆸ ᄒᆡ) first where it is
     /// offered, with the modern spelling right behind it. Without it the old
     /// spelling comes third.
@@ -66,6 +80,7 @@ impl Default for Options {
             coda_always: false,
             resyllabify: false,
             hada_kun: false,
+            itda: Itda::Yu,
             old_ha: false,
             sino_only: false,
             max_candidates: 12,
@@ -75,40 +90,70 @@ impl Default for Options {
 
 const NONE: u32 = u32::MAX;
 
+/// The cost of the chosen row of 있다: under the floor of 0.2 that any attested
+/// row can reach, so it leads 有다 however the counts grow, and close enough to
+/// 有다's own cost that segmentation stays as it was.
+const ITDA_CHOSEN_COST: f32 = 0.19;
+
 /// The honorific suffix 님 as conjoining jamo.
 const NIM: [char; 3] = ['\u{1102}', '\u{1175}', '\u{11B7}'];
 
 /// A prefix trie over jamo, flat from the start: each node is its key and
 /// two links (first child, next sibling), with no allocation of its own; the
 /// dictionaries hold hundreds of thousands of nodes. `freeze` gathers each
-/// node's items into one contiguous slice.
+/// node's items into one contiguous slice. Most nodes have no items, so the
+/// slices are found through a bitmap of the nodes that do.
 struct Trie<T> {
-    key: Vec<char>,
+    /// The jamo as an offset into the Hangul Jamo block; see [`jamo_key`].
+    key: Vec<u8>,
     first_child: Vec<u32>,
     next_sibling: Vec<u32>,
-    /// While building: (node, item). After `freeze`: sorted by node.
+    /// While building: (node, item).
     pending: Vec<(u32, T)>,
-    /// Node n's items are items[item_start[n]..item_start[n + 1]].
+    /// One bit per node, set if it has items.
+    has_items: Vec<u64>,
+    /// How many nodes before each word of `has_items` have items.
+    rank: Vec<u32>,
+    /// The r-th node with items has items[item_start[r]..item_start[r + 1]].
     item_start: Vec<u32>,
     items: Vec<T>,
+}
+
+/// A jamo's position in U+1100..U+11FF. Keys come from `decompose` of Hangul
+/// syllables and from the ending and particle tables, so all lie there; other
+/// input characters match nothing.
+fn jamo_key(c: char) -> Option<u8> {
+    (c as u32).checked_sub(0x1100).and_then(|k| u8::try_from(k).ok())
 }
 
 impl<T> Trie<T> {
     fn new() -> Self {
         Trie {
-            key: vec!['\0'],
+            key: vec![0],
             first_child: vec![NONE],
             next_sibling: vec![NONE],
             pending: Vec::new(),
+            has_items: Vec::new(),
+            rank: Vec::new(),
             item_start: Vec::new(),
             items: Vec::new(),
         }
     }
 
+    /// Room for a known number of nodes and items, so that the longest arrays
+    /// are not copied while they grow.
+    fn reserve(&mut self, nodes: usize, items: usize) {
+        self.key.reserve(nodes);
+        self.first_child.reserve(nodes);
+        self.next_sibling.reserve(nodes);
+        self.pending.reserve(items);
+    }
+
     fn child(&self, n: usize, c: char) -> Option<usize> {
+        let k = jamo_key(c)?;
         let mut i = self.first_child[n];
         while i != NONE {
-            if self.key[i as usize] == c {
+            if self.key[i as usize] == k {
                 return Some(i as usize);
             }
             i = self.next_sibling[i as usize];
@@ -117,14 +162,16 @@ impl<T> Trie<T> {
     }
 
     fn insert(&mut self, key: &[char], item: T) {
-        debug_assert!(self.item_start.is_empty(), "insert after freeze");
+        debug_assert!(self.has_items.is_empty(), "insert after freeze");
+        debug_assert!(key.iter().all(|&c| jamo_key(c).is_some()), "{key:?}");
         let mut n = 0usize;
         for &c in key {
             n = match self.child(n, c) {
                 Some(i) => i,
                 None => {
+                    let Some(k) = jamo_key(c) else { return };
                     let i = self.key.len();
-                    self.key.push(c);
+                    self.key.push(k);
                     self.first_child.push(NONE);
                     self.next_sibling.push(self.first_child[n]);
                     self.first_child[n] = i as u32;
@@ -139,24 +186,43 @@ impl<T> Trie<T> {
         let mut pending = std::mem::take(&mut self.pending);
         // Stable: items of a node keep their insertion order.
         pending.sort_by_key(|(n, _)| *n);
-        let nodes = self.key.len();
-        self.item_start = Vec::with_capacity(nodes + 1);
+        let with_items = pending.chunk_by(|a, b| a.0 == b.0).count();
+        self.has_items = vec![0; self.key.len() / 64 + 1];
+        self.item_start = Vec::with_capacity(with_items + 1);
         self.items = Vec::with_capacity(pending.len());
-        let mut it = pending.into_iter().peekable();
-        for n in 0..nodes as u32 {
-            self.item_start.push(self.items.len() as u32);
-            while let Some((_, item)) = it.next_if(|(m, _)| *m == n) {
-                self.items.push(item);
+        let mut last = None;
+        for (n, item) in pending {
+            if last != Some(n) {
+                last = Some(n);
+                self.has_items[n as usize / 64] |= 1 << (n % 64);
+                self.item_start.push(self.items.len() as u32);
             }
+            self.items.push(item);
         }
         self.item_start.push(self.items.len() as u32);
+        let mut seen = 0;
+        self.rank = self
+            .has_items
+            .iter()
+            .map(|word| {
+                let before = seen;
+                seen += word.count_ones();
+                before
+            })
+            .collect();
         self.key.shrink_to_fit();
         self.first_child.shrink_to_fit();
         self.next_sibling.shrink_to_fit();
     }
 
     fn node_items(&self, n: usize) -> &[T] {
-        &self.items[self.item_start[n] as usize..self.item_start[n + 1] as usize]
+        let (word, bit) = (n / 64, n % 64);
+        let bits = self.has_items[word];
+        if bits >> bit & 1 == 0 {
+            return &[];
+        }
+        let r = self.rank[word] as usize + (bits & ((1 << bit) - 1)).count_ones() as usize;
+        &self.items[self.item_start[r] as usize..self.item_start[r + 1] as usize]
     }
 
     /// Every (end position, items) for keys that are prefixes of `input[from..]`.
@@ -237,6 +303,8 @@ pub struct Segment {
 
 pub struct Engine {
     pub natives: Vec<Native>,
+    /// The file labels that [`Native::origin`] points into.
+    labels: Vec<String>,
     sinos: SinoTable,
     hun: HunTable,
     loans: HashSet<String>,
@@ -267,8 +335,10 @@ struct SinoTable {
 }
 
 struct SinoEntry {
-    reading: (u32, u16),
-    hanja: (u32, u16),
+    /// Where the reading starts in `text`; the Hanja follow it directly.
+    at: u32,
+    reading_len: u16,
+    hanja_len: u16,
     cost: f32,
     /// Counts summed over the files, to break ties between the readings of
     /// one Hanja word (sino.tsv credits the chat count to each reading).
@@ -277,22 +347,19 @@ struct SinoEntry {
 
 impl SinoTable {
     fn push(&mut self, reading: &str, hanja: &str, cost: f32, count: u32) {
-        let mut put = |s: &str| {
-            let at = self.text.len() as u32;
-            self.text.push_str(s);
-            (at, s.len() as u16)
-        };
-        let (reading, hanja) = (put(reading), put(hanja));
-        self.entries.push(SinoEntry { reading, hanja, cost, count });
-    }
-    fn str(&self, (at, len): (u32, u16)) -> &str {
-        &self.text[at as usize..at as usize + len as usize]
+        let at = self.text.len() as u32;
+        self.text.push_str(reading);
+        self.text.push_str(hanja);
+        self.entries.push(SinoEntry { at, reading_len: reading.len() as u16, hanja_len: hanja.len() as u16, cost, count });
     }
     fn reading(&self, i: usize) -> &str {
-        self.str(self.entries[i].reading)
+        let e = &self.entries[i];
+        &self.text[e.at as usize..e.at as usize + e.reading_len as usize]
     }
     fn hanja(&self, i: usize) -> &str {
-        self.str(self.entries[i].hanja)
+        let e = &self.entries[i];
+        let start = e.at as usize + e.reading_len as usize;
+        &self.text[start..start + e.hanja_len as usize]
     }
     fn cost(&self, i: usize) -> f32 {
         self.entries[i].cost
@@ -428,22 +495,78 @@ const ARCHAIC_ENDING: f32 = 1.0;
 /// default and 爲 comes from the dictionary as an alternative.
 const BUILTIN: &str = "하다\t하다\tverb\t\teditorial\t\n";
 
+/// An open-addressing table of Sino entries, keyed by the strings the table
+/// already holds, so a slot is one number. It lives only while loading.
+#[derive(Default)]
+struct PairIndex {
+    /// Entry + 1, or 0 for an empty slot; the length is a power of two.
+    slots: Vec<u32>,
+    filled: usize,
+}
+
+impl PairIndex {
+    fn hash(reading: &str, hanja: &str) -> usize {
+        // FNV-1a; the separator cannot occur in either string.
+        let mut h = 0xcbf2_9ce4_8422_2325u64;
+        for b in reading.bytes().chain([0xFF]).chain(hanja.bytes()) {
+            h = (h ^ b as u64).wrapping_mul(0x0100_0000_01b3);
+        }
+        (h ^ (h >> 32)) as usize
+    }
+
+    /// The entry holding this pair, or `None` having noted that the next entry
+    /// pushed to `sinos` will.
+    fn find_or_add(&mut self, sinos: &SinoTable, reading: &str, hanja: &str) -> Option<usize> {
+        // At most three quarters full, so runs of filled slots stay short.
+        if (self.filled + 1) * 4 > self.slots.len() * 3 {
+            self.grow(sinos);
+        }
+        let mask = self.slots.len() - 1;
+        let mut s = Self::hash(reading, hanja) & mask;
+        while self.slots[s] != 0 {
+            let i = self.slots[s] as usize - 1;
+            if sinos.reading(i) == reading && sinos.hanja(i) == hanja {
+                return Some(i);
+            }
+            s = (s + 1) & mask;
+        }
+        self.filled += 1;
+        self.slots[s] = sinos.len() as u32 + 1;
+        None
+    }
+
+    fn grow(&mut self, sinos: &SinoTable) {
+        let size = (self.slots.len() * 2).max(1 << 12);
+        let mask = size - 1;
+        self.slots = Vec::new();
+        self.slots.resize(size, 0);
+        for i in 0..sinos.len() {
+            let mut s = Self::hash(sinos.reading(i), sinos.hanja(i)) & mask;
+            while self.slots[s] != 0 {
+                s = (s + 1) & mask;
+            }
+            self.slots[s] = i as u32 + 1;
+        }
+    }
+}
+
 /// Collects dictionary files one at a time, then builds the [`Engine`].
 pub struct Builder {
     natives: Vec<Native>,
+    labels: Vec<String>,
     sinos: SinoTable,
     hun: Vec<(String, String)>,
     /// Loanwords (loanwords.tsv), which stay in Hangul.
     loans: HashSet<String>,
-    /// Hash of a (reading, Hanja) pair → its entry; the Sino files overlap
+    /// Finds a (reading, Hanja) pair's entry; the Sino files overlap
     /// (fusion.tsv and sino.tsv share most words).
-    index: HashMap<u64, u32>,
+    pairs: PairIndex,
     errors: Vec<String>,
 }
 
 impl Builder {
     pub fn new() -> Builder {
-        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), loans: HashSet::new(), index: HashMap::new(), errors: Vec::new() };
+        let mut b = Builder { natives: Vec::new(), labels: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), loans: HashSet::new(), pairs: PairIndex::default(), errors: Vec::new() };
         b.native("builtin", BUILTIN);
         b
     }
@@ -451,55 +574,72 @@ impl Builder {
     /// Add a 訓讀 dictionary (`native.tsv` format).
     pub fn native(&mut self, label: &str, text: &str) {
         for (line, f) in tsv_lines(text) {
-            match parse_native(&f) {
-                Ok(mut e) => {
-                    e.origin = (label.to_string(), line);
-                    self.natives.push(e)
+            self.native_row(label, line, &f);
+        }
+    }
+
+    /// As [`Builder::native`], reading the file a line at a time; lines before
+    /// a read error stay added.
+    pub fn native_file(&mut self, label: &str, path: &std::path::Path) -> std::io::Result<()> {
+        tsv_file(path, |line, f| self.native_row(label, line, f))
+    }
+
+    fn native_row(&mut self, label: &str, line: usize, f: &[&str]) {
+        match parse_native(f) {
+            Ok(mut e) => {
+                if self.labels.last().map(String::as_str) != Some(label) {
+                    self.labels.push(label.to_string());
                 }
-                Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
+                e.origin = (self.labels.len() as u32 - 1, line as u32);
+                e.allos.shrink_to_fit();
+                self.natives.push(e)
             }
+            Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
         }
     }
 
     /// Add a 音讀 dictionary (`sino.tsv` format). A pair already present
     /// keeps its first entry, with the lowest cost any file gives it.
     pub fn sino(&mut self, label: &str, text: &str) {
-        use std::hash::{BuildHasher, Hash, Hasher};
         for (line, f) in tsv_lines(text) {
-            match parse_sino(&f) {
-                Ok(e) if f.get(3) == Some(&"hun") => self.hun.push((e.reading.into(), e.hanja.into())),
-                Ok(e) if f.get(3) == Some(&"loanword") => {
-                    self.loans.insert(e.reading.into());
-                }
-                Ok(e) => {
-                    let mut h = self.index.hasher().build_hasher();
-                    (&*e.reading, &*e.hanja).hash(&mut h);
-                    let key = h.finish();
-                    match self.index.get(&key).map(|&i| i as usize) {
-                        Some(i) if self.sinos.reading(i) == &*e.reading && self.sinos.hanja(i) == &*e.hanja => {
-                            let kept = &mut self.sinos.entries[i];
-                            kept.cost = kept.cost.min(e.cost);
-                            kept.count = kept.count.saturating_add(e.count);
-                        }
-                        _ => {
-                            self.index.entry(key).or_insert(self.sinos.len() as u32);
-                            self.sinos.push(&e.reading, &e.hanja, e.cost, e.count);
-                        }
-                    }
-                }
-                Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
+            self.sino_row(label, line, &f);
+        }
+    }
+
+    /// As [`Builder::sino`], reading the file a line at a time; lines before a
+    /// read error stay added.
+    pub fn sino_file(&mut self, label: &str, path: &std::path::Path) -> std::io::Result<()> {
+        tsv_file(path, |line, f| self.sino_row(label, line, f))
+    }
+
+    fn sino_row(&mut self, label: &str, line: usize, f: &[&str]) {
+        match parse_sino(f) {
+            Ok(e) if f.get(3) == Some(&"hun") => self.hun.push((e.reading.into(), e.hanja.into())),
+            Ok(e) if f.get(3) == Some(&"loanword") => {
+                self.loans.insert(e.reading.into());
             }
+            Ok(e) => match self.pairs.find_or_add(&self.sinos, &e.reading, &e.hanja) {
+                Some(i) => {
+                    let kept = &mut self.sinos.entries[i];
+                    kept.cost = kept.cost.min(e.cost);
+                    kept.count = kept.count.saturating_add(e.count);
+                }
+                None => self.sinos.push(&e.reading, &e.hanja, e.cost, e.count),
+            },
+            Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
         }
     }
 
     /// The engine and the parse errors (file label, line, message).
     pub fn build(self, options: Options) -> (Engine, Vec<String>) {
-        let Builder { natives, mut sinos, hun, loans, index, errors } = self;
-        drop(index);
+        let Builder { mut natives, labels, mut sinos, hun, loans, pairs, errors } = self;
+        drop(pairs);
+        natives.shrink_to_fit();
         sinos.text.shrink_to_fit();
         sinos.entries.shrink_to_fit();
         let mut eng = Engine {
             natives,
+            labels,
             sinos,
             hun: HunTable::new(hun),
             loans,
@@ -540,24 +680,24 @@ impl Engine {
     }
 
     /// Native dictionaries loaded by [`Engine::from_dir`], in order.
-    pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "eonhae.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
+    pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "eonhae.tsv", "kun-attested.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
     pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "editorial-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv", "loanwords.tsv", "hun.tsv"];
 
     /// Load every known dictionary file present in `dir`.
-    /// One file is read at a time and dropped once parsed, which keeps the
-    /// peak low (the iOS keyboard extension has little memory).
+    /// Files are read a line at a time, which keeps the peak low (the iOS
+    /// keyboard extension has little memory).
     pub fn from_dir(dir: &std::path::Path, options: Options) -> std::io::Result<(Engine, Vec<String>)> {
         let mut b = Builder::new();
         for n in Self::NATIVE_FILES {
             let p = dir.join(n);
             if p.exists() {
-                b.native(n, &std::fs::read_to_string(&p)?);
+                b.native_file(n, &p)?;
             }
         }
         for n in Self::SINO_FILES {
             let p = dir.join(n);
             if p.exists() {
-                b.sino(n, &std::fs::read_to_string(&p)?);
+                b.sino_file(n, &p)?;
             }
         }
         Ok(b.build(options))
@@ -587,6 +727,8 @@ impl Engine {
                 self.nominals.insert(&n.stem, i as u32);
             }
         }
+        // The readings take about 2.7 nodes each, since they share their starts.
+        self.sino.reserve(self.sinos.len() * 3, self.sinos.len());
         for i in 0..self.sinos.len() {
             self.sino.insert(&decompose(self.sinos.reading(i)), i as u32);
         }
@@ -628,6 +770,18 @@ impl Engine {
                 c += 5.0;
             } else if !n.hanja.is_empty() && !self.options.hada_kun {
                 c += 2.0;
+            }
+        }
+        // Only the chosen row moves: `read` breaks ties in this order, and the
+        // other rows keep their place against other words with the same Hanja.
+        if n.lemma == "있다" && n.hanja == "在" {
+            let chosen = match self.options.itda {
+                Itda::Yu => false,
+                Itda::Jae => n.tail != Tail::Coda,
+                Itda::JaeCoda => n.tail == Tail::Coda,
+            };
+            if chosen {
+                c = c.min(ITDA_CHOSEN_COST);
             }
         }
         c
@@ -736,7 +890,7 @@ impl Engine {
                         0.0
                     } else {
                         match entry.source {
-                            Source::Eonhae | Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon | Source::Suggested => SHORT_COST,
+                            Source::Eonhae | Source::KunAttested | Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon | Source::Suggested => SHORT_COST,
                             Source::Community => 1.0,
                             _ => 0.0,
                         }
@@ -867,7 +1021,7 @@ impl Engine {
             .filter(|e| match e.kind {
                 Kind::Nominal { entry, .. } => {
                     let nat = &self.natives[entry as usize];
-                    matches!(nat.source, Source::Community | Source::Corpus | Source::Editorial | Source::Eonhae | Source::Suggested) && matches!(nat.pos, Pos::Noun | Pos::Pron | Pos::Num | Pos::Adv)
+                    matches!(nat.source, Source::Community | Source::Corpus | Source::Editorial | Source::Eonhae | Source::KunAttested | Source::Suggested) && matches!(nat.pos, Pos::Noun | Pos::Pron | Pos::Num | Pos::Adv)
                 }
                 Kind::Sino { entry, .. } => self.sinos.count(entry as usize) > 0,
                 _ => false,
@@ -1611,12 +1765,18 @@ impl Engine {
         Around { alone: hangul == 1, bound_next }
     }
 
-    /// Whole-input candidates, best first. Non-Hangul text passes through.
+    /// The file label and line that native entry `i` came from.
+    pub fn origin(&self, i: usize) -> (&str, usize) {
+        let (label, line) = self.natives[i].origin;
+        (&self.labels[label as usize], line as usize)
+    }
+
     /// Number of Sino-Korean (reading, Hanja) pairs loaded.
     pub fn sino_count(&self) -> usize {
         self.sinos.len()
     }
 
+    /// Whole-input candidates, best first. Non-Hangul text passes through.
     pub fn convert(&self, input: &str) -> Vec<Candidate> {
         self.mixed_convert(input).unwrap_or_else(|| self.convert_unmixed(input))
     }
@@ -1918,6 +2078,7 @@ impl Engine {
             Source::User | Source::Corpus | Source::Editorial => -0.5,
             Source::Community => 0.5,
             Source::Eonhae => 1.5,
+            Source::KunAttested => 1.6,
             Source::Suggested => 2.0,
             Source::Gloss | Source::Japanese | Source::Lexicon => 3.0,
             Source::JapaneseWeak => 3.5,

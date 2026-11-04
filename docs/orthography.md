@@ -213,6 +213,14 @@ The reader (釋讀文 → 한글) reads these forms back: 超ㅜ is 너무, 初�
 form that is also a dictionary form of another word is read as that word:
 何게 is 어드럭하게, 言ㅁ is 말함 and 初ㅁ is 숫함.
 
+### 6.6 있다
+
+있다 has three common spellings, 有다, 在다 and 在ㅆ다, listed in that order.
+The `itda` option puts 在다 or 在ㅆ다 first, and the others stay listed. Under
+`在` the past is 在었다, with 在ㅆ다 right behind it, and under `在ㅆ` it is
+在ㅆ었다. `coda_always` still writes the consonant, so `在` then gives 在ㅆ다. All
+three read back as 있다.
+
 ## 7. Options summary
 
 | Option | Values | Default | Effect |
@@ -222,6 +230,7 @@ form that is also a dictionary form of another word is read as that word:
 | `coda_always` | true, false | false | §5 |
 | `resyllabify` | true, false | false | §5 |
 | `hada_kun` | true, false | false | §6.4 |
+| `itda` | 有, 在, 在ㅆ | 有 | §6.6 |
 | `old_ha` | true, false | false | §8.1 |
 
 Whatever the options, the input method lists the other spellings as
@@ -287,7 +296,7 @@ of the candidates. The folds of old letters:
 |---|---|---|
 | ㆍ (U+119E) | ㅏ or ㅡ; as a guess ㅗ or ㅜ | ᄉᆞ랑 = 사랑, ᄂᆞᆫ = 는, ᄒᆞᆰ = 흙, 아ᄆᆞ리 = 아무리 (3), ᄃᆞᆯ = 돌 (16) |
 | ᆡ (U+11A1, ㆍ+ㅣ) | ㅐ; as a guess ㅔ | ᄇᆡ = 배, ᄒᆡ = 해 (171 in all) |
-| ㅿ (U+1140) | ㅅ | ᅀᅵ = 시 (71) |
+| ㅿ (U+1140) | ㅅ, or ㅇ as a guess | ᅀᅵ = 시 (71), 거ᅀᅵ = 거의 |
 | ㆁ (U+114C) | ㅇ | ᅌᅵ = 이 (22) |
 | ㅸ (U+112B) | ㅂ; as a guess ㅇ | 25 |
 | ᄭ (U+112D), ᄢ | ㄲ | 28 |
@@ -300,7 +309,7 @@ of the candidates. The folds of old letters:
 The folds are the usual correspondences between Middle Korean spelling and
 today's, applied letter by letter; no single reference was used, and the
 chat spellings above are the evidence for each. They serve only to find the
-word. ㅿ also became ㅇ in some words (겨울), which is not tried. A letter
+word. ㅿ also became ㅇ in many words (겨울, 마음, 거의), tried as a guess. A letter
 outside the table (such as ᄓ) gives no reading, and the run stays as typed.
 
 Examples: ᄉᆞ랑 offers 愛, 사ᄅᆞᆷ offers 人, 말ᄊᆞᆷ offers 言씀, 있ᄂᆞᆫ
@@ -385,7 +394,8 @@ candidate and the literal input stay selectable.
   2026-11-01, CC BY-SA 4.0, https://ko.wikisource.org/): 訓蒙字會 (1527; 1613
   reprint), 光州千字文 (1575), 石峯千字文 (1583; later printing), 類合 (1913 printing),
   倭語類解 (18th century), 譯語類解 (1690), and the 諺解 listed in `dict/README.md`: the
-  citations in `dict/eonhae.tsv`. Most of these pages are unproofread on Wikisource,
+  citations in `dict/eonhae.tsv`; books of 1882-1945 that print a native reading beside
+  Hanja, cited in `dict/kun-attested.tsv` with every use in `data/kun-usage.tsv`. Most of these pages are unproofread on Wikisource,
   so a row can carry a transcriber's slip; each note names the page to check.
 - 新增類合 (1576) and the first volume of 訓蒙字會, read through 나무위키's transcriptions
   (saved 2026-11-04, CC BY-NC-SA 2.0 KR, https://namu.wiki/w/신증유합/상권,

@@ -8,9 +8,9 @@
 //! seokdok [options] add LEMMA WRITTEN POS [CLASS]   add to DIR/user.tsv
 //!
 //! Options: --dict DIR (default ./dict), --morpheme, --letter, --coda,
-//! --resyllabify, --hada, --old-ha (ᄒᆞ first), --sino (音讀 only). Without TEXT, lines are read from stdin.
+//! --resyllabify, --hada, --itda 有|在|在ㅆ, --old-ha (ᄒᆞ first), --sino (音讀 only). Without TEXT, lines are read from stdin.
 
-use seokdok_core::{Engine, Fragment, Options, Style};
+use seokdok_core::{Engine, Fragment, Itda, Options, Style};
 use std::io::BufRead;
 use std::path::PathBuf;
 
@@ -31,6 +31,15 @@ fn main() {
             "--coda" => o.coda_always = true,
             "--resyllabify" => o.resyllabify = true,
             "--hada" => o.hada_kun = true,
+            "--itda" => {
+                o.itda = match args.get(i + 1).map(String::as_str) {
+                    Some("有") => Itda::Yu,
+                    Some("在") => Itda::Jae,
+                    Some("在ㅆ") => Itda::JaeCoda,
+                    _ => panic!("--itda 有|在|在ㅆ"),
+                };
+                i += 1;
+            }
             "--old-ha" => o.old_ha = true,
             "--sino" => o.sino_only = true,
             _ => rest.push(std::mem::take(&mut args[i])),
@@ -185,7 +194,8 @@ fn attest(eng: &Engine, args: &[String]) {
     let mut out = String::from("file\tline\tlemma\twritten\tcount\n");
     for (i, n) in eng.natives.iter().enumerate() {
         if credit[i] > 0 {
-            out.push_str(&format!("{}\t{}\t{}\t{}\t{}\n", n.origin.0, n.origin.1, n.lemma, n.hanja, credit[i]));
+            let (label, line) = eng.origin(i);
+            out.push_str(&format!("{label}\t{line}\t{}\t{}\t{}\n", n.lemma, n.hanja, credit[i]));
         }
     }
     std::fs::write(&args[1], out).expect("write");

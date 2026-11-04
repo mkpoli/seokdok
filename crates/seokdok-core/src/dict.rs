@@ -62,6 +62,8 @@ pub enum Source {
     Editorial,
     /// Attested in a historical book: a character primer or a 諺解.
     Eonhae,
+    /// Printed with its Hanja in a book of 1882-1945 (`dict/kun-attested.tsv`).
+    KunAttested,
     /// Proposed by a language model from word senses and 訓音 glosses;
     /// unreviewed.
     Suggested,
@@ -82,7 +84,7 @@ impl Source {
             Source::User => 0,
             Source::Corpus | Source::Editorial => 1,
             Source::Community => 2,
-            Source::Eonhae => 3,
+            Source::Eonhae | Source::KunAttested => 3,
             Source::Suggested => 4,
             Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon => 5,
         }
@@ -95,6 +97,7 @@ impl Source {
             "community" => Source::Community,
             "editorial" => Source::Editorial,
             "eonhae" => Source::Eonhae,
+            "kun-attested" => Source::KunAttested,
             "suggested" => Source::Suggested,
             "gloss" => Source::Gloss,
             "japanese" => Source::Japanese,
@@ -123,7 +126,6 @@ pub struct Native {
     pub hanja: String,
     /// Lemma components without 다 for inflecting words.
     pub stem: Vec<char>,
-    pub stem_str: String,
     /// Number of components covered by the Hanja.
     pub cover: usize,
     pub tail: Tail,
@@ -133,8 +135,8 @@ pub struct Native {
     pub source: Source,
     pub count: u32,
     pub cost: f32,
-    /// File label and line the entry came from.
-    pub origin: (String, usize),
+    /// File the entry came from, as an index for [`crate::engine::Engine::origin`], and its line.
+    pub origin: (u32, u32),
 }
 
 #[derive(Clone, Debug)]
@@ -153,6 +155,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
         Source::Community => 3.0,
         Source::Editorial => 3.0,
         Source::Eonhae => 4.2,
+        Source::KunAttested => 4.3,
         Source::Suggested => 4.5,
         Source::Gloss => 6.0,
         Source::Japanese => 6.2,
@@ -169,7 +172,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
         // credited counts are noisy: never rank them above the community tier.
         Source::Suggested => attested.max(2.5),
         // Ranks by the chat's count as Suggested does; the earlier file wins a tie.
-        Source::Eonhae => attested.max(2.5),
+        Source::Eonhae | Source::KunAttested => attested.max(2.5),
         Source::Gloss | Source::Japanese | Source::Lexicon => attested.max(3.0),
         Source::JapaneseWeak => attested.max(4.0),
         _ => attested.min(base),
@@ -278,7 +281,6 @@ pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
         pos,
         hanja: hanja.to_string(),
         stem,
-        stem_str,
         cover,
         tail,
         class,
@@ -287,7 +289,7 @@ pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
         source,
         count,
         cost: native_cost(source, count),
-        origin: (String::new(), 0),
+        origin: (0, 0),
     })
 }
 
@@ -315,14 +317,36 @@ pub fn parse_sino(fields: &[&str]) -> Result<Sino, String> {
 /// Read a TSV file's data lines (skipping blanks, `#` comments and a header
 /// line starting with `lemma` or `reading`).
 pub fn tsv_lines(text: &str) -> impl Iterator<Item = (usize, Vec<&str>)> {
-    text.lines().enumerate().filter_map(|(i, l)| {
-        let t = l.trim_end_matches('\r');
-        if t.trim().is_empty() || t.starts_with('#') || t.starts_with("lemma\t") || t.starts_with("reading\t") {
-            None
-        } else {
-            Some((i + 1, t.split('\t').collect()))
+    text.lines().enumerate().filter_map(|(i, l)| tsv_fields(l).map(|f| (i + 1, f)))
+}
+
+/// One line's fields, or `None` for a blank, comment or header line.
+pub fn tsv_fields(line: &str) -> Option<Vec<&str>> {
+    let t = line.trim_end_matches('\r');
+    if t.trim().is_empty() || t.starts_with('#') || t.starts_with("lemma\t") || t.starts_with("reading\t") {
+        None
+    } else {
+        Some(t.split('\t').collect())
+    }
+}
+
+/// Call `row` with each data line of a file and its line number, holding one
+/// line at a time. A read error or a line that is not UTF-8 ends the file.
+pub fn tsv_file(path: &std::path::Path, mut row: impl FnMut(usize, &[&str])) -> std::io::Result<()> {
+    use std::io::BufRead;
+    let mut reader = std::io::BufReader::with_capacity(1 << 16, std::fs::File::open(path)?);
+    let mut line = String::new();
+    let mut number = 0;
+    loop {
+        line.clear();
+        if reader.read_line(&mut line)? == 0 {
+            return Ok(());
         }
-    })
+        number += 1;
+        if let Some(fields) = tsv_fields(line.strip_suffix('\n').unwrap_or(&line)) {
+            row(number, &fields);
+        }
+    }
 }
 
 #[cfg(test)]

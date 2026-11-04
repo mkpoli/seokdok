@@ -150,18 +150,21 @@ about 48 to 60 MB ([React Native docs archive](https://reactnative-archive-augus
 [a DEV Community post](https://dev.to/tbds_2dadf2b626f315902eae/the-three-hard-constraints-of-an-ios-keyboard-extension-46af),
 all read 2026-11-04; none cites Apple, and the figures disagree).
 
-The extension's physical footprint is 66 MB once loaded, with a 68.5 MB peak
+The extension's physical footprint is 53.5 MB once loaded, with a 56.1 MB peak
 (`footprint` and `vmmap` on a Debug build on an iPhone simulator in CI,
 2026-11-04; the Rust library is a release build either way, and each iOS run
 records this in the `simulator-screenshots` artifact). A simulator applies no
 such limit, and its figures differ from a device's, so this has to be tried on
-an iPhone. It is above those published estimates, so a device may end the
-keyboard.
+an iPhone. It lies inside the range of those published estimates, so a device
+may still end the keyboard.
 
-Most of it is the Sino-Korean tables (`sino.tsv` and `fusion.tsv`). The engine
-alone uses about 59 MB (Linux, 2026-11-04, a small program calling
-`seokdok_session::engine_host::load_engine` and reading `VmHWM`): without both
-files about 25 MB; without `fusion.tsv` alone, about 58 MB.
+The engine alone peaks at about 44.5 MB, and the highest of 50 runs was
+44.6 MB (Linux, 2026-11-04, `VmHWM` from
+`cargo run --release -p seokdok-core --example memory -- dict`). Over half of
+that is the Sino-Korean tables (`sino.tsv` and `fusion.tsv`): without both files
+about 20 MB; without `fusion.tsv` alone, about 42 MB. Loading makes the same
+allocations in the same order on every run, which
+`crates/seokdok-core/tests/alloc_order.rs` checks.
 
 ## Licences
 

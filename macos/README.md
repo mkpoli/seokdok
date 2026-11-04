@@ -100,6 +100,8 @@ that equal their TISInputSourceID, `selectMode`, `overrideKeyboard`,
 
 ## Status
 
-The Rust library cross-compiles for `aarch64-apple-darwin` and
-`x86_64-apple-darwin` and exports the interface in `seokdok.h`. The Swift
-code and the Xcode project have not been compiled yet: they need a Mac.
+CI (`.github/workflows/macos.yml`) builds the universal Rust library and the
+app on a macOS runner, checks that the bundle holds the dictionaries, and
+links the library into a small program (`smoke/smoke.c`) that converts
+안녕 to 安寧. The app is uploaded unsigned. The input method itself has not
+been run: registering it and typing into a text field needs a logged-in Mac.

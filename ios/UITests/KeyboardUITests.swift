@@ -220,13 +220,38 @@ final class KeyboardUITests: XCTestCase {
         shot("drawer-reopened")
         g.tap(x: g.width - 25, y: g.barCenter)
         sleep(1)
-        g.tap(x: 40, y: 110) // the grid's second row, first candidate
+        g.tap(x: 40, y: 66) // the grid's second row, first candidate
         sleep(1)
         shot("drawer-picked")
         let value = text(field)
         XCTAssertFalse(value.isEmpty)
         XCTAssertNotEqual(value, "安寧", "the first candidate came out, not the tapped one")
         XCTAssertNotEqual(value, "안녕")
+    }
+
+    /// A longer composition shows its segments in the drawer, and the − and +
+    /// beside the grid change the focused one.
+    func testDrawerResizesSegments() throws {
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
+        g.type("kssudgktpdy")
+        g.space()
+        sleep(1)
+        let converted = text(field)
+        g.tap(x: g.width - 25, y: g.barCenter)
+        sleep(1)
+        shot("drawer-segments")
+        g.tap(x: g.width - 22, y: 66) // shorter
+        sleep(1)
+        shot("drawer-segments-shorter")
+        XCTAssertNotEqual(text(field), "", "resizing lost the composition")
+        g.tap(x: g.width - 22, y: 110) // longer
+        sleep(1)
+        assertText(field, converted, "lengthening did not undo shortening")
+        g.tap(x: g.width - 22, y: 22) // closes
+        sleep(1)
+        g.enter()
     }
 
     /// With the keyboard's own globe shown (the workflow forces it on in

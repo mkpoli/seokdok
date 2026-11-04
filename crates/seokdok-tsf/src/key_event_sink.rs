@@ -158,6 +158,10 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
     ) -> windows::core::Result<BOOL> {
         let state = self.inner();
         let tap = mode_key_events::peek_release(wparam, lparam, &state.session).is_some_and(|k| state.session.eats(k));
+        if !tap {
+            // A key-up that is not eaten may never reach OnKeyUp.
+            mode_key_events::release(wparam, lparam, &state.session);
+        }
         Ok(tap.into())
     }
 

@@ -10,13 +10,13 @@ use windows::Win32::UI::TextServices::{ITfContext, ITfKeyEventSink_Impl};
 
 use crate::engine_host::HOST;
 use crate::keys::Key;
+use crate::mode_key_events;
 use crate::session::Effect;
 use crate::text_service::TextService_Impl;
 
 thread_local! {
-    /// Alt went down with no other key since: releasing it switches modes.
-    static ALT_ALONE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
-    /// The key that just committed a candidate, while it may still be held.
+    /// The key that just committed a candidate or switched modes, while it may
+    /// still be held.
     static COMMITTED_BY: std::cell::Cell<Option<u16>> = const { std::cell::Cell::new(None) };
 }
 
@@ -33,14 +33,9 @@ fn repeat_of_commit(wparam: WPARAM, lparam: LPARAM) -> bool {
     held
 }
 
-fn is_alt(wparam: WPARAM) -> bool {
-    let vk = (wparam.0 & 0xFFFF) as u16;
-    vk == VK_MENU.0 || vk == 0xA4 || vk == 0xA5
-}
-
-/// Track Alt on its own: down marks it, any other key clears it.
+/// Track modifiers for the taps in `[input.keys]`.
 fn note_key_down(wparam: WPARAM) {
-    ALT_ALONE.with(|a| a.set(is_alt(wparam) && !key_down(VK_CONTROL.0 as i32) && !key_down(VK_SHIFT.0 as i32)));
+    mode_key_events::note_modifier_down(wparam);
 }
 
 fn key_down(vk: i32) -> bool {
@@ -74,6 +69,35 @@ fn decode(wparam: WPARAM, lparam: LPARAM) -> Option<Key> {
 }
 
 impl TextService_Impl {
+    /// The key this key-down means: a bound one, else its plain meaning.
+    fn key_of(&self, wparam: WPARAM, lparam: LPARAM) -> Option<Key> {
+        let bound = mode_key_events::press(wparam, lparam, &self.inner().session);
+        bound.or_else(|| decode(wparam, lparam))
+    }
+
+    /// Tell the language bar and the compartments the session's mode.
+    fn show_mode(&self) {
+        let state = self.inner();
+        let mode = state.session.mode();
+        if state.mode.shown() != mode {
+            state.mode.show(mode);
+            if let Some(tm) = state.thread_mgr.as_ref() {
+                crate::compartment::publish(tm, state.client_id, mode);
+            }
+        }
+    }
+
+    /// With no document in focus there is nothing to edit, but a mode key
+    /// still switches. True when the key was used.
+    fn switch_without_document(&self, key: Key) -> bool {
+        if !key.switches_mode() {
+            return false;
+        }
+        self.inner_mut().session.handle(key, &HOST);
+        self.show_mode();
+        true
+    }
+
     /// Apply the settings and a mode requested from the language bar. Called
     /// at the start of every key event, so the session is up to date.
     fn sync(&self, context: &ITfContext) {
@@ -98,6 +122,7 @@ impl TextService_Impl {
 
 impl ITfKeyEventSink_Impl for TextService_Impl {
     fn OnSetFocus(&self, _fforeground: BOOL) -> windows::core::Result<()> {
+        mode_key_events::reset();
         Ok(())
     }
 
@@ -111,7 +136,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         if repeat_of_commit(wparam, lparam) {
             return Ok(true.into());
         }
-        let Some(key) = decode(wparam, lparam) else {
+        let Some(key) = self.key_of(wparam, lparam) else {
             return Ok(false.into());
         };
         if let Some(context) = pic.as_ref() {
@@ -129,9 +154,10 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         &self,
         _pic: Ref<'_, ITfContext>,
         wparam: WPARAM,
-        _lparam: LPARAM,
+        lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
-        let tap = is_alt(wparam) && ALT_ALONE.with(|a| a.get()) && crate::config::current().input.alt_toggles;
+        let state = self.inner();
+        let tap = mode_key_events::peek_release(wparam, lparam, &state.session).is_some_and(|k| state.session.eats(k));
         Ok(tap.into())
     }
 
@@ -146,18 +172,18 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             crate::debug_log::log(|| format!("OnKeyDown vk={:#x} repeat of commit, eaten", wparam.0));
             return Ok(true.into());
         }
-        let Some(key) = decode(wparam, lparam) else {
+        let Some(key) = self.key_of(wparam, lparam) else {
             return Ok(false.into());
         };
         let Some(context) = pic.as_ref() else {
-            return Ok(false.into());
+            return Ok(self.switch_without_document(key).into());
         };
         self.sync(context);
         // Release the borrow before touching the document: TSF calls back
         // into this object during edit sessions.
         let output = self.inner_mut().session.handle(key, &HOST);
         crate::debug_log::log(|| format!("OnKeyDown vk={:#x} lparam={:#x} eaten={} effects={:?} ctx={:?}", wparam.0, lparam.0, output.eaten, output.effects, windows::core::Interface::as_raw(context)));
-        if matches!(key, Key::Enter | Key::Printable('1'..='9')) && output.effects.iter().any(|e| matches!(e, Effect::Commit(_))) {
+        if key.switches_mode() || matches!(key, Key::Enter | Key::Printable('1'..='9')) && output.effects.iter().any(|e| matches!(e, Effect::Commit(_))) {
             COMMITTED_BY.with(|c| c.set(Some((wparam.0 & 0xFFFF) as u16)));
         }
         if !output.eaten {
@@ -167,16 +193,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             }
             return Ok(false.into());
         }
-        {
-            let state = self.inner();
-            let mode = state.session.mode();
-            if state.mode.shown() != mode {
-                state.mode.show(mode);
-                if let Some(tm) = state.thread_mgr.as_ref() {
-                    crate::compartment::publish(tm, state.client_id, mode);
-                }
-            }
-        }
+        self.show_mode();
         // An edit failure still consumed the key; a failed session leaves the
         // document unchanged.
         if let Err(e) = self.apply(context, output.effects) {
@@ -189,27 +206,18 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         &self,
         pic: Ref<'_, ITfContext>,
         wparam: WPARAM,
-        _lparam: LPARAM,
+        lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
-        let tap = is_alt(wparam) && ALT_ALONE.with(|a| a.replace(false)) && crate::config::current().input.alt_toggles;
-        if !tap {
-            return Ok(false.into());
-        }
-        let Some(context) = pic.as_ref() else {
+        let tap = mode_key_events::release(wparam, lparam, &self.inner().session);
+        let Some(key) = tap.filter(|k| self.inner().session.eats(*k)) else {
             return Ok(false.into());
         };
+        let Some(context) = pic.as_ref() else {
+            return Ok(self.switch_without_document(key).into());
+        };
         self.sync(context);
-        let output = self.inner_mut().session.handle(Key::HangulToggle, &HOST);
-        {
-            let state = self.inner();
-            let mode = state.session.mode();
-            if state.mode.shown() != mode {
-                state.mode.show(mode);
-                if let Some(tm) = state.thread_mgr.as_ref() {
-                    crate::compartment::publish(tm, state.client_id, mode);
-                }
-            }
-        }
+        let output = self.inner_mut().session.handle(key, &HOST);
+        self.show_mode();
         let _ = self.apply(context, output.effects);
         // Eating the key-up keeps Alt from opening the window menu.
         Ok(true.into())

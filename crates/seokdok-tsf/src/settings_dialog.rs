@@ -18,7 +18,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
     GetSystemMetrics, GetWindowTextW, IsDialogMessageW, IsWindow, LoadCursorW, RegisterClassExW,
     SendMessageW, SetForegroundWindow, SetWindowPos, ShowWindow, TranslateMessage, BM_GETCHECK,
     BM_SETCHECK, BS_AUTOCHECKBOX, BS_DEFPUSHBUTTON, BS_GROUPBOX, BS_PUSHBUTTON, CBS_DROPDOWNLIST,
-    CB_ADDSTRING, CB_GETCURSEL, CB_SETCURSEL, ES_NUMBER, HMENU, IDCANCEL, IDC_ARROW, IDOK, MSG,
+    CB_ADDSTRING, CB_GETCURSEL, CB_SETCURSEL, ES_AUTOHSCROLL, ES_NUMBER, HMENU, IDCANCEL, IDC_ARROW, IDOK, MSG,
     SM_CXSCREEN, SM_CYSCREEN, SWP_NOSIZE, SW_SHOW, WINDOW_STYLE, WM_CLOSE, WM_COMMAND, WM_CREATE,
     WM_SETFONT, WNDCLASSEXW, WS_BORDER, WS_CAPTION, WS_CHILD, WS_POPUP, WS_SYSMENU, WS_TABSTOP,
     WS_VISIBLE, WS_VSCROLL,
@@ -30,7 +30,9 @@ const CLASS_NAME: PCWSTR = w!("SeokdokSettingsDialog");
 
 const ID_MODE: i32 = 1001; // input.default_mode (3-way)
 const ID_SPACE: i32 = 1002; // input.space_converts
-const ID_ALT: i32 = 1003; // input.alt_toggles
+const ID_KEYS_TOGGLE: i32 = 1003; // input.keys.toggle (edit, comma-separated)
+const ID_KEYS_FLIP: i32 = 1006; // input.keys.seokdok_hangul (edit)
+const ID_KEYS_CONVERT: i32 = 1007; // input.keys.convert (edit)
 const ID_LAYOUT: i32 = 1004; // input.candidate_layout (2-way)
 const ID_OLD: i32 = 1005; // input.old_clusters
 const ID_STYLE: i32 = 1010; // conversion.style (2-way)
@@ -79,7 +81,7 @@ pub fn show(parent: HWND) {
         .encode_utf16()
         .collect();
 
-    let (w, h) = (470, 578);
+    let (w, h) = (470, 656);
     // SAFETY: GetSystemMetrics is always safe.
     let (sx, sy) = unsafe { (GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)) };
     let (x, y) = ((sx - w).max(0) / 2, (sy - h).max(0) / 2);
@@ -263,7 +265,7 @@ unsafe fn build_controls(hwnd: HWND) {
     let mut y = 8;
 
     // --- Input ---
-    group(w!("入力 / Input"), y, 172);
+    group(w!("入力 / Input"), y, 250);
     label(w!("始作 模式 / Start in:"), gx, y + 28, 150);
     combo(hwnd, ID_MODE, (gx + 160, y + 24, 220, 200), &MODE_ITEMS, cfg.input.default_mode);
     label(w!("候補 窓 / Candidates:"), gx, y + 62, 150);
@@ -274,9 +276,25 @@ unsafe fn build_controls(hwnd: HWND) {
         y + 90,
         cfg.input.space_converts,
     );
-    check(ID_ALT, w!("Alt 한 番으로 韓/A 轉換 / Tap Alt to switch"), y + 116, cfg.input.alt_toggles);
-    check(ID_OLD, w!("옛한글 겹자모 (ㅅㄱ→ᄭ, ㅂㅇ→ㅸ) / Old Hangul clusters"), y + 142, cfg.input.old_clusters);
-    y += 184;
+    check(ID_OLD, w!("옛한글 겹자모 (ㅅㄱ→ᄭ, ㅂㅇ→ㅸ) / Old Hangul clusters"), y + 116, cfg.input.old_clusters);
+    // The other lists of [input.keys] are in config.toml.
+    for (id, text, row, keys) in [
+        (ID_KEYS_TOGGLE, w!("韓 ↔ A 鍵 / Korean ↔ Latin keys:"), 146, &cfg.input.keys.toggle),
+        (ID_KEYS_FLIP, w!("釋讀 ↔ 한글 鍵 / keys:"), 178, &cfg.input.keys.seokdok_hangul),
+        (ID_KEYS_CONVERT, w!("變換 鍵 / Convert keys:"), 210, &cfg.input.keys.convert),
+    ] {
+        label(text, gx, y + row + 4, 190);
+        let value: Vec<u16> = format!("{}\0", keys.join(", ")).encode_utf16().collect();
+        child(
+            hwnd,
+            w!("EDIT"),
+            PCWSTR(value.as_ptr()),
+            WINDOW_STYLE(ES_AUTOHSCROLL as u32) | WS_TABSTOP | WS_BORDER,
+            (gx + 200, y + row + 2, 196, 22),
+            id,
+        );
+    }
+    y += 262;
 
     // --- Conversion ---
     group(w!("表記 / Spelling"), y, 270);
@@ -349,7 +367,9 @@ unsafe fn apply(hwnd: HWND) {
         cfg.input.default_mode = *v;
     }
     cfg.input.space_converts = checked(ID_SPACE);
-    cfg.input.alt_toggles = checked(ID_ALT);
+    cfg.input.keys.toggle = read_list(hwnd, ID_KEYS_TOGGLE);
+    cfg.input.keys.seokdok_hangul = read_list(hwnd, ID_KEYS_FLIP);
+    cfg.input.keys.convert = read_list(hwnd, ID_KEYS_CONVERT);
     cfg.input.old_clusters = checked(ID_OLD);
     if let Some((_, v)) = selected(hwnd, ID_LAYOUT).and_then(|i| LAYOUT_ITEMS.get(i)) {
         cfg.input.candidate_layout = *v;
@@ -377,6 +397,14 @@ unsafe fn apply(hwnd: HWND) {
     let _ = cfg.save();
     crate::config::reload();
     crate::dll::load_engine();
+}
+
+/// Read an EDIT control's comma-separated keys.
+unsafe fn read_list(hwnd: HWND, id: i32) -> Vec<String> {
+    let Ok(c) = GetDlgItem(Some(hwnd), id) else { return Vec::new() };
+    let mut buf = [0u16; 256];
+    let n = GetWindowTextW(c, &mut buf) as usize;
+    String::from_utf16_lossy(&buf[..n]).split(',').map(|e| e.trim().to_string()).filter(|e| !e.is_empty()).collect()
 }
 
 /// Read an EDIT control's text as a `usize`, if it parses.

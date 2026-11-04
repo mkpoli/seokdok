@@ -338,12 +338,17 @@ the dictionary already reads: a run with no mark of any class costs nothing.
 Words such as 곳 (處) and 믈 (typed first) therefore keep their reading.
 
 A syllable that modern words do not use (ㄷ ㅌ before ㅑ ㅛ, or before ㅕ with a
-final other than ㅆ) puts the converted reading first and what was typed second:
-텬하 gives 天下, 됴타 gives 好다. 뎌 and 텨 alone are the endings of 견뎌 and
-버텨, so they are not in that set. In the 20000 most frequent Hangul tokens of
-the chat this changes the first candidate of 15 words (둏, 뎍, 둏도다, 됴션,
-텬동, 됴타, 텬문, 됴션인, 뎜다, 됴하셔, 뎡쥬, 됴흔, 됴한, 댜, 텬운); all are
-spellings of the era, and none is a loanword or a name.
+final other than ㅆ) puts the converted reading first and what was typed second,
+when the reading is two syllables or more and every word of it is an entry with
+a count of at least three (the chat's count, or FusionIME's frequency where the
+chat has none): 텬하 gives 天下, 됴타 gives 好다. A reading of one syllable or
+from a rare entry is offered behind what was typed. 뎌 and 텨 alone are the
+endings of 견뎌 and 버텨, so they are not in that set. In the 20000 most
+frequent Hangul tokens of the chat this changes the first candidate of 10 words
+(둏도다, 됴션, 텬동, 됴타, 텬문, 됴션인, 됴하셔, 뎡쥬, 됴흔, 텬운); 둏, 뎍, 댜, 됴한, 됴츙 and
+뎜다 keep what was typed first. All are spellings of the era; none is a
+loanword or a name. Guesses add to the candidates of a run: every modern
+candidate and the literal input stay selectable.
 
 `read` turns the function syllables of 8.1 back into modern ones (工夫ᄒᆞᄂᆞᆫ reads
 공부하는) and leaves other old letters as they are.

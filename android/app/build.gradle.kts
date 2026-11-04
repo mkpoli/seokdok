@@ -10,6 +10,11 @@ plugins {
 val repoRoot: File = rootProject.projectDir.parentFile
 
 android {
+    packaging {
+        // seokdok-jni links seokdok-ffi statically; its own library is for the Windows settings app.
+        jniLibs.excludes += "**/libseokdok_ffi.so"
+    }
+
     namespace = "li.mkpo.seokdok"
     compileSdk = 35
     // r28 links with 16 KB pages by default (Android 15 devices).

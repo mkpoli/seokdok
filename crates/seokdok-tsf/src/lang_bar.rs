@@ -18,7 +18,7 @@ use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
 use windows::core::{implement, w, IUnknown, Interface, Ref, BSTR, GUID, PCWSTR, PWSTR};
-use windows::Win32::Foundation::{E_INVALIDARG, E_NOINTERFACE, HINSTANCE, HWND, POINT, RECT};
+use windows::Win32::Foundation::{E_INVALIDARG, E_NOINTERFACE, HINSTANCE, POINT, RECT};
 use windows::Win32::Graphics::Gdi::{GetMonitorInfoW, MonitorFromPoint, MONITORINFO, MONITOR_DEFAULTTONEAREST};
 use windows::Win32::UI::Input::KeyboardAndMouse::GetFocus;
 use windows::Win32::UI::TextServices::{
@@ -103,8 +103,7 @@ impl ModeShared {
     /// other applications find it; the session here takes it at the next key.
     fn choose(&self, action: Action) {
         if action == Action::Settings {
-            crate::settings_dialog::show(HWND::default());
-            self.set_script(crate::config::current().conversion.script);
+            crate::settings_app::open();
             return;
         }
         match crate::config::update(|c| action.change(c)) {

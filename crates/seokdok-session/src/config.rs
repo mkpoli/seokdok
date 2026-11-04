@@ -302,7 +302,7 @@ impl Config {
                     Surface::Inline => "inline",
                     Surface::Floating => "floating",
                 };
-                format!("\"{app}\" = \"{surface}\"\n")
+                format!("{} = \"{surface}\"\n", toml::Value::String(app.clone()))
             })
             .collect();
         format!(
@@ -668,6 +668,15 @@ mod tests {
     fn any_string_in_a_list_survives_the_file() {
         let mut c = Config::default();
         c.input.keys.toggle = vec!["bad\"entry\\".into(), "F12\n".into(), "\t한/영".into()];
+        assert_eq!(Config::parse(&c.to_documented_toml()), c);
+    }
+
+    #[test]
+    fn any_application_name_survives_the_file() {
+        let mut c = Config::default();
+        for app in ["C:\\Program Files\\x.exe", "a\"b.exe", "\\foo.exe", "한글.exe"] {
+            c.composition.insert(app.to_string(), Surface::Floating);
+        }
         assert_eq!(Config::parse(&c.to_documented_toml()), c);
     }
 

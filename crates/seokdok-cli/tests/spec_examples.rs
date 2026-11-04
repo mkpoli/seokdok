@@ -594,3 +594,15 @@ fn the_adverb_kkwae_is_hanja_inside_a_phrase() {
     }
     assert!(offers(&e, "꽤많다", "꽤多다"));
 }
+
+#[test]
+fn sino_words_with_their_own_row_convert_in_the_sino_mode() {
+    let e = engine(Options { sino_only: true, ..Options::default() });
+    assert_eq!(e.convert("물론")[0].text, "勿論");
+    assert_eq!(e.convert("그건물론")[0].text, "그건勿論");
+    assert_eq!(e.convert("사실")[0].text, "事實");
+    assert_eq!(e.convert("일단은")[0].text, "一旦은");
+    // Native words stay in Hangul.
+    assert_eq!(e.convert("하늘")[0].text, "하늘");
+    assert_eq!(e.convert("수")[0].text, "수");
+}

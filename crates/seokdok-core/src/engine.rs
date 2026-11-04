@@ -586,6 +586,15 @@ impl Engine {
         self.particle_trie.freeze();
     }
 
+    /// Whether native entry `n` is a Sino-Korean word given its own row: a
+    /// hand-made entry whose Hanja are in the Sino table under its reading. The
+    /// bound noun 수 is native whatever the chat writes it with (手).
+    fn is_sino_word(&self, n: &Native) -> bool {
+        matches!(n.source, Source::Editorial | Source::Corpus)
+            && n.lemma != "수"
+            && self.sino.prefixes(&n.stem, 0).iter().any(|(q, items)| *q == n.stem.len() && items.iter().any(|&i| self.sinos.hanja(i as usize) == n.hanja))
+    }
+
     fn native_cost(&self, n: &Native) -> f32 {
         // Hangul-only helper entries (the light verb 하다) are cheap.
         let mut c = if n.hanja.is_empty() { 0.5 } else { n.cost };
@@ -1007,7 +1016,10 @@ impl Engine {
             }
             Kind::Nominal { entry, particle } => {
                 let n = &self.natives[*entry as usize];
-                if n.hanja.is_empty() || !kun {
+                // 國漢文混用 keeps native words in Hangul, but a Sino-Korean word
+                // with its own row (물론 勿論) is still Hanja.
+                let sino_word = self.is_sino_word(n);
+                if n.hanja.is_empty() || !(kun || sino_word) {
                     return vec![raw()];
                 }
                 let mut t = n.hanja.clone();
@@ -1015,7 +1027,8 @@ impl Engine {
                 if let Some(p) = particle {
                     t.push_str(&compose(&self.particles[*p as usize].comps));
                 }
-                vec![Candidate { text: t, note: note(n, None) }]
+                let note = if sino_word { format!("{} · 音讀", n.lemma) } else { note(n, None) };
+                vec![Candidate { text: t, note }]
             }
             Kind::Verb { entry, allo, ending } => {
                 let n = &self.natives[*entry as usize];

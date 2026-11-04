@@ -138,6 +138,22 @@ fn an_old_tail_is_kept_as_typed_in_first_place() {
 }
 
 #[test]
+fn era_spellings_are_looked_up_behind_what_was_typed() {
+    let e = engine(Options::default());
+    // The first candidate of modern syllables does not change.
+    offers_all(&e, "텬하", &["天下", "텬하"]);
+    assert_eq!(texts(&e, "텬하").0[0], "텬하");
+    // 됴타 reads 조타; the dictionary has no 좋다 for it.
+    offers_all(&e, "됴타", &["操舵", "됴타"]);
+    // A final ㅅ for ㅆ, only when the word was not converted as typed.
+    offers_all(&e, "갓다", &["去ㅆ다", "갓다"]);
+    assert_eq!(texts(&e, "갓다").0[0], "갓다");
+    assert_eq!(texts(&e, "잇다").0[0], "續다");
+    // Ordinary words are not looked up again.
+    assert_eq!(texts(&e, "사랑").0[0], "愛");
+}
+
+#[test]
 fn old_text_is_read_back_without_panicking() {
     let e = engine(Options::default());
     assert_eq!(e.read(&format!("追加{HAL}까요")), "추가할까요");

@@ -5,7 +5,7 @@
 use crate::conj::{ending_label, ending_surfaces, morph_ending, Ctx};
 use crate::dict::{parse_native, parse_sino, tsv_lines, Native, Pos, Source, Tail};
 use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify};
-use crate::old_spelling::{ends_in_hanja, has_old, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant, parse, readings, Syl};
+use crate::old_spelling::{ends_in_hanja, has_era, has_old, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant, parse, readings, Syl};
 use crate::particles::{allowed, particles, Particle};
 use std::collections::HashMap;
 
@@ -878,12 +878,32 @@ impl Engine {
     }
 
     /// Whole-run candidates and segments of one run of Hangul. A run with old
-    /// letters is looked up by its modern readings.
+    /// letters is looked up by its modern readings; one that conversion left
+    /// as it was may be an era spelling.
     fn convert_run(&self, run: &str, after_hanja: bool) -> (Vec<Candidate>, Vec<Segment>) {
         if has_old(run) {
             return self.convert_old(run);
         }
-        let Converted { whole, segments, .. } = self.convert_plain(run, after_hanja, true);
+        let Converted { mut whole, mut segments, .. } = self.convert_plain(run, after_hanja, true);
+        if whole.first().is_some_and(|c| c.text == run) && has_era(run) {
+            if let Some(syls) = parse(run) {
+                // Behind what was typed: the first candidate stays.
+                let mut era: Vec<Candidate> = Vec::new();
+                for (_, reading, cands) in self.read_as(&syls, true) {
+                    for c in cands {
+                        if c.text != reading && !era.iter().any(|x| x.text == c.text) && !whole.iter().any(|x| x.text == c.text) {
+                            era.push(c);
+                        }
+                    }
+                }
+                if !era.is_empty() {
+                    era.truncate(self.options.max_candidates.max(2));
+                    whole.splice(1..1, era);
+                    whole.truncate(self.options.max_candidates.max(2));
+                    segments = vec![Segment { reading: run.to_string(), candidates: whole.clone() }];
+                }
+            }
+        }
         (whole, segments)
     }
 
@@ -892,7 +912,10 @@ impl Engine {
     /// kept as a choice.
     fn convert_old(&self, run: &str) -> (Vec<Candidate>, Vec<Segment>) {
         let syls = parse(run).unwrap_or_default();
-        let found = self.read_as(&syls);
+        let mut found = self.read_as(&syls, false);
+        if found.is_empty() {
+            found = self.read_as(&syls, true);
+        }
         let mut list: Vec<Candidate> = Vec::new();
         for (_, reading, cands) in found {
             for c in cands {
@@ -930,9 +953,9 @@ impl Engine {
 
     /// The conversions of the modern readings of a run, best path first, only
     /// those that use a dictionary word and cost little more than the best.
-    fn read_as(&self, syls: &[Syl]) -> Vec<(f32, String, Vec<Candidate>)> {
+    fn read_as(&self, syls: &[Syl], era: bool) -> Vec<(f32, String, Vec<Candidate>)> {
         let mut found: Vec<(f32, String, Vec<Candidate>)> = Vec::new();
-        for reading in readings(syls) {
+        for reading in readings(syls, era) {
             let c = self.convert_plain(&reading, false, false);
             if let Some(cost) = c.cost {
                 found.push((cost, reading, c.whole));

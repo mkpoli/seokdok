@@ -4,7 +4,7 @@
 //! uses, with their counts; see "Old spellings" in docs/orthography.md.
 
 use crate::dict::is_han;
-use crate::jamo::{is_syllable, join_syllable};
+use crate::jamo::{is_syllable, join_syllable, SBASE};
 use std::borrow::Cow;
 
 /// Modern syllable and the old spelling the chat writes for it (ㆍ is
@@ -216,32 +216,85 @@ fn fold_t(t: char) -> Option<char> {
     })
 }
 
+/// Spellings of the era between the old letters and today's orthography that
+/// are made of modern syllables, as the modern syllables they stand for:
+/// ㄷ and ㅌ before ㅑ ㅕ ㅛ were ㅈ and ㅊ before ㅏ ㅓ ㅗ (텬하 = 천하, 뎌 = 저,
+/// 됴 = 조, 댜 = 자), and a final ㅅ was a final ㅆ (잇다 = 있다, 갓다 = 갔다),
+/// where the syllable can be a past tense.
+fn era_reads(c: char) -> Vec<char> {
+    let s = c as u32 - SBASE;
+    let (l, v, t) = (s / 588, (s % 588) / 28, s % 28);
+    let build = |l: u32, v: u32, t: u32| char::from_u32(SBASE + (l * 21 + v) * 28 + t).unwrap();
+    // ㄷ (3) and ㅌ (16) before ㅑ (2), ㅕ (6), ㅛ (12).
+    let palatal = match (l, v) {
+        (3, 2 | 6 | 12) => Some((12, if v == 2 { 0 } else if v == 6 { 4 } else { 8 })),
+        (16, 2 | 6 | 12) => Some((14, if v == 2 { 0 } else if v == 6 { 4 } else { 8 })),
+        _ => None,
+    };
+    let mut out = Vec::new();
+    if let Some((l2, v2)) = palatal {
+        out.push(build(l2, v2, t));
+    }
+    // A final ㅅ (19) was a final ㅆ (20); only after the vowels of the past
+    // tense (았 었 였 있) is that worth a lookup: ㅏ (0), ㅐ (1), ㅓ (4), ㅕ (6), ㅣ (20).
+    // The noun 것 is never one.
+    if t == 19 && matches!(v, 0 | 1 | 4 | 6 | 20) && c != '것' {
+        out.push(build(l, v, 20));
+        if let Some((l2, v2)) = palatal {
+            out.push(build(l2, v2, 20));
+        }
+    }
+    out
+}
+
+/// Whether the run has a syllable with an era spelling worth trying.
+pub(crate) fn has_era(run: &str) -> bool {
+    run.chars().any(|c| is_syllable(c) && !era_reads(c).is_empty())
+}
+
 /// At most this many modern readings are tried for a run.
 const MAX_READINGS: usize = 8;
 
-/// Modern readings of a run, best guess first: the folds of its old letters,
-/// with the fewest departures from the first fold of each syllable first.
-pub(crate) fn readings(syls: &[Syl]) -> Vec<String> {
-    let total = syls.iter().fold(1usize, |n, s| n.saturating_mul(s.reads.len()));
+/// Modern readings of a run, best guess first. With `era`, the readings that
+/// use an era spelling (and only those); without it, the folds of old letters.
+pub(crate) fn readings(syls: &[Syl], era: bool) -> Vec<String> {
+    // For each syllable the readings to choose from, the first being the
+    // plain one, each flagged when it is an era spelling.
+    let alts: Vec<Vec<(char, bool)>> = syls
+        .iter()
+        .map(|s| {
+            let mut v: Vec<(char, bool)> = s.reads.iter().map(|&c| (c, false)).collect();
+            if era {
+                for &c in &s.reads {
+                    v.extend(era_reads(c).into_iter().map(|e| (e, true)));
+                }
+            }
+            v
+        })
+        .collect();
+    let total = alts.iter().fold(1usize, |n, a| n.saturating_mul(a.len()));
     let typed: String = syls.iter().map(|s| s.typed.as_str()).collect();
     let mut found: Vec<(usize, String)> = Vec::new();
-    let mut pick = vec![0usize; syls.len()];
+    let mut pick = vec![0usize; alts.len()];
     for _ in 0..total.min(1024) {
-        let text: String = pick.iter().zip(syls).map(|(&i, s)| s.reads[i]).collect();
-        if text != typed {
-            found.push((pick.iter().filter(|&&i| i != 0).count(), text));
+        let text: String = pick.iter().zip(&alts).map(|(&i, a)| a[i].0).collect();
+        let used_era = pick.iter().zip(&alts).any(|(&i, a)| a[i].1);
+        if text != typed && used_era == era {
+            let moved = pick.iter().filter(|&&i| i != 0).count();
+            found.push((moved, text));
         }
         // Next combination, the last syllable varying fastest.
         let mut k = pick.len();
         while k > 0 {
             k -= 1;
             pick[k] += 1;
-            if pick[k] < syls[k].reads.len() {
+            if pick[k] < alts[k].len() {
                 break;
             }
             pick[k] = 0;
         }
     }
+    // Fewest departures from the first choice first.
     found.sort_by_key(|(moved, _)| *moved);
     found.into_iter().map(|(_, t)| t).take(MAX_READINGS).collect()
 }
@@ -312,29 +365,42 @@ mod tests {
         assert_eq!(old_variant(["工夫", "하는"], true, false, true).unwrap(), "\u{1112}\u{119E}는");
     }
 
-    fn reads(run: &str) -> Vec<String> {
-        readings(&parse(run).unwrap())
+    fn reads(run: &str, era: bool) -> Vec<String> {
+        readings(&parse(run).unwrap(), era)
     }
 
     #[test]
     fn old_letters_fold_to_modern_ones() {
         // ᄉᆞ랑 = 사랑, ᄂᆞᆫ = 는, ᄒᆞᆰ = 흙; the ㅏ reading comes first.
-        assert_eq!(reads("\u{1109}\u{119E}랑"), ["사랑", "스랑"]);
-        assert_eq!(reads("\u{1102}\u{119E}\u{11AB}"), ["난", "는"]);
-        assert_eq!(reads("\u{1112}\u{119E}\u{11B0}")[1], "흙");
-        assert_eq!(reads("\u{1112}\u{11A1}"), ["해"]);
-        assert_eq!(reads("\u{1140}\u{1175}"), ["시"]);
-        assert_eq!(reads("\u{114C}\u{1175}"), ["이"]);
-        assert_eq!(reads("\u{112F}\u{1169}"), ["또"]);
-        assert_eq!(reads("\u{1109}\u{11A1}\u{11F0}"), ["생"]);
+        assert_eq!(reads("\u{1109}\u{119E}랑", false), ["사랑", "스랑"]);
+        assert_eq!(reads("\u{1102}\u{119E}\u{11AB}", false), ["난", "는"]);
+        assert_eq!(reads("\u{1112}\u{119E}\u{11B0}", false)[1], "흙");
+        assert_eq!(reads("\u{1112}\u{11A1}", false), ["해"]);
+        assert_eq!(reads("\u{1140}\u{1175}", false), ["시"]);
+        assert_eq!(reads("\u{114C}\u{1175}", false), ["이"]);
+        assert_eq!(reads("\u{112F}\u{1169}", false), ["또"]);
+        assert_eq!(reads("\u{1109}\u{11A1}\u{11F0}", false), ["생"]);
         // A letter with no modern counterpart gives no reading.
         assert!(parse("\u{1113}\u{1161}").is_none());
     }
 
     #[test]
+    fn era_spellings_are_modern_syllables() {
+        assert_eq!(reads("텬하", true), ["천하"]);
+        assert_eq!(reads("됴타", true), ["조타"]);
+        assert_eq!(reads("뎌", true), ["저"]);
+        assert_eq!(reads("댜", true), ["자"]);
+        assert_eq!(reads("잇다", true), ["있다"]);
+        assert_eq!(reads("갓다", true), ["갔다"]);
+        // Nothing to try for ordinary words.
+        assert!(reads("사랑", true).is_empty());
+        assert!(!has_era("디자인") && !has_era("사랑") && has_era("텬하"));
+    }
+
+    #[test]
     fn at_most_eight_readings() {
         let run = "\u{1109}\u{119E}".repeat(6);
-        assert_eq!(reads(&run).len(), 8);
+        assert_eq!(reads(&run, false).len(), 8);
     }
 
     #[test]

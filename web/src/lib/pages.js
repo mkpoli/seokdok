@@ -187,9 +187,9 @@ const en = {
           [
             'Typed text: text in the input and converter fields on this page is processed in your browser (WebAssembly). The only requests to the server are for the dictionary files (`/dict/native.bin`, `/dict/sino.bin`). The copy buttons put text on your clipboard.',
             'Browser storage: `localStorage` keeps `seokdok:theme`, `seokdok:lang`, `seokdok:options` and `seokdok:custom`: your colour scheme, language, spelling settings, and the rules and words you entered under Customize. They stay in your browser, no cookies are used, and clearing the site’s data removes them.',
-            'Fonts: the site’s fonts (Noto Sans KR, Noto Serif KR, Gowun Batang) are served from the site itself, and the page requests nothing from other servers.',
+            'Fonts: the site’s fonts (Noto Sans KR, Noto Serif KR, Gowun Batang) are served from the site itself.',
             'Hosting: Cloudflare serves the site. When you open a page, Cloudflare processes your IP address, the requested address and your browser details as needed to operate, as any web host does, under Cloudflare’s own policy.',
-            'The project’s configuration (`wrangler.jsonc`) serves static files only, with no server code, analytics or log collection switched on, and the page itself includes no analytics script. Cloudflare Web Analytics is on, so Cloudflare adds its beacon (`static.cloudflareinsights.com`) to the page and gathers visit statistics. The beacon does not read what is typed in the input fields, and what it gathers follows Cloudflare's policy. What the project could see in the Cloudflare dashboard cannot be checked from the repository.',
+            'The project’s configuration (`wrangler.jsonc`) serves static files only, with no server code, analytics or log collection switched on, and the page itself includes no analytics script. Cloudflare Web Analytics is on, so Cloudflare adds its beacon (`static.cloudflareinsights.com`) to the page and gathers visit statistics. The beacon does not read what is typed in the input fields, and what it gathers follows Cloudflare’s policy. What the project could see in the Cloudflare dashboard cannot be checked from the repository.',
             'Links to GitHub, Telegram and the wiki lead to those services, which apply their own policies.',
           ],
         ],

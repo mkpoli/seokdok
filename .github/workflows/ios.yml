@@ -143,6 +143,15 @@ jobs:
             --predicate 'process == "SeokdokKeyboard" AND eventMessage CONTAINS "Unable to simultaneously satisfy constraints"' | tee shots/constraints.txt
           if grep -q "Unable to simultaneously" shots/constraints.txt; then exit 1; fi
 
+      - name: Crash reports of the keyboard
+        if: always()
+        continue-on-error: true
+        working-directory: ios
+        run: |
+          mkdir -p shots/crashes
+          cp ~/Library/Logs/DiagnosticReports/Seokdok* shots/crashes/ 2>/dev/null || true
+          ls shots/crashes
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:

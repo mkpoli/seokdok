@@ -12,6 +12,7 @@ use windows::Win32::Foundation::{E_FAIL, RECT};
 use windows::Win32::System::Variant::{
     VARIANT, VARIANT_0, VARIANT_0_0, VARIANT_0_0_0, VT_I4,
 };
+use windows::Win32::UI::WindowsAndMessaging::GetClassNameW;
 use windows::Win32::UI::TextServices::{
     ITfComposition, ITfCompositionSink, ITfCompositionSink_Impl, ITfContext, ITfContextComposition,
     ITfInsertAtSelection, ITfRange, GUID_PROP_ATTRIBUTE, TF_AE_NONE, TF_ANCHOR_END,
@@ -22,7 +23,7 @@ use crate::config::Surface;
 use crate::edit_session::run_sync;
 use crate::engine_host::HOST;
 use crate::session::{Attr, Effect, Run};
-use crate::surface::{at_boundary, choose, classify_end, undelivered, AtBoundary, End, Facts};
+use crate::surface::{at_boundary, choose, classify_end, commits_plainly, undelivered, AtBoundary, End, Facts};
 use crate::text_service::TextService_Impl;
 
 /// This process refused a composition, so it gets the floating preedit.
@@ -115,6 +116,14 @@ fn is_transitory(context: &ITfContext) -> bool {
 fn is_read_only(context: &ITfContext) -> bool {
     // SAFETY: context is a valid ITfContext.
     unsafe { context.GetStatus() }.is_ok_and(|s| s.dwDynamicFlags & TS_SD_READONLY != 0)
+}
+
+/// The class name of the context's window, empty if it cannot say.
+fn window_class(context: &ITfContext) -> String {
+    let mut name = [0u16; 64];
+    // SAFETY: context is a valid ITfContext; name is a valid buffer.
+    let len = unsafe { context.GetActiveView().and_then(|view| view.GetWnd()).map(|hwnd| GetClassNameW(hwnd, &mut name)) };
+    String::from_utf16_lossy(&name[..len.unwrap_or(0).max(0) as usize])
 }
 
 /// The executable's file name, for the setting in config.toml.
@@ -441,19 +450,16 @@ impl TextService_Impl {
     }
 
     /// Replace the composition by final text and end it. With no composition
-    /// the text is inserted at the selection: through a composition that starts
-    /// and ends here on the IMM32 path, whose bridge delivers text that way;
-    /// plainly in a transitory text store, because a composition started while
-    /// handling a key makes Chromium fire that key's keydown ahead of the text
-    /// and outside any composition, and a page taking it for a real Enter then
-    /// breaks the line before the text arrives.
+    /// the text goes in at the selection, plainly or through a composition that
+    /// starts and ends here (see [`commits_plainly`]).
     fn commit(&self, context: &ITfContext, text: &str) -> windows::core::Result<()> {
         let open = self.inner().composition.is_some();
         if !open && text.is_empty() {
             return Ok(());
         }
         let transitory = is_transitory(context);
-        let plain = !open && transitory && self.inner().imm32_context != Some(context.as_raw() as usize);
+        let through_imm32 = self.inner().imm32_context == Some(context.as_raw() as usize);
+        let plain = !open && commits_plainly(through_imm32, &window_class(context));
         let delivered: String = self.inner().drawn.iter().map(|r| r.text.as_str()).collect();
         let owed: Vec<u16> = undelivered(&delivered, text).encode_utf16().collect();
         crate::debug_log::log(|| format!("commit: {}", if open { "into the composition" } else if plain { "plain insert" } else { "one-shot composition" }));

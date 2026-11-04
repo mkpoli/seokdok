@@ -100,6 +100,15 @@ pub fn at_boundary(composition_open: bool, through_imm32: bool) -> AtBoundary {
     }
 }
 
+/// Whether a commit with no composition open may insert plainly. Chromium fires
+/// the key's keydown ahead of any composition started while handling it, so a
+/// page can act on Enter before the text arrives; a plain insert avoids that.
+/// Other stores may read their text only when a composition ends, as Windows
+/// Terminal does, so they get a composition that starts and ends in the commit.
+pub fn commits_plainly(through_imm32: bool, window_class: &str) -> bool {
+    !through_imm32 && window_class.starts_with("Chrome_WidgetWin_")
+}
+
 /// Decides when refusals are enough to float this process from now on. A web
 /// page can cancel a composition right after a key too, so one refusal after
 /// the edit session only floats that composition.
@@ -180,6 +189,14 @@ mod tests {
         assert_eq!(at_boundary(false, false), AtBoundary::Drop);
         assert_eq!(at_boundary(false, true), AtBoundary::Commit);
         assert_eq!(at_boundary(true, false), AtBoundary::Commit);
+    }
+
+    #[test]
+    fn only_a_chromium_window_commits_plainly() {
+        assert!(commits_plainly(false, "Chrome_WidgetWin_1"));
+        assert!(!commits_plainly(true, "Chrome_WidgetWin_1"));
+        assert!(!commits_plainly(false, "CASCADIA_HOSTING_WINDOW_CLASS"));
+        assert!(!commits_plainly(false, ""));
     }
 
     #[test]

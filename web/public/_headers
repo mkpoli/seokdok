@@ -1,0 +1,18 @@
+# no-transform keeps Cloudflare from adding its analytics beacon to the pages.
+# HTML only: it also turns off edge compression, which assets still need.
+/
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+/index.html
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+/privacy
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+/privacy.html
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+/support
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+/support.html
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+/design
+  Cache-Control: public, max-age=0, must-revalidate, no-transform
+/design.html
+  Cache-Control: public, max-age=0, must-revalidate, no-transform

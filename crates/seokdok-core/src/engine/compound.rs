@@ -93,6 +93,9 @@ impl Engine {
                 list.push(Candidate { text, note: c.note });
             }
         }
+        // The readings sharing the part's first character lead (韓字 before 漢字, for 韓㐎).
+        let lead = own.first().and_then(|c| c.text.chars().next());
+        list[own.len().min(PER_PART)..].sort_by_key(|c| c.text.chars().next() != lead);
         list
     }
 

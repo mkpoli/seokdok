@@ -691,3 +691,11 @@ fn the_plural_takes_more_particles() {
         assert!(more.is_empty() || offers(&e, input, more), "{input} → {more}");
     }
 }
+
+#[test]
+fn a_compound_part_keeps_its_own_character_first() {
+    let e = engine(Options::default());
+    let list: Vec<String> = e.segments("옛한글")[0].candidates.iter().map(|c| c.text.clone()).collect();
+    let at = |t: &str| list.iter().position(|x| x == t).unwrap();
+    assert!(at("古ㅅ韓字") < at("古ㅅ漢字"), "{list:?}");
+}

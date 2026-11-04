@@ -150,7 +150,9 @@ impl Engine {
             Some(i) => found.remove(i),
             None => typed(String::new()),
         };
-        if self.options.sino_only {
+        // A word whose Hanja are all read by sound is already written the way
+        // 國漢文混用 writes it (兩心 is not 良心); only 訓讀 moves to the mode's writing.
+        if self.options.sino_only && !self.by_sound(word, &reading) {
             if let Some(first) = first {
                 push(first, &mut menu);
             }
@@ -172,6 +174,27 @@ impl Engine {
         menu.truncate(MENU - 1);
         push(hangul, &mut menu);
         menu
+    }
+
+    /// Does every Hanja of the word read by sound, with no 訓讀 entry among them?
+    fn by_sound(&self, word: &str, reading: &str) -> bool {
+        let text = crate::dict::unify(&super::modernize_function(word)).to_string();
+        let mut sound = String::new();
+        let mut run = String::new();
+        for c in text.chars() {
+            if is_hanja(c) {
+                run.push(c);
+                continue;
+            }
+            if !run.is_empty() {
+                sound.push_str(&self.read_sino(&std::mem::take(&mut run)).0);
+            }
+            sound.push(c);
+        }
+        if !run.is_empty() {
+            sound.push_str(&self.read_sino(&run).0);
+        }
+        sound == reading
     }
 
     /// Candidates of a reading, dictionary forms before constructed ones: the

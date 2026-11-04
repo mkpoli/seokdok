@@ -556,7 +556,7 @@ fn i_after_hanja_is_also_written_as_a_syllable() {
 fn the_plural_is_also_written_with_hanja() {
     let e = engine(Options::default());
     for (input, first, more) in [
-        ("사람들", "人들", ["人等", "人們"]),
+        ("사람들", "人들", ["人等", "人達"]),
         ("사람들은", "人들은", ["人等은", "人們은"]),
         ("학생들", "學生들", ["學生等", "學生們"]),
         ("친구들이", "親舊들이", ["親舊等이", "親舊們이"]),
@@ -580,7 +580,7 @@ fn the_plural_is_also_written_with_hanja() {
     assert!(offers(&e, "길들이", "馴"));
     assert!(offers(&e, "뎌들", "伊들"));
     // Reading back.
-    for (written, reading) in [("學生等", "학생들"), ("學生們은", "학생들은"), ("平等", "평등")] {
+    for (written, reading) in [("學生等", "학생들"), ("學生們은", "학생들은"), ("學生達", "학생들"), ("平等", "평등"), ("到達", "도달")] {
         assert_eq!(e.read(written), reading, "{written}");
     }
     assert_eq!(e.read("人等은"), e.read("人들은"));

@@ -1749,8 +1749,8 @@ impl Engine {
     /// 訓讀 entry for the rest, whichever costs less.
     fn read_token(&self, han: &str, tail: &str) -> String {
         let r = self.reverse();
-        // The plural 들 written 等 or 們, after a word that does not end so itself.
-        if let Some(head) = han.strip_suffix(['等', '們']).filter(|h| !h.is_empty()) {
+        // The plural 들 written 等, 們 or 達, after a word that does not end so itself.
+        if let Some(head) = han.strip_suffix(['等', '們', '達']).filter(|h| !h.is_empty()) {
             if !r.sino.contains_key(han) && !r.native.contains_key(han) && self.is_particle_tail(tail) {
                 return self.read_token(head, &format!("들{tail}"));
             }

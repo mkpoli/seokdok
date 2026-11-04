@@ -11,7 +11,7 @@ comments; the header line names the columns.
 | `community.tsv` | 標準國語釋讀辭典 | 釋讀會 members | used with the editors' permission |
 | `eonhae.tsv` | 訓讀 attested in historical books: character primers and 諺解 | Korean Wikisource and 나무위키 transcriptions, English Wiktionary | CC BY-SA 4.0; citations of 나무위키 CC BY-NC-SA 2.0 KR |
 | `kun-attested.tsv` | 訓讀 printed with a native reading beside the Hanja in books of 1882-1945 | Korean Wikisource transcriptions | CC BY-SA 4.0 |
-| `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested | language model, unreviewed | MIT |
+| `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested, and words the chat types most, each with its source | language model, unreviewed; English Wiktionary, JMdict, libhangul | MIT; the rows from `tools/chat_gaps.tsv` CC BY-SA 4.0 |
 | `kun-ja.tsv` | 訓讀 found through Japanese 訓読み words with the same English gloss | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `kun-ja-weak.tsv` | weaker Japanese links, kept so no candidate is lost | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
@@ -163,6 +163,15 @@ with `source` set to `user`. Check a file with
   editorial and community entries and is labelled as unreviewed in the IME.
   The word list came from `tools/native_candidates.py`; no Wiktionary text is
   included.
+
+  The rows at the end of the file come from `tools/chat_gaps.tsv`: native words among
+  the 20,000 most frequent chat tokens whose first candidate stayed Hangul or was a
+  poor guess. Each note names what supports the spelling: a Hanja form or sense in
+  English Wiktionary (kaikki.org extract, CC BY-SA 4.0), a Middle Korean form Wiktionary
+  links to the modern word, a JMdict gloss (EDRDG, CC BY-SA 4.0), a libhangul 訓音 or
+  another row here. Every one was read by hand. Counts stay blank where the spelling
+  belongs to another word or reads as Sino-Korean: the chat's uses of 無 are not uses
+  of 업시, nor its 二十 uses of 스물.
 - **Through Japanese** (`kun-ja.tsv`, `tools/japanese_kun.py`): a Korean
   native word and a Japanese word spelled with one kanji (plus okurigana) in
   JMdict that share an English gloss in their main senses are linked, and the

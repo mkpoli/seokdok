@@ -72,6 +72,9 @@ class SeokdokService : InputMethodService(), KeyboardListener {
         return view
     }
 
+    /** In landscape the system would replace the app with its own light extract editor, also at night. */
+    override fun onEvaluateFullscreenMode(): Boolean = false
+
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
         if (!restarting) {

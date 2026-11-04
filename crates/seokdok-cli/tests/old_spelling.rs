@@ -41,8 +41,11 @@ fn the_old_spelling_of_a_tail_comes_third() {
     assert_eq!(whole[2], format!("工夫{HA}{NEUN}"));
     assert_eq!(segs[1][2], format!("{HA}{NEUN}"));
     assert_eq!(texts(&e, "이것을").0[2], format!("此것{EUL}"));
-    // Hanja typed in the input make the Hangul after them a tail.
-    assert_eq!(texts(&e, "字를").0, ["字를", "字㔹", &format!("字{REUL}")]);
+    // Hanja typed in the input make the word one unit: the typed spelling
+    // first, the old spelling of the tail third.
+    let whole = texts(&e, "字를").0;
+    assert_eq!(whole[0], "字를");
+    assert_eq!(whole[2], format!("字{REUL}"));
     assert_eq!(texts(&e, "해요").0[2], "\u{1112}\u{11A1}요");
     // The modern candidates keep their places, and 했 has no old spelling.
     assert_eq!(texts(&e, "했다").0[..2], ["했다", "爲ㅆ다"]);

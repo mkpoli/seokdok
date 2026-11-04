@@ -10,6 +10,7 @@ use crate::old_spelling::{ends_in_hanja, is_function_old, is_jamo, keep_typed_ta
 use crate::particles::{allowed, particles, Particle};
 use std::collections::{HashMap, HashSet};
 
+mod mixed;
 mod okurigana;
 
 /// How the Hangul after a 訓讀 stem is written.
@@ -250,6 +251,10 @@ pub struct Engine {
     particle_trie: Trie<u16>,
     /// Reverse indexes for [`Engine::read`], built on first use.
     reverse: std::sync::OnceLock<Reverse>,
+    /// Written forms of entries, kept by [`Engine::read`]: listing them costs
+    /// more than the lookup (the second key is `variant_forms`). The forms
+    /// depend on the spelling options, so the cache starts over when they change.
+    forms_cache: std::sync::Mutex<(u8, HashMap<(usize, bool), std::sync::Arc<Vec<(String, String)>>>)>,
 }
 
 /// The Sino-Korean entries, packed: every reading and Hanja form lives in one
@@ -494,6 +499,7 @@ impl Builder {
             particles: particles(),
             particle_trie: Trie::new(),
             reverse: std::sync::OnceLock::new(),
+            forms_cache: Default::default(),
         };
         eng.index();
         (eng, errors)
@@ -978,6 +984,12 @@ impl Engine {
     }
 
     fn render_dict(&self, comps: &[char], e: &Edge) -> Vec<Candidate> {
+        self.render_dict_as(comps, e, !self.options.sino_only)
+    }
+
+    /// [`Engine::render_dict`], with 訓讀 words in Hanja (`kun`) or in Hangul.
+    /// The reader needs the Hanja whatever the conversion mode.
+    fn render_dict_as(&self, comps: &[char], e: &Edge, kun: bool) -> Vec<Candidate> {
         let slice = &comps[e.start..e.end];
         let raw = || Candidate { text: compose(slice), note: String::new() };
         match &e.kind {
@@ -992,7 +1004,7 @@ impl Engine {
             }
             Kind::Nominal { entry, particle } => {
                 let n = &self.natives[*entry as usize];
-                if n.hanja.is_empty() || self.options.sino_only {
+                if n.hanja.is_empty() || !kun {
                     return vec![raw()];
                 }
                 let mut t = n.hanja.clone();
@@ -1004,7 +1016,7 @@ impl Engine {
             }
             Kind::Verb { entry, allo, ending } => {
                 let n = &self.natives[*entry as usize];
-                if n.hanja.is_empty() || self.options.sino_only {
+                if n.hanja.is_empty() || !kun {
                     return vec![raw()];
                 }
                 let al = &n.allos[*allo as usize];
@@ -1516,6 +1528,11 @@ impl Engine {
     }
 
     pub fn convert(&self, input: &str) -> Vec<Candidate> {
+        self.mixed_convert(input).unwrap_or_else(|| self.convert_unmixed(input))
+    }
+
+    /// [`Engine::convert`] for text without Hanja words.
+    fn convert_unmixed(&self, input: &str) -> Vec<Candidate> {
         let mut per_run: Vec<Vec<Candidate>> = Vec::new();
         let mut after_hanja = false;
         let pieces = runs(input);
@@ -1558,6 +1575,11 @@ impl Engine {
 
     /// Segmentation of the best analysis, each segment with alternatives.
     pub fn segments(&self, input: &str) -> Vec<Segment> {
+        self.mixed_segments(input).unwrap_or_else(|| self.segments_unmixed(input))
+    }
+
+    /// [`Engine::segments`] for text without Hanja words.
+    fn segments_unmixed(&self, input: &str) -> Vec<Segment> {
         if self.spaced_hun(input).is_some() {
             return vec![Segment { reading: input.to_string(), candidates: self.convert(input) }];
         }
@@ -1602,21 +1624,21 @@ impl Engine {
                         kind: Kind::Verb { entry: i as u32, allo: a as u16, ending: idx as u16 },
                     };
                     let surface = compose(&comps);
-                    for c in self.render_dict(&comps, &edge) {
+                    for c in self.render_dict_as(&comps, &edge, true) {
                         out.push((c.text, surface.clone()));
                     }
                 }
             }
         } else {
             let base = Edge { start: 0, end: n.stem.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: None } };
-            out.push((self.render_dict(&n.stem, &base)[0].text.clone(), compose(&n.stem)));
+            out.push((self.render_dict_as(&n.stem, &base, true)[0].text.clone(), compose(&n.stem)));
             let pron = matches!(n.pos, Pos::Pron | Pos::Bound);
             let last = *n.stem.last().unwrap();
             for (pi, p) in self.particles.iter().enumerate() {
                 if allowed(p.cond, last, pron) {
                     let comps = [n.stem.clone(), p.comps.clone()].concat();
                     let e = Edge { start: 0, end: comps.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: Some(pi as u16) } };
-                    out.push((self.render_dict(&comps, &e)[0].text.clone(), compose(&comps)));
+                    out.push((self.render_dict_as(&comps, &e, true)[0].text.clone(), compose(&comps)));
                 }
             }
         }
@@ -1735,7 +1757,8 @@ impl Engine {
                 if pc + cost >= best.0 {
                     continue;
                 }
-                if let Some((_, surface)) = self.forms_of(i).into_iter().find(|(w, _)| *w == written) {
+                if let Some((_, surface)) = self.cached_forms(i, false).iter().find(|(w, _)| *w == written) {
+                    let surface = surface.clone();
                     best = (pc + cost, format!("{pre}{surface}"));
                 }
             }
@@ -1745,6 +1768,32 @@ impl Engine {
             }
         }
         best.1
+    }
+
+    /// [`Engine::forms_of`] (or `variant_forms`) of entry `i`, listed once.
+    fn cached_forms(&self, i: usize, variants: bool) -> std::sync::Arc<Vec<(String, String)>> {
+        let o = &self.options;
+        let spelling = (o.style == Style::Morpheme) as u8
+            | (o.fragment == Fragment::Letter) as u8 * 2
+            | (o.coda_always as u8) * 4
+            | (o.resyllabify as u8) * 8
+            | (o.hada_kun as u8) * 16
+            | (o.old_ha as u8) * 32;
+        {
+            let mut cache = self.forms_cache.lock().unwrap();
+            if cache.0 != spelling {
+                *cache = (spelling, HashMap::new());
+            }
+            if let Some(hit) = cache.1.get(&(i, variants)) {
+                return hit.clone();
+            }
+        }
+        let list = std::sync::Arc::new(if variants { self.variant_forms(i) } else { self.forms_of(i) });
+        let mut cache = self.forms_cache.lock().unwrap();
+        if cache.0 == spelling {
+            cache.1.insert((i, variants), list.clone());
+        }
+        list
     }
 
     /// Offer the reading of `written` as a 末音添記 variant of one of `entries`
@@ -1757,8 +1806,9 @@ impl Engine {
             if pc + cost >= best.0 {
                 continue;
             }
-            if let Some((_, surface)) = self.variant_forms(i).into_iter().find(|(w, _)| w == written) {
-                if !entries.iter().any(|&j| self.forms_of(j).iter().any(|(w, _)| w == written)) {
+            if let Some((_, surface)) = self.cached_forms(i, true).iter().find(|(w, _)| w == written) {
+                if !entries.iter().any(|&j| self.cached_forms(j, false).iter().any(|(w, _)| w == written)) {
+                    let surface = surface.clone();
                     *best = (pc + cost, format!("{pre}{surface}"));
                 }
             }
@@ -1989,6 +2039,28 @@ lemma\twritten\tpos\tclass\tsource\tcount
         assert_eq!(e.read("規則을 讀었다"), "규칙을 읽었다");
         assert_eq!(e.read("自ㄴ 在ㅆ으면 好겠어요"), "전 있으면 好겠어요");
         assert_eq!(e.read("安寧爲요"), "안녕해요");
+    }
+
+    #[test]
+    fn read_back_ignores_the_conversion_mode() {
+        let e = eng(Options { sino_only: true, ..Options::default() });
+        assert_eq!(e.read("天을 見ㅆ다"), "하늘을 봤다");
+        assert_eq!(e.read("初음 來신 事ㅅ을 歡迎"), "처음 오신 것을 환영");
+    }
+
+    #[test]
+    fn read_back_follows_options_changed_later() {
+        // The site changes the options of a running engine.
+        let mut e = eng(Options { resyllabify: true, ..Options::default() });
+        let fresh = eng(Options::default()).read("難ㅂ어");
+        assert_eq!(fresh, "어려워");
+        let _ = e.read("難ㅂ어");
+        e.options.resyllabify = false;
+        assert_eq!(e.read("難ㅂ어"), fresh);
+        e.options.resyllabify = true;
+        e.options.style = Style::Morpheme;
+        let morph = eng(Options { resyllabify: true, style: Style::Morpheme, ..Options::default() });
+        assert_eq!(e.read("難ㅂ어"), morph.read("難ㅂ어"));
     }
 
     #[test]

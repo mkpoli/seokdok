@@ -88,6 +88,7 @@ Raw downloads. Nothing here is executed. "MIT/BSD repo" asks whether the file ma
 - Pages: `페이지:<scan>/<n>` hold the transcription of one scan page, with `<pagequality level="1">` where nobody has proofread it (most of them). 훈몽자회/<section> adds folio headings and the editors' modern forms: `: {{크게|{{Wikt|身}}}} 몸〮 신(몸 신)`.
 - Formats read: 訓蒙字會 `{{윗주|芭|파|크게=예}} || 반쵸파`; 千字文 and 類合 `{{더더더크게|天}} 하ᄂᆞᆯ 텬`; 倭語類解 `;江 / :물강 / :고우 / :○예`; 譯語類解 `;文卷 / :운ᄀᆑᆫ / :ᄝᅳᆫᄀᆑᆫ / :○公事글월`; 詩經諺解 物名 `檉{{더 작게|쳥갯버들}}`. Aligned: a line of Hanja with readings, then its Korean (`:` in most scans).
 - The dump also holds 續明義錄諺解 (`續明義錄諺解.djvu`), 諭中外大小臣庶綸音 (`유중외대소신서윤음`, `윤음언해.pdf`) and other 綸音, 正俗諺解, 三綱行實圖, 杜詩諺解 (partial), 才物譜: Korean without a matching Chinese line, or Chinese glossed in Chinese, so they are not parsed yet. 明義錄諺解 is absent.
+- `kun-pages.jsonl` is the index pages and printed-reading pages `tools/build_kun_usage.py` keeps from the dump, also out of git. Formats read: `{{윗주|飛|나}}는` (勞動夜學讀本), `{{윗주|하|一}}{{윗주|루|日}}` and `{{아랫주|쇠|鐵}}` (京釜鐵道歌, 地球略論), `{{윗주2|…}}`, `{{ruby|…}}` and running `人(사람)`, `군포내(軍浦場)`. `{{sic|믜|뫼}}` holds the printed letter, then the correction. `--survey FILE` lists every book of the dump with its readings left after the sound test.
 
 ## 4b. kaikki.org Middle Korean — `kaikki-middle-korean/`
 

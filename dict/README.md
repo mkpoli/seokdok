@@ -17,6 +17,7 @@ comments; the header line names the columns.
 | `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
 | `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
 | `etym.tsv` | Hanja spellings the files above lack, including words Sino-Korean only by origin (대충 大總, 재미 滋味, 김치 沉菜) | English Wiktionary (kaikki.org) | CC BY-SA 4.0 |
+| `hun.tsv` | Keys for finding a character by its 訓音 gloss (살찔비 肥) | libhangul | BSD-3-Clause |
 
 Earlier files win ties: an entry in `user.tsv` ranks above the same word
 elsewhere.

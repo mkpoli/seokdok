@@ -138,3 +138,41 @@ fn bare_stems_convert_alone() {
     assert_eq!(e.convert("어떻")[0].text, "何떻");
     assert!(offers(&e, "있", "在ㅆ"));
 }
+
+#[test]
+fn characters_found_by_their_gloss() {
+    let e = engine(Options::default());
+    let first = |s: &str| e.convert(s)[0].text.clone();
+    // Nothing else reads these, so the character comes first, in either order.
+    assert_eq!(first("살찔비"), "肥");
+    assert_eq!(e.segments("살찔비")[0].candidates[0].text, "肥");
+    assert_eq!(e.convert("살찔비")[0].note, "살찔 비 · 訓音");
+    assert!(offers(&e, "비살찔", "肥"));
+    assert!(offers(&e, "살찔 비", "肥"));
+    assert!(offers(&e, "비 살찔", "肥"));
+    // The other glosses of a character, and 두음법칙 forms of its reading.
+    assert!(offers(&e, "재물용", "用"));
+    assert!(offers(&e, "어질량", "良"));
+    assert!(offers(&e, "어질양", "良"));
+    // One span to pick from, inside a sentence too.
+    assert_eq!(e.segments("비살찔").len(), 1);
+    assert_eq!(e.segments("살찔 비").len(), 1);
+    assert_eq!(e.convert("살찔비 사랑")[0].text, "肥 愛");
+    // An ordinary reading stays first.
+    assert_eq!(first("가집"), "家集");
+    assert_eq!(first("날일"), "日일");
+    assert!(offers(&e, "날일", "日"));
+    // A short match may be a plain word, so it is only offered.
+    assert_eq!(first("반짝"), "반짝");
+    assert_eq!(first("둘이"), "둘이");
+    assert!(offers(&e, "쓸용", "用"));
+    assert_eq!(first("우물정"), "井");
+    // Plain spaced words are untouched.
+    assert_eq!(e.segments("나라를 사랑").len(), 3);
+    // The keys are no words of their own: 肥 still reads 비, and 國漢文混用
+    // keeps a native phrase in Hangul first.
+    assert_eq!(e.read("肥"), "비");
+    let sino = engine(Options { sino_only: true, ..Options::default() });
+    assert_eq!(sino.convert("집가")[0].text, "집가");
+    assert!(offers(&sino, "집가", "家"));
+}

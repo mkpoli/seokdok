@@ -20,7 +20,7 @@ const lines = (f) =>
 const native = ['corpus.tsv', 'editorial.tsv', 'community.tsv', 'suggested.tsv', 'gloss.tsv', 'kun-ja.tsv', 'kun-ja-weak.tsv']
   .flatMap((f) => lines(f).map((l) => l.split('\t').slice(0, 6).join('\t')))
 const sino = new Map()
-for (const f of ['editorial-sino.tsv', 'fusion.tsv', 'sino.tsv', 'etym.tsv']) {
+for (const f of ['editorial-sino.tsv', 'fusion.tsv', 'sino.tsv', 'etym.tsv', 'hun.tsv']) {
   for (const l of lines(f)) {
     const [reading, hanja, count = '0', source = ''] = l.split('\t')
     const key = reading + '\t' + hanja

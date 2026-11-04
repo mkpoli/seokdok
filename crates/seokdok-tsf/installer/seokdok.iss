@@ -85,11 +85,11 @@ Name: "{autoprograms}\釋讀 seokdok 設定"; Filename: "{sys}\rundll32.exe"; Pa
 
 [Run]
 ; Korean keyboards are per user: add 釋讀 for the user who ran Setup.
-Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\korean-keyboard.ps1"""; Flags: runasoriginaluser runhidden waituntilterminated; StatusMsg: "{cm:AddKeyboard}"
+Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\korean-keyboard.ps1"""; Flags: runasoriginaluser runhidden waituntilterminated; StatusMsg: "{cm:AddKeyboard}"
 Filename: "https://seokdok.mkpo.li/#install"; Description: "{cm:OpenGuide}"; Flags: postinstall shellexec skipifsilent unchecked
 
 [UninstallRun]
-Filename: "powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\korean-keyboard.ps1"" -Remove"; Flags: runhidden waituntilterminated; RunOnceId: "RemoveKeyboard"
+Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\korean-keyboard.ps1"" -Remove"; Flags: runhidden waituntilterminated; RunOnceId: "RemoveKeyboard"
 
 [CustomMessages]
 korean.AddKeyboard=한국어 키보드에 釋讀을 추가하는 중…

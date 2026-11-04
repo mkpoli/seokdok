@@ -905,7 +905,11 @@ def aligned_counts(ps, m):
                 if n > len(k):
                     break
                 if k[:n] in by_key:
-                    found |= by_key[k[:n]]
+                    # 아니ᄒᆞ고 and 그러ᄒᆞ뇨 are 아니 and 그러하다, no forms of 아니다 and 그러다.
+                    if k[n:].startswith("\u1112"):
+                        found |= {w for w in by_key[k[:n]] if not w.endswith("다")}
+                    else:
+                        found |= by_key[k[:n]]
         for lemma in found:
             d_lemma[lemma] += 1
             for c in p.chars:
@@ -919,6 +923,22 @@ def quote(text, needle=None, width=14):
         i = text.index(needle)
         return text[max(0, i - width // 2): i + width // 2]
     return text[:width]
+
+
+def quote_word(kor, lemma, width=24):
+    """A piece of the Korean around the word, cut between syllables."""
+    for k in (key(lemma.removesuffix("다")), key(lemma)):
+        for m in re.finditer(r"[\u1100-\u11FF]+", kor):
+            syls = syllables(m.group())
+            if not syls or not key("".join(syls[:6])).startswith(k):
+                continue
+            left, right = max(0, m.start() - 8), min(len(kor), m.start() + width)
+            while left > 0 and (ord(kor[left]) in V or ord(kor[left]) in T):
+                left -= 1
+            while right < len(kor) and (ord(kor[right]) in V or ord(kor[right]) in T):
+                right += 1
+            return re.sub(r"\s+", " ", kor[left:right]).strip()
+    return quote(kor, None, width)
 
 
 def strip_readings(src):
@@ -966,7 +986,7 @@ def aligned_rows(ps, m, audit=None):
                 if p.book in books:
                     continue
                 books.add(p.book)
-                quoted.append(f"{p.book} {p.year} ({p.loc}): {quote(strip_readings(p.src), c, 16)} → {quote(p.kor, None, 24)}")
+                quoted.append(f"{p.book} {p.year} ({p.loc}): {quote(strip_readings(p.src), c, 16)} → {quote_word(p.kor, lemma)}")
                 if len(quoted) == 2:
                     break
             rows[(lemma, w, pos)] = (dice, len(idx), len({ps[i].book for i in idx}), quoted, ev)
@@ -1026,6 +1046,9 @@ def primer_rows(atts, m, rejects=None):
         paired = [r for r in strongs if any(e in STRONG_PAIR for e in r[4])]
         if len(paired) >= 1 and len(strongs) > len(paired):
             strongs = paired
+        # 날 生 and 덜 減 are adnominals of 나다 and 덜다, whatever a noun 날 or an adverb 덜 shares in English.
+        if any(r[1] in ("verb", "adj") for r in strongs):
+            strongs = [r for r in strongs if r[1] in ("verb", "adj") or any(e in STRONG_PAIR for e in r[4])]
         if strongs:
             for lem, pos, w, how, ev in strongs:
                 rows[(lem, w, pos)].append((x, how, ev, False))
@@ -1068,8 +1091,10 @@ EXCLUDE = {
     ("글귀", "句"),  # the transcribed gloss 굿굿 is no form of 글귀
     ("며느리", "姑"),  # passages about 舅姑 and the daughter-in-law
     ("붙들다", "抱다"),  # the page's 抱 붇들 부 is a slip for 扶
-    ("괴", "貓"),  # 괴 survives only as the old word for a cat
     ("이내", "嵐"),  # the book's 연애 is 煙靄, and 이내 is a different word
+    ("열", "行"),  # 녈 is the old verb 녀다, go; 열 here is the Sino-Korean row
+    ("꼴", "菅"),  # 골 is the rush; 꼴 is a shape, or fodder from another word
+    ("덜", "減"),  # the book's 덜 is the adnominal of 덜다, which has its own row
 }
 # Headwords Wiktionary or FusionIME lists that are no modern form of the old word, or are Sino-Korean in origin.
 EXCLUDE_LEMMA = {
@@ -1077,6 +1102,7 @@ EXCLUDE_LEMMA = {
     "비화", "인", "동관", "동정", "돈피", "재주", "보배",  # 琵琶, 印, 同官, 同正, 獤皮, 才操, 寶貝
     "베이다",  # 베힐 is 베다
     "도로래",  # now 땅강아지
+    "괴",  # survives only as the old word for a cat
 }
 
 

@@ -1,8 +1,8 @@
 // The privacy policy and the support page, in Korean (with {漢字|한자} marks)
 // and English. A section's body is a list: a string is a paragraph, an array
-// is a bulleted list, and { h, ol | p } is a titled step list or paragraph
-// (`ol: 'windows'` takes the steps of the install section). `code` is
-// monospace.
+// is a bulleted list, and { h, ol | ul | p } is a titled step list, list or
+// paragraph (`ol: 'windows'` takes the steps of the install section). `code`
+// is monospace.
 
 const MAIL = 'seokdok@mkpo.li'
 const ISSUES = 'https://github.com/mkpoli/seokdok/issues'
@@ -109,6 +109,57 @@ const ko = {
               '「키보드 {設定|설정} 열기」에서 {釋讀|석독}을 {點|켜}ㅂ니다.',
               '「{入力|입력} 방법 고르기」나 Space 키를 {長|길}게 {押|눌러} {釋讀|석독}을 {選|고르}ㅂ니다.',
             ],
+          },
+        ],
+      },
+      {
+        id: 'keys',
+        h: '{模式|모드}를 {變|바꾸}는 {鍵|키}',
+        body: [
+          '{釋讀|석독}, {韓㐎|한글}, A(라틴) {三|세} {模式|모드}가 {有|있}습니다. {韓|한} ↔ A는 {直前|직전}에 {用|쓰}던 {釋讀|석독}이나 {韓㐎|한글}로 {返|돌아}갑니다. {修飾|수식} {鍵|키}만 {書|쓰}인 {項目|항목}은 {其|그} {鍵|키}만 {押|눌렀}다 {離|떼}는 {事|것}입니다. {目錄|목록}은 `config.toml`의 `[input.keys]`에 {有|있}습니다.',
+          {
+            h: 'Windows',
+            ul: [
+              '`한/영`, 오른쪽 `Alt`, `半角/全角`: {韓|한} ↔ A. 오른쪽 Alt가 AltGr인 {配列|배열}에서는 AltGr {其|그}대로입니다.',
+              '`Shift+한/영`, {左|왼}쪽 `Ctrl`과 {左|왼}쪽 `Alt`를 {共|함께}: {釋讀|석독} ↔ {韓㐎|한글}',
+              '`한자`, 오른쪽 `Ctrl`, `変換`, `F7`: {變換|변환}',
+              '`無変換`: A로. `変換`: A에서 {韓|한}으로',
+            ],
+          },
+          {
+            h: 'macOS',
+            ul: [
+              '`Option`: {韓|한} ↔ A',
+              '{左|왼}쪽 `Control`과 {左|왼}쪽 `Option`을 {共|함께}: {釋讀|석독} ↔ {韓㐎|한글}',
+              '`Option+Return`, `F7`: {變換|변환}',
+              '`英数`: A로. `かな`: A에서 {韓|한}으로',
+              '`Control+Space`, Globe, Caps Lock은 macOS가 {入力|입력} 소스를 {變|바꾸}는 데 {用|쓰}며, {釋讀|석독}, {釋讀|석독} {韓㐎|한글}, {釋讀|석독} A는 {各各|각각} {入力|입력} 소스입니다.',
+            ],
+          },
+          {
+            h: 'Linux (fcitx5)',
+            ul: [
+              '`Hangul`, `Shift+Space`, 오른쪽 `Alt`, `半角/全角`: {韓|한} ↔ A',
+              '`Shift+Hangul`, {左|왼}쪽 `Ctrl`과 {左|왼}쪽 `Alt`를 {共|함께}: {釋讀|석독} ↔ {韓㐎|한글}',
+              '`Hanja`, `F9`, `変換`, `F7`: {變換|변환}',
+              '`無変換`: A로. `変換`: A에서 {韓|한}으로',
+              '{釋讀|석독}을 {打|치}는 {中|중}에는 `Shift+Space`가 띄어{書|쓰}기입니다.',
+              'fcitx5 {群|그룹}에 {入力器|입력기}가 {二|둘} {以上|이상}이면 `Ctrl+Space`, `Hangul`, `半角/全角`, {左|왼}쪽 `Shift`는 fcitx5가 {先|먼저} {用|쓰}ㅂ니다.',
+            ],
+          },
+          {
+            h: 'Android',
+            ul: [
+              '{物理|물리} 키보드의 `한/영`, `半角/全角`, `Shift+Space`: {韓|한} ↔ A. {釋讀|석독}을 {打|치}는 {中|중}에는 `Shift+Space`가 띄어{書|쓰}기입니다.',
+              '`Shift+한/영`, {左|왼}쪽 `Ctrl`과 {左|왼}쪽 `Alt`를 {共|함께}: {釋讀|석독} ↔ {韓㐎|한글}',
+              '`한자`, `変換`, `F7`: {變換|변환}',
+              '`Ctrl+Space`와 {言語|언어} {鍵|키}는 Android가 {用|쓰}ㅂ니다. Samsung {機器|기기}는 `Shift+Space`도 {用|쓰}며, {物理|물리} 키보드 {設定|설정}의 {言語|언어} {變更|변경} {短縮|단축}키에서 {解|끄}ㄹ {手|수} {有|있}습니다.',
+              '{畵面|화면} 키보드는 韓 / A {鍵|키}로 {轉換|전환}합니다.',
+            ],
+          },
+          {
+            h: 'iOS',
+            p: '{畵面|화면}의 {模式|모드} {鍵|키}가 釋 → 한 → A로 {順|차례}대로 {變|바꾸}ㅂ니다. {物理|물리} 키보드의 {鍵|키}는 {此|이} 키보드에 {來|오}지 {不|않}습니다.',
           },
         ],
       },
@@ -248,6 +299,57 @@ const en = {
               'Tap “Open keyboard settings” and enable 釋讀.',
               'Pick 釋讀 with “Choose input method”, or hold the space bar while typing.',
             ],
+          },
+        ],
+      },
+      {
+        id: 'keys',
+        h: 'Keys that switch modes',
+        body: [
+          'There are three modes: 釋讀, 한글 and A (Latin). Korean ↔ Latin comes back to whichever of 釋讀 and 한글 you last used. A modifier written alone means pressing and releasing it with no other key. The lists are `[input.keys]` in `config.toml`.',
+          {
+            h: 'Windows',
+            ul: [
+              '`Han/Eng`, right `Alt`, `半角/全角`: Korean ↔ Latin. On a layout where right Alt is AltGr, it stays AltGr.',
+              '`Shift+Han/Eng`, or left `Ctrl` and left `Alt` tapped together: 釋讀 ↔ 한글',
+              '`Hanja`, right `Ctrl`, `変換`, `F7`: convert',
+              '`無変換`: to Latin. `変換`: from Latin back to Korean',
+            ],
+          },
+          {
+            h: 'macOS',
+            ul: [
+              '`Option` tapped alone: Korean ↔ Latin',
+              'Left `Control` and left `Option` tapped together: 釋讀 ↔ 한글',
+              '`Option+Return`, `F7`: convert',
+              '`英数`: to Latin. `かな`: from Latin back to Korean',
+              '`Control+Space`, Globe and Caps Lock belong to macOS, which moves between input sources with them. 釋讀, 釋讀 한글 and 釋讀 A are separate input sources.',
+            ],
+          },
+          {
+            h: 'Linux (fcitx5)',
+            ul: [
+              '`Hangul`, `Shift+Space`, right `Alt`, `半角/全角`: Korean ↔ Latin',
+              '`Shift+Hangul`, or left `Ctrl` and left `Alt` tapped together: 釋讀 ↔ 한글',
+              '`Hanja`, `F9`, `変換`, `F7`: convert',
+              '`無変換`: to Latin. `変換`: from Latin back to Korean',
+              'While 釋讀 is composing, `Shift+Space` is a space inside the composition.',
+              'With more than one input method in the fcitx5 group, fcitx5 itself takes `Ctrl+Space`, `Hangul`, `半角/全角` and a tap of left `Shift`.',
+            ],
+          },
+          {
+            h: 'Android',
+            ul: [
+              '`Han/Eng`, `半角/全角`, `Shift+Space` on a hardware keyboard: Korean ↔ Latin. While 釋讀 is composing, `Shift+Space` is a space inside the composition.',
+              '`Shift+Han/Eng`, or left `Ctrl` and left `Alt` tapped together: 釋讀 ↔ 한글',
+              '`Hanja`, `変換`, `F7`: convert',
+              'Android keeps `Ctrl+Space` and the language key. Samsung devices also use `Shift+Space`; “Change language shortcut” in the physical keyboard settings turns that off.',
+              'On screen, the 韓 / A key switches.',
+            ],
+          },
+          {
+            h: 'iOS',
+            p: 'The mode key on screen goes 釋 → 한 → A. Keys on a hardware keyboard do not reach this keyboard.',
           },
         ],
       },

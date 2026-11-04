@@ -363,10 +363,14 @@
           <summary class="btn">{@html r(t().ime.keysHelp)}</summary>
           <ul class="hints">
             {#each t().ime.hints as [keys, label]}
-              <li>
-                {#each keys.split('|') as alt, ai}{#if ai}<span class="or">/</span>{/if}{#each alt.split('+') as k, ki}{#if ki}<span class="plus">+</span>{/if}<kbd>{k}</kbd>{/each}{/each}
-                <span>{@html r(label)}</span>
-              </li>
+              {#if label === undefined}
+                <li class="group">{@html r(keys)}</li>
+              {:else}
+                <li>
+                  {#each keys.split('|') as alt, ai}{#if ai}<span class="or">/</span>{/if}{#each alt.split('+') as k, ki}{#if ki}<span class="plus">+</span>{/if}<kbd>{k}</kbd>{/each}{/each}
+                  <span>{@html r(label)}</span>
+                </li>
+              {/if}
             {/each}
           </ul>
         </details>
@@ -686,6 +690,8 @@
     bottom: calc(100% + 6px);
     z-index: 10;
     width: min(560px, 86vw);
+    max-height: 70vh;
+    overflow-y: auto;
     padding: var(--s-3) var(--s-4);
     border: 1px solid var(--c-border);
     border-radius: var(--r-2);
@@ -723,6 +729,12 @@
   }
   .hints li > span:last-child {
     margin-left: 4px;
+  }
+  .hints li.group {
+    flex-basis: 100%;
+    margin-top: var(--s-2);
+    color: var(--c-text);
+    font-weight: 700;
   }
   .or,
   .plus {

@@ -59,7 +59,7 @@ const ko = {
         id: 'dict',
         h: '{辭典|사전}의 {出處|출처}',
         body: [
-          '{辭典|사전}은 libhangul, FusionIME, English Wiktionary(kaikki.org), JMdict, 標準國語釋讀辭典에서 {來|와}ㅆ습니다. {出處|출처}와 {許可|허가}는 `dict/README.md`와 페이지 {下|아래}의 「{辭典|사전}과 {出處|출처}」에 {有|있}습니다.',
+          '{辭典|사전}은 libhangul, FusionIME, English Wiktionary(kaikki.org), JMdict, 위키文獻의 옛 {冊|책}, 標準國語釋讀辭典에서 {來|와}ㅆ습니다. {出處|출처}와 {許可|허가}는 `dict/README.md`와 페이지 {下|아래}의 「{辭典|사전}과 {出處|출처}」에 {有|있}습니다.',
           '{用例|용례} {回數|횟수}는 {釋讀會|풀어읽기모임} Telegram {對話房|대화방}(t.me/pimsdh)의 {對話|대화} {記錄|기록}(2026-10-29까지)에서 {算|세}었습니다. {入力器|입력기}와 {別|따로} {會|모}은 {事|거}ㅅ이며 {對話|대화} {原文|원문}은 {此|이} {貯藏所|저장소}에 {入|들}어 {有|있}지 {不|안}ㅎ습니다. {入力器|입력기}나 {此|이} 페이지에서 {打|치}ㄴ {文|글}은 {此|이} {回數|횟수}에 {入|들}어{去|가}지 {不|안}ㅎ습니다.',
           '{機械|기계} {提案|제안}({言語|언어} 모델이 {漢字|한자}를 {附|붙}인 {辭典|사전}의 {一部|일부})은 English Wiktionary의 {意|뜻}{解|풀이}와 libhangul의 {訓音|훈음} {解|풀이}에서 {作|만들}었습니다. {何|어}떤 {個言|낱말}을 {選|고르}ㄹ지는 Telegram {對話|대화}에서 {其|그} {個言|낱말}이 {用|쓰}인 {回數|횟수}로 {定|정}했습니다. {入力器|입력기}나 {此|이} 페이지에서 {打|치}ㄴ {文|글}은 {用|쓰}인 적이 {無|없}습니다.',
         ],
@@ -198,7 +198,7 @@ const en = {
         id: 'dict',
         h: 'Where the dictionaries come from',
         body: [
-          'The dictionaries come from libhangul, FusionIME, English Wiktionary (kaikki.org), JMdict and 標準國語釋讀辭典. Sources and licences are in `dict/README.md` and under “Dictionaries and sources” at the foot of the page.',
+          'The dictionaries come from libhangul, FusionIME, English Wiktionary (kaikki.org), JMdict, old books on Korean Wikisource and 標準國語釋讀辭典. Sources and licences are in `dict/README.md` and under “Dictionaries and sources” at the foot of the page.',
           'Usage counts were taken from the chat history of the 釋讀會 Telegram group (t.me/pimsdh) up to 2026-10-29. This was gathered separately from the input methods, and the chat messages themselves are not in this repository. Text typed in the input methods or on this page does not feed these counts.',
           'The machine-suggested entries (Hanja added by a language model) were made from English Wiktionary senses and libhangul glosses. Which words to include was decided by how often the Telegram chat uses them. Text typed into the input methods or this page was never used.',
         ],

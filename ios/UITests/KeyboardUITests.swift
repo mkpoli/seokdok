@@ -34,6 +34,20 @@ final class KeyboardUITests: XCTestCase {
             }
         }
 
+        /// Hold the letter for a while, for the screen recording.
+        func hold(_ ch: Character, seconds: TimeInterval) {
+            let w = (width - 6 - 54) / 10
+            var at = CGPoint.zero
+            if let c = Array("qwertyuiop").firstIndex(of: ch) {
+                at = CGPoint(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: 75)
+            } else if let c = Array("asdfghjkl").firstIndex(of: ch) {
+                at = CGPoint(x: 3 + 21 + CGFloat(c) * (w + 6) + w / 2, y: 129)
+            }
+            let top = height - 336
+            app.coordinate(withNormalizedOffset: CGVector(dx: at.x / width, dy: (top + at.y) / height)).press(forDuration: seconds)
+            usleep(300_000)
+        }
+
         func type(_ letters: String) {
             letters.forEach(letter)
         }
@@ -198,6 +212,84 @@ final class KeyboardUITests: XCTestCase {
         assertText(second, "", "the composition leaked into the next field")
         g.letter("d") // typed as Latin in the email field
         assertText(second, "d")
+    }
+
+    /// A held letter shows its pop-up; the recording and these frames show it.
+    /// The gaps between keys type, and a slide types where the finger lifts.
+    func testKeyPressFeedback() throws {
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
+        g.hold("q", seconds: 1.5)
+        g.hold("g", seconds: 1.5)
+        g.hold("p", seconds: 1.5)
+        g.enter() // confirm
+        sleep(1)
+        // A plain key first, so that a failure below is about the gaps.
+        let start = text(field)
+        g.letter("k")
+        sleep(1)
+        XCTAssertEqual(text(field).count, start.count + 1, "the key after Return typed nothing")
+        g.enter()
+        sleep(1)
+        // ㅣ (l) itself, then between ㅓ (j) and ㅏ (k), then between two rows.
+        let beforeL = text(field)
+        g.letter("l")
+        sleep(1)
+        shot("key-l")
+        XCTAssertEqual(text(field).count, beforeL.count + 1, "the ㅣ key typed nothing")
+        g.enter()
+        sleep(1)
+        let w = (g.width - 6 - 54) / 10
+        let gapX = 3 + 21 + 7 * (w + 6) - 3
+        let afterKey = text(field)
+        g.tap(x: gapX, y: 129)
+        sleep(1)
+        shot("gap-column")
+        XCTAssertEqual(text(field).count, afterKey.count + 1, "a tap in the gap between two keys typed nothing")
+        g.enter()
+        sleep(1)
+        let afterColumn = text(field)
+        g.tap(x: g.width / 2, y: 102)
+        sleep(1)
+        shot("gap-row")
+        XCTAssertEqual(text(field).count, afterColumn.count + 1, "a tap in the gap between two rows typed nothing")
+        g.enter()
+    }
+
+    /// Holding the 釋 key offers to forget what was learned, in the bar.
+    func testHoldingTheModeKeyShowsLearnControls() throws {
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
+        g.delete()
+        sleep(1)
+        let top = g.height - 336
+        app.coordinate(withNormalizedOffset: CGVector(dx: 78 / g.width, dy: (top + 237) / g.height)).press(forDuration: 1)
+        sleep(1)
+        shot("learn-controls")
+    }
+
+    /// The candidate bar, a held key and the drawer. The workflow runs this again
+    /// in dark mode.
+    func testDarkScreens() throws {
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
+        g.type("kssud")
+        sleep(1)
+        shot("look-composing")
+        g.space()
+        sleep(1)
+        shot("look-candidates")
+        g.tap(x: g.width - 25, y: g.barCenter)
+        sleep(1)
+        shot("look-drawer")
+        g.tap(x: g.width - 22, y: 22)
+        sleep(1)
+        g.enter()
+        g.hold("g", seconds: 1.5)
+        g.enter()
     }
 
     /// The chevron opens every candidate over the keys, and a tap on one

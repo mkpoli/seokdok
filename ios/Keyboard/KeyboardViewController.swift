@@ -251,6 +251,12 @@ final class KeyboardViewController: UIInputViewController {
         s.runs = runs
         s.candidates = session.candidates()
         s.loading = !Session.ready
+        switch textDocumentProxy.returnKeyType ?? .default {
+        case .go, .google, .join, .route, .search, .send, .yahoo, .done, .emergencyCall, .continue:
+            s.returnIsAction = true
+        default:
+            s.returnIsAction = false
+        }
         s.learnMenu = learnMenu
         s.learnOn = hasFullAccess && AppGroup.containerURL != nil ? nil : Session.learn
         keys.render(s)

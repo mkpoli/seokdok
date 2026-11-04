@@ -74,8 +74,19 @@ jobs:
         working-directory: ios
         run: |
           mkdir -p shots
+          # A recording shows what stills cannot: pop-ups, the drawer's motion.
+          xcrun simctl io "$UDID" recordVideo --codec=h264 --force shots/ui-test.mp4 &
+          recorder=$!
+          status=0
           TEST_RUNNER_SHOTS="$PWD/shots" xcodebuild -quiet test -project Seokdok.xcodeproj -scheme Seokdok \
-            -destination "id=$UDID" -derivedDataPath build
+            -destination "id=$UDID" -derivedDataPath build -resultBundlePath ui-test.xcresult || status=$?
+          kill -INT "$recorder" || true
+          wait "$recorder" || true
+          if [ "$status" != 0 ]; then
+            xcrun xcresulttool get test-results tests --path ui-test.xcresult | tee shots/failures.json | jq -r '.. | .failureMessage? // empty' || true
+            xcrun xcresulttool get test-results summary --path ui-test.xcresult | jq -r '.testFailures[]? | "\(.testName): \(.failureText)"' || true
+          fi
+          exit "$status"
 
       - name: Memory of the keyboard extension
         if: always()

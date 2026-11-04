@@ -354,3 +354,63 @@ fn demonstratives_of_place_side_and_time() {
     // 여기다 and its forms are the verb.
     assert!(offers(&e, "여기다", "思다"));
 }
+
+#[test]
+fn the_group_reads_as_its_own_name() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("풀어읽기모임")[0].text, "釋讀會");
+    assert_eq!(e.read("釋讀會"), "풀어읽기모임");
+    assert_eq!(e.read("釋讀會의"), "풀어읽기모임의");
+    assert_eq!(e.convert("석독회")[0].text, "釋讀會");
+    assert_eq!(e.read("釋讀"), "석독");
+}
+
+#[test]
+fn compound_verbs_take_the_meaning_of_each_part() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("내려받기")[0].text, "下려受기");
+    assert_eq!(e.convert("내보내거나")[0].text, "出보내거나");
+}
+
+#[test]
+fn interrogatives_in_hanja() {
+    let e = engine(Options::default());
+    for (input, first) in [
+        ("왜", "何故"), ("누구", "誰"), ("누가", "誰가"), ("언제", "何時"), ("어디", "何處"), ("어디서", "何處서"),
+        ("무엇", "何엇"), ("뭐", "何ㅓ"), ("어떻게", "何떻게"), ("어떤", "何떤"), ("어느", "何느"), ("무슨", "何슨"),
+        ("어찌", "何찌"), ("얼마", "幾何"), ("얼마나", "幾何나"), ("어쩌죠", "何쩌죠"), ("어떡하죠", "何떡하죠"), ("뭐야", "何ㅓ야"), ("몇", "幾"),
+    ] {
+        assert_eq!(e.convert(input)[0].text, first, "{input}");
+    }
+    for (input, other) in [
+        ("왜", "何以"), ("왜", "胡"), ("어디", "何所"), ("어떻게", "如何"), ("어찌", "奈何"), ("얼마나", "何마나"), ("얼마나", "幾나"),
+        ("어째서", "何故"), ("어째서", "何째서"), ("누구", "孰"), ("언제", "何日"), ("무엇", "何物"),
+    ] {
+        assert!(offers(&e, input, other), "{input} → {other}");
+    }
+    assert_eq!(e.convert("왜요")[0].text, "何故요");
+    assert_eq!(e.convert("언제쯤")[0].text, "何時쯤");
+    assert_eq!(e.convert("누굴")[0].text, "誰ㄹ");
+    assert_eq!(e.convert("이에요")[0].text, "乃요");
+    assert_eq!(e.read("何故"), "왜");
+}
+
+#[test]
+fn the_rest_of_the_demonstrative_family() {
+    let e = engine(Options::default());
+    for (input, first) in [
+        ("그분", "其分"), ("이편", "此便"), ("저편", "彼便"), ("어느쪽", "何느쪽"),
+        ("그이", "其人"), ("이이", "此人"), ("이달", "今月"), ("다음주", "來週"), ("이번주", "今週"),
+        ("너희", "汝等"), ("이러다", "此러다"),
+    ] {
+        assert_eq!(e.convert(input)[0].text, first, "{input}");
+    }
+    for (input, other) in [("이분", "此分"), ("저들", "彼等"), ("저만큼", "彼만큼"), ("저대로", "彼대로"), ("저처럼", "彼처럼"), ("저희", "吾等"), ("저희", "僕等")] {
+        assert!(offers(&e, input, other), "{input} → {other}");
+    }
+    // Words that merely contain 그이 or 저이 stay as they are.
+    assert_eq!(e.convert("로그인")[0].text, "로그인");
+    assert_eq!(e.convert("먼저일")[0].text, "먼저일");
+    // 저 still reads as the humble pronoun on its own.
+    assert_eq!(e.convert("저는")[0].text, "自는");
+}

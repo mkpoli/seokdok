@@ -2,6 +2,7 @@
 // browser, and the choice is remembered.
 import { options } from './options.svelte.js'
 import SINO from './sino-chars.json'
+import pages from './pages.js'
 
 const ko = {
   nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '{個言|낱말}', convert: '{變換|변환}', old: '{古|예}ㅅ{韓㐎|한글}', install: '{設置|설치}', join: '{會|모임}' },
@@ -153,8 +154,8 @@ const ko = {
     posNames: { noun: '{名詞|명사}', pron: '{代名詞|대명사}', adv: '{副詞|부사}', det: '{冠形詞|관형사}', verb: '{動詞|동사}', adj: '{形容詞|형용사}' },
     noWords: '{訓讀|훈독} {個言|낱말}이 {無|없}습니다.',
     addWord: '{個言|낱말} {追加|추가}',
-    shareHelp: '{規則|규칙}과 {個言|낱말}을 JSON {文書|문서}로 {內|내}보내거나 {入|들}여옵니다. {入|들}여오면 {今|지금}의 {設定|설정}을 {代身|대신}합니다.',
-    download: 'JSON {內|내}려받기',
+    shareHelp: '{規則|규칙}과 {個言|낱말}을 JSON {文書|문서}로 {出|내}보내거나 {入|들}여옵니다. {入|들}여오면 {今|지금}의 {設定|설정}을 {代身|대신}합니다.',
+    download: 'JSON {下|내}려{受|받}기',
     copyJson: 'JSON {複寫|복사}',
     openFile: '{文書|문서} {開|열}기',
     import: '{入|들}여오기',
@@ -207,9 +208,9 @@ const ko = {
     eyebrow: '{設置|설치}',
     title: '{自己|제} 컴퓨터에서 {書|쓰}기',
     lede: '{此|이} {頁|쪽}과 {同|같}은 엔진과 {辭典|사전}을 {用|쓰}는 {入力器|입력기}입니다. Windows와 Linux(fcitx5)를 {支援|지원}합니다.',
-    download: '{內|내}려받기',
+    download: '{下|내}려{受|받}기',
     windows: [
-      '{內|내}려받은 {設置|설치} 파일을 {實行|실행}합니다. {管理者|관리자} {權限|권한}을 {求|구}합니다.',
+      '{下|내}려{受|받}은 {設置|설치} 파일을 {實行|실행}합니다. {管理者|관리자} {權限|권한}을 {求|구}합니다.',
       'Win+Space로 {釋讀|석독}을 {選|고르}ㅂ니다. {韓國語|한국어}가 {言語|언어} {目錄|목록}에 {無|없}으면 {自動|자동}으로 {加|더}합니다.',
     ],
     linux: [
@@ -237,7 +238,7 @@ const ko = {
     system: '{全|모든} {使用者|사용자}에게:',
     remove: '{削除|삭제}:',
     keys: 'Space {變換|변환} · Space {再|다시} {候補|후보} · 1–9 {選擇|선택} · Enter {確定|확정} · Esc {取消|취소} · 한/영 {或|또}는 Alt {短|짧}게: {釋讀|석독} ↔ A',
-    custom: '{自作|자작} {規則|규칙}과 {個言|낱말}은 {上|위} 「{自作|자작}」의 {共有|공유}에서 JSON으로 {內|내}려받아 custom.json으로 {保存|저장}합니다.',
+    custom: '{自作|자작} {規則|규칙}과 {個言|낱말}은 {上|위} 「{自作|자작}」의 {共有|공유}에서 JSON으로 {下|내}려{受|받}아 custom.json으로 {保存|저장}합니다.',
     where: '{置|두}는 {處|곳}',
     note: '{同|같}은 {處|곳}의 config.toml에서 {設定|설정}을 {變|바꾸}ㅂ니다. {入力器|입력기}를 {變|바꾸}었다가 {返|돌아}오면 {再|다시} {讀|읽}습니다.',
   },
@@ -246,6 +247,8 @@ const ko = {
     suggested: '{機械|기계} {提案|제안}: {言語|언어} 모델이 {意|뜻}으로 {付|붙}인 {漢字|한자}, {人|사람}이 {檢討|검토}하지 {不|않}음',
     made: '{作|만드}ㄴ {人|이}',
     licence: '코드는 MIT. {辭典|사전}마다 {許可|허가}가 {異|다르}ㅂ니다.',
+    privacy: '{個人情報|개인정보} {處理|처리}{方針|방침}',
+    support: '{顧客|고객} {支援|지원}',
   },
 }
 
@@ -492,11 +495,13 @@ const en = {
     sources: 'Dictionaries and sources',
     made: 'Made by',
     licence: 'Code under MIT; each dictionary keeps its own licence.',
+    privacy: 'Privacy policy',
+    support: 'Support',
   },
 }
 
 // 'ko': Korean in 釋讀 with Hangul ruby; 'kore': the same, Hanja only; 'en'.
-const all = { ko, kore: ko, en }
+const all = { ko: { ...ko, ...pages.ko }, kore: { ...ko, ...pages.ko }, en: { ...en, ...pages.en } }
 
 
 function initial() {

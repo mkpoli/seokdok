@@ -37,3 +37,14 @@ test('the 하 → ᄒᆞ setting is labelled in both languages', () => {
   setLang('ko')
   expect(plain(t().options.oldHa)).toBe('하 → \u1112\u119e 우선')
 })
+
+test('page texts have well-formed marks and both languages have the same sections', async () => {
+  const pages = (await import('./pages.js')).default
+  const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [])
+  for (const s of strings(pages.ko)) {
+    expect(s.replace(/\{[^|}]+\|[^}]+\}/g, '')).not.toMatch(/[{}|]/)
+  }
+  for (const page of ['privacy', 'support']) {
+    expect(pages.ko[page].sections.map((s) => s.id)).toEqual(pages.en[page].sections.map((s) => s.id))
+  }
+})

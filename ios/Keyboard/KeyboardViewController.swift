@@ -64,15 +64,21 @@ final class KeyboardViewController: UIInputViewController {
 
     /// The text changed outside the keyboard (the cursor moved, the app
     /// cleared the field): the document now holds the marked text as plain
-    /// text, so drop the composition instead of writing it again.
+    /// text, so drop the composition instead of writing it again. The proxy's
+    /// context can lag behind our own setMarkedText, so a mismatch counts
+    /// only when it persists a moment later; judging at once dropped the
+    /// first jamo of a word on a slow device.
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
-        guard let m = marked else { return }
-        let before = textDocumentProxy.documentContextBeforeInput ?? ""
-        if !before.hasSuffix(m) {
-            session.reset()
-            marked = nil
-            refresh()
+        guard marked != nil else { return }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
+            guard let self, let m = self.marked else { return }
+            let before = self.textDocumentProxy.documentContextBeforeInput ?? ""
+            if !before.hasSuffix(m) {
+                self.session.reset()
+                self.marked = nil
+                self.refresh()
+            }
         }
     }
 

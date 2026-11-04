@@ -16,7 +16,8 @@ Downloads are on [seokdok.mkpo.li/#install](https://seokdok.mkpo.li/#install).
 
 - **Windows**: run the setup, then pick 釋讀 with Win+Space.
 - **Linux**: unpack the tarball and run `install.sh` (per user, no sudo), restart fcitx5 and add 釋讀 in fcitx5-configtool.
-- **iOS, macOS, Android**: the sources are in `ios/`, `macos/` and `android/`. None of them has been built or released yet.
+- **Android**: download the APK, allow installing from unknown sources when asked, open the 釋讀 app, turn the keyboard on and pick it as the input method. The APK is built by `.github/workflows/android.yml`; see [android/README.md](android/README.md).
+- **iOS, macOS**: the sources are in `ios/` and `macos/`. Neither has been built or released yet.
 
 Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc cancels. A character with many homophones can be typed by its gloss: 살찔비, 비살찔 or 살찔 비 offer 肥. Settings live in `config.toml`: `%APPDATA%\seokdok\` on Windows, `~/Library/Application Support/seokdok/` on macOS, `~/.config/seokdok/` elsewhere. Your own rules and words go in `custom.json` beside it; the Customize section of the site exports one.
 
@@ -52,7 +53,7 @@ cargo test --workspace --exclude seokdok-tsf
 cd web && bun install && bun run build && bun test src
 ```
 
-`bun run build` builds the WASM package, packs the dictionaries and builds the site. `bun run deploy` publishes it to Cloudflare, and `bun run release` packages the Windows and Linux input methods into `web/public/downloads/` (not committed).
+`bun run build` builds the WASM package, packs the dictionaries and builds the site. `bun run deploy` publishes it to Cloudflare, and `bun run release` packages the Windows and Linux input methods, with the Android APK from the latest Android workflow run, into `web/public/downloads/` (not committed).
 
 ```sh
 uv run tools/extract_telegram.py <telegram-export-dir> data/private/telegram.jsonl

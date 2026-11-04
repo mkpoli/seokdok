@@ -305,6 +305,27 @@ impl Composer {
         }
     }
 
+    /// Feed a compatibility jamo as a Hangul keyboard sends it: ㅎ, ㅘ, ㄳ, ㆍ,
+    /// ㅸ. A joined letter goes in letter by letter, as typed on the keys. An old
+    /// one (ㅸ) stays joined whatever the `old` switch says, since the keyboard
+    /// joined it. Returns false for anything else.
+    pub fn input_letter(&mut self, compat: char) -> bool {
+        let Some(c) = old_jamo::COMPAT.iter().find(|r| r.1 == compat).map(|r| r.0) else {
+            return false;
+        };
+        let Some(seq) = letters(Part::Cho, c).or_else(|| letters(Part::Jung, c)).or_else(|| letters(Part::Jong, c)) else {
+            return false;
+        };
+        let keep = modern(Part::Jung, seq).is_none() && modern(Part::Jong, seq).is_none();
+        let old = self.old;
+        for (i, j) in seq.chars().enumerate() {
+            self.old = old || (keep && i > 0);
+            self.input_jamo(j);
+        }
+        self.old = old;
+        true
+    }
+
     /// Whether a run of letters may form this part of a syllable.
     fn allowed(&self, p: Part, seq: &str) -> bool {
         jamo(p, seq).is_some()
@@ -568,6 +589,54 @@ mod tests {
         assert_eq!(type_keys("K"), "ㆍ");
         assert_eq!(type_keys("A"), "ㅿ");
         assert_eq!(type_keys("Zk"), "\u{113C}\u{1161}");
+    }
+
+    fn send_letters(letters: &str) -> String {
+        let mut c = Composer::new();
+        for l in letters.chars() {
+            assert!(c.input_letter(l), "{l}");
+        }
+        c.text().to_string()
+    }
+
+    #[test]
+    fn letters_compose_as_the_keys_do() {
+        assert_eq!(send_letters("ㅇㅏㄴㄴㅕㅇ"), type_keys("dkssud"));
+        assert_eq!(send_letters("ㅎㅏㄴㄱㅡㄹ"), type_keys("gksrmf"));
+        assert_eq!(send_letters("ㄱㅗㅏ"), type_keys("rhk"));
+        assert_eq!(send_letters("ㄱㅏㅂㅅㅏ"), type_keys("rkqtk"));
+    }
+
+    #[test]
+    fn old_letters_compose_as_the_keys_do() {
+        assert_eq!(send_letters("ㅎㆍ"), type_keys("gK"));
+        assert_eq!(send_letters("ㅎㆍㄴ"), type_keys("gKs"));
+        assert_eq!(send_letters("ㅿㅏ"), type_keys("Ak"));
+        assert_eq!(send_letters("ㆁㅏ"), type_keys("Dk"));
+        assert_eq!(send_letters("ㆆㅏ"), type_keys("Gk"));
+        assert_eq!(send_letters("ㄱㅏㆁ"), type_keys("rkD"));
+    }
+
+    #[test]
+    fn a_joined_letter_goes_in_as_its_letters() {
+        assert_eq!(send_letters("ㄱㅘ"), "과");
+        assert_eq!(send_letters("ㄱㅏㄳ"), "갃");
+        assert_eq!(send_letters("ㄱㅏㄳㅏ"), "각사");
+        assert_eq!(send_letters("ㅸㅏ"), "\u{112B}\u{1161}");
+        assert_eq!(send_letters("ㄱㅏㅄ"), "값");
+        // Not onto the syllable before it, where the keys would not join either.
+        assert_eq!(send_letters("ㄱㅏㅘ"), type_keys("rkhk"));
+        assert_eq!(send_letters("ㅇㅡㅢ"), type_keys("dmml"));
+        assert_eq!(send_letters("ㅄㅏ"), type_keys("qtk"));
+    }
+
+    #[test]
+    fn not_every_character_is_a_letter() {
+        let mut c = Composer::new();
+        for ch in ['a', '1', '가', '\u{3164}', '\u{1100}'] {
+            assert!(!c.input_letter(ch), "{ch}");
+        }
+        assert_eq!(c.text(), "");
     }
 
     #[test]

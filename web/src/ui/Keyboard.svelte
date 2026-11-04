@@ -1,7 +1,8 @@
 <script>
   // A 두벌식 keyboard for touch screens and for readers learning the layout.
   // Each key shows the jamo it types and, in its corner, the one on the other
-  // layer (Shift); old letters (ㆍ ㅿ ㆁ ㆆ ᄼ …) are coloured. With `map` it is
+  // layer (Shift), drawn larger and darker when it is an old letter (ㆍ ㅿ ㆁ ㆆ ᄼ …).
+  // Every letter key looks the same otherwise. With `map` it is
   // a picture of the layout only, without an input method behind it.
   import { keyToJamo } from '../../pkg/seokdok.js'
   import { t, r, plain } from '../lib/i18n.svelte.js'
@@ -43,18 +44,17 @@
       {#each row as k}
         {@const h = hint(k)}
         {#if map}
-          <span class="key" class:old={isOld(h)} title={h ? `Shift+${k.toUpperCase()} → ${h}` : undefined}>
-            {#if h}<span class="h" lang="ko">{shown(h)}</span>{/if}<span class="j" lang="ko">{label(k)}</span><span class="l">{k}</span>
+          <span class="key" title={h ? `Shift+${k.toUpperCase()} → ${h}` : undefined}>
+            {#if h}<span class="h" class:old={isOld(h)} lang="ko">{shown(h)}</span>{/if}<span class="j" lang="ko">{label(k)}</span><span class="l">{k}</span>
           </span>
         {:else}
           <button
             class="key"
-            class:old={isOld(h) || isOld(layer(k, shift))}
             class:hit={ime.lastKey.toLowerCase() === k}
             onclick={() => press(shift ? k.toUpperCase() : k)}
             aria-label={label(k)}
           >
-            {#if h}<span class="h" lang="ko">{shown(h)}</span>{/if}<span class="j" lang="ko">{label(k)}</span><span class="l">{k}</span>
+            {#if h}<span class="h" class:old={isOld(h)} lang="ko">{shown(h)}</span>{/if}<span class="j" lang="ko">{label(k)}</span><span class="l">{k}</span>
           </button>
         {/if}
       {/each}
@@ -126,12 +126,11 @@
     font: 600 12px/1 var(--f-sans);
     color: var(--c-muted);
   }
-  .old .h,
-  .old .j {
-    color: var(--c-accent);
-  }
-  .old {
-    border-color: var(--c-accent);
+  .h.old {
+    top: 3px;
+    right: 4px;
+    font: 800 16px/1 var(--f-sans);
+    color: var(--c-ink);
   }
   .map .key {
     cursor: default;
@@ -171,6 +170,11 @@
       top: 2px;
       right: 2px;
       font-size: 9px;
+    }
+    .h.old {
+      top: 2px;
+      right: 2px;
+      font-size: 12px;
     }
     .row {
       gap: 4px;

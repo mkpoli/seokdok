@@ -606,3 +606,21 @@ fn sino_words_with_their_own_row_convert_in_the_sino_mode() {
     assert_eq!(e.convert("하늘")[0].text, "하늘");
     assert_eq!(e.convert("수")[0].text, "수");
 }
+
+#[test]
+fn the_past_is_also_written_with_ssang_siot() {
+    let e = engine(Options::default());
+    for (input, want) in [("있었다", "在ㅆ다"), ("있었어요", "在ㅆ어요"), ("먹었다", "食ㅆ다"), ("먹었습니다", "食ㅆ습니다"), ("받았다", "受ㅆ다")] {
+        assert!(e.segments(input).iter().any(|s| s.candidates.iter().any(|c| c.text == want)), "{input} → {want}");
+    }
+    // The dictionary's form stays first, and 在ㅆ다 for 있다 stays.
+    assert_eq!(e.convert("먹었다")[0].text, "食었다");
+    assert!(offers(&e, "있다", "在ㅆ다"));
+    assert_eq!(e.read("在ㅆ다"), "있다");
+    // It comes right after the form it spells.
+    let list: Vec<String> = e.segments("마음먹었다")[0].candidates.iter().map(|c| c.text.clone()).collect();
+    let at = list.iter().position(|t| t == "決었다").unwrap();
+    assert_eq!(list[at + 1], "決ㅆ다", "{list:?}");
+    // The phrase list keeps the form with the tense in it.
+    assert!(e.convert("있었다").iter().any(|c| c.text == "有ㅆ었다"));
+}

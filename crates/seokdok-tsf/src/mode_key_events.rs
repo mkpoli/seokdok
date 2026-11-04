@@ -139,6 +139,17 @@ pub fn note_modifier_down(wparam: WPARAM) {
     });
 }
 
+/// `OnTestKeyDown`, which runs once per press: a modifier that was up before
+/// this event starts afresh. Bit 30 of `lparam` is the key's previous state.
+pub fn note_modifier_pressed(wparam: WPARAM, lparam: LPARAM) {
+    if !is_modifier(vk_of(wparam)) || (lparam.0 >> 30) & 1 == 1 {
+        return;
+    }
+    if let Some(KeyName::Modifier(m)) = released_modifier(vk_of(wparam), lparam) {
+        with_keyboard(|k| k.modifier_pressed_afresh(m));
+    }
+}
+
 /// The session key a non-modifier key-down is bound to.
 pub fn press(wparam: WPARAM, lparam: LPARAM, session: &Session) -> Option<Key> {
     let vk = vk_of(wparam);

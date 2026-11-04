@@ -364,6 +364,15 @@ impl ModeKeyboard {
         self.spent = false;
     }
 
+    /// This modifier has just gone down from up. If it is already marked as
+    /// held, its release never reached us (a host can swallow it), and what is
+    /// remembered is stale: forget it, or no tap would fire until a typed key.
+    pub fn modifier_pressed_afresh(&mut self, m: Modifier) {
+        if self.held & m.bit() != 0 {
+            self.reset();
+        }
+    }
+
     /// A modifier is down. Telling this twice changes nothing.
     pub fn modifier_down(&mut self, m: Modifier) {
         self.held |= m.bit();
@@ -717,5 +726,36 @@ mod tests {
         k.press(Some(M(RAlt)), MOD_ALT, &s);
         assert_eq!(k.peek_press(Some(KeyName::Hanja), 0, &s), Some(Key::Convert));
         assert_eq!(k.release(M(RAlt), &s), Some(Key::HangulToggle));
+    }
+
+    #[test]
+    fn a_lost_release_does_not_stop_the_next_tap() {
+        let s = Session::new(Mode::Seokdok, true);
+        let keys = ModeKeys::for_platform(Platform::Windows);
+        let mut k = ModeKeyboard::new(&keys);
+        let tap = |k: &mut ModeKeyboard, lose_ctrl_up: bool| {
+            k.modifier_pressed_afresh(LCtrl);
+            k.modifier_down(LCtrl);
+            k.modifier_pressed_afresh(LAlt);
+            k.modifier_down(LAlt);
+            let fired = k.release(M(LAlt), &s);
+            if !lose_ctrl_up {
+                k.release(M(LCtrl), &s);
+            }
+            fired
+        };
+        for _ in 0..3 {
+            assert_eq!(tap(&mut k, true), Some(Key::CycleScript));
+        }
+        assert_eq!(tap(&mut k, false), Some(Key::CycleScript));
+        assert_eq!(tap(&mut k, false), Some(Key::CycleScript));
+        // The same for one key alone.
+        k.reset();
+        for _ in 0..3 {
+            k.modifier_pressed_afresh(RCtrl);
+            k.modifier_down(RCtrl);
+            assert_eq!(k.release(M(RCtrl), &s), Some(Key::Convert));
+            k.modifier_down(RCtrl);
+        }
     }
 }

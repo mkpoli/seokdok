@@ -207,6 +207,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
         self.note_imm32(pic.as_ref());
+        mode_key_events::note_modifier_pressed(wparam, lparam);
         note_key_down(wparam);
         if repeat_of_commit(wparam, lparam) {
             return Ok(true.into());

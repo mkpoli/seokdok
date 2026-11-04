@@ -115,6 +115,11 @@ fn with_keyboard<T>(f: impl FnOnce(&mut ModeKeyboard) -> T) -> T {
     })
 }
 
+/// Is this event about a modifier key?
+pub fn is_modifier_event(wparam: WPARAM) -> bool {
+    is_modifier(vk_of(wparam))
+}
+
 fn vk_of(wparam: WPARAM) -> u16 {
     (wparam.0 & 0xFFFF) as u16
 }

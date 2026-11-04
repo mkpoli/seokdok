@@ -78,8 +78,21 @@ impl TextService_Impl {
         }
     }
 
+    /// Bring the session up to date with the document and the settings. What a
+    /// bound key means depends on the mode, so this comes before reading one.
+    fn settle(&self, context: Option<&ITfContext>) {
+        if let Some(context) = context {
+            self.note_typing_context(context);
+            self.sync(context);
+        }
+    }
+
     /// The key this key-down means: a bound one, else its plain meaning.
-    fn key_of(&self, wparam: WPARAM, lparam: LPARAM) -> Option<Key> {
+    fn key_of(&self, context: Option<&ITfContext>, wparam: WPARAM, lparam: LPARAM) -> Option<Key> {
+        if mode_key_events::is_modifier_event(wparam) {
+            return None;
+        }
+        self.settle(context);
         let bound = mode_key_events::press(wparam, lparam, &self.inner().session);
         bound.or_else(|| decode(wparam, lparam))
     }
@@ -146,13 +159,9 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         if repeat_of_commit(wparam, lparam) {
             return Ok(true.into());
         }
-        let Some(key) = self.key_of(wparam, lparam) else {
+        let Some(key) = self.key_of(pic.as_ref(), wparam, lparam) else {
             return Ok(false.into());
         };
-        if let Some(context) = pic.as_ref() {
-            self.note_typing_context(context);
-            self.sync(context);
-        }
         let eats = {
             let state = self.inner();
             state.session.eats(key) || state.session.commits_then_passes(key)
@@ -168,6 +177,9 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
         self.note_imm32(pic.as_ref());
+        if mode_key_events::is_modifier_event(wparam) {
+            self.settle(pic.as_ref());
+        }
         let state = self.inner();
         let tap = mode_key_events::peek_release(wparam, lparam, &state.session).is_some_and(|k| state.session.eats(k));
         if !tap {
@@ -188,14 +200,16 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             crate::debug_log::log(|| format!("OnKeyDown vk={:#x} repeat of commit, eaten", wparam.0));
             return Ok(true.into());
         }
-        let Some(key) = self.key_of(wparam, lparam) else {
+        let Some(key) = self.key_of(pic.as_ref(), wparam, lparam) else {
             return Ok(false.into());
         };
         let Some(context) = pic.as_ref() else {
-            return Ok(self.switch_without_document(key).into());
+            let switched = self.switch_without_document(key);
+            if switched {
+                COMMITTED_BY.with(|c| c.set(Some((wparam.0 & 0xFFFF) as u16)));
+            }
+            return Ok(switched.into());
         };
-        self.note_typing_context(context);
-        self.sync(context);
         // Release the borrow before touching the document: TSF calls back
         // into this object during edit sessions.
         let output = {
@@ -238,6 +252,9 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         wparam: WPARAM,
         lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
+        if mode_key_events::is_modifier_event(wparam) {
+            self.settle(pic.as_ref());
+        }
         let tap = mode_key_events::release(wparam, lparam, &self.inner().session);
         let Some(key) = tap.filter(|k| self.inner().session.eats(*k)) else {
             return Ok(false.into());
@@ -245,8 +262,6 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         let Some(context) = pic.as_ref() else {
             return Ok(self.switch_without_document(key).into());
         };
-        self.note_typing_context(context);
-        self.sync(context);
         let output = self.inner_mut().session.handle(key, &HOST);
         self.show_mode();
         let _ = self.apply(context, output.effects);

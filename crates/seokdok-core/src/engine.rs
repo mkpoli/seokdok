@@ -224,6 +224,9 @@ pub struct Engine {
     particle_trie: Trie<u16>,
     /// Reverse indexes for [`Engine::read`], built on first use.
     reverse: std::sync::OnceLock<Reverse>,
+    /// Written forms of entries, kept by [`Engine::read`]: listing them costs
+    /// more than the lookup (the second key is `variant_forms`).
+    forms_cache: std::sync::Mutex<HashMap<(usize, bool), std::sync::Arc<Vec<(String, String)>>>>,
 }
 
 /// The Sino-Korean entries, packed: every reading and Hanja form lives in one
@@ -413,6 +416,7 @@ impl Builder {
             particles: particles(),
             particle_trie: Trie::new(),
             reverse: std::sync::OnceLock::new(),
+            forms_cache: Default::default(),
         };
         eng.index();
         (eng, errors)
@@ -1228,7 +1232,8 @@ impl Engine {
                 if pc + cost >= best.0 {
                     continue;
                 }
-                if let Some((_, surface)) = self.forms_of(i).into_iter().find(|(w, _)| *w == written) {
+                if let Some((_, surface)) = self.cached_forms(i, false).iter().find(|(w, _)| *w == written) {
+                    let surface = surface.clone();
                     best = (pc + cost, format!("{pre}{surface}"));
                 }
             }
@@ -1238,6 +1243,16 @@ impl Engine {
             }
         }
         best.1
+    }
+
+    /// [`Engine::forms_of`] (or `variant_forms`) of entry `i`, listed once.
+    fn cached_forms(&self, i: usize, variants: bool) -> std::sync::Arc<Vec<(String, String)>> {
+        if let Some(hit) = self.forms_cache.lock().unwrap().get(&(i, variants)) {
+            return hit.clone();
+        }
+        let list = std::sync::Arc::new(if variants { self.variant_forms(i) } else { self.forms_of(i) });
+        self.forms_cache.lock().unwrap().insert((i, variants), list.clone());
+        list
     }
 
     /// Offer the reading of `written` as a 送韓字 variant of one of `entries`
@@ -1250,8 +1265,9 @@ impl Engine {
             if pc + cost >= best.0 {
                 continue;
             }
-            if let Some((_, surface)) = self.variant_forms(i).into_iter().find(|(w, _)| w == written) {
-                if !entries.iter().any(|&j| self.forms_of(j).iter().any(|(w, _)| w == written)) {
+            if let Some((_, surface)) = self.cached_forms(i, true).iter().find(|(w, _)| w == written) {
+                if !entries.iter().any(|&j| self.cached_forms(j, false).iter().any(|(w, _)| w == written)) {
+                    let surface = surface.clone();
                     *best = (pc + cost, format!("{pre}{surface}"));
                 }
             }

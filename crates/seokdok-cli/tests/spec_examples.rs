@@ -624,3 +624,21 @@ fn the_past_is_also_written_with_ssang_siot() {
     // The phrase list keeps the form with the tense in it.
     assert!(e.convert("있었다").iter().any(|c| c.text == "有ㅆ었다"));
 }
+
+#[test]
+fn finding_out_and_its_misspelling() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("찾아냈어요")[0].text, "尋出ㅆ어요");
+    assert_eq!(e.convert("찿아냈어요")[0].text, "尋出ㅆ어요");
+    assert!(offers(&e, "찾아냈어요", "探아出ㅆ어요"));
+    assert_eq!(e.convert("찿아")[0].text, "探아");
+}
+
+#[test]
+fn more_readings_from_the_chat_of_2026_11_04() {
+    let e = engine(Options::default());
+    for (input, want) in [("쥐락펴락", "握락伸락"), ("셈치고", "算打고"), ("곧", "直"), ("내려받기", "下受")] {
+        assert!(offers(&e, input, want), "{input} → {want}");
+    }
+    assert_eq!(e.convert("내려받았다")[0].text, "下려受았다");
+}

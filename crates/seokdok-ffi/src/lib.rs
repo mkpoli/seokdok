@@ -1,6 +1,7 @@
 //! A C interface over the shared input-method session, declared in
 //! `include/seokdok.h`: used by the fcitx5 addon (crates/seokdok-fcitx5), the
-//! iOS keyboard (ios/) and the macOS input method (macos/).
+//! iOS keyboard (ios/), the macOS input method (macos/) and the Windows settings
+//! app (windows/SeokdokSettings), which loads it as seokdok_ffi.dll.
 //!
 //! The addon feeds keys in and reads back a view: text to commit, the preedit
 //! runs and the candidate page. Strings returned by the getters stay valid
@@ -11,9 +12,10 @@ use std::path::PathBuf;
 use std::sync::Mutex;
 
 use seokdok_session::config::{self, Config, InputMode, Layout, Script};
+use seokdok_core::custom::Custom;
 use seokdok_session::engine_host::HOST;
 use seokdok_session::keys::Key;
-use seokdok_session::mode_keys::{KeyName, ModeKeyboard};
+use seokdok_session::mode_keys::{Chord, KeyName, ModeKeyboard};
 use seokdok_session::script_cycle;
 use seokdok_session::session::{Attr, Effect, Mode, Popup, Run, Session};
 
@@ -479,7 +481,152 @@ pub extern "C" fn seokdok_config_dir() -> *mut c_char {
     Config::user_dir().map_or(std::ptr::null_mut(), |d| owned(d.to_string_lossy().into_owned()))
 }
 
-/// Free a string returned by `seokdok_config_json` or `seokdok_config_dir`.
+/// The settings a new file would hold, as JSON. Free the result with
+/// [`seokdok_string_free`].
+#[no_mangle]
+pub extern "C" fn seokdok_config_defaults_json() -> *mut c_char {
+    owned(serde_json::to_string(&Config::default()).unwrap_or_default())
+}
+
+/// Why config.toml cannot be changed, or NULL when it can. A file that does
+/// not parse reads as the defaults and is left alone, so it has to be fixed by
+/// hand first. Free the result with [`seokdok_string_free`].
+#[no_mangle]
+pub extern "C" fn seokdok_config_error() -> *mut c_char {
+    let Some(path) = Config::path() else { return owned("no settings folder".into()) };
+    match Config::update_file(&path, |_| {}) {
+        Ok(_) => std::ptr::null_mut(),
+        Err(e) => owned(e.to_string()),
+    }
+}
+
+/// `patch` applied to `base` as a JSON Merge Patch (RFC 7386): objects merge,
+/// null removes a key, anything else replaces.
+fn merge(base: &mut serde_json::Value, patch: &serde_json::Value) {
+    use serde_json::Value;
+    let Value::Object(fields) = patch else {
+        *base = patch.clone();
+        return;
+    };
+    if !base.is_object() {
+        *base = Value::Object(Default::default());
+    }
+    let Value::Object(target) = base else { return };
+    for (key, value) in fields {
+        if value.is_null() {
+            target.remove(key);
+        } else {
+            merge(target.entry(key.as_str()).or_insert(Value::Null), value);
+        }
+    }
+}
+
+/// Whether `config` holds what `patch` asked for. The reader ignores keys it
+/// does not know, so a misnamed key would otherwise vanish without a word.
+fn holds(config: &serde_json::Value, patch: &serde_json::Value) -> bool {
+    use serde_json::Value;
+    let Value::Object(fields) = patch else { return config == patch };
+    fields.iter().all(|(key, value)| match config.get(key) {
+        Some(found) => holds(found, value),
+        None => value.is_null(),
+    })
+}
+
+/// `config` with `patch` applied.
+fn patched(config: &Config, patch: &serde_json::Value) -> Result<Config, String> {
+    let mut value = serde_json::to_value(config).map_err(|e| e.to_string())?;
+    merge(&mut value, patch);
+    let next: Config = serde_json::from_value(value).map_err(|e| e.to_string())?;
+    let back = serde_json::to_value(&next).map_err(|e| e.to_string())?;
+    if !holds(&back, patch) {
+        return Err(format!("not a setting: {patch}"));
+    }
+    Ok(next)
+}
+
+/// Change only what the JSON Merge Patch `patch` names, through
+/// [`config::update`]: what another application wrote meanwhile survives, and
+/// running applications see the new file at their next key. NULL when done,
+/// else the reason, and the file is as it was. Free the result with
+/// [`seokdok_string_free`].
+///
+/// # Safety
+/// `patch` is a NUL-terminated UTF-8 string.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_config_update_json(patch: *const c_char) -> *mut c_char {
+    if patch.is_null() {
+        return owned("no settings given".into());
+    }
+    let patch: serde_json::Value = match serde_json::from_str(&CStr::from_ptr(patch).to_string_lossy()) {
+        Ok(p) => p,
+        Err(e) => return owned(e.to_string()),
+    };
+    let mut refused = None;
+    let done = config::update(|c| match patched(c, &patch) {
+        Ok(next) => *c = next,
+        Err(e) => refused = Some(e),
+    });
+    match (refused, done) {
+        (Some(e), _) => owned(e),
+        (None, Err(e)) => owned(e.to_string()),
+        (None, Ok(_)) => std::ptr::null_mut(),
+    }
+}
+
+/// Whether `text` is an entry the `[input.keys]` lists understand.
+///
+/// # Safety
+/// `text` is a NUL-terminated UTF-8 string.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_chord_valid(text: *const c_char) -> bool {
+    !text.is_null() && CStr::from_ptr(text).to_str().ok().and_then(Chord::parse).is_some()
+}
+
+/// The text of custom.json, or NULL when there is none. Free the result with
+/// [`seokdok_string_free`].
+#[no_mangle]
+pub extern "C" fn seokdok_custom_json() -> *mut c_char {
+    let text = Config::user_dir().and_then(|d| std::fs::read_to_string(d.join("custom.json")).ok());
+    text.map_or(std::ptr::null_mut(), owned)
+}
+
+/// Replace custom.json with `json`, a `seokdok-custom` document. NULL when
+/// done, else the reason, and the file is as it was. Free the result with
+/// [`seokdok_string_free`].
+///
+/// # Safety
+/// `json` is a NUL-terminated UTF-8 string.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_custom_save_json(json: *const c_char) -> *mut c_char {
+    if json.is_null() {
+        return owned("no document given".into());
+    }
+    let text = CStr::from_ptr(json).to_string_lossy();
+    let custom = match Custom::from_json(&text) {
+        Ok(c) => c,
+        Err(e) => return owned(e),
+    };
+    if let Some((i, e)) = custom.errors.first() {
+        return owned(format!("rule {}: {e}", i + 1));
+    }
+    let Some(dir) = Config::user_dir() else { return owned("no settings folder".into()) };
+    let path = dir.join("custom.json");
+    let tmp = dir.join(format!("custom.json.{}.tmp", std::process::id()));
+    let written = std::fs::create_dir_all(&dir).and_then(|()| std::fs::write(&tmp, text.as_bytes())).and_then(|()| std::fs::rename(&tmp, &path));
+    written.err().map_or(std::ptr::null_mut(), |e| owned(e.to_string()))
+}
+
+/// Read the dictionaries and custom.json again, in the background.
+///
+/// # Safety
+/// `ime` is a live session.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_reload(ime: *mut Ime) {
+    let ime = &*ime;
+    HOST.start_load(ime.dict_dir.clone(), Config::user_dir(), config::current().engine_options());
+}
+
+/// Free a string returned by a `seokdok_config_*` or `seokdok_custom_*` function.
 ///
 /// # Safety
 /// `s` is NULL or came from one of those functions and is not used again.
@@ -772,6 +919,162 @@ mod tests {
             assert_eq!(back.conversion.style, config::StyleOpt::Morpheme);
             assert_eq!(back.conversion.max_candidates, Config::default().conversion.max_candidates);
             assert!(std::fs::read_to_string(dir.join("config.toml")).unwrap().contains("style = \"morpheme\""));
+        }
+        std::env::remove_var("SEOKDOK_CONFIG_DIR");
+        config::reload();
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn a_patch_changes_only_what_it_names() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let dir = std::env::temp_dir().join(format!("seokdok-ffi-patch-{}", std::process::id()));
+        std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+        let update = |patch: &str| unsafe {
+            let e = seokdok_config_update_json(CString::new(patch).unwrap().as_ptr());
+            let message = (!e.is_null()).then(|| CStr::from_ptr(e).to_str().unwrap().to_string());
+            seokdok_string_free(e);
+            message
+        };
+        let path = dir.join("config.toml");
+        assert_eq!(update(r#"{"conversion":{"old_ha":true}}"#), None);
+        // The rotation key writes the script while the window is open, and the
+        // window then changes something else: the script stays as rotated.
+        Config::update_file(&path, |c| c.conversion.script = Script::SinoOnly).unwrap();
+        assert_eq!(update(r#"{"input":{"keys":{"convert":["F9"]},"old_clusters":true}}"#), None);
+        assert_eq!(update(r#"{"composition":{"a.exe":"floating","b.exe":"inline"}}"#), None);
+        assert_eq!(update(r#"{"composition":{"a.exe":null}}"#), None);
+        let c = Config::load_from(&path);
+        assert!(c.conversion.old_ha && c.input.old_clusters);
+        assert_eq!(c.conversion.script, Script::SinoOnly);
+        assert_eq!(c.input.keys.convert, ["F9"]);
+        assert_eq!(c.input.keys.toggle, Config::default().input.keys.toggle);
+        assert_eq!(c.composition.keys().collect::<Vec<_>>(), ["b.exe"]);
+        // Nothing is written for a key the settings do not have, a bad value or bad JSON.
+        let before = std::fs::read_to_string(&path).unwrap();
+        assert!(update(r#"{"input":{"keys":{"no_such_list":["F9"]}}}"#).unwrap().contains("not a setting"));
+        assert!(update(r#"{"conversion":{"script":"klingon"}}"#).is_some());
+        assert!(update("{").is_some());
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), before);
+        unsafe {
+            assert!(seokdok_config_error().is_null());
+            // A broken file is reported and kept.
+            let broken = "[conversion]\nmax_candidates = \"x\"\n";
+            std::fs::write(&path, broken).unwrap();
+            let e = seokdok_config_error();
+            assert!(!e.is_null());
+            seokdok_string_free(e);
+            assert!(update(r#"{"conversion":{"old_ha":false}}"#).is_some());
+            assert_eq!(std::fs::read_to_string(&path).unwrap(), broken);
+            let d = seokdok_config_defaults_json();
+            let defaults: Config = serde_json::from_str(CStr::from_ptr(d).to_str().unwrap()).unwrap();
+            seokdok_string_free(d);
+            assert_eq!(defaults, Config::default());
+        }
+        std::env::remove_var("SEOKDOK_CONFIG_DIR");
+        config::reload();
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn chords_are_checked_by_the_session() {
+        let valid = |s: &str| unsafe { seokdok_chord_valid(CString::new(s).unwrap().as_ptr()) };
+        for good in ["Hangul", "Shift+Hangul", "LCtrl+LAlt", "RAlt", "F24", "Ctrl+1"] {
+            assert!(valid(good), "{good}");
+        }
+        for bad in ["", "한/영", "F25", "Hangul+Hanja"] {
+            assert!(!valid(bad), "{bad}");
+        }
+    }
+
+    #[test]
+    fn custom_json_is_checked_before_it_is_written() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let dir = std::env::temp_dir().join(format!("seokdok-ffi-custom-{}", std::process::id()));
+        std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+        let save = |text: &str| unsafe {
+            let e = seokdok_custom_save_json(CString::new(text).unwrap().as_ptr());
+            let message = (!e.is_null()).then(|| CStr::from_ptr(e).to_str().unwrap().to_string());
+            seokdok_string_free(e);
+            message
+        };
+        let read = || unsafe {
+            let p = seokdok_custom_json();
+            let text = (!p.is_null()).then(|| CStr::from_ptr(p).to_str().unwrap().to_string());
+            seokdok_string_free(p);
+            text
+        };
+        assert_eq!(read(), None);
+        let good = r#"{"format":"seokdok-custom","version":1,"phrases":[{"reading":"풀어읽기모임","text":"釋讀會"}],"words":[],"rules":[]}"#;
+        assert_eq!(save(good), None);
+        assert_eq!(read().as_deref(), Some(good));
+        assert!(save(r#"{"format":"other"}"#).is_some());
+        assert!(save(r#"{"format":"seokdok-custom","rules":[{"regex":true,"pattern":"("}]}"#).unwrap().starts_with("rule 1"));
+        assert!(save("{").is_some());
+        assert_eq!(read().as_deref(), Some(good));
+        std::env::remove_var("SEOKDOK_CONFIG_DIR");
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// What the settings app does to preview a setting: `trigger` converts,
+    /// Enter commits, and in Latin the keys come out as themselves.
+    unsafe fn type_sample(ime: *mut Ime, keys: &str, mode: i32, trigger: i32) -> String {
+        seokdok_reset(ime);
+        seokdok_set_mode(ime, mode);
+        for k in keys.chars() {
+            if k == ' ' {
+                seokdok_key(ime, SK_SPACE, ' ' as u32, true);
+            } else {
+                seokdok_key(ime, SK_LETTER, k as u32, k.is_ascii_uppercase());
+            }
+        }
+        seokdok_key(ime, trigger, if trigger == SK_SPACE { ' ' as u32 } else { 0 }, false);
+        seokdok_key(ime, SK_ENTER, 0, false);
+        let commit = seokdok_take_commit(ime);
+        if commit.is_null() {
+            return if mode == 2 { keys.to_string() } else { String::new() };
+        }
+        CStr::from_ptr(commit).to_str().unwrap().to_string()
+    }
+
+    /// The examples the settings app shows are what the engine writes.
+    #[test]
+    fn the_settings_examples_come_from_the_engine() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let dir = std::env::temp_dir().join(format!("seokdok-ffi-examples-{}", std::process::id()));
+        std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let table = std::fs::read_to_string(root.join("windows/SeokdokSettings/examples.tsv")).unwrap();
+        let c = CString::new(root.join("dict").to_str().unwrap()).unwrap();
+        unsafe {
+            let ime = seokdok_new(c.as_ptr());
+            for _ in 0..400 {
+                if HOST.is_ready() {
+                    break;
+                }
+                std::thread::sleep(std::time::Duration::from_millis(50));
+            }
+            let mut wrong = Vec::new();
+            for row in table.lines().filter(|l| !l.is_empty() && !l.starts_with('#')) {
+                let [id, patch, keys, expected] = row.split('\t').collect::<Vec<_>>()[..] else { panic!("{row}") };
+                let _ = std::fs::remove_file(dir.join("config.toml"));
+                let e = seokdok_config_update_json(CString::new(patch).unwrap().as_ptr());
+                assert!(e.is_null(), "{id}");
+                seokdok_sync(ime);
+                let mode = mode_of(config::current().input.default_mode);
+                let mode = match mode {
+                    Mode::Seokdok => 0,
+                    Mode::Hangul => 1,
+                    Mode::Latin => 2,
+                };
+                let trigger = if id.starts_with("space.") { SK_SPACE } else { SK_CONVERT };
+                let got = type_sample(ime, keys, mode, trigger);
+                if got != expected.replace('␣', " ") {
+                    wrong.push(format!("{id}: {keys} gave {got}, table says {expected}"));
+                }
+            }
+            seokdok_free(ime);
+            assert!(wrong.is_empty(), "{}", wrong.join("\n"));
         }
         std::env::remove_var("SEOKDOK_CONFIG_DIR");
         config::reload();

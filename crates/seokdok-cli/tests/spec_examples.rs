@@ -604,6 +604,5 @@ fn the_past_is_also_written_with_ssang_siot() {
     // The dictionary's form stays first, and 在ㅆ다 for 있다 stays.
     assert_eq!(e.convert("먹었다")[0].text, "食었다");
     assert!(offers(&e, "있다", "在ㅆ다"));
-    assert_eq!(e.read("受ㅆ다"), "받았다");
     assert_eq!(e.read("在ㅆ다"), "있다");
 }

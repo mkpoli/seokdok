@@ -25,6 +25,7 @@ use windows::Win32::UI::WindowsAndMessaging::{
 };
 
 use crate::config::{Config, FragmentOpt, InputMode, Layout, Script, StyleOpt};
+use crate::quick_menu::MenuItem;
 
 const CLASS_NAME: PCWSTR = w!("SeokdokSettingsDialog");
 
@@ -43,6 +44,7 @@ const ID_HADA: i32 = 1014; // conversion.hada_kun
 const ID_MAXCAND: i32 = 1015; // conversion.max_candidates (edit)
 const ID_SCRIPT: i32 = 1016; // conversion.script (3-way)
 const ID_OLDHA: i32 = 1017; // conversion.old_ha
+const ID_MENU_ITEMS: i32 = 1100; // windows.menu_items, one per MenuItem::ALL
 
 const MODE_ITEMS: [(PCWSTR, InputMode); 3] = [
     (w!("釋讀 / Seokdok"), InputMode::Seokdok),
@@ -81,7 +83,7 @@ pub fn show(parent: HWND) {
         .encode_utf16()
         .collect();
 
-    let (w, h) = (470, 656);
+    let (w, h) = (780, 656);
     // SAFETY: GetSystemMetrics is always safe.
     let (sx, sy) = unsafe { (GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)) };
     let (x, y) = ((sx - w).max(0) / 2, (sy - h).max(0) / 2);
@@ -329,13 +331,24 @@ unsafe fn build_controls(hwnd: HWND) {
     );
     y += 282;
 
+    // --- windows.menu_items, beside the others so the window stays short ---
+    let mx = pad + cw + 12;
+    let mw = 310;
+    child(hwnd, w!("BUTTON"), w!("作業 표시줄 메뉴 / Taskbar menu"), WINDOW_STYLE(BS_GROUPBOX as u32), (mx, 8, mw, 28 + 26 * MenuItem::ALL.len() as i32), 0);
+    for (i, item) in MenuItem::ALL.into_iter().enumerate() {
+        let text: Vec<u16> = format!("{}\0", item.label()).encode_utf16().collect();
+        let on = cfg.windows.menu_items.iter().any(|k| k == item.key());
+        let c = child(hwnd, w!("BUTTON"), PCWSTR(text.as_ptr()), checkbox, (mx + 10, 30 + 26 * i as i32, mw - 18, 22), ID_MENU_ITEMS + i as i32);
+        SendMessageW(c, BM_SETCHECK, Some(WPARAM(on as usize)), None);
+    }
+
     // --- Buttons ---
     child(
         hwnd,
         w!("BUTTON"),
         w!("OK"),
         WINDOW_STYLE(BS_DEFPUSHBUTTON as u32) | WS_TABSTOP,
-        (pad + cw - 210, y, 95, 28),
+        (mx + mw - 210, y, 95, 28),
         IDOK.0,
     );
     child(
@@ -343,7 +356,7 @@ unsafe fn build_controls(hwnd: HWND) {
         w!("BUTTON"),
         w!("取消 / Cancel"),
         WINDOW_STYLE(BS_PUSHBUTTON as u32) | WS_TABSTOP,
-        (pad + cw - 105, y, 105, 28),
+        (mx + mw - 105, y, 105, 28),
         IDCANCEL.0,
     );
 }
@@ -387,6 +400,12 @@ unsafe fn apply(hwnd: HWND) {
     if let Some((_, v)) = selected(hwnd, ID_SCRIPT).and_then(|i| SCRIPT_ITEMS.get(i)) {
         cfg.conversion.script = *v;
     }
+    cfg.windows.menu_items = MenuItem::ALL
+        .into_iter()
+        .enumerate()
+        .filter(|(i, _)| checked(ID_MENU_ITEMS + *i as i32))
+        .map(|(_, item)| item.key().to_string())
+        .collect();
     // Keep the existing value if the field is blank, zero or garbage.
     if let Some(n) = read_number(hwnd, ID_MAXCAND) {
         if n >= 1 {

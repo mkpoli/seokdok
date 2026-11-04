@@ -140,11 +140,11 @@ fn an_old_tail_is_kept_as_typed_in_first_place() {
 #[test]
 fn era_spellings_are_looked_up_behind_what_was_typed() {
     let e = engine(Options::default());
-    // The first candidate of modern syllables does not change.
+    // A syllable that modern words do not use gives its converted reading
+    // first, then what was typed.
     offers_all(&e, "텬하", &["天下", "텬하"]);
-    assert_eq!(texts(&e, "텬하").0[0], "텬하");
-    // 됴타 reads 조타; the dictionary has no 좋다 for it.
-    offers_all(&e, "됴타", &["操舵", "됴타"]);
+    assert_eq!(texts(&e, "텬하").0[..2], ["天下", "텬하"]);
+    assert_eq!(texts(&e, "됴타").0[..2], ["好다", "됴타"]);
     // A final ㅅ for ㅆ, only when the word was not converted as typed.
     offers_all(&e, "갓다", &["去ㅆ다", "갓다"]);
     assert_eq!(texts(&e, "갓다").0[0], "갓다");
@@ -222,8 +222,49 @@ fn a_recognised_suffix_does_not_hide_the_era_reading_of_the_prefix() {
     let mixed = format!("텬{HA}고");
     for input in ["텬하고", mixed.as_str()] {
         let (whole, segs) = texts(&e, input);
-        assert_eq!(whole[0], input);
+        assert!(whole.iter().any(|t| t == input), "{input}: {whole:?}");
         assert!(whole.iter().any(|t| t == "天下고"), "{input}: {whole:?}");
         assert!(segs[0].iter().any(|t| t == "天下고"), "{input}: {:?}", segs[0]);
     }
+}
+
+fn offers(e: &Engine, input: &str, want: &str) -> bool {
+    let (whole, segs) = texts(e, input);
+    whole.iter().any(|t| t == want) || segs.iter().flatten().any(|t| t == want)
+}
+
+#[test]
+fn spellings_as_pronounced_are_read_through_fold_classes() {
+    let e = engine(Options::default());
+    // A syllable that modern words do not use: the converted reading first, then what was typed.
+    for (typed, first) in [("됴타", "好다"), ("됴코", "好고"), ("됴치", "好지"), ("텬하", "天下"), ("됴하셔", "好아서")] {
+        let (whole, segs) = texts(&e, typed);
+        assert_eq!(whole[..2], [first, typed], "{typed}");
+        assert_eq!(segs[0][..2], [first, typed], "{typed}");
+    }
+    // The other classes offer their reading behind the first candidate.
+    for (typed, want) in [
+        ("만타", "多다"), ("안코", "不ㅎ고"), ("사르미", "人이"), ("그르슬", "器을"), ("니르다", "至다"), ("닙다", "服다"),
+        ("녀름", "夏"), ("갓다", "去ㅆ다"), ("업시", "無이"), ("놉다", "高다"), ("믈", "水"), ("블", "火"), ("플", "草"),
+        ("셔울", "京"), ("잇다", "有다"),
+    ] {
+        assert!(offers(&e, typed, want), "{typed} → {want}: {:?}", texts(&e, typed).0);
+    }
+    // Old letters with the classes.
+    for (typed, want) in [
+        ("\u{1109}\u{119E}랑", "愛"), ("사\u{1105}\u{119E}미", "人이"), ("마\u{110B}\u{119E}미", "心이"), ("둏\u{110B}\u{119E}\u{11AB}", "好\u{110B}\u{119E}\u{11AB}"),
+        ("잇\u{1102}\u{119E}\u{11AB}", "有\u{1102}\u{119E}\u{11AB}"), ("업\u{1102}\u{119E}\u{11AB}", "無\u{1102}\u{119E}\u{11AB}"), ("노\u{1111}\u{119E}\u{11AB}", "高은"),
+        ("\u{112F}\u{1169}", "亦"), ("\u{112D}\u{1169}\u{11BA}", "花"), ("\u{1121}\u{1165}", "書"), ("\u{1120}\u{1173}\u{11AE}", "意"),
+    ] {
+        assert!(offers(&e, typed, want), "{typed} → {want}: {:?}", texts(&e, typed).0);
+        assert!(texts(&e, typed).0.iter().any(|t| t == typed), "{typed} stays selectable");
+    }
+    // Initial-sound forms that the dictionary already reads stay first.
+    for (typed, first) in [("량심", "良心"), ("로동", "勞動"), ("력사", "歷史")] {
+        assert_eq!(texts(&e, typed).0[0], first);
+    }
+    // Words that are modern too keep their reading first.
+    assert_eq!(texts(&e, "곳").0[0], "處");
+    assert_eq!(texts(&e, "잇다").0[0], "續다");
+    assert_eq!(texts(&e, "믈").0[0], "믈");
 }

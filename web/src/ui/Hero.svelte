@@ -108,6 +108,7 @@
     margin: 0 0 var(--s-5);
     color: var(--c-soft);
     font-size: 16.5px;
+    line-height: 2;
   }
   .cta {
     display: flex;
@@ -192,7 +193,7 @@
   }
   /* The hero text arrives in sequence on load. */
   .text > * {
-    animation: rise 800ms var(--ease) both;
+    animation: rise 800ms var(--ease) backwards;
   }
   .text > :nth-child(2) {
     animation-delay: 90ms;

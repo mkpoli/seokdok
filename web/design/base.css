@@ -134,6 +134,21 @@ rt {
   padding-inline: var(--s-4);
 }
 
+/* Off-screen sections skip layout and paint until they come near the viewport.
+   The input panel and converter stay out: their pop-ups must not be clipped. main.js adds
+   .skip-offscreen after the first full layout, so every section's real height
+   is remembered and anchor links land where they should. */
+.section:not(#ime, #convert),
+.join,
+.hero-band {
+  contain-intrinsic-size: auto 900px;
+}
+.skip-offscreen .section:not(#ime, #convert),
+.skip-offscreen .join,
+.skip-offscreen .hero-band {
+  content-visibility: auto;
+}
+
 .eyebrow {
   margin: 0 0 var(--s-2);
   color: var(--c-accent);
@@ -152,6 +167,7 @@ rt {
   margin: 0 0 var(--s-6);
   color: var(--c-soft);
   font-size: 17px;
+  line-height: 2;
 }
 
 .card {

@@ -33,7 +33,7 @@
           return segs.map((s) => ({ ...s, candidates: output(s.candidates), pick: 0 }))
         }),
       )
-    }, 200)
+    }, opts === convertedWith ? 200 : 0)
   })
 
   const result = $derived(lines.map((segs) => segs.map((s) => s.candidates[s.pick]?.text ?? s.reading).join('')).join('\n'))

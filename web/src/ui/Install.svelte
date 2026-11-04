@@ -68,6 +68,23 @@
       </article>
     {/each}
   </div>
+  <h3 class="more" use:reveal={5}>{@html r(t().install.more)}</h3>
+  <p class="more-note" use:reveal={5}>{@html r(t().install.moreNote)}</p>
+  <div class="cards small">
+    {#each ['ios', 'macos', 'android'] as key, i (key)}
+      <article class="card plat" use:reveal={6 + i}>
+        <header>
+          <h3>{{ ios: 'iOS', macos: 'macOS', android: 'Android' }[key]}</h3>
+        </header>
+        <ol>
+          {#each t().install[key] as step}
+            <li>{@html r(step)}</li>
+          {/each}
+        </ol>
+        <a class="btn" href="https://github.com/mkpoli/seokdok/tree/main/{key}" target="_blank" rel="noopener">{@html r(t().install.source)}</a>
+      </article>
+    {/each}
+  </div>
   <div class="after" use:reveal={5}>
     <p class="keys">{@html r(t().install.keys)}</p>
     <p>{@html r(t().install.custom)} {@html r(t().install.note)}</p>
@@ -75,6 +92,22 @@
 </section>
 
 <style>
+  .more {
+    margin: var(--s-7) 0 var(--s-1);
+    font: 700 22px/1.3 var(--f-serif);
+  }
+  .more-note {
+    margin: 0 0 var(--s-4);
+    color: var(--c-soft);
+  }
+  .cards.small {
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
+  }
+  .cards.small .btn {
+    justify-self: start;
+    align-self: start;
+    margin-top: auto;
+  }
   .cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));

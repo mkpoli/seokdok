@@ -208,6 +208,7 @@ pub struct Segment {
 pub struct Engine {
     pub natives: Vec<Native>,
     sinos: SinoTable,
+    hun: HunTable,
     pub options: Options,
     stems: Trie<(u32, u16)>,
     nominals: Trie<u32>,
@@ -266,6 +267,46 @@ impl SinoTable {
     }
 }
 
+/// 訓音 keys (살찔비 → 肥), sorted, for finding a character by its gloss. They
+/// are looked up whole and stay out of the lattice and the reader.
+#[derive(Default)]
+struct HunTable {
+    /// `key\thanja` rows, back to back.
+    text: String,
+    ends: Vec<u32>,
+}
+
+impl HunTable {
+    fn new(mut rows: Vec<(String, String)>) -> HunTable {
+        // Stable: a key's characters keep their order in the file.
+        rows.sort_by(|a, b| a.0.cmp(&b.0));
+        let mut t = HunTable { text: String::with_capacity(rows.iter().map(|r| r.0.len() + r.1.len() + 1).sum()), ends: Vec::with_capacity(rows.len()) };
+        for (key, hanja) in &rows {
+            t.text.push_str(key);
+            t.text.push('\t');
+            t.text.push_str(hanja);
+            t.ends.push(t.text.len() as u32);
+        }
+        t
+    }
+    fn row(&self, i: usize) -> (&str, &str) {
+        let start = if i == 0 { 0 } else { self.ends[i - 1] as usize };
+        self.text[start..self.ends[i] as usize].split_once('\t').unwrap_or_default()
+    }
+    fn get(&self, key: &str) -> Vec<&str> {
+        let (mut lo, mut hi) = (0, self.ends.len());
+        while lo < hi {
+            let mid = (lo + hi) / 2;
+            if self.row(mid).0 < key {
+                lo = mid + 1;
+            } else {
+                hi = mid;
+            }
+        }
+        (lo..self.ends.len()).map(|i| self.row(i)).take_while(|r| r.0 == key).map(|r| r.1).collect()
+    }
+}
+
 struct Reverse {
     /// Hanja word → (reading, cost) of its best Sino-Korean entry.
     sino: HashMap<String, (String, f32)>,
@@ -295,6 +336,7 @@ const BUILTIN: &str = "하다\t하다\tverb\t\teditorial\t\n";
 pub struct Builder {
     natives: Vec<Native>,
     sinos: SinoTable,
+    hun: Vec<(String, String)>,
     /// Hash of a (reading, Hanja) pair → its entry; the Sino files overlap
     /// (fusion.tsv and sino.tsv share most words).
     index: HashMap<u64, u32>,
@@ -303,7 +345,7 @@ pub struct Builder {
 
 impl Builder {
     pub fn new() -> Builder {
-        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), index: HashMap::new(), errors: Vec::new() };
+        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), index: HashMap::new(), errors: Vec::new() };
         b.native("builtin", BUILTIN);
         b
     }
@@ -327,6 +369,7 @@ impl Builder {
         use std::hash::{BuildHasher, Hash, Hasher};
         for (line, f) in tsv_lines(text) {
             match parse_sino(&f) {
+                Ok(e) if f.get(3) == Some(&"hun") => self.hun.push((e.reading.into(), e.hanja.into())),
                 Ok(e) => {
                     let mut h = self.index.hasher().build_hasher();
                     (&*e.reading, &*e.hanja).hash(&mut h);
@@ -350,13 +393,14 @@ impl Builder {
 
     /// The engine and the parse errors (file label, line, message).
     pub fn build(self, options: Options) -> (Engine, Vec<String>) {
-        let Builder { natives, mut sinos, index, errors } = self;
+        let Builder { natives, mut sinos, hun, index, errors } = self;
         drop(index);
         sinos.text.shrink_to_fit();
         sinos.entries.shrink_to_fit();
         let mut eng = Engine {
             natives,
             sinos,
+            hun: HunTable::new(hun),
             options,
             stems: Trie::new(),
             nominals: Trie::new(),
@@ -394,7 +438,7 @@ impl Engine {
 
     /// Native dictionaries loaded by [`Engine::from_dir`], in order.
     pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
-    pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv"];
+    pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "editorial-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv", "hun.tsv"];
 
     /// Load every known dictionary file present in `dir`.
     /// One file is read at a time and dropped once parsed, which keeps the
@@ -845,7 +889,6 @@ impl Engine {
             push(Candidate { text, note: "variant".into() }, &mut whole);
         }
         push(Candidate { text: run.to_string(), note: "한글".into() }, &mut whole);
-        whole.truncate(self.options.max_candidates.max(2));
 
         let mut segments = Vec::new();
         if let Some((_, path)) = paths.first() {
@@ -869,7 +912,61 @@ impl Engine {
                 segments.push(Segment { reading: compose(&comps[e.start..e.end]), candidates: cands });
             }
         }
+        let hun = self.hun_candidates(run);
+        if !hun.is_empty() {
+            // A key spans the run, so the run becomes one segment to pick from.
+            let cands = match segments.as_mut_slice() {
+                [one] => std::mem::take(&mut one.candidates),
+                _ => whole.clone(),
+            };
+            segments = vec![Segment { reading: run.to_string(), candidates: self.with_hun(cands, run, hun.clone()) }];
+            whole = self.with_hun(whole, run, hun);
+        }
+        whole.truncate(self.options.max_candidates.max(2));
         (whole, segments)
+    }
+
+    /// Characters whose gloss is `word`, in either order: 살찔비 or 비살찔 → 肥.
+    fn hun_candidates(&self, word: &str) -> Vec<Candidate> {
+        let mut chars = word.chars();
+        let Some(first) = chars.next() else { return Vec::new() };
+        let rest = chars.as_str();
+        let mut out: Vec<Candidate> = Vec::new();
+        for key in [word.to_string(), format!("{rest}{first}")] {
+            let Some((last, _)) = key.char_indices().last() else { continue };
+            for hanja in self.hun.get(&key) {
+                if !out.iter().any(|c| c.text == hanja) {
+                    out.push(Candidate { text: hanja.to_string(), note: format!("{} {} · 訓音", &key[..last], &key[last..]) });
+                }
+            }
+        }
+        out
+    }
+
+    /// Add gloss matches to `list`, behind the best reading. They go ahead of
+    /// it only when conversion left the input as it was and the input is a
+    /// full gloss then reading of three syllables or more: shorter ones are
+    /// often plain words (반짝 = 짝 반, 둘이 = 둘 이), and 國漢文混用 leaves native
+    /// words in Hangul on purpose.
+    fn with_hun(&self, mut list: Vec<Candidate>, input: &str, hun: Vec<Candidate>) -> Vec<Candidate> {
+        list.retain(|c| !hun.iter().any(|h| h.text == c.text));
+        let key: String = input.split_whitespace().collect();
+        let first = !self.options.sino_only
+            && list.first().is_some_and(|c| c.text == input)
+            && key.chars().count() >= 3
+            && !self.hun.get(&key).is_empty();
+        let at = if first { 0 } else { list.len().min(1) };
+        list.splice(at..at, hun);
+        list
+    }
+
+    /// Gloss matches for an input spaced as 살찔 비.
+    fn spaced_hun(&self, input: &str) -> Option<Vec<Candidate>> {
+        let words: Vec<&str> = input.split_whitespace().collect();
+        if words.len() < 2 || !words.iter().all(|w| w.chars().all(is_syllable)) {
+            return None;
+        }
+        Some(self.hun_candidates(&words.concat())).filter(|h| !h.is_empty())
     }
 
     /// Whole-input candidates, best first. Non-Hangul text passes through.
@@ -904,11 +1001,17 @@ impl Engine {
                 out.push(Candidate { text, note });
             }
         }
-        out
+        match self.spaced_hun(input) {
+            Some(hun) => self.with_hun(out, input, hun),
+            None => out,
+        }
     }
 
     /// Segmentation of the best analysis, each segment with alternatives.
     pub fn segments(&self, input: &str) -> Vec<Segment> {
+        if self.spaced_hun(input).is_some() {
+            return vec![Segment { reading: input.to_string(), candidates: self.convert(input) }];
+        }
         let mut out = Vec::new();
         for (is_h, run) in runs(input) {
             if is_h {

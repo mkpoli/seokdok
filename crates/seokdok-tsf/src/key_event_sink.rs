@@ -10,11 +10,27 @@ use windows::Win32::UI::TextServices::{ITfContext, ITfKeyEventSink_Impl};
 
 use crate::engine_host::HOST;
 use crate::keys::Key;
+use crate::session::Effect;
 use crate::text_service::TextService_Impl;
 
 thread_local! {
     /// Alt went down with no other key since: releasing it switches modes.
     static ALT_ALONE: std::cell::Cell<bool> = const { std::cell::Cell::new(false) };
+    /// The key that just committed a candidate, while it may still be held.
+    static COMMITTED_BY: std::cell::Cell<Option<u16>> = const { std::cell::Cell::new(None) };
+}
+
+/// Whether this key-down is the auto-repeat of the key that committed: holding
+/// Enter on a candidate must not go on to break the line. A fresh press clears
+/// the mark, so the next Enter reaches the application.
+fn repeat_of_commit(wparam: WPARAM, lparam: LPARAM) -> bool {
+    let vk = (wparam.0 & 0xFFFF) as u16;
+    // Bit 30: the key was already down.
+    let held = (lparam.0 >> 30) & 1 == 1 && COMMITTED_BY.with(|c| c.get()) == Some(vk);
+    if !held {
+        COMMITTED_BY.with(|c| c.set(None));
+    }
+    held
 }
 
 fn is_alt(wparam: WPARAM) -> bool {
@@ -89,6 +105,9 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
         note_key_down(wparam);
+        if repeat_of_commit(wparam, lparam) {
+            return Ok(true.into());
+        }
         let Some(key) = decode(wparam, lparam) else {
             return Ok(false.into());
         };
@@ -117,6 +136,10 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
         note_key_down(wparam);
+        if repeat_of_commit(wparam, lparam) {
+            crate::debug_log::log(|| format!("OnKeyDown vk={:#x} repeat of commit, eaten", wparam.0));
+            return Ok(true.into());
+        }
         let Some(key) = decode(wparam, lparam) else {
             return Ok(false.into());
         };
@@ -127,7 +150,10 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         // Release the borrow before touching the document: TSF calls back
         // into this object during edit sessions.
         let output = self.inner_mut().session.handle(key, &HOST);
-        crate::debug_log::log(|| format!("OnKeyDown vk={:#x} eaten={} effects={:?} ctx={:?}", wparam.0, output.eaten, output.effects, windows::core::Interface::as_raw(context)));
+        crate::debug_log::log(|| format!("OnKeyDown vk={:#x} lparam={:#x} eaten={} effects={:?} ctx={:?}", wparam.0, lparam.0, output.eaten, output.effects, windows::core::Interface::as_raw(context)));
+        if matches!(key, Key::Enter | Key::Printable('1'..='9')) && output.effects.iter().any(|e| matches!(e, Effect::Commit(_))) {
+            COMMITTED_BY.with(|c| c.set(Some((wparam.0 & 0xFFFF) as u16)));
+        }
         if !output.eaten {
             return Ok(false.into());
         }

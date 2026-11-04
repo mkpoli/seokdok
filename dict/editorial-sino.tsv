@@ -1,0 +1,5 @@
+# 音讀-format spellings added by the editors, for words that start in Hangul and
+# so cannot be 訓讀 entries. 두벌式: the 釋讀會 chat; 세벌式: formed the same way.
+reading	hanja	count	source
+두벌식	두벌式	1	editorial
+세벌식	세벌式	0	editorial

@@ -5,12 +5,17 @@ let next = 1
 
 export const status = $state({ ready: false, loaded: 0, total: 1, failed: '' })
 
+let markReady
+/** Settles when the engine has loaded. */
+export const engineReady = new Promise((done) => (markReady = done))
+
 worker.onmessage = ({ data }) => {
   if (data.progress) {
     status.loaded = data.progress.loaded
     status.total = Math.max(data.progress.total, data.progress.loaded)
   } else if (data.ready) {
     status.ready = true
+    markReady()
   } else if (data.failed) {
     status.failed = data.failed
   } else {
@@ -36,5 +41,5 @@ export const engine = {
   read: (text) => call('read', text),
   entries: (limit) => call('entries', limit),
   user: (native, sino) => call('user', [native, sino]),
-  convertWith: (text, opts, restore) => call('convertWith', [text, opts, restore]),
+  convertWith: (text, opts) => call('convertWith', [text, opts]),
 }

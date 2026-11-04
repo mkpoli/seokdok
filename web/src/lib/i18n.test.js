@@ -19,7 +19,7 @@ test('marks read by their own Sino-Korean readings are 音讀', () => {
 test('國漢文混用 mode shows 訓讀 marks in Hangul', () => {
   options.sinoOnly = true
   expect(plain('{漢字|한자}로 {打|치}고 {成|되}ㅂ니다')).toBe('한자로 치고 됩니다')
-  expect(r('{古|예}ㅅ{韓㐎|한글}')).toBe('옛<ruby>韓㐎<rt>한글</rt></ruby>')
+  expect(r('{古|예}ㅅ{韓㐎|한글}')).toBe('<span>옛<ruby>韓㐎<rt>한글</rt></ruby></span>')
   options.sinoOnly = false
-  expect(r('{古|예}ㅅ{韓㐎|한글}')).toBe('<ruby>古<rt>예</rt></ruby>ㅅ<ruby>韓㐎<rt>한글</rt></ruby>')
+  expect(r('{古|예}ㅅ{韓㐎|한글}')).toBe('<span><ruby>古<rt>예</rt></ruby>ㅅ<ruby>韓㐎<rt>한글</rt></ruby></span>')
 })

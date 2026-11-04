@@ -40,6 +40,9 @@ LicenseFile={#Stage}\LICENSE
 UninstallDisplayName=釋讀 seokdok
 UninstallDisplayIcon={app}\seokdok.dll
 ShowLanguageDialog=auto
+; The loaded DLL is moved aside (MoveLoadedDll), so nobody's apps need closing.
+CloseApplications=no
+RestartApplications=no
 ; The look: Windows 11 styling that follows the system's light or dark mode,
 ; with the 釋讀 poster as the side panel.
 #ifdef Appearance
@@ -59,11 +62,18 @@ Name: "korean"; MessagesFile: "i18n\Korean.isl"
 Name: "japanese"; MessagesFile: "compiler:Languages\Japanese.isl"
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
+[InstallDelete]
+Type: files; Name: "{app}\seokdok-old-*.dll"
+
+[UninstallDelete]
+Type: files; Name: "{app}\seokdok-old-*.dll"
+
 [Files]
 ; regserver calls DllRegisterServer on install and DllUnregisterServer on
-; uninstall. A DLL loaded by a running app cannot be replaced at once, so
-; restartreplace schedules the swap for the next reboot.
-Source: "{#Stage}\seokdok.dll"; DestDir: "{app}"; Flags: ignoreversion regserver restartreplace uninsrestartdelete
+; uninstall. A DLL loaded by a running app can be renamed but not overwritten:
+; the old one moves aside, running apps keep it until reopened, and no reboot
+; is needed. Setup deletes the moved copies it can on the next update.
+Source: "{#Stage}\seokdok.dll"; DestDir: "{app}"; BeforeInstall: MoveLoadedDll; Flags: ignoreversion regserver restartreplace uninsrestartdelete
 ; The engine reads dict\*.tsv next to the DLL.
 Source: "{#Stage}\dict\*"; DestDir: "{app}\dict"; Flags: ignoreversion recursesubdirs
 Source: "{#Stage}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
@@ -96,3 +106,13 @@ english.WelcomeLabel2=This installs the 釋讀 input method: type Hangul, and Si
 korean.FinishedLabel=설치가 끝났습니다. Win+Space에서 한국어 아래의 釋讀을 고르세요. 이미 열려 있던 앱은 다시 열면 새 버전을 씁니다.
 japanese.FinishedLabel=インストールが完了しました。Win+Space で韓国語の下にある釋讀を選んでください。すでに開いていたアプリは、開き直すと新しい版を使います。
 english.FinishedLabel=Done. Pick 釋讀 under Korean with Win+Space. Apps that were already open use the new version once reopened.
+
+[Code]
+procedure MoveLoadedDll();
+var
+  Dll: String;
+begin
+  Dll := ExpandConstant('{app}\seokdok.dll');
+  if FileExists(Dll) then
+    RenameFile(Dll, ExpandConstant('{app}\seokdok-old-') + GetDateTimeString('yyyymmddhhnnss', #0, #0) + '.dll');
+end;

@@ -17,13 +17,13 @@ const ko = {
   ime: {
     eyebrow: '{入力器|입력기}',
     title: '{書|써} {見|보}기',
-    lede: '{英文|영문} {字板|자판} {其|그}대로 두벌식으로 {打|치}ㅂ니다. {韓國語|한국어} {入力器|입력기}를 {用|쓰}고 {有|있}다면 {其|그}대로 {打|쳐}도 {成|되}ㅂ니다.',
+    lede: '{英文|영문} {字板|자판} {其|그}대로 두벌{式|식}으로 {打|치}ㅂ니다. {韓國語|한국어} {入力器|입력기}를 {用|쓰}고 {有|있}다면 {其|그}대로 {打|쳐}도 {成|되}ㅂ니다.',
     placeholder: '{此處|여기}를 {押|누르}고 {打|쳐} {見|보}세요. {例|예}: gksmfdmf qhkTek → 하늘을 봤다',
     loading: '{辭典|사전}을 {讀|읽}는 {中|중}',
     failed: '{辭典|사전}을 {讀|읽}지 못했습니다',
-    hangul: '韓 두벌식',
+    hangul: '{韓|한} 두벌{式|식}',
     ascii: 'A {英字|영자}',
-    hangulTip: '{英文|영문} {字板|자판}으로 {打|친} {字|글자}를 두벌식 {韓㐎|한글}로 {變|바꿉}니다. Alt를 한 {番|번} {押|누르}거나 한/영 {鍵|키}로 {轉換|전환}.',
+    hangulTip: '{英文|영문} {字板|자판}으로 {打|친} {字|글자}를 두벌{式|식} {韓㐎|한글}로 {變|바꿉}니다. Alt를 한 {番|번} {押|누르}거나 한/영 {鍵|키}로 {轉換|전환}.',
     asciiTip: '{鍵|키}를 {其|그}대로 {打|칩}니다. {自己|자기} {韓國語|한국어} {入力器|입력기}로 {打|칠} {時|때}도 {此|이} {方式|방식}. Alt를 한 {番|번} {押|누르}거나 한/영 {鍵|키}로 {轉換|전환}.',
     hints: [
       ['Space', '{變換|변환} · {次|다음} {候補|후보}'],
@@ -34,7 +34,8 @@ const ko = {
       ['Enter', '{確定|확정}'],
       ['Esc', '{取消|취소}'],
       ['Shift+Space', '띄어{書|쓰}기'],
-      ['Alt', '韓 ↔ A'],
+      ['Alt', '{韓|한} ↔ A'],
+      ['살찔비|비살찔', '{訓音|훈음}으로 {字|글자} {探|찾}기 (肥)'],
     ],
     kind: { sino: '{音讀|음독}', kun: '{訓讀|훈독}' },
     copy: '{複寫|복사}',
@@ -44,11 +45,15 @@ const ko = {
     read: '{韓㐎|한글}로 {讀|읽}기',
     preview: '미리{見|보}기',
     keyboard: '{畵面|화면} {字板|자판}',
+    settings: '{設定|설정}',
+    keysHelp: '{鍵|키} {案內|안내}',
     convert: '{變換|변환}',
     commit: '{確定|확정}',
   },
   options: {
     title: '{表記|표기} {設定|설정}',
+    input: '{入力|입력}',
+    spelling: '{表記|표기}',
     layout: '{候補|후보} {窓|창}',
     layoutTip: '{候補|후보} {窓|창}의 {方向|방향}. {橫|가로}이면 ←→로 {候補|후보}를 {移|옮깁}니다.',
     vertical: '{縱|세로}',
@@ -91,9 +96,9 @@ const ko = {
     eyebrow: '{表記|표기}',
     title: '세 가지 {材料|재료}',
     lede: '{文法|문법}은 {韓國語|한국어} {其|그}대로 {置|두}고, {單語|단어}를 {漢字|한자}로 {解|풀}어 {記|적}습니다. {定|정}해진 {規則|규칙}은 {無|없}고 {意|뜻}이 {通|통}하면 {成|되}ㅂ니다(作文 規則 無，意味傳達 第一). {入力器|입력기}는 {會|모임}에서 {實際|실제}로 {用|쓰}인 {表記|표기}를 {從|따르}고, {岐|갈리}는 데는 {設定|설정}으로 {殘|남}겨 {置|두}ㅂ니다.',
-    sino: ['音讀', '{漢字語|한자어}는 {音|소리}로', '규칙 → 規則, 환영 → 歡迎'],
-    kun: ['訓讀', '{固有語|고유어}는 {意|뜻}으로', '하늘 → 天, 읽다 → 讀다'],
-    okuri: ['送韓字', '{殘|나머지}는 {韓㐎|한글}로', '읽었다 → 讀었다, 다른 → 異ㄴ'],
+    sino: ['{音讀|음독}', '{漢字語|한자어}는 {音|소리}로', '규칙 → 規則, 환영 → 歡迎'],
+    kun: ['{訓讀|훈독}', '{固有語|고유어}는 {意|뜻}으로', '하늘 → 天, 읽다 → 讀다'],
+    okuri: ['{送韓字|송한자}', '{殘|나머지}는 {韓㐎|한글}로', '읽었다 → 讀었다, 다른 → 異ㄴ'],
     variants: '{同|같}은 {文章|문장}, {異|다르}ㄴ {表記|표기}',
     variantsLede: '{會|모임} {內|안}에서도 {表記|표기}가 {岐|갈리}ㅂ니다. {設定|설정} {一|하나}로 {變|바뀌}는 {模樣|모양}을 {見|보}세요.',
     variantNames: {
@@ -120,8 +125,8 @@ const ko = {
     presets: '{例|예}:',
     on: '{使用|사용}',
     stage: '{段階|단계}',
-    stageInput: '入力 (變換 前)',
-    stageOutput: '出力 (候補)',
+    stageInput: '{入力|입력} ({變換|변환} {前|전})',
+    stageOutput: '{出力|출력} ({候補|후보})',
     mode: '{方式|방식}',
     xform: '바꾸기',
     derive: '{加|더}하기',
@@ -200,15 +205,33 @@ const ko = {
     download: '{內|내}려받기',
     windows: [
       '{內|내}려받은 {設置|설치} 파일을 {實行|실행}합니다. {管理者|관리자} {權限|권한}을 {求|구}합니다.',
-      'Win+Space로 釋讀을 {選|고르}ㅂ니다. {韓國語|한국어}가 {言語|언어} {目錄|목록}에 {無|없}으면 {自動|자동}으로 {加|더}합니다.',
+      'Win+Space로 {釋讀|석독}을 {選|고르}ㅂ니다. {韓國語|한국어}가 {言語|언어} {目錄|목록}에 {無|없}으면 {自動|자동}으로 {加|더}합니다.',
     ],
     linux: [
       '{壓縮|압축}을 {解|풀}고 install.sh를 {實行|실행}합니다. sudo {無|없}이 {此|이} {使用者|사용자}에게만 {設置|설치}합니다.',
-      'fcitx5를 {再|다시} {始作|시작}하고, fcitx5-configtool에서 「Only Show Current Language」를 {解除|해제}한 {後|뒤} 釋讀을 {加|더}합니다.',
+      'fcitx5를 {再|다시} {始作|시작}하고, fcitx5-configtool에서 「Only Show Current Language」를 {解除|해제}한 {後|뒤} {釋讀|석독}을 {加|더}합니다.',
+    ],
+    more: 'iOS · macOS · Android',
+    moreNote: '{未|아직} {配布|배포}{前|전}입니다. 소스에서 {直接|직접} 빌드하여 {試|시험}해 {見|볼} {手|수} {有|있}습니다.',
+    source: '소스와 {案內|안내}',
+    ios: [
+      'Mac의 Xcode로 빌드합니다.',
+      '{設定|설정} › 일반 › 키보드 › 키보드 › 새로운 키보드 추가에서 {釋讀|석독}을 {加|더}합니다.',
+      '{地球儀|지구본} {鍵|키}로 {釋讀|석독}을 {選|고르}ㅂ니다. Space로 {變換|변환}하고, {候補|후보}를 {押|눌러} {確定|확정}합니다.',
+    ],
+    macos: [
+      'Mac의 Xcode로 빌드하여 ~/Library/Input Methods에 {置|넣}고, {再|다시} 로그인합니다.',
+      '시스템 설정 › 키보드 › 입력 소스 › 편집…에서 +를 {押|눌러} 한국어의 {釋讀|석독}을 {加|더}합니다.',
+      '메뉴 막대의 입력 메뉴에서 {釋讀|석독}을 {選|고르}ㅂ니다.',
+    ],
+    android: [
+      'Android Studio나 Gradle로 APK를 빌드하여 {設置|설치}합니다.',
+      '{釋讀|석독} 앱에서 키보드를 {有效化|유효화}하고, {入力器|입력기}로 {選|고르}ㅂ니다.',
+      'Space로 {變換|변환}하고, {候補|후보}를 {押|눌러} {確定|확정}합니다.',
     ],
     system: '{全|모든} {使用者|사용자}에게:',
     remove: '{削除|삭제}:',
-    keys: 'Space {變換|변환} · Space {再|다시} {候補|후보} · 1–9 {選擇|선택} · Enter {確定|확정} · Esc {取消|취소} · 한/영 {或|또}는 Alt {短|짧}게: 釋讀 ↔ A',
+    keys: 'Space {變換|변환} · Space {再|다시} {候補|후보} · 1–9 {選擇|선택} · Enter {確定|확정} · Esc {取消|취소} · 한/영 {或|또}는 Alt {短|짧}게: {釋讀|석독} ↔ A',
     custom: '{自作|자작} {規則|규칙}과 {個言|낱말}은 {上|위} 「{自作|자작}」의 {共有|공유}에서 JSON으로 {內|내}려받아 custom.json으로 {保存|저장}합니다.',
     where: '{置|두}는 {處|곳}',
     note: '{同|같}은 {處|곳}의 config.toml에서 {設定|설정}을 {變|바꾸}ㅂ니다. {入力器|입력기}를 {變|바꾸}었다가 {返|돌아}오면 {再|다시} {讀|읽}습니다.',
@@ -253,6 +276,7 @@ const en = {
       ['Esc', 'cancel'],
       ['Shift+Space', 'space'],
       ['Alt', '韓 ↔ A'],
+      ['살찔비|비살찔', 'find a character by its gloss (肥)'],
     ],
     kind: { sino: 'by sound', kun: 'by meaning' },
     copy: 'Copy',
@@ -262,11 +286,15 @@ const en = {
     read: 'Read as Hangul',
     preview: 'Preview',
     keyboard: 'On-screen keys',
+    settings: 'Settings',
+    keysHelp: 'Keys',
     convert: 'Convert',
     commit: 'Commit',
   },
   options: {
     title: 'Spelling options',
+    input: 'Input',
+    spelling: 'Spelling',
     layout: 'Candidate list',
     layoutTip: 'Direction of the candidate list. When horizontal, ← → move through candidates.',
     vertical: 'Vertical',
@@ -424,6 +452,24 @@ const en = {
       'Unpack and run install.sh. It installs for your user only, without sudo.',
       'Restart fcitx5, then add 釋讀 in fcitx5-configtool (untick “Only Show Current Language” to find it).',
     ],
+    more: 'iOS · macOS · Android',
+    moreNote: 'Not released yet. You can build them from source and try them.',
+    source: 'Source and guide',
+    ios: [
+      'Build it with Xcode on a Mac.',
+      'Add 釋讀 under Settings › General › Keyboard › Keyboards › Add New Keyboard.',
+      'Pick 釋讀 with the globe key. Space converts; tap a candidate to confirm.',
+    ],
+    macos: [
+      'Build it with Xcode on a Mac, copy it to ~/Library/Input Methods and log in again.',
+      'In System Settings › Keyboard › Input Sources › Edit…, press + and add 釋讀 under Korean.',
+      'Pick 釋讀 in the input menu of the menu bar.',
+    ],
+    android: [
+      'Build the APK with Android Studio or Gradle and install it.',
+      'Enable the keyboard from the 釋讀 app and choose it as your input method.',
+      'Space converts; tap a candidate to confirm.',
+    ],
     system: 'For all users:',
     remove: 'Uninstall:',
     keys: 'Space converts · Space again lists candidates · 1–9 pick · Enter confirms · Esc cancels · Han/Eng or a tap of Alt: 釋讀 ↔ A',
@@ -491,11 +537,13 @@ const hangulOnly = (h, k) => options.sinoOnly && !isSino(h, k)
 
 function render(s, ruby, html) {
   const text = html ? esc(s) : s
-  return text.replace(MARK, (_, h, k, j = '') => {
+  const out = text.replace(MARK, (_, h, k, j = '') => {
     if (hangulOnly(h, k)) return attach(k, j)
     if (!html) return (ruby ? k : h) + j
     return (ruby ? `<ruby>${h}<rt>${k}</rt></ruby>` : h) + j
   })
+  // One span, so a flex parent (button, label) sees one item and not a piece per ruby.
+  return html ? `<span>${out}</span>` : out
 }
 
 /** Rich text: ruby over each marked word in 한, the bare Hanja in 韓. */

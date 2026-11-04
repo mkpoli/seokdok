@@ -10,6 +10,7 @@ use crate::old_spelling::{ends_in_hanja, is_function_old, is_jamo, keep_typed_ta
 use crate::particles::{allowed, particles, Particle};
 use std::collections::{HashMap, HashSet};
 
+mod compound;
 mod mixed;
 mod okurigana;
 
@@ -1448,6 +1449,7 @@ impl Engine {
             }
         }
         let hun = self.hun_candidates(run);
+        let no_hun = hun.is_empty();
         if hun.is_empty() {
             if full {
                 if segments.len() == old_seg.len() {
@@ -1469,6 +1471,28 @@ impl Engine {
             };
             segments = vec![Segment { reading: run.to_string(), candidates: self.with_hun(cands, run, hun.clone()) }];
             whole = self.with_hun(whole, run, hun);
+        }
+        if let Some((_, path)) = paths.first().filter(|_| full && no_hun) {
+            if let Some(list) = self.compound_list(&comps, &edges, path, &segments) {
+                // The analysis's first choice stays first, the old spelling keeps
+                // its place, and `convert` keeps its phrase readings ahead.
+                let mut listed: Vec<Candidate> = whole.first().cloned().into_iter().collect();
+                for c in list.iter().chain(whole.iter()) {
+                    if !listed.iter().any(|x| x.text == c.text) {
+                        listed.push(c.clone());
+                    }
+                }
+                if let Some(old) = &old_whole {
+                    listed.retain(|c| c.text != *old);
+                }
+                offer_old(&mut listed, old_whole.clone());
+                segments = vec![Segment { reading: run.to_string(), candidates: listed }];
+                for c in list {
+                    if !whole.iter().any(|x| x.text == c.text) {
+                        whole.push(c);
+                    }
+                }
+            }
         }
         // The literal input always stays selectable.
         let keep = self.options.max_candidates.max(2);

@@ -26,6 +26,7 @@ targets:
         PRODUCT_NAME: Seokdok
         # IMK looks for ".inputmethod." in the bundle identifier.
         PRODUCT_BUNDLE_IDENTIFIER: li.mkpo.inputmethod.seokdok
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
         INFOPLIST_FILE: Seokdok/Info.plist
         GENERATE_INFOPLIST_FILE: NO
         # The Rust core: a universal static library and its module map.

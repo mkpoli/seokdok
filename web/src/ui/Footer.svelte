@@ -15,11 +15,18 @@
     <li><a href="https://www.edrdg.org/jmdict/j_jmdict.html" rel="noopener">JMdict</a> — CC BY-SA 4.0, EDRDG</li>
     <li><a href="https://github.com/BYVoid/OpenCC" rel="noopener">OpenCC</a> — Apache-2.0</li>
     <li><a href="https://github.com/notofonts/noto-cjk" rel="noopener">Noto CJK</a> fonts — SIL OFL 1.1</li>
+    <li>
+      <a href="https://fontsource.org/" rel="noopener">Fontsource</a> builds of Noto Sans KR and Noto Serif KR (Google) and
+      <a href="https://github.com/yangheeryu/Gowun-Batang" rel="noopener">Gowun Batang</a> (Gowun Batang Project Authors) — SIL OFL 1.1
+    </li>
     <li>{@html r(t().footer.suggested)}</li>
     <li>釋讀會 · 漢字混用 Telegram — 2022–2026</li>
     <li><a href="/dict/NOTICE.txt">NOTICE.txt</a></li>
   </ul>
   <p class="meta">{@html r(t().footer.licence)} · {@html r(t().footer.made)} <a href="https://mkpo.li/">mkpoli</a> · <a href="https://github.com/mkpoli/seokdok" rel="noopener">GitHub</a></p>
+  <p class="meta legal">
+    <a href="/privacy">{@html r(t().footer.privacy)}</a> · <a href="/support">{@html r(t().footer.support)}</a>
+  </p>
 </footer>
 
 <style>
@@ -39,5 +46,8 @@
   }
   .meta {
     margin: 0;
+  }
+  .legal {
+    margin-top: var(--s-2);
   }
 </style>

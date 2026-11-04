@@ -11,6 +11,9 @@ final class KeyboardViewController: UIInputViewController {
     private var lastShiftTap = Date.distantPast
     /// The marked text this keyboard last wrote into the document, if any.
     private var marked: String?
+    /// The document the marked text was written into
+    /// (`textDocumentProxy.documentIdentifier`).
+    private var composingDocument: UUID?
     private var loadTimer: Timer?
     /// Bumped whenever a composition ends or its field changes, so a delayed
     /// check for an earlier text change does nothing.
@@ -85,10 +88,12 @@ final class KeyboardViewController: UIInputViewController {
     /// context can lag behind our own setMarkedText, so a mismatch counts
     /// only when it persists a moment later; judging at once dropped the
     /// first jamo of a word on a slow device. A change of field is told apart
-    /// by its layout and cancels any check still waiting.
+    /// by its layout or its document identifier and ends the composition at
+    /// once; the delayed check is left for a context that lags inside the
+    /// same document.
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
-        if updateLayout() { return }
+        if updateLayout() || dropForeignComposition() { return }
         guard marked != nil else { return }
         checkGeneration += 1
         let generation = checkGeneration
@@ -101,6 +106,17 @@ final class KeyboardViewController: UIInputViewController {
         }
     }
 
+    /// A composition typed into another document is left there. Called when
+    /// the text changes and before each key, so a key tapped right after a
+    /// field switch starts a new composition in the new field.
+    @discardableResult
+    private func dropForeignComposition() -> Bool {
+        guard marked != nil, let doc = composingDocument,
+              doc != textDocumentProxy.documentIdentifier else { return false }
+        abandonComposition()
+        return true
+    }
+
     /// Forget the composition without writing it: the document it was typed
     /// into already holds it as plain text, and the document now in focus
     /// does not own it.
@@ -108,6 +124,7 @@ final class KeyboardViewController: UIInputViewController {
         checkGeneration += 1
         session.reset()
         marked = nil
+        composingDocument = nil
         refresh()
     }
 
@@ -171,6 +188,7 @@ final class KeyboardViewController: UIInputViewController {
         }
         let text = session.preedit().map(\.text).joined()
         if !text.isEmpty {
+            if marked == nil { composingDocument = proxy.documentIdentifier }
             proxy.setMarkedText(text, selectedRange: NSRange(location: (text as NSString).length, length: 0))
             marked = text
         } else if marked != nil {
@@ -203,6 +221,7 @@ final class KeyboardViewController: UIInputViewController {
 
 extension KeyboardViewController: KeyboardViewDelegate {
     func letter(_ key: Character) {
+        dropForeignComposition()
         let shifted = shift != .off
         guard layout.converts else {
             insert(String(shifted ? Character(key.uppercased()) : key))
@@ -220,6 +239,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func symbol(_ ch: Character) {
+        dropForeignComposition()
         guard layout.converts else {
             insert(String(ch))
             return
@@ -236,6 +256,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func space() {
+        dropForeignComposition()
         guard layout.converts else {
             insert(" ")
             return
@@ -247,6 +268,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func enter() {
+        dropForeignComposition()
         guard layout.converts else {
             insert("\n")
             return
@@ -258,6 +280,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func backspace() {
+        dropForeignComposition()
         guard layout.converts else {
             textDocumentProxy.deleteBackward()
             return

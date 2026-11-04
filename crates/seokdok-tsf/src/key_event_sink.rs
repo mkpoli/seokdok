@@ -83,6 +83,7 @@ impl TextService_Impl {
             state.session.set_space_converts(cfg.input.space_converts);
             state.session.set_horizontal(cfg.input.candidate_layout == crate::config::Layout::Horizontal);
             state.session.set_old_clusters(cfg.input.old_clusters);
+            state.session.set_hangul_only(cfg.conversion.script == crate::config::Script::HangulOnly);
             let requested = state.mode.take_request();
             let effects = requested.map(|m| state.session.set_mode(m)).unwrap_or_default();
             (requested, effects)

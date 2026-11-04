@@ -10,7 +10,7 @@ use std::ffi::{c_char, CStr, CString};
 use std::path::PathBuf;
 use std::sync::Mutex;
 
-use seokdok_session::config::{self, Config, InputMode, Layout};
+use seokdok_session::config::{self, Config, InputMode, Layout, Script};
 use seokdok_session::engine_host::HOST;
 use seokdok_session::keys::Key;
 use seokdok_session::session::{Attr, Effect, Mode, Popup, Run, Session};
@@ -90,6 +90,7 @@ impl Ime {
         self.session.set_space_converts(cfg.input.space_converts);
         self.session.set_horizontal(cfg.input.candidate_layout == Layout::Horizontal);
         self.session.set_old_clusters(cfg.input.old_clusters);
+        self.session.set_hangul_only(cfg.conversion.script == Script::HangulOnly);
         let key = (self.dict_dir.clone(), format!("{:?}", cfg.conversion));
         let mut loaded = LOADED.lock().unwrap_or_else(|e| e.into_inner());
         if loaded.as_ref() != Some(&key) || !HOST.started() {
@@ -447,6 +448,34 @@ mod tests {
             assert_eq!(seokdok_preedit_len(ime), 0);
             seokdok_free(ime);
         }
+    }
+
+    #[test]
+    fn hangul_only_setting_never_converts() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let dir = std::env::temp_dir().join(format!("seokdok-ffi-hangul-{}", std::process::id()));
+        std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+        let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+        let c = CString::new(dict.to_str().unwrap()).unwrap();
+        unsafe {
+            let json = CString::new(r#"{"conversion":{"script":"hangul_only"}}"#).unwrap();
+            assert!(seokdok_config_save_json(json.as_ptr()));
+            let ime = seokdok_new(c.as_ptr());
+            assert_eq!(seokdok_mode(ime), 1);
+            seokdok_set_mode(ime, 0);
+            assert_eq!(seokdok_mode(ime), 1);
+            for k in "dkssud".chars() {
+                assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
+            }
+            assert!(seokdok_key(ime, SK_SPACE, 0, false));
+            let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
+            assert_eq!(c, "안녕 ");
+            assert_eq!(seokdok_popup_len(ime), 0);
+            seokdok_free(ime);
+        }
+        std::env::remove_var("SEOKDOK_CONFIG_DIR");
+        config::reload();
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

@@ -23,3 +23,14 @@ test('國漢文混用 mode shows 訓讀 marks in Hangul', () => {
   options.sinoOnly = false
   expect(r('{古|예}ㅅ{韓㐎|한글}')).toBe('<span><ruby>古<rt>예</rt></ruby>ㅅ<ruby>韓㐎<rt>한글</rt></ruby></span>')
 })
+
+test('page texts have well-formed marks and both languages have the same sections', async () => {
+  const pages = (await import('./pages.js')).default
+  const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [])
+  for (const s of strings(pages.ko)) {
+    expect(s.replace(/\{[^|}]+\|[^}]+\}/g, '')).not.toMatch(/[{}|]/)
+  }
+  for (const page of ['privacy', 'support']) {
+    expect(pages.ko[page].sections.map((s) => s.id)).toEqual(pages.en[page].sections.map((s) => s.id))
+  }
+})

@@ -29,7 +29,7 @@ def main():
     for line in out.read_text(encoding="utf-8").splitlines()[1:]:
         file, lineno, _lemma, _w, count = line.split("\t")
         counts[file][int(lineno)] = int(count)
-    for file in ["corpus.tsv", "editorial.tsv", "community.tsv", "eonhae.tsv", "kun-attested.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"]:
+    for file in ["corpus.tsv", "editorial.tsv", "community.tsv", "eonhae.tsv", "kun-attested.tsv", "suggested.tsv", "wikt-native.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"]:
         p = ROOT / "dict" / file
         if not p.exists():
             continue

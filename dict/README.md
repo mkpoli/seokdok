@@ -15,6 +15,7 @@ comments; the header line names the columns.
 | `kun-ja.tsv` | 訓讀 found through Japanese 訓読み words with the same English gloss | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `kun-ja-weak.tsv` | weaker Japanese links, kept so no candidate is lost | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
+| `wikt-native.tsv` | Common native words that came out in Hangul: compounds of existing rows, or a 訓音 or JMdict link | English Wiktionary, libhangul, JMdict | CC BY-SA 4.0 |
 | `editorial-sino.tsv` | Words starting in Hangul with a Hanja part (두벌式), added by the editors | project editors | MIT |
 | `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
 | `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
@@ -162,6 +163,16 @@ with `source` set to `user`. Check a file with
   frequencies are damped to `round(cbrt(frequency))` because they come from a
   different corpus than the chat counts. `fusion.tsv` stays under GPL-3.0
   wherever it is distributed; the code remains MIT.
+- **Common native words** (`wikt-native.tsv`, `tools/wikt_native.py`): native headwords of
+  English Wiktionary (kaikki.org extract, wiktextract; Ylonen, LREC 2022; CC BY-SA 4.0 and
+  GFDL) with a frequency in FusionIME's dictionary whose first candidate was the word
+  itself in Hangul. A row runs together the Hanja of the parts Wiktionary's etymology names
+  (눈앞 目前, 여름철 夏철), or takes a character whose 訓音 in Wiktionary or libhangul names the
+  word, or one `kun-ja.tsv` links with a sense Unihan's definition shares. No source states
+  the compound's spelling itself: it is built from its parts. Every candidate was read; the
+  tool lists the rejected ones with reasons. The file's source is `suggested`, the lowest
+  tier that beats a two-syllable word left in Hangul. Words with no source stay in Hangul.
+
 - **Machine suggestions** (`suggested.tsv`, 2026-11-03): native verbs,
   adjectives, adverbs and nouns that English Wiktionary lists without a hanja
   form (kaikki.org extract) and that no hand-made dictionary covers were given

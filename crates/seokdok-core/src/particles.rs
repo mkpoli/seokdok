@@ -5,7 +5,7 @@
 use crate::jamo::decompose;
 
 /// Which nominal endings a particle form may follow.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Cond {
     Cons,
     Vowel,

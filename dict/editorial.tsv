@@ -187,7 +187,7 @@ lemma	written	pos	class	source	count	note
 주름	皺	noun		editorial		the modern word for a wrinkle; 襞 in 倭語類解 is a pleat
 괜찮다	不空然다	adj		editorial	11	車魄 in the chat (2026-11-04): 不空然네요, from 공연하지 않다; 車魄 notes a rival claim that it shortens 관계하지 않다, so the etymology is disputed
 괜찮다	不公然다	adj		editorial		아니 in the chat (2026-11-04): 不公然(괜찮)다
-귀찮다	不貴다	adj		editorial		아니 in the chat (2026-11-04): 貴ᄒᆞ디 아니ᄒᆞ다 > 貴티 아니타 > 貴치 않다 > 貴찮다, 故로 不貴(귀찮)다
+귀찮다	不貴다	adj		editorial		아니 in the chat (2026-11-04): 貴ᄒᆞ디 아니ᄒᆞ다 > 貴티 아니ᄒᆞ다 > 貴치 아니ᄒᆞ다 > 貴치 않다 > 貴찮다, 故로 不貴(귀찮)다
 가없다	邊無다	adj		editorial		車魄 in the chat (2026-11-04): 邊無다
 빈터	空基	noun		editorial		아니 in the chat (2026-11-04): 빈터 空基 ~ 空墟
 빈터	空墟	noun		editorial		아니 in the chat (2026-11-04): 빈터 空基 ~ 空墟
@@ -253,3 +253,19 @@ lemma	written	pos	class	source	count	note
 털	毛	noun		editorial	1	the chat writes 毛 (1×) for 털 (hair); community.tsv also has 毛
 감	柿	noun		editorial	1	the chat writes 柿 (1×) for 감 (persimmon); community.tsv also has 柿
 실	絲	noun		editorial	1	the chat writes 絲 (1×) for 실 (thread); community.tsv also has 絲
+오믜	烏山	noun		editorial		화즁화 (1912), Wikisource 페이지:CNTS-00047818803_화즁화.pdf/4, quoted by Jirō in the chat (2026-11-04): 오믜(烏山)
+떡전거리	餠店	noun		editorial		화즁화 (1912), Wikisource 페이지:CNTS-00047818803_화즁화.pdf/4, quoted by Jirō in the chat (2026-11-04): ᄯᅥᆨ젼거리(餠店)
+새여울	新灘津	noun		editorial		화즁화 (1912), Wikisource 페이지:CNTS-00047818803_화즁화.pdf/4, quoted by Jirō in the chat (2026-11-04): ᄉᆡ여울(新灘津)
+새여울나루	新灘津	noun		editorial		아니 in the chat (2026-11-04): 새여울나루, for 新灘津
+군포내	軍浦川	noun		editorial		아니 in the chat (2026-11-04): 軍浦川, first recorded in 肅宗實錄 1699 by a photo not seen by the editors
+군포내	軍浦場	noun		editorial		화즁화 (1912), Wikisource 페이지:CNTS-00047818803_화즁화.pdf/4, quoted by Jirō in the chat (2026-11-04): 군포내(軍浦場)
+노돌	鷺梁	noun		editorial		Jirō in the chat (2026-11-04), from a photo not seen by the editors: 노돌; 아니 in the chat (2026-11-04): 地名의 梁은 돌 ~ 들
+노들	鷺梁	noun		editorial		아니 in the chat (2026-11-04): 地名의 梁은 돌 ~ 들
+노들나루	鷺梁津	noun		editorial		아니 in the chat (2026-11-04): 노들나루, for 鷺梁津
+노돌쇠다리	鷺梁鐵橋	noun		editorial		아니 in the chat (2026-11-04): 鷺梁鐵橋 노돌쇠다리
+미르뫼	龍山	noun		editorial		아니 in the chat (2026-11-04): 龍山 미르뫼
+깊은내	深川	noun		editorial		아니 in the chat (2026-11-04): 深川 깊은내
+울돌목	鳴梁項	noun		editorial		아니 in the chat (2026-11-04): 鳴梁은 鳴梁項(울돌목)
+검은섬	巨文島	noun		editorial		아니 in the chat (2026-11-04): 巨文島도 검은섬
+가문돌	黑石	noun		editorial		Jirō in the chat (2026-11-04), from a photo not seen by the editors: 가문돌, 隣接한 黑石
+예되싸움	日淸戰爭	noun		editorial		아니 in the chat (2026-11-04): 日淸戰爭 예되싸움, from 화즁화

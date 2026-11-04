@@ -727,6 +727,14 @@ mod tests {
     }
 
     #[test]
+    fn script_cycle_is_the_only_name_of_the_chord_list() {
+        let c = Config::parse("[input.keys]\nseokdok_hangul = [\"F9\"]\n");
+        assert_eq!(c.input.keys.script_cycle, Config::default().input.keys.script_cycle);
+        let c = Config::parse("[input.keys]\nscript_cycle = [\"F9\"]\n");
+        assert_eq!(c.input.keys.script_cycle, ["F9"]);
+    }
+
+    #[test]
     fn update_file_writes_changes_only_and_spares_a_broken_file() {
         let path = scratch("update");
         // A missing file starts from the defaults.

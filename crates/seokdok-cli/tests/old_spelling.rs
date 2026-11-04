@@ -268,3 +268,21 @@ fn spellings_as_pronounced_are_read_through_fold_classes() {
     assert_eq!(texts(&e, "잇다").0[0], "續다");
     assert_eq!(texts(&e, "믈").0[0], "믈");
 }
+
+#[test]
+fn reading_keeps_old_syllables_whole() {
+    let e = engine(Options::default());
+    // The function syllables become modern.
+    assert_eq!(e.read(&format!("追加{HAL}까요")), "추가할까요");
+    // Other old syllables stay whole in their token, whatever the Hanja before them.
+    for han in ["讀", "天", "追加", "字"] {
+        for old in ["\u{110A}\u{119E}\u{11B7}", "\u{1109}\u{119E}", "\u{1112}\u{119E}\u{11AF}\u{11BC}", "\u{112F}\u{1169}"] {
+            let out = e.read(&format!("{han}{old}이"));
+            assert!(out.contains(old), "{han}{old}: {out:?}");
+            assert!(out.ends_with('이'), "{han}{old}: {out:?}");
+        }
+    }
+    // Text round-trips through the reader when it holds no Hanja.
+    let plain = "\u{1109}\u{119E}랑 나랏말\u{110A}\u{119E}미 \u{112F}\u{1169}";
+    assert_eq!(e.read(plain), plain);
+}

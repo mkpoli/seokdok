@@ -1348,8 +1348,10 @@ fn is_hanja(c: char) -> bool {
     crate::dict::is_han(c)
 }
 
+/// A letter of the Hangul tail after Hanja: a syllable, a compatibility jamo
+/// or any jamo of an old syllable (which then stays whole in its token).
 fn is_hangulish(c: char) -> bool {
-    is_syllable(c) || ('\u{3131}'..='\u{318E}').contains(&c)
+    is_syllable(c) || ('\u{3131}'..='\u{318E}').contains(&c) || is_jamo(c)
 }
 
 impl Engine {

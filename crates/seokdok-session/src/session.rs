@@ -144,6 +144,8 @@ pub struct Session {
     space_converts: bool,
     /// 韓㐎 專用: nothing is converted, so the converting mode does not exist.
     hangul_only: bool,
+    /// The Hangul-side mode to go back to when 韓㐎 專用 is turned off.
+    mode_before_hangul_only: Mode,
     /// Candidate window in a row; ← → then walk the candidates.
     horizontal: bool,
     composer: Composer,
@@ -160,6 +162,7 @@ impl Session {
             hangul_mode,
             space_converts,
             hangul_only: false,
+            mode_before_hangul_only: hangul_mode,
             horizontal: false,
             composer: Composer::new(),
             conv: None,
@@ -177,10 +180,22 @@ impl Session {
 
     /// 韓㐎 專用: type Hangul and never convert. Space inserts a space and
     /// Enter commits; the 釋讀 mode becomes the plain Hangul mode.
+    /// Turning it off restores the mode it replaced.
     pub fn set_hangul_only(&mut self, v: bool) {
+        if v == self.hangul_only {
+            return;
+        }
         self.hangul_only = v;
-        self.mode = self.allowed(self.mode);
-        self.hangul_mode = self.allowed(self.hangul_mode);
+        if v {
+            self.mode_before_hangul_only = self.hangul_mode;
+            self.mode = self.allowed(self.mode);
+            self.hangul_mode = self.allowed(self.hangul_mode);
+        } else {
+            self.hangul_mode = self.mode_before_hangul_only;
+            if self.mode == Mode::Hangul {
+                self.mode = self.hangul_mode;
+            }
+        }
     }
 
     fn allowed(&self, mode: Mode) -> Mode {
@@ -980,8 +995,20 @@ mod tests {
         s.handle(Key::HangulToggle, &Stub(3));
         assert_eq!(s.mode(), Mode::Hangul);
         s.set_hangul_only(false);
-        assert_eq!(s.set_mode(Mode::Seokdok).len(), 0);
         assert_eq!(s.mode(), Mode::Seokdok);
+        // The toggle from Latin returns to it as well.
+        s.set_hangul_only(true);
+        s.handle(Key::HangulToggle, &Stub(3));
+        assert_eq!(s.mode(), Mode::Latin);
+        s.set_hangul_only(false);
+        assert_eq!(s.mode(), Mode::Latin);
+        s.handle(Key::HangulToggle, &Stub(3));
+        assert_eq!(s.mode(), Mode::Seokdok);
+        // A session that started in plain Hangul stays there.
+        let mut h = Session::new(Mode::Hangul, true);
+        h.set_hangul_only(true);
+        h.set_hangul_only(false);
+        assert_eq!(h.mode(), Mode::Hangul);
     }
 
     #[test]

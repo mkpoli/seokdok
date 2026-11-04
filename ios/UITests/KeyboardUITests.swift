@@ -225,21 +225,39 @@ final class KeyboardUITests: XCTestCase {
         g.hold("p", seconds: 1.5)
         g.enter() // confirm
         sleep(1)
-        let before = text(field)
-        // The gap between ㅏ (k) and ㅣ (l), in the letter row.
-        let w = (g.width - 6 - 54) / 10
-        g.tap(x: 3 + 21 + 7 * (w + 6) + w + 3, y: 129)
+        // A plain key first, so that a failure below is about the gaps.
+        let start = text(field)
+        g.letter("k")
         sleep(1)
-        XCTAssertGreaterThan(text(field).count, before.count, "a tap in the gap between two keys typed nothing")
+        XCTAssertEqual(text(field).count, start.count + 1, "the key after Return typed nothing")
+        g.enter()
+        sleep(1)
+        // Between ㅏ (k) and ㅣ (l) in the letter row, then between two rows.
+        let w = (g.width - 6 - 54) / 10
+        let gapX = 3 + 21 + 7 * (w + 6) + w + 3
+        let afterKey = text(field)
+        g.tap(x: gapX, y: 129)
+        sleep(1)
+        shot("gap-column")
+        XCTAssertEqual(text(field).count, afterKey.count + 1, "a tap in the gap between two keys typed nothing")
+        g.enter()
+        sleep(1)
+        let afterColumn = text(field)
+        g.tap(x: g.width / 2, y: 102)
+        sleep(1)
+        shot("gap-row")
+        XCTAssertEqual(text(field).count, afterColumn.count + 1, "a tap in the gap between two rows typed nothing")
         g.enter()
     }
 
     /// The candidate bar, a held key and the drawer in dark mode.
     func testDarkScreens() throws {
-        XCUIDevice.shared.appearance = .dark
-        defer { XCUIDevice.shared.appearance = .light }
         let (app, field) = launch(kind: "default")
         let g = Geometry(app: app)
+        // Set once the app is up: before the first launch it did not take.
+        XCUIDevice.shared.appearance = .dark
+        defer { XCUIDevice.shared.appearance = .light }
+        sleep(2)
         tapUntilTyped(field) { g.letter("d") }
         g.type("kssud")
         sleep(1)

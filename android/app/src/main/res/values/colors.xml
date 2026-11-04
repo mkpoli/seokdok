@@ -8,7 +8,6 @@
     <color name="key_text">#FF1B1C1E</color>
     <color name="key_text_accent">#FFFFFFFF</color>
     <color name="key_hint">#FF6B7079</color>
-    <color name="key_old">#FF4B3DB8</color>
     <color name="key_shadow">#40000000</color>
     <color name="strip_text">#FF1B1C1E</color>
     <color name="strip_note">#FF6B7079</color>

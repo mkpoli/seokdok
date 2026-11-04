@@ -14,8 +14,8 @@ import android.view.View
 import android.view.ViewConfiguration
 
 /**
- * One key: the main label, an optional corner hint (the other Shift layer),
- * a tint for old letters. A key fires on release; with [repeats] it fires
+ * One key: the main label and an optional corner hint (the other Shift
+ * layer). A key fires on release; with [repeats] it fires
  * on press and keeps firing while held; [onLong] replaces the release when
  * the key is held.
  */
@@ -25,8 +25,6 @@ class KeyView(context: Context, private val style: Style = Style.LETTER) : View(
     var main: String = ""
         set(v) { field = v; contentDescription = v; invalidate() }
     var hint: String? = null
-        set(v) { field = v; invalidate() }
-    var old = false
         set(v) { field = v; invalidate() }
     /** Drawn as switched on (Shift held, Caps Lock). */
     var on = false
@@ -47,11 +45,6 @@ class KeyView(context: Context, private val style: Style = Style.LETTER) : View(
     private val hintPaint = Paint(Paint.ANTI_ALIAS_FLAG).apply {
         textAlign = Paint.Align.RIGHT
         textSize = sp(11f)
-    }
-    private val outline = Paint(Paint.ANTI_ALIAS_FLAG).apply {
-        style = Paint.Style.STROKE
-        strokeWidth = density
-        color = context.getColor(R.color.key_old)
     }
 
     private var down = false
@@ -86,12 +79,10 @@ class KeyView(context: Context, private val style: Style = Style.LETTER) : View(
         canvas.drawRoundRect(rect, radius, radius, shadow)
         rect.offset(0f, -density)
         canvas.drawRoundRect(rect, radius, radius, bg)
-        if (old) canvas.drawRoundRect(rect, radius, radius, outline)
 
         mainPaint.color = context.getColor(
             when {
                 style == Style.ACCENT -> R.color.key_text_accent
-                old -> R.color.key_old
                 else -> R.color.key_text
             },
         )
@@ -102,7 +93,7 @@ class KeyView(context: Context, private val style: Style = Style.LETTER) : View(
         canvas.drawText(main, rect.centerX(), y, mainPaint)
 
         hint?.let {
-            hintPaint.color = context.getColor(if (old) R.color.key_old else R.color.key_hint)
+            hintPaint.color = context.getColor(R.color.key_hint)
             canvas.drawText(it, rect.right - 4 * density, rect.top - hintPaint.ascent() + 1 * density, hintPaint)
         }
     }

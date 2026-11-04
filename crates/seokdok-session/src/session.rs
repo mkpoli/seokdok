@@ -14,6 +14,16 @@ use crate::keys::Key;
 /// Candidates shown per page of the candidate window; digits 1-9 pick one.
 pub const PAGE_SIZE: usize = 9;
 
+/// Every candidate of the focused segment, for a front end that scrolls the
+/// list instead of paging it.
+#[derive(Clone, Debug, PartialEq, Eq)]
+pub struct CandidateList {
+    /// (text, short reading) of each candidate; see [`crate::brief`].
+    pub items: Vec<(String, String)>,
+    /// Index of the selected candidate within `items`.
+    pub selected: usize,
+}
+
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
 pub enum Mode {
     /// Type Hangul, convert to 釋讀.
@@ -495,6 +505,28 @@ impl Session {
         c.focus = i;
         c.open = false;
         self.push_view(fx);
+    }
+
+    /// The focused segment's whole list, or `None` while nothing is converted.
+    pub fn candidate_list(&self) -> Option<CandidateList> {
+        let c = self.conv.as_ref()?;
+        let seg = &c.segs[c.focus];
+        let brief = crate::brief::brief_notes(&seg.reading, seg.cands.iter().map(|k| k.note.as_str()));
+        let items = seg.cands.iter().zip(brief).map(|(k, b)| (k.text.clone(), b)).collect();
+        Some(CandidateList { items, selected: seg.sel })
+    }
+
+    /// Choose candidate `index` of [`Session::candidate_list`] and confirm the
+    /// segments through the focused one.
+    pub fn pick_candidate(&mut self, index: usize) -> Vec<Effect> {
+        let mut fx = Vec::new();
+        let Some(c) = &mut self.conv else { return fx };
+        let seg = &mut c.segs[c.focus];
+        if index < seg.cands.len() {
+            seg.sel = index;
+            self.commit_through(&mut fx);
+        }
+        fx
     }
 
     /// Switch mode, committing any composition as it stands.
@@ -1396,6 +1428,32 @@ mod tests {
         fn whole(&self, input: &str) -> Vec<Candidate> {
             vec![Candidate { text: input.into(), note: String::new() }]
         }
+    }
+
+    #[test]
+    fn the_whole_list_reaches_past_the_first_page_and_picks_by_index() {
+        struct Many;
+        impl Converter for Many {
+            fn segments(&self, input: &str) -> Vec<Segment> {
+                let candidates = (0..PAGE_SIZE + 3)
+                    .map(|i| Candidate { text: format!("{input}{i}"), note: format!("{input} · 音讀") })
+                    .collect();
+                vec![Segment { reading: input.into(), candidates }]
+            }
+        }
+        let mut s = Session::new(Mode::Seokdok, true);
+        assert!(s.candidate_list().is_none());
+        s.handle(Key::Letter { ch: 'r', shift: false }, &Many);
+        s.handle(Key::Letter { ch: 'k', shift: false }, &Many);
+        assert!(s.candidate_list().is_none(), "nothing is converted yet");
+        s.handle(Key::Convert, &Many);
+        let list = s.candidate_list().unwrap();
+        assert_eq!(list.items.len(), PAGE_SIZE + 3);
+        assert_eq!(list.items[0].1, "", "a reading the input says is not repeated");
+        assert_eq!(s.pick_candidate(99), vec![], "an index past the end does nothing");
+        let fx = s.pick_candidate(PAGE_SIZE + 2);
+        assert!(fx.contains(&Effect::Commit(format!("가{}", PAGE_SIZE + 2))), "{fx:?}");
+        assert!(!s.is_composing());
     }
 
     /// A careless converter: one segment for every char, conjoining jamo too.

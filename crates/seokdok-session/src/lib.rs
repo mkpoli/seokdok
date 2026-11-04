@@ -3,8 +3,9 @@
 //! ([`session`]), the key vocabulary ([`keys`]), the settings file
 //! ([`config`]), the Windows quick menu ([`quick_menu`]), the rotation of the script
 //! ([`script_cycle`]), the choice of where
-//! the composition is drawn ([`surface`]) and the engine loader with the reader's customisation ([`engine_host`]).
+//! the composition is drawn ([`surface`]), the engine loader with the reader's customisation ([`engine_host`]) and the short readings of a phone's candidate bar ([`brief`]).
 
+pub mod brief;
 pub mod config;
 pub mod engine_host;
 pub mod keys;

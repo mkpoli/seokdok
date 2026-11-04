@@ -15,7 +15,7 @@ use seokdok_session::engine_host::HOST;
 use seokdok_session::keys::Key;
 use seokdok_session::mode_keys::{KeyName, ModeKeyboard};
 use seokdok_session::script_cycle;
-use seokdok_session::session::{Attr, Effect, Mode, Popup, Run, Session};
+use seokdok_session::session::{Attr, CandidateList, Effect, Mode, Popup, Run, Session};
 
 /// Key kinds passed from C (see `seokdok.h`).
 pub const SK_LETTER: i32 = 1;
@@ -47,6 +47,7 @@ pub struct Ime {
     commit: String,
     preedit: Vec<Run>,
     popup: Option<Popup>,
+    list: Option<CandidateList>,
     // C strings handed out, kept alive until the view changes.
     cstrs: Vec<CString>,
     dict_dir: PathBuf,
@@ -87,6 +88,7 @@ impl Ime {
             commit: String::new(),
             preedit: Vec::new(),
             popup: None,
+            list: None,
             cstrs: Vec::new(),
             dict_dir,
         };
@@ -357,6 +359,53 @@ pub unsafe extern "C" fn seokdok_popup_info(
     }
 }
 
+/// Read the focused segment's whole list and return its length; 0 while
+/// nothing is converted. [`seokdok_list_item`] reads what this call read.
+///
+/// # Safety
+/// `ime` is a live session.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_list_len(ime: *mut Ime) -> usize {
+    let ime = &mut *ime;
+    ime.list = ime.session.candidate_list();
+    ime.list.as_ref().map_or(0, |l| l.items.len())
+}
+
+/// Candidate `i` of the list; `reading` receives the short reading to show
+/// beside it, which may be empty.
+///
+/// # Safety
+/// `ime` is a live session; `reading` is NULL or writable.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_list_item(ime: *mut Ime, i: usize, reading: *mut *const c_char) -> *const c_char {
+    let ime = &mut *ime;
+    let Some((text, r)) = ime.list.as_ref().and_then(|l| l.items.get(i).cloned()) else { return std::ptr::null() };
+    if !reading.is_null() {
+        *reading = ime.cstr(&r);
+    }
+    ime.cstr(&text)
+}
+
+/// Index of the selected candidate in the list.
+///
+/// # Safety
+/// `ime` is a live session.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_list_selected(ime: *mut Ime) -> usize {
+    (*ime).list.as_ref().map_or(0, |l| l.selected)
+}
+
+/// Choose candidate `i` of the list and confirm through the focused segment.
+///
+/// # Safety
+/// `ime` is a live session.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_list_pick(ime: *mut Ime, i: usize) {
+    let ime = &mut *ime;
+    let fx = ime.session.pick_candidate(i);
+    ime.apply(fx);
+}
+
 /// 0 釋讀, 1 Hangul, 2 Latin.
 ///
 /// # Safety
@@ -521,6 +570,24 @@ mod tests {
             assert!(seokdok_key(ime, SK_ENTER, 0, false));
             let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
             assert_eq!(c, "天을");
+            assert_eq!(seokdok_list_len(ime), 0, "nothing is converted any more");
+            for k in "dkssud".chars() {
+                assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
+            }
+            assert!(seokdok_key(ime, SK_SPACE, 0, false));
+            let n = seokdok_list_len(ime);
+            assert!(n > 2);
+            let at = |i: usize| {
+                let mut r: *const c_char = std::ptr::null();
+                let t = seokdok_list_item(ime, i, &mut r);
+                (CStr::from_ptr(t).to_str().unwrap().to_string(), CStr::from_ptr(r).to_str().unwrap().to_string())
+            };
+            let i = (0..n).find(|&i| at(i).0 == "安寧").unwrap();
+            assert_eq!(at(i).1, "音", "the mark alone: the reading is what was typed");
+            assert_eq!(seokdok_list_selected(ime), 0);
+            seokdok_list_pick(ime, i);
+            let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
+            assert_eq!(c, " 安寧", "after the word break the earlier Space conversion owes");
             assert!(seokdok_take_commit(ime).is_null());
             assert!(seokdok_key(ime, SK_TOGGLE, 0, false));
             assert_eq!(seokdok_mode(ime), 2);

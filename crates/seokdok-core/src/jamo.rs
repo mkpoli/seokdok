@@ -44,19 +44,23 @@ fn is_conjoining_t(c: char) -> bool {
     matches!(c as u32, 0x11A8..=0x11FF | 0xD7CB..=0xD7FB)
 }
 
-/// Split text into the units it is edited by: an initial, a medial and any
-/// finals in conjoining jamo (ᄒᆞᆯ, three chars) make one unit; every other
-/// char, a precomposed syllable or a stray jamo included, is a unit of its own.
+/// Split text into the units it is edited by: initials, medials and finals in
+/// conjoining jamo (ᄒᆞᆯ, three chars; ᄒᆞᅵ, one syllable of two medials) make one
+/// unit, a run of L+ V+ T*; every other char, a precomposed syllable or a
+/// stray jamo included, is a unit of its own. This is the syllable the engine
+/// reads.
 pub fn units(s: &str) -> Vec<&str> {
     let mut out = Vec::new();
     let mut rest = s;
     while let Some(first) = rest.chars().next() {
         let mut end = first.len_utf8();
         if is_conjoining_l(first) {
-            let mut after = rest[end..].chars();
-            if let Some(v) = after.next().filter(|&v| is_conjoining_v(v)) {
-                end += v.len_utf8();
-                end += after.take_while(|&t| is_conjoining_t(t)).map(char::len_utf8).sum::<usize>();
+            let tail = |end: usize, f: fn(char) -> bool| rest[end..].chars().take_while(|&c| f(c)).map(char::len_utf8).sum::<usize>();
+            end += tail(end, is_conjoining_l);
+            let v = tail(end, is_conjoining_v);
+            end += v;
+            if v > 0 {
+                end += tail(end, is_conjoining_t);
             }
         }
         let (unit, tail) = rest.split_at(end);
@@ -386,7 +390,10 @@ mod tests {
         assert_eq!(units("\u{1112}가"), ["\u{1112}", "가"]);
         assert_eq!(units("\u{119E}\u{11AF}\u{11AF}"), ["\u{119E}", "\u{11AF}", "\u{11AF}"]);
         assert_eq!(units("가\u{11AF}"), ["가", "\u{11AF}"]);
-        assert_eq!(units("\u{1112}\u{1112}\u{119E}"), ["\u{1112}", "\u{1112}\u{119E}"]);
+        // A syllable is one L+ V+ T* run, so the engine and the editors agree.
+        assert_eq!(units("\u{1112}\u{1112}\u{119E}"), ["\u{1112}\u{1112}\u{119E}"]);
+        assert_eq!(units("\u{1112}\u{119E}\u{1175}요"), ["\u{1112}\u{119E}\u{1175}", "요"]);
+        assert_eq!(units("\u{1109}\u{1100}\u{1169}\u{1161}\u{11AF}\u{11A8}ㄱ"), ["\u{1109}\u{1100}\u{1169}\u{1161}\u{11AF}\u{11A8}", "ㄱ"]);
         assert!(units("").is_empty());
     }
 

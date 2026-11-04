@@ -63,32 +63,102 @@ pub(crate) fn parse(run: &str) -> Option<Vec<Syl>> {
             continue;
         }
         let j = syllable_end(&cs, i);
-        let span = &cs[i..j];
-        let (l, rest) = span.split_first().filter(|(l, _)| is_cho(**l))?;
-        let vend = rest.iter().take_while(|c| is_jung(**c)).count();
-        let (vs, ts) = rest.split_at(vend);
-        let t = match ts {
-            [] => None,
-            [t] => Some(fold_t(*t)?),
-            _ => return None,
-        };
-        let ls = fold_l(*l)?;
-        let vowels = fold_v(vs)?;
-        let mut reads = Vec::new();
-        for (lc, lp, lo) in ls {
-            for &(v, vp, vo) in &vowels {
-                if let Some(c) = join_syllable(lc, v, t) {
-                    reads.push((Unit::of(c), lp + vp, lo || vo));
-                }
-            }
-        }
-        if reads.is_empty() {
-            return None;
-        }
-        out.push(Syl { typed: span.iter().collect(), reads });
+        out.push(parse_unit(&cs[i..j])?);
         i = j;
     }
     Some(out)
+}
+
+/// Whether the engine can read a unit (a syllable, or a run of L+ V+ T*).
+pub(crate) fn foldable(unit: &str) -> bool {
+    let cs: Vec<char> = unit.chars().collect();
+    match cs.as_slice() {
+        [c] if is_syllable(*c) => true,
+        [] => false,
+        _ => parse_unit(&cs).is_some(),
+    }
+}
+
+/// One conjoining syllable: its initials, medials and finals, each a single
+/// jamo or a sequence that makes one (ᄉ+ᄀ, ᅩ+ᅡ, ᆯ+ᆷ).
+fn parse_unit(span: &[char]) -> Option<Syl> {
+    let nl = span.iter().take_while(|c| is_cho(**c)).count();
+    let nv = span[nl..].iter().take_while(|c| is_jung(**c)).count();
+    let (ls, rest) = span.split_at(nl);
+    let (vs, ts) = rest.split_at(nv);
+    if ls.is_empty() || vs.is_empty() {
+        return None;
+    }
+    let t = match ts {
+        [] => None,
+        [t] => Some(fold_t(*t)?),
+        [a, b] => Some(fold_t(cluster(*a, *b)?)?),
+        _ => return None,
+    };
+    let lead = match ls {
+        [l] => *l,
+        _ => compose_l(ls)?,
+    };
+    let vowels = fold_v(&match vs {
+        [_] | ['\u{119E}', '\u{1175}'] => vs.to_vec(),
+        _ => vec![compose_v(vs)?],
+    })?;
+    let mut reads = Vec::new();
+    for (lc, lp, lo) in fold_l(lead)? {
+        for &(v, vp, vo) in &vowels {
+            if let Some(c) = join_syllable(lc, v, t) {
+                reads.push((Unit::of(c), lp + vp, lo || vo));
+            }
+        }
+    }
+    (!reads.is_empty()).then(|| Syl { typed: span.iter().collect(), reads })
+}
+
+/// Initials written as a sequence of jamo: ㅅㄱ is ᄭ, ㅂㅅㄷ is ᄣ.
+fn compose_l(ls: &[char]) -> Option<char> {
+    Some(match ls.iter().map(|c| *c as u32).collect::<Vec<_>>()[..] {
+        [0x1109, 0x1100] => '\u{112D}',
+        [0x1109, 0x1103] => '\u{112F}',
+        [0x1109, 0x1107] => '\u{1132}',
+        [0x1109, 0x110C] => '\u{1136}',
+        [0x1107, 0x1109] => '\u{1121}',
+        [0x1107, 0x1100] => '\u{111E}',
+        [0x1107, 0x1103] => '\u{1120}',
+        [0x1107, 0x110C] => '\u{1127}',
+        [0x1107, 0x110A] => '\u{1125}',
+        [0x1107, 0x1109, 0x1100] => '\u{1122}',
+        [0x1107, 0x1109, 0x1103] => '\u{1123}',
+        [0x1107, 0x1109, 0x1107] => '\u{1124}',
+        [0x1107, 0x1109, 0x110C] => '\u{1126}',
+        [0x1100, 0x1100] => '\u{1101}',
+        [0x1103, 0x1103] => '\u{1104}',
+        [0x1107, 0x1107] => '\u{1108}',
+        [0x1109, 0x1109] => '\u{110A}',
+        [0x110C, 0x110C] => '\u{110D}',
+        _ => return None,
+    })
+}
+
+/// Medials written as a sequence of jamo: ᅩ+ᅡ is ᅪ.
+fn compose_v(vs: &[char]) -> Option<char> {
+    Some(match vs.iter().map(|c| *c as u32).collect::<Vec<_>>()[..] {
+        [0x1169, 0x1161] => '\u{116A}',
+        [0x1169, 0x1162] | [0x1169, 0x1161, 0x1175] => '\u{116B}',
+        [0x1169, 0x1175] => '\u{116C}',
+        [0x116E, 0x1165] => '\u{116F}',
+        [0x116E, 0x1166] | [0x116E, 0x1165, 0x1175] => '\u{1170}',
+        [0x116E, 0x1175] => '\u{1171}',
+        [0x1173, 0x1175] => '\u{1174}',
+        [0x1161, 0x1175] => '\u{1162}',
+        [0x1165, 0x1175] => '\u{1166}',
+        [0x1175, 0x1161] => '\u{1163}',
+        [0x1175, 0x1165] => '\u{1167}',
+        [0x1175, 0x1169] => '\u{116D}',
+        [0x1175, 0x116E] => '\u{1172}',
+        [0x1175, 0x1162] => '\u{1164}',
+        [0x1175, 0x1166] => '\u{1168}',
+        _ => return None,
+    })
 }
 
 fn fold_l(l: char) -> Option<Vec<(char, f32, bool)>> {

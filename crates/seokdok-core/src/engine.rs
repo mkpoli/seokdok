@@ -5,7 +5,7 @@
 use crate::conj::{ending_label, ending_surfaces, morph_ending, Ctx};
 use crate::dict::{parse_native, parse_sino, tsv_lines, Native, Pos, Source, Tail};
 use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify};
-use crate::fold::{has_era_only, has_old, modern_mask, parse, readings, Reading, Syl, ALL, MAX_READINGS_MODERN, MAX_READINGS_OLD, STRONG};
+use crate::fold::{foldable, has_era_only, has_old, modern_mask, parse, readings, Reading, Syl, ALL, MAX_READINGS_MODERN, MAX_READINGS_OLD, STRONG};
 use crate::old_spelling::{ends_in_hanja, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant};
 use crate::particles::{allowed, particles, Particle};
 use std::collections::HashMap;
@@ -1577,12 +1577,27 @@ fn first_old(list: &mut Vec<Candidate>, old: Option<String>) {
 /// everything else.
 fn runs(input: &str) -> Vec<(bool, String)> {
     let mut out: Vec<(bool, String)> = Vec::new();
-    for c in input.chars() {
-        let h = is_syllable(c) || is_jamo(c);
-        match out.last_mut() {
-            Some((k, s)) if *k == h => s.push(c),
-            _ => out.push((h, c.to_string())),
+    let mut push = |h: bool, piece: &str| match out.last_mut() {
+        Some((k, s)) if *k == h => s.push_str(piece),
+        _ => out.push((h, piece.to_string())),
+    };
+    if !input.chars().any(is_jamo) {
+        for c in input.chars() {
+            push(is_syllable(c), c.encode_utf8(&mut [0; 4]));
         }
+        return out;
+    }
+    // Old letters: a unit the engine can read joins the run; one it cannot
+    // (a stray jamo, an initial with no vowel, a letter with no modern
+    // counterpart) stays as it is, and the text around it is converted.
+    for unit in crate::jamo::units(input) {
+        let mut cs = unit.chars();
+        let h = match (cs.next(), cs.next()) {
+            (Some(c), None) if is_syllable(c) => true,
+            (Some(c), _) if is_jamo(c) => foldable(unit),
+            _ => false,
+        };
+        push(h, unit);
     }
     out
 }

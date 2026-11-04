@@ -171,7 +171,7 @@ fn no_jamo_makes_the_engine_panic() {
     let e = engine(Options::default());
     let jamo = ('\u{1100}'..='\u{11FF}').chain('\u{A960}'..='\u{A97C}').chain('\u{D7B0}'..='\u{D7FB}');
     for c in jamo {
-        for input in [format!("{c}"), format!("가{c}"), format!("{c}가"), format!("{c}\u{1161}"), format!("\u{1109}{c}"), format!("\u{1109}\u{119E}{c}"), format!("天{c}")] {
+        for input in [format!("{c}"), format!("가{c}"), format!("{c}\u{1161}"), format!("\u{1109}\u{119E}{c}")] {
             e.convert(&input);
             e.segments(&input);
             e.read(&input);
@@ -313,3 +313,32 @@ fn random_old_and_modern_text_never_panics_or_loses_a_run() {
         e.read(&input);
     }
 }
+
+#[test]
+fn a_letter_the_engine_cannot_read_leaves_the_rest_converting() {
+    let e = engine(Options::default());
+    let stray = "\u{1100}";
+    // 사랑ᄀ and ᄉᆞ랑ᄀ: 愛 and the stray initial as it is.
+    for typed in [format!("사랑{stray}"), format!("\u{1109}\u{119E}랑{stray}")] {
+        let whole = texts(&e, &typed).0;
+        assert!(whole.iter().any(|t| *t == format!("愛{stray}")), "{typed}: {whole:?}");
+        let segs = texts(&e, &typed).1;
+        assert_eq!(segs.last().unwrap(), &[stray.to_string()]);
+        assert!(segs[0].iter().any(|t| t == "愛"));
+    }
+    // A medial with no modern letter (U+1176) in the middle.
+    let odd = "\u{1100}\u{1176}";
+    let whole = texts(&e, &format!("사랑{odd}사랑")).0;
+    assert!(whole[0].starts_with('愛') && whole[0].ends_with('愛'), "{whole:?}");
+}
+
+#[test]
+fn syllables_of_several_medials_are_read_as_one() {
+    let e = engine(Options::default());
+    // ᄒᆞᅵ요 is one syllable, read as 해요; ᄉ+ᄀ+ᅩ+ᆺ is ᄭᅩᆺ.
+    let whole = texts(&e, "\u{1112}\u{119E}\u{1175}요").0;
+    assert_eq!(whole[0], "해요");
+    let whole = texts(&e, "\u{1109}\u{1100}\u{1169}\u{11BA}").0;
+    assert_eq!(whole[0], "花");
+}
+

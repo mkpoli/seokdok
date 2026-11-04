@@ -1358,6 +1358,9 @@ mod tests {
             format!("{HOLL}{SA}{SSAM}{STTO}"),
             format!("{STTO} {HOLL}까요, {SSAM}"),
             format!("\u{A960}\u{D7B0}\u{D7CB}\u{115F}\u{119E}\u{1100}\u{1160}{SA}"),
+            // One syllable of two medials (the engine reads ᄒᆞᅵ as 해), of two
+            // initials, and of a medial and final each in two jamo.
+            "\u{1112}\u{119E}\u{1175}요 \u{1109}\u{1100}\u{1169}\u{1161}\u{11AF}\u{11A8}까요".to_string(),
         ]
     }
 

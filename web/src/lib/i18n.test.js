@@ -52,3 +52,8 @@ test('page marks hold Hanja over a Hangul reading and leave nothing unmatched in
   }
   options.sinoOnly = false
 })
+
+test('手 for the bound noun 수 is Hanja only in 釋讀', () => {
+  expect(isSino('手', '수')).toBe(false)
+  expect(isSino('手', '손')).toBe(false)
+})

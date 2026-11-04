@@ -182,7 +182,7 @@ const ko = {
     eyebrow: '{古|예}ㅅ{韓㐎|한글}',
     title: 'ㆍ와 {古|예}ㅅ {字母|자모} {打|치}기',
     lede: 'Microsoft {古|예}ㅅ{韓㐎|한글} {字板|자판}처럼 Shift {段|단}에 {古|예}ㅅ {字母|자모}가 {有|있}습니다. {此|이} {頁|쪽}의 {入力器|입력기}와 Windows·Linux {入力器|입력기}가 {皆|모두} {同|같}습니다.',
-    mapCaption: '{各|각} {鍵|글쇠} {右|오른}쪽 {上|위}의 {小|작}은 {字|글자}는 Shift를 {押|누르}고 {打|치}는 {字母|자모}이고, {古|예}ㅅ {字母|자모}는 {色|색}으로 {表示|표시}했습니다. {入力器|입력기}의 {畵面|화면} {字板|자판}에서는 ⇧를 {押|누른} {後|뒤} {鍵|글쇠}를 {押|누릅}니다.',
+    mapCaption: '{各|각} {鍵|글쇠} {右|오른}쪽 {上|위}의 {小|작}은 {字|글자}는 Shift를 {押|누르}고 {打|치}는 {字母|자모}이고, {古|예}ㅅ {字母|자모}는 더 {大|크}게 {表示|표시}했습니다. {入力器|입력기}의 {畵面|화면} {字板|자판}에서는 ⇧를 {押|누른} {後|뒤} {鍵|글쇠}를 {押|누릅}니다.',
     shift: 'Shift로 {打|치}는 {字母|자모}',
     names: {
       araea: '{下|아래}아',
@@ -428,7 +428,7 @@ const en = {
     eyebrow: 'Old Hangul',
     title: 'Typing ㆍ and the old letters',
     lede: 'As on Microsoft Old Hangul, the old letters sit on the Shift layer. The same keys work on this page and in the Windows and Linux input methods.',
-    mapCaption: 'The small letter in each key’s corner is typed with Shift; old letters are coloured. On the on-screen keyboard above, tap ⇧ and then the key.',
+    mapCaption: 'The small letter in each key’s corner is typed with Shift; old letters are drawn larger there. On the on-screen keyboard above, tap ⇧ and then the key.',
     shift: 'Letters on Shift',
     names: {
       araea: 'arae-a',

@@ -10,7 +10,6 @@ protocol KeyboardViewDelegate: AnyObject {
     func cycleMode()
     func pick(_ index: Int)
     func convert()
-    func page(_ step: Int)
     func focus(run: Int)
     func resize(_ step: Int)
 }
@@ -65,7 +64,8 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private let resizeKeys = UIStackView()
     private let bar = UIStackView()
     private let barScroll = UIScrollView()
-    private let pageKeys = UIStackView()
+    private let barEnd = UIStackView()
+    private var shownCandidates: Session.Candidates?
     private let keysArea = UIStackView()
     private let letters = UIStackView()
     private let symbols = UIStackView()
@@ -113,14 +113,13 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         ])
 
         stripRow = scrolling(strip, in: stripScroll, trailing: resizeKeys, height: 26)
-        barRow = scrolling(bar, in: barScroll, trailing: pageKeys, height: 44)
+        barRow = scrolling(bar, in: barScroll, trailing: barEnd, height: 44)
+        barScroll.delaysContentTouches = false
         column.addArrangedSubview(stripRow)
         column.addArrangedSubview(barRow)
         column.setCustomSpacing(8, after: barRow)
         resizeKeys.addArrangedSubview(smallKey("−", label: "Shorter segment") { $0.resize(-1) })
         resizeKeys.addArrangedSubview(smallKey("+", label: "Longer segment") { $0.resize(1) })
-        pageKeys.addArrangedSubview(smallKey("‹", label: "Previous page") { $0.page(-1) })
-        pageKeys.addArrangedSubview(smallKey("›", label: "Next page") { $0.page(1) })
 
         letters.axis = .vertical
         letters.spacing = 10
@@ -491,45 +490,28 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         }
     }
 
-    /// The candidates of the focused segment with their notes, and the page
-    /// position.
+    /// The focused segment's candidates, each with its short reading beside
+    /// it. The cells stay while only the selection moves.
     private func showBar(_ s: KeyboardState) {
-        bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        guard s.candidates != shownCandidates else { return }
+        let old = shownCandidates
+        shownCandidates = s.candidates
         guard let c = s.candidates else {
-            pageKeys.isHidden = true
+            bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
             return
         }
-        pageKeys.isHidden = c.total <= c.items.count
-        for (i, item) in c.items.enumerated() {
-            var conf = UIButton.Configuration.plain()
-            conf.title = item.text
-            conf.subtitle = item.note.isEmpty ? nil : item.note
-            conf.titleAlignment = .center
-            conf.titleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-                var out = incoming
-                out.font = OldHangul.font(ofSize: 19)
-                return out
+        if old?.items != c.items {
+            bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
+            for (i, item) in c.items.enumerated() {
+                let cell = CandidateCell(item)
+                cell.addAction(UIAction { [weak self] _ in self?.tap { $0.pick(i) } }, for: .touchUpInside)
+                bar.addArrangedSubview(cell)
             }
-            conf.subtitleTextAttributesTransformer = UIConfigurationTextAttributesTransformer { incoming in
-                var out = incoming
-                out.font = OldHangul.font(ofSize: 10)
-                out.foregroundColor = UIColor.secondaryLabel
-                return out
-            }
-            conf.baseForegroundColor = .label
-            conf.contentInsets = NSDirectionalEdgeInsets(top: 2, leading: 8, bottom: 2, trailing: 8)
-            conf.background.cornerRadius = 6
-            conf.background.backgroundColor = i == c.selected ? UIColor.systemBlue.withAlphaComponent(0.18) : .clear
-            let b = UIButton(configuration: conf)
-            b.addAction(UIAction { [weak self] _ in self?.tap { $0.pick(i) } }, for: .touchUpInside)
-            bar.addArrangedSubview(b)
+            barScroll.contentOffset = .zero
         }
-        let count = UILabel()
-        count.text = "\(c.position)/\(c.total)"
-        count.font = .systemFont(ofSize: 12)
-        count.textColor = .secondaryLabel
-        bar.addArrangedSubview(count)
-        // Keep the selected candidate in view.
+        for (i, v) in bar.arrangedSubviews.enumerated() {
+            (v as? CandidateCell)?.isSelected = i == c.selected
+        }
         layoutIfNeeded()
         if c.items.indices.contains(c.selected) {
             let v = bar.arrangedSubviews[c.selected]
@@ -541,6 +523,58 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private func shown(_ j: String) -> String {
         guard let v = j.unicodeScalars.first?.value, (0x1100...0x115F).contains(v) else { return j }
         return j + "\u{1160}"
+    }
+}
+
+/// One candidate: its text with the reading beside it, smaller, on the same
+/// baseline, so that candidates line up whether they have a reading or not.
+final class CandidateCell: UIControl {
+    private let label = UILabel()
+
+    init(_ item: Session.Candidates.Item) {
+        super.init(frame: .zero)
+        layer.cornerRadius = 6
+        let text = NSMutableAttributedString(string: item.text, attributes: [
+            .font: OldHangul.font(ofSize: 19),
+            .foregroundColor: UIColor.label,
+        ])
+        if !item.reading.isEmpty {
+            text.append(NSAttributedString(string: "\u{2009}" + item.reading, attributes: [
+                .font: OldHangul.font(ofSize: 12),
+                .foregroundColor: UIColor.secondaryLabel,
+            ]))
+        }
+        label.attributedText = text
+        label.isUserInteractionEnabled = false
+        label.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(label)
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 9),
+            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -9),
+            label.centerYAnchor.constraint(equalTo: centerYAnchor),
+            heightAnchor.constraint(equalToConstant: 36),
+        ])
+        accessibilityTraits = .keyboardKey
+        accessibilityLabel = item.text
+        isAccessibilityElement = true
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("not used")
+    }
+
+    override var isSelected: Bool {
+        didSet { refill() }
+    }
+
+    override var isHighlighted: Bool {
+        didSet { refill() }
+    }
+
+    private func refill() {
+        backgroundColor = isHighlighted
+            ? UIColor.label.withAlphaComponent(0.14)
+            : isSelected ? UIColor.systemBlue.withAlphaComponent(0.18) : .clear
     }
 }
 

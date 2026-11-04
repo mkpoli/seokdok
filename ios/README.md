@@ -85,8 +85,11 @@ after changing `project.yml`.
   old letters (ㆍ ㅿ ㆁ ㆆ and the sibilants ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ). Shift types one
   letter; a double tap locks it.
 - 變換 (Space) converts the composition and shows the focused segment's
-  candidates, with their notes, in the bar; Space again moves to the next
-  one. Tap a candidate to confirm through that segment, ‹ › to page.
+  candidates in the bar; Space again moves to the next one. The bar scrolls
+  through the whole list. Tap a candidate to confirm through that segment.
+- Beside a candidate, in smaller text, is only what tells it from the others:
+  a dictionary word that differs from what was typed (行ㄹ 가다, 磨ㄹ 갈다 for 갈),
+  or 音 and 訓 when the list holds both.
 - The strip above the bar shows the composition. Tap the Hangul to convert
   it (also when Space only types a space); tap a segment to focus it; − and
   + shorten or lengthen the focused segment.

@@ -52,6 +52,8 @@ struct SettingsView: View {
             Section("入力 / Input") {
                 Toggle("Space로 變換 / Space converts (off: Option-Return, F7, Tab)", isOn: $model.config.input.spaceConverts)
                 Toggle("옛한글 겹자모 (ㅅㄱ→ᄭ, ㅂㅇ→ㅸ) / Old Hangul clusters", isOn: $model.config.input.oldClusters)
+                Toggle("자주 고른 候補 먼저 / Put candidates you keep picking first", isOn: $model.config.input.learn)
+                Button("고른 것 잊기 / Forget what I picked") { ConfigFile.forgetPicks() }
                 Picker("候補 窓 / Candidates", selection: $model.config.input.candidateLayout) {
                     Text("縱 / Vertical").tag("vertical")
                     Text("橫 / Horizontal  (← → move)").tag("horizontal")

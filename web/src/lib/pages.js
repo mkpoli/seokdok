@@ -26,7 +26,7 @@ const ko = {
             '`custom.json`, `user.tsv`: {利用者|이용자}가 직접 {置|둔} 경우에만 {有|있}습니다. {自作|자작} {規則|규칙}과 {個言|낱말}이 들어 있고 {打|치}ㄴ 글은 들어 있지 않습니다.',
           ],
           'Windows {入力器|입력기}는 `%LOCALAPPDATA%\\seokdok` 폴더에 `debug`라는 이름의 파일이 {有|있}을 때만 같은 폴더의 `tsf.log`에 {記錄|기록}을 남깁니다. {記錄|기록}에는 시각, 프로그램 이름, 키 번호, {變換|변환} {結果|결과}가 들어 있어 {打|치}ㄴ 글이 드러날 수 있습니다. `debug` 파일이 {無|없}으면 아무것도 쓰지 않습니다. 이 {記錄|기록}은 {機器|기기} 안에만 {有|있}으며 전송되지 않습니다. `debug`와 `tsf.log`를 지우면 {無|없}어집니다.',
-          'Android는 {機器|기기}의 백업 {設定|설정}에 따라 앱의 파일(`config.toml`, `custom.json`, {辭典|사전} 복사본)을 Google 계정에 자동으로 백업할 수 있습니다. 이는 Android의 기능이며 프로젝트는 백업을 받지 않습니다.',
+          'Android 앱은 Android의 자동 백업을 꺼 두었으므로 앱의 파일이 Google 계정으로 복사되지 않습니다.',
         ],
       },
       {
@@ -36,7 +36,7 @@ const ko = {
           'iOS 키보드는 {全體|전체} {接近|접근}을 {許用|허용}해야 앱이 {保存|저장}한 {設定|설정}을 읽을 수 {有|있}습니다. 이 키보드가 {全體|전체} {接近|접근}을 쓰는 곳은 그것뿐입니다.',
           [
             '{許用|허용}하지 않아도 키보드는 기본 {設定|설정}으로 모든 기능이 동작합니다.',
-            'Apple은 {全體|전체} {接近|접근}을 받은 키보드가 {打|치}ㄴ 글을 네트워크로 보낼 수 {有|있}다고 안내합니다. 이 키보드에는 네트워크를 쓰는 코드가 {無|없}으므로 {打|치}ㄴ 글은 {機器|기기}를 떠나지 않습니다.',
+            'Apple 문서에 따르면 {全體|전체} {接近|접근}을 받은 키보드는 키 입력을 네트워크로 보낼 수 {有|있}습니다. 이 키보드에는 네트워크를 쓰는 코드가 {無|없}으므로 {打|치}ㄴ 글은 {機器|기기}를 떠나지 않습니다.',
             '키보드는 어느 앱에서나 글자를 {變換|변환}하려고 메모리 안에서만 다루며 {保存|저장}하지 않습니다.',
           ],
         ],
@@ -48,7 +48,7 @@ const ko = {
           [
             '{打|치}ㄴ 글: 이 페이지의 {入力|입력} 칸과 {變換|변환} 칸에 {置|둔} 글은 브라우저 안(WebAssembly)에서 처리됩니다. 서버로 가는 요청은 {辭典|사전} 파일(`/dict/native.bin`, `/dict/sino.bin`)뿐입니다. {複寫|복사} 버튼을 {押|누르}면 그 글이 클립보드에 들어갑니다.',
             '브라우저 {保存|저장}: `localStorage`에 `seokdok:theme`, `seokdok:lang`, `seokdok:options`, `seokdok:custom`이 {保存|저장}됩니다. 밝기, {言語|언어}, {表記|표기} {設定|설정}, 「{自作|자작}」에 {入|넣}은 {規則|규칙}과 {個言|낱말}입니다. 브라우저 안에만 {有|있}고 쿠키는 쓰지 않으며, 사이트 데이터를 지우면 {無|없}어집니다.',
-            'Google Fonts: 글꼴(Noto Sans KR, Noto Serif KR, Gowun Batang)을 fonts.googleapis.com과 fonts.gstatic.com에서 불러옵니다. 페이지를 열면 브라우저가 Google에 직접 요청하므로 Google이 IP 주소와 브라우저 정보를 받으며, 처리는 Google의 방침을 따릅니다.',
+            '글꼴: 이 사이트의 글꼴(Noto Sans KR, Noto Serif KR, Gowun Batang)은 사이트 자체에서 제공되며 다른 서버에 요청하지 않습니다.',
             '호스팅: Cloudflare가 사이트를 제공합니다. 페이지를 열면 Cloudflare는 어느 웹 호스트나 하듯 IP 주소, 요청한 주소, 브라우저 정보를 운영에 필요한 범위에서 처리하며, 이는 Cloudflare의 방침을 따릅니다.',
             '프로젝트의 {設定|설정}(`wrangler.jsonc`)은 정적 파일만 제공하고 서버 코드, 분석 도구, 로그 수집을 켜지 않았으며 페이지에도 분석 스크립트가 {無|없}습니다. Cloudflare 관리 화면에서 프로젝트가 볼 수 있는 집계는 이 저장소로 확인할 수 {無|없}습니다.',
             'GitHub, Telegram, 위키로 가는 링크는 각 서비스의 방침을 따릅니다.',
@@ -61,7 +61,7 @@ const ko = {
         body: [
           '{辭典|사전}은 libhangul, FusionIME, English Wiktionary(kaikki.org), JMdict, 標準國語釋讀辭典에서 왔습니다. {出處|출처}와 {許可|허가}는 `dict/README.md`와 페이지 아래의 「{辭典|사전}과 {出處|출처}」에 {有|있}습니다.',
           '{用例|용례} 횟수는 {釋讀會|석독회} Telegram {對話|대화}방(t.me/pimsdh)의 {對話|대화} {記錄|기록}(2026-10-29까지)에서 세었습니다. {入力器|입력기}와 따로 모은 것이며 {對話|대화} 원문은 이 저장소에 들어 있지 않습니다. {入力器|입력기}나 이 페이지에서 {打|치}ㄴ 글은 이 횟수에 들어가지 않습니다.',
-          '기계 제안(언어 모델이 {漢字|한자}를 붙인 {辭典|사전}의 일부)은 낱말 목록만으로 만들었고 {利用者|이용자}의 글은 쓰이지 않았습니다.',
+          '기계 제안({言語|언어} 모델이 {漢字|한자}를 붙인 {辭典|사전}의 일부)은 English Wiktionary의 뜻풀이와 libhangul의 훈음 풀이에서 만들었습니다. 어떤 낱말을 고를지는 Telegram {對話|대화}에서 그 낱말이 쓰인 횟수로 정했습니다. {入力器|입력기}나 이 페이지에서 {打|치}ㄴ 글은 쓰인 적이 없습니다.',
         ],
       },
       {
@@ -165,7 +165,7 @@ const en = {
             '`custom.json` and `user.tsv` exist only if you put them there. They hold your own words and rules, not what you typed.',
           ],
           'The Windows input method writes a log to `tsf.log` in `%LOCALAPPDATA%\\seokdok` only while a file named `debug` exists in that folder. The log has a timestamp, the program name, key codes and conversion results, so it can contain what you typed. Without the `debug` file nothing is written. The log stays on the device and is never sent; delete `debug` and `tsf.log` to remove it.',
-          'Depending on the device’s backup settings, Android may back up the app’s files (`config.toml`, `custom.json`, a copy of the dictionaries) to your Google account. That is an Android feature; the project does not receive the backup.',
+          'The Android app turns off Android’s automatic backup, so its files are not copied to a Google account.',
         ],
       },
       {
@@ -175,7 +175,7 @@ const en = {
           'An iOS keyboard can read the settings the app saved only when Full Access is on. Reading those settings is the only use this keyboard makes of it.',
           [
             'With Full Access off, the keyboard works completely on its default settings.',
-            'Apple states that a keyboard with Full Access can send what you type over the network. This keyboard has no code that uses the network, so typed text does not leave the device.',
+            'Apple’s documentation says a keyboard with Full Access can send keystrokes and other input events over the network. This keyboard has no code that uses the network, so typed text does not leave the device.',
             'In every app, the keyboard handles the letters you type in memory to convert them and does not store them.',
           ],
         ],
@@ -187,7 +187,7 @@ const en = {
           [
             'Typed text: text in the input and converter fields on this page is processed in your browser (WebAssembly). The only requests to the server are for the dictionary files (`/dict/native.bin`, `/dict/sino.bin`). The copy buttons put text on your clipboard.',
             'Browser storage: `localStorage` keeps `seokdok:theme`, `seokdok:lang`, `seokdok:options` and `seokdok:custom`: your colour scheme, language, spelling settings, and the rules and words you entered under Customize. They stay in your browser, no cookies are used, and clearing the site’s data removes them.',
-            'Google Fonts: the page loads its fonts (Noto Sans KR, Noto Serif KR, Gowun Batang) from fonts.googleapis.com and fonts.gstatic.com. Your browser asks Google for them when the page opens, so Google receives your IP address and browser details under Google’s own policy.',
+            'Fonts: the site’s fonts (Noto Sans KR, Noto Serif KR, Gowun Batang) are served from the site itself, and the page requests nothing from other servers.',
             'Hosting: Cloudflare serves the site. When you open a page, Cloudflare processes your IP address, the requested address and your browser details as needed to operate, as any web host does, under Cloudflare’s own policy.',
             'The project’s configuration (`wrangler.jsonc`) serves static files only, with no server code, analytics or log collection switched on, and the page has no analytics script. What the project could see in the Cloudflare dashboard cannot be checked from the repository.',
             'Links to GitHub, Telegram and the wiki lead to those services, which apply their own policies.',
@@ -200,7 +200,7 @@ const en = {
         body: [
           'The dictionaries come from libhangul, FusionIME, English Wiktionary (kaikki.org), JMdict and 標準國語釋讀辭典. Sources and licences are in `dict/README.md` and under “Dictionaries and sources” at the foot of the page.',
           'Usage counts were taken from the chat history of the 釋讀會 Telegram group (t.me/pimsdh) up to 2026-10-29. This was gathered separately from the input methods, and the chat messages themselves are not in this repository. Text typed in the input methods or on this page does not feed these counts.',
-          'The machine-suggested entries (Hanja added by a language model) were generated from dictionary word lists only, with no user text.',
+          'The machine-suggested entries (Hanja added by a language model) were made from English Wiktionary senses and libhangul glosses. Which words to include was decided by how often the Telegram chat uses them. Text typed into the input methods or this page was never used.',
         ],
       },
       {

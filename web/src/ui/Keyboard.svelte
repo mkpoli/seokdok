@@ -67,7 +67,7 @@
   <div class="row">
     <button class="key wide" onclick={() => press('Escape')}>Esc</button>
     <button class="key wide mode" aria-label="韓 / A" onclick={() => { ime.toggleMode(); focus() }}>{ime.mode === 'hangul' ? '韓' : 'A'}</button>
-    <button class="key space" onclick={() => press(' ')}>{@html r(t().ime.convert)}</button>
+    <button class="key space" onclick={() => press(' ')}>{#if ime?.hangulOnly}␣{:else}{@html r(t().ime.convert)}{/if}</button>
     <button class="key wide" onclick={() => ime.key({ key: ' ', shift: true }) || focus()}>␣</button>
     <button class="key wide accent" onclick={() => press('Enter')}>{@html r(t().ime.commit)}</button>
   </div>

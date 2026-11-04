@@ -93,6 +93,11 @@ final class Session {
     static var altToggles: Bool {
         seokdok_alt_toggles()
     }
+
+    /// 韓㐎 專用 is on: the session reports Hangul for the 釋讀 mode.
+    static var hangulOnly: Bool {
+        seokdok_hangul_only()
+    }
 }
 
 /// config.toml, read and written through the Rust side so that the file
@@ -142,12 +147,13 @@ struct Config: Codable, Equatable {
     }
 
     struct Conversion: Codable, Equatable {
+        /// "seokdok", "sino_only" or "hangul_only".
+        var script = "seokdok"
         var style = "surface"
         var fragment = "absorb"
         var codaAlways = false
         var resyllabify = false
         var hadaKun = false
-        var sinoOnly = false
         var maxCandidates = 12
     }
 

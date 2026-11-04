@@ -97,9 +97,11 @@ final class KeyboardUITests: XCTestCase {
         let open = app.descendants(matching: .any)["openSettings"].firstMatch
         XCTAssertTrue(open.waitForExistence(timeout: 10))
         open.tap()
-        sleep(3)
+        let settings = XCUIApplication(bundleIdentifier: "com.apple.Preferences")
+        _ = settings.wait(for: .runningForeground, timeout: 20)
+        sleep(10)
         shot("settings-deep-link")
-        XCUIApplication(bundleIdentifier: "com.apple.Preferences").terminate()
+        settings.terminate()
         app.terminate()
     }
 

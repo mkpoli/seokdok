@@ -187,6 +187,49 @@ fn words_the_reader_cannot_read_are_kept() {
 }
 
 #[test]
+fn a_word_written_by_sound_stays_first_in_kokanmun_mode() {
+    let e = sino();
+    // Valid Sino-Korean spellings are not replaced by a more common homophone.
+    assert_eq!(first(e, "兩心"), "兩心");
+    assert_eq!(menu(e, "兩心")[..2], ["兩心", "良心"]);
+    assert_eq!(first(e, "良心"), "良心");
+    assert_eq!(first(e, "歡迎합니다"), "歡迎합니다");
+    assert_eq!(first(e, "工夫하셨다 兩心"), "工夫하셨다 兩心");
+    // Only a 訓讀 word moves to the mode's own writing.
+    assert_eq!(first(e, "天을 兩心"), "하늘을 兩心");
+    assert_eq!(first(e, "來신 兩心"), "오신 兩心");
+}
+
+#[test]
+fn words_mixing_hanja_and_old_letters_stay_first_and_read_back() {
+    for e in [seokdok(), sino()] {
+        let m = menu(e, "追加ᄒᆞᆯ까요");
+        assert_eq!(m[0], "追加ᄒᆞᆯ까요");
+        assert!(m.contains(&"追加할까요".to_string()), "{m:?}");
+        assert_eq!(m.last().unwrap(), "추가할까요");
+        let m = menu(e, "字ᄅᆞᆯ");
+        assert_eq!(m[0], "字ᄅᆞᆯ");
+        assert!(m.len() > 3, "字ᄅᆞᆯ offers alternatives: {m:?}");
+        assert_eq!(m.last().unwrap(), "자를");
+        assert_eq!(readings(e, "字ᄅᆞᆯ 追加ᄒᆞᆯ까요"), ["字ᄅᆞᆯ", " ", "追加ᄒᆞᆯ까요"]);
+    }
+    assert_eq!(first(seokdok(), "追加ᄒᆞᆯ까요"), "追加ᄒᆞᆯ까요");
+    assert_eq!(first(seokdok(), "字ᄅᆞᆯ 追加ᄒᆞᆯ까요"), "字ᄅᆞᆯ 追加ᄒᆞᆯ까요");
+    assert!(menu(seokdok(), "字ᄅᆞᆯ").contains(&"切ㄹ".to_string()));
+    assert_eq!(seokdok().read("追加ᄒᆞᆯ까요"), "추가할까요");
+    assert_eq!(seokdok().read("字ᄅᆞᆯ"), "자를");
+}
+
+#[test]
+fn reading_follows_options_changed_on_a_running_engine() {
+    // The site calls setOptions on the engine that has been reading.
+    let mut e = engine(Options { resyllabify: true, ..Options::default() });
+    let _ = e.read("難ㅂ어");
+    e.options.resyllabify = false;
+    assert_eq!(e.read("難ㅂ어"), engine(Options::default()).read("難ㅂ어"));
+}
+
+#[test]
 fn mixed_input_in_old_hangul_does_not_break() {
     let e = seokdok();
     for s in ["ᄒᆞᆫ글 天을", "天을 ᄒᆞ늘", "古ㅅ한글 ᄒᆞᆫ글"] {
@@ -285,38 +328,3 @@ fn text_the_readme_and_the_site_show_is_not_changed() {
         }
     }
 }
-
-#[test]
-fn a_word_written_by_sound_stays_first_in_kokanmun_mode() {
-    let e = sino();
-    // Valid Sino-Korean spellings are not replaced by a more common homophone.
-    assert_eq!(first(e, "兩心"), "兩心");
-    assert_eq!(menu(e, "兩心")[..2], ["兩心", "良心"]);
-    assert_eq!(first(e, "良心"), "良心");
-    assert_eq!(first(e, "歡迎합니다"), "歡迎합니다");
-    assert_eq!(first(e, "工夫하셨다 兩心"), "工夫하셨다 兩心");
-    // Only a 訓讀 word moves to the mode's own writing.
-    assert_eq!(first(e, "天을 兩心"), "하늘을 兩心");
-    assert_eq!(first(e, "來신 兩心"), "오신 兩心");
-}
-
-#[test]
-fn words_mixing_hanja_and_old_letters_stay_first_and_read_back() {
-    for e in [seokdok(), sino()] {
-        let m = menu(e, "追加ᄒᆞᆯ까요");
-        assert_eq!(m[0], "追加ᄒᆞᆯ까요");
-        assert!(m.contains(&"追加할까요".to_string()), "{m:?}");
-        assert_eq!(m.last().unwrap(), "추가할까요");
-        let m = menu(e, "字ᄅᆞᆯ");
-        assert_eq!(m[0], "字ᄅᆞᆯ");
-        assert!(m.len() > 3, "字ᄅᆞᆯ offers alternatives: {m:?}");
-        assert_eq!(m.last().unwrap(), "자를");
-        assert_eq!(readings(e, "字ᄅᆞᆯ 追加ᄒᆞᆯ까요"), ["字ᄅᆞᆯ", " ", "追加ᄒᆞᆯ까요"]);
-    }
-    assert_eq!(first(seokdok(), "追加ᄒᆞᆯ까요"), "追加ᄒᆞᆯ까요");
-    assert_eq!(first(seokdok(), "字ᄅᆞᆯ 追加ᄒᆞᆯ까요"), "字ᄅᆞᆯ 追加ᄒᆞᆯ까요");
-    assert!(menu(seokdok(), "字ᄅᆞᆯ").contains(&"切ㄹ".to_string()));
-    assert_eq!(seokdok().read("追加ᄒᆞᆯ까요"), "추가할까요");
-    assert_eq!(seokdok().read("字ᄅᆞᆯ"), "자를");
-}
-

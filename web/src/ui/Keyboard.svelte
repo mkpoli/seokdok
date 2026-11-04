@@ -2,7 +2,7 @@
   // A 두벌식 keyboard for touch screens and for readers learning the layout.
   // Each key shows the jamo it types and, in its corner, the one on the other
   // layer (Shift), drawn larger and darker when it is an old letter (ㆍ ㅿ ㆁ ㆆ ᄼ …).
-  // Every key looks the same otherwise. With `map` it is
+  // Every letter key looks the same otherwise. With `map` it is
   // a picture of the layout only, without an input method behind it.
   import { keyToJamo } from '../../pkg/seokdok.js'
   import { t, r, plain } from '../lib/i18n.svelte.js'

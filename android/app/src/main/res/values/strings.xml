@@ -25,6 +25,7 @@
     <string name="coda_always">받침 늘 쓰기 · Always write the final consonant</string>
     <string name="resyllabify">連音 · Move a final consonant onto a following ㅇ</string>
     <string name="hada_kun">하다를 爲로 · Prefer 爲 for 하다</string>
+    <string name="old_ha">하 → ᄒᆞ 優先 · Old spelling of 하 first (하고 → ᄒᆞ고)</string>
     <string name="max_candidates">候補 數 · Phrase candidates</string>
 
     <string name="section_custom">내 낱말 · Own words</string>

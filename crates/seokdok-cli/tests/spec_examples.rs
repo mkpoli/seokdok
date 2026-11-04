@@ -459,3 +459,61 @@ fn the_rest_of_the_demonstrative_family() {
     // 저 still reads as the humble pronoun on its own.
     assert_eq!(e.convert("저는")[0].text, "自는");
 }
+
+#[test]
+fn bundle_is_written_with_dan() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("뭉치")[0].text, "團");
+    assert_eq!(e.convert("말뭉치")[0].text, "言團");
+    assert_eq!(e.read("言團"), "말뭉치");
+    assert_eq!(e.read("團"), "뭉치");
+}
+
+#[test]
+fn yeoreo_has_every_hanja_for_many() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("여러")[0].text, "諸");
+    for want in ["庶", "庶러", "衆", "數", "多"] {
+        assert!(offers(&e, "여러", want), "{want}");
+    }
+    assert!(offers(&e, "여러분", "庶러位"));
+    assert!(offers(&e, "여러분", "諸公"));
+    assert_eq!(e.convert("여러분")[0].text, "諸位");
+    assert_eq!(e.convert("여러번")[0].text, "諸番");
+}
+
+#[test]
+fn a_one_syllable_word_keeps_each_hanjas_forms_together() {
+    let e = engine(Options::default());
+    let got: Vec<String> = e.segments("좀")[0].candidates.iter().map(|c| c.text.clone()).collect();
+    assert_eq!(&got[..2], ["少ㅁ", "少"], "{got:?}");
+    let pos = |w: &str| got.iter().position(|c| c == w).unwrap_or_else(|| panic!("{w}: {got:?}"));
+    assert_eq!(pos("聊ㅁ"), pos("聊") + 1, "{got:?}");
+    assert_eq!(e.convert("좀")[0].text, "少ㅁ");
+}
+
+#[test]
+fn the_bound_noun_teo() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("터")[0].text, "基");
+    assert_eq!(e.convert("테니")[0].text, "基ㅣ니");
+    assert_eq!(e.convert("텐데")[0].text, "基ㅣㄴ데");
+    for (input, want) in [("테니", "테니"), ("테니", "筈ㅣ니"), ("테니", "所ㅣ니"), ("텐데", "텐데"), ("텐데", "筈ㅣㄴ데")] {
+        assert!(offers(&e, input, want), "{input} → {want}");
+    }
+    assert_eq!(e.read("基ㅣ니"), "테니");
+    // 터 alone takes no particles, so 부터 is left whole.
+    assert_eq!(e.convert("부터인데요")[0].text, "부터인데요");
+    assert_eq!(e.convert("집터")[0].text, "垈");
+    // 基 in a word stays Sino-Korean.
+    assert_eq!(e.read("基礎"), "기초");
+}
+
+#[test]
+fn spellings_from_the_chat_on_4_november() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("괜찮네요")[0].text, "不空然네요");
+    assert!(offers(&e, "괜찮다", "不空然다"));
+    assert!(offers(&e, "이런", "此樣"));
+    assert_eq!(e.convert("이런")[0].text, "此런");
+}

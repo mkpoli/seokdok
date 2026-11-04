@@ -4,7 +4,8 @@ import { expect, test } from 'bun:test'
 globalThis.$state = (v) => v
 globalThis.localStorage = { getItem: () => null, setItem() {} }
 globalThis.navigator = { language: 'ko' }
-const { isSino, r, plain } = await import('./i18n.svelte.js')
+globalThis.document = { documentElement: {} }
+const { isSino, r, plain, t, setLang, reading } = await import('./i18n.svelte.js')
 const { options } = await import('./options.svelte.js')
 
 test('marks read by their own Sino-Korean readings are 音讀', () => {
@@ -22,6 +23,35 @@ test('國漢文混用 mode shows 訓讀 marks in Hangul', () => {
   expect(r('{古|예}ㅅ{韓㐎|한글}')).toBe('<span>옛<ruby>韓㐎<rt>한글</rt></ruby></span>')
   options.sinoOnly = false
   expect(r('{古|예}ㅅ{韓㐎|한글}')).toBe('<span><ruby>古<rt>예</rt></ruby>ㅅ<ruby>韓㐎<rt>한글</rt></ruby></span>')
+})
+
+test('the 하 → ᄒᆞ setting is labelled in both languages', () => {
+  for (const lang of ['ko', 'en']) {
+    setLang(lang)
+    for (const key of ['oldHa', 'oldHaTip']) {
+      const text = plain(t().options[key])
+      expect(text).toContain('\u1112\u119e')
+      expect(text).not.toMatch(/[{}|]/)
+    }
+  }
+  setLang('ko')
+  expect(plain(t().options.oldHa)).toBe('하 → \u1112\u119e 우선')
+})
+
+test('a final or vowel jamo after a mark joins the reading', () => {
+  expect(reading('{古|예}ㅅ{韓㐎|한글}')).toBe('옛한글')
+  expect(reading('{不|안}ㅎ았다')).toBe('않았다')
+  expect(reading('{事|거}ㅅ은')).toBe('것은')
+  expect(reading('{自|저}ㅣ 컴퓨터')).toBe('제 컴퓨터')
+  expect(reading('{見|보}ㄹ {手|수}')).toBe('볼 수')
+  expect(reading('{異|다르}ㄴ')).toBe('다른')
+  expect(reading('{打|치}ㅂ니다')).toBe('칩니다')
+  expect(reading('{打|치}ㅣ')).toBe('치ㅣ')
+  options.sinoOnly = true
+  expect(r('{不|안}ㅎ지')).toBe('<span>않지</span>')
+  expect(r('{自|저}ㅣ')).toBe('<span>제</span>')
+  options.sinoOnly = false
+  expect(r('{不|안}ㅎ지')).toBe('<span><ruby>不<rt>안</rt></ruby>ㅎ지</span>')
 })
 
 test('page texts have well-formed marks and both languages have the same sections', async () => {

@@ -1,13 +1,11 @@
 <script>
   // Text with the reading of every 釋讀 word above it.
   import { engine, status } from '../lib/engine.svelte.js'
-  import { rubify } from '../lib/rubify.js'
+  import { rubify, WORD } from '../lib/rubify.js'
 
   let { text } = $props()
   const cache = new Map()
   let parts = $state([])
-
-  const WORD = /([\p{Script=Han}]+[가-힣ㄱ-ㆎ]*)/u
 
   $effect(() => {
     const src = text

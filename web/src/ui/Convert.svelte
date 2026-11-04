@@ -6,6 +6,7 @@
   import { engine, status } from '../lib/engine.svelte.js'
   import { input, output } from '../lib/custom.svelte.js'
   import { options } from '../lib/options.svelte.js'
+  import { HANGUL } from '../lib/chars.js'
 
   let text = $state(t().convert.sample)
   /** @type {{ reading: string, candidates: { text: string, note: string }[], pick: number }[][]} */
@@ -28,7 +29,7 @@
       lines = await Promise.all(
         src.split('\n').map(async (line) => {
           if (old.has(line)) return old.get(line)
-          if (!/[가-힣]/.test(line)) return [{ reading: line, candidates: [{ text: line, note: '' }], pick: 0 }]
+          if (!HANGUL.test(line)) return [{ reading: line, candidates: [{ text: line, note: '' }], pick: 0 }]
           const segs = await engine.segments(input(line))
           return segs.map((s) => ({ ...s, candidates: output(s.candidates), pick: 0 }))
         }),

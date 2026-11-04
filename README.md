@@ -19,7 +19,7 @@ Downloads are on [seokdok.mkpo.li/#install](https://seokdok.mkpo.li/#install).
 - **Android**: download the APK, allow installing from unknown sources when asked, open the 釋讀 app, turn the keyboard on and pick it as the input method. The APK is built by `.github/workflows/android.yml`; see [android/README.md](android/README.md).
 - **iOS, macOS**: the sources are in `ios/` and `macos/`. Neither is released. CI builds iOS and macOS; the macOS build also converts 안녕 to 安寧 through the Rust library, but the input method has not been run on a Mac yet.
 
-Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc cancels. A character with many homophones can be typed by its gloss: 살찔비, 비살찔 or 살찔 비 offer 肥. Settings live in `config.toml`: `%APPDATA%\seokdok\` on Windows, `~/Library/Application Support/seokdok/` on macOS, `~/.config/seokdok/` elsewhere. Your own rules and words go in `custom.json` beside it; the Customize section of the site exports one. On Windows, right-click the 釋 icon of the input indicator on the taskbar to switch between 釋, 混 and 한 and change frequent settings; `windows.menu_items` and the settings dialog choose what that menu shows.
+Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc cancels. A character with many homophones can be typed by its gloss: 살찔비, 비살찔 or 살찔 비 offer 肥. Settings live in `config.toml`: `%APPDATA%\seokdok\` on Windows, `~/Library/Application Support/seokdok/` on macOS, `~/.config/seokdok/` elsewhere. Your own rules and words go in `custom.json` beside it; the Customize section of the site exports one. A candidate you pick twice comes first for that reading; the picks stay on the device in `learned.tsv` beside `config.toml`, `input.learn = false` turns this off, and the settings have a button to forget them ([docs/learning.md](docs/learning.md)). On Windows, right-click the 釋 icon of the input indicator on the taskbar to switch between 釋, 混 and 한 and change frequent settings; `windows.menu_items` and the settings dialog choose what that menu shows.
 
 ## Mode keys
 
@@ -52,7 +52,7 @@ cargo run --release -p seokdok-cli -- add 즐기다 樂기다 verb
 ## Layout
 
 - `crates/seokdok-core`: the engine. Hangul is decomposed into jamo, and a lattice of Sino-Korean words, 訓讀 nouns with particles and 訓讀 stems with endings is searched for the cheapest analyses.
-- `crates/seokdok-session`: the platform-independent IME: keys, composition, candidates, `config.toml` and `custom.json`.
+- `crates/seokdok-session`: the platform-independent IME: keys, composition, candidates, learned picks, `config.toml` and `custom.json`.
 - `crates/seokdok-tsf`: the Windows IME (Text Services Framework) and its installer.
 - `crates/seokdok-fcitx5`: the fcitx5 addon. `build.sh` builds it, `e2e.sh` drives it through a private fcitx5 over D-Bus, `package.sh` stages the tarball.
 - `crates/seokdok-ffi`: a C interface (`include/seokdok.h`) for fcitx5, iOS and macOS. `crates/seokdok-jni` wraps it for Android.

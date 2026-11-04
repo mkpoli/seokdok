@@ -15,7 +15,9 @@ A headword is kept when every one of its entries is a loan:
 - it has two or more syllables, and
 - the chat does not write it with Hanja: no `lexicon` row of sino.tsv has a
   chat count of ten or more (파일 is 八日 six times and stays a loanword), and
-  no corpus, editorial or community 訓讀 entry covers it.
+  no corpus, editorial or community 訓讀 entry covers it, and
+- it is not a native verb or adjective with an ending (올리고 is 올리다 + 고,
+  not the prefix oligo-).
 Words the Wiktionary extract lacks but the chat and this site use as
 loanwords are listed in EXTRA.
 """
@@ -34,6 +36,10 @@ LOAN = {"bor", "bor+", "lbor"}
 LANGS = {"en", "fr", "de", "nl", "pt", "it", "es", "ru", "la", "el", "sv", "da", "no", "fi", "pl", "cs", "hu", "tr", "ar", "hi", "fa"}
 NOT_LOAN = {"ko-etym-sino", "ko-etym-Sino", "ko-sino", "ko-etym-native", "ko-etym-nativised", "inh", "ko-etym-hanja"}
 EAST_ASIA = {"ja", "zh", "ltc", "och", "cmn", "yue", "okm", "ko", "oko", "ain"}
+# Endings that make a loanword look like a verb form.
+ENDINGS = {"고", "면", "네", "요", "게", "서", "던", "자", "는", "은", "을", "도", "만", "기", "며", "나", "거나", "지만", "는데", "다가", "니까", "죠"}
+# Loanwords that look like a verb form and are kept anyway (피자 is 피다 + 자 only on paper).
+KEEP = {"피자"}
 # A reading the chat writes with Hanja this many times keeps its Hanja (sino.tsv's counts).
 MIN_CHAT = 10
 # Loanwords the Wiktionary extract lacks.
@@ -54,6 +60,22 @@ def chat_hanja():
             if len(c) > 1 and not line.startswith("#"):
                 native.add(c[0])
     return sino, native
+
+
+def verb_lemmas():
+    """Dictionary forms of the native verbs and adjectives in the 訓讀 files."""
+    out = set()
+    for name in ("corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"):
+        for line in (DICT / name).open(encoding="utf-8"):
+            c = line.rstrip("\n").split("\t")
+            if len(c) > 2 and not line.startswith("#") and c[2] in ("verb", "adj", "동사", "형용사"):
+                out.add(c[0])
+    return out
+
+
+def inflected(word, lemmas):
+    """Whether the word is a native verb's stem with an ending (올리고 = 올리다 + 고)."""
+    return word not in KEEP and any(word[:k] + "다" in lemmas and word[k:] in ENDINGS for k in range(1, len(word)))
 
 
 def main():
@@ -77,9 +99,11 @@ def main():
         if found:
             langs.setdefault(w, set()).update(found)
     sino, native = chat_hanja()
-    rows = {w: sorted(l)[0] for w, l in langs.items() if w not in bad and w not in sino and w not in native}
+    lemmas = verb_lemmas()
+    rows = {w: sorted(l)[0] for w, l in langs.items() if w not in bad and w not in sino and w not in native and not inflected(w, lemmas)}
     for w in sorted(set(langs) - bad - set(rows)):
-        print(f"kept as Hanja: {w} ({'chat ' + str(sino[w]) + 'x' if w in sino else 'a 訓讀 entry'})")
+        why = "chat " + str(sino[w]) + "x" if w in sino else "a 訓讀 entry" if w in native else "a verb form"
+        print(f"left to the converter: {w} ({why})")
     for w, l in EXTRA.items():
         rows.setdefault(w, l)
     with OUT.open("w", encoding="utf-8") as f:

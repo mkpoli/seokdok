@@ -626,6 +626,25 @@ fn the_past_is_also_written_with_ssang_siot() {
 }
 
 #[test]
+fn sino_suffixes_attach_to_sino_words() {
+    let e = engine(Options::default());
+    for (input, want) in [("표시용", "表示用"), ("표시용으로", "表示用으로"), ("업무용", "業務用"), ("현실적", "現實的"), ("현실적으로", "現實的으로")] {
+        assert_eq!(e.convert(input)[0].text, want, "{input}");
+    }
+    // Homophones with their own use are not suffixes, and a greeting takes no suffix.
+    for (input, wrong) in [("친구형", "親舊型"), ("전주성", "全州性"), ("가정식", "家庭式"), ("은행론", "銀行論"), ("안녕용", "安寧用"), ("죄송용", "罪悚用"), ("가세용", "加勢用")] {
+        assert_ne!(e.convert(input)[0].text, wrong, "{input}");
+    }
+    // 用 before 龍 alone too, and particles stay particles.
+    let list: Vec<String> = e.convert("용").into_iter().map(|c| c.text).collect();
+    let at = |t: &str| list.iter().position(|x| x == t);
+    assert!(at("用").unwrap() < at("龍").unwrap(), "{list:?}");
+    assert_eq!(e.convert("학교가")[0].text, "學校가");
+    assert_eq!(e.convert("학생인")[0].text, "學生인");
+    assert_eq!(e.convert("하세용")[0].text, "하세용");
+}
+
+#[test]
 fn a_compound_of_nouns_offers_every_combination() {
     let e = engine(Options::default());
     assert_eq!(e.convert("옛한글")[0].text, "古ㅅ韓㐎");

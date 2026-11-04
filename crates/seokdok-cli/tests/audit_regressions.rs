@@ -55,6 +55,33 @@ fn editorial_rows_for_common_sino_words() {
     ]);
 }
 
+/// Every input must offer the wanted text among its candidates.
+fn offers(cases: &[(&str, &str)]) {
+    let e = engine();
+    let missing: Vec<String> = cases
+        .iter()
+        .filter(|(input, want)| !e.convert(input).iter().any(|c| &c.text == want))
+        .map(|(input, want)| format!("{input}: {want} not offered"))
+        .collect();
+    assert!(missing.is_empty(), "{}", missing.join("\n"));
+}
+
+#[test]
+fn a_whole_noun_beats_a_bare_verb_form() {
+    first(&[
+        ("눈", "目"), ("나라", "國"), ("길", "道"), ("꿈", "夢"), ("봄", "春"), ("불", "火"), ("쌀", "米"),
+        ("곰", "熊"), ("풀", "草"), ("술", "酒"), ("사실", "事實"), ("물론", "勿論"), ("일단", "一旦"),
+        ("세기", "世紀"), ("매일", "每日"), ("시대", "時代"), ("자기", "自己"), ("사진", "寫眞"),
+        ("거의", "殆"), ("아니라", "非라"), ("잘", "良ㄹ"),
+    ]);
+}
+
+#[test]
+fn adnominal_verb_forms_keep_working() {
+    first(&[("작은", "小은"), ("남은", "殘은"), ("긴", "長ㄴ"), ("빈", "空ㄴ"), ("간", "去ㄴ"), ("갈", "去ㄹ"), ("마실", "飮ㄹ")]);
+    offers(&[("자신", "自身"), ("눈이", "目이"), ("눈이", "雪이")]);
+}
+
 #[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "吾ㄹ")]);

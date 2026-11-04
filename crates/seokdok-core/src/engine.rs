@@ -363,6 +363,12 @@ const BARE: u16 = u16::MAX;
 /// Extra cost for one-syllable words, which are the most ambiguous.
 const SHORT_COST: f32 = 2.5;
 const EDGE_COST: f32 = 1.0;
+/// Added to a bare adnominal verb form that a whole noun also spells.
+const WHOLE_NOUN_PENALTY: f32 = 2.5;
+/// How close a noun must come to a bound noun with a particle (거+의) to replace it.
+const BOUND_MARGIN: f32 = 0.5;
+/// Added to verb forms in the archaic -니라.
+const ARCHAIC_ENDING: f32 = 1.0;
 
 /// Built-in entries: Hangul-only light verb 하다, so 安寧하세요 is the
 /// default and 爲 comes from the dictionary as an alternative.
@@ -710,11 +716,15 @@ impl Engine {
                             continue;
                         }
                         for &ei in eis {
-                            let morphs = ending_label(ei as usize).matches('+').count() as f32;
+                            let label = ending_label(ei as usize);
+                            let morphs = label.matches('+').count() as f32;
+                            // An archaic ending (알+니라) is rare next to a word that
+                            // ends in the same letters (아니+라).
+                            let archaic = if matches!(label, "(으)니라" | "니라") { ARCHAIC_ENDING } else { 0.0 };
                             edges.push(Edge {
                                 start: s,
                                 end: r,
-                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs + mid(r),
+                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs + mid(r) + archaic,
                                 kind: Kind::Verb { entry: i, allo: a, ending: ei },
                             });
                         }
@@ -722,7 +732,52 @@ impl Engine {
                 }
             }
         }
+        self.prefer_whole_noun(comps, &mut edges);
         edges
+    }
+
+    /// A whole one- or two-syllable token that is a noun of the community,
+    /// corpus or editorial dictionaries, or a chat-attested Sino-Korean word,
+    /// is far more often that noun than a bare adnominal, nominalised or
+    /// imperative verb form: 눈 is 目, not 누+ㄴ, 나라 is 國, not 나+아라, 길
+    /// is 道, not 길+ㄹ. Longer tokens and endings with letters of their own
+    /// (작은, 남은, 마실 …) are left alone.
+    fn prefer_whole_noun(&self, comps: &[char], edges: &mut [Edge]) {
+        let n = comps.len();
+        if n == 0 || crate::jamo::syllable_count(comps) > 2 {
+            return;
+        }
+        // The cheapest whole-token noun, and the cheapest that is not a bound noun.
+        let (mut noun_cost, mut lexical_cost) = (f32::INFINITY, f32::INFINITY);
+        for e in edges.iter().filter(|e| e.start == 0 && e.end == n) {
+            if let Kind::Nominal { entry, particle: None } = e.kind {
+                let nat = &self.natives[entry as usize];
+                if matches!(nat.source, Source::Community | Source::Corpus | Source::Editorial) && matches!(nat.pos, Pos::Noun | Pos::Pron | Pos::Num | Pos::Bound | Pos::Adv) {
+                    noun_cost = noun_cost.min(e.cost);
+                    if nat.pos != Pos::Bound {
+                        lexical_cost = lexical_cost.min(e.cost);
+                    }
+                }
+            }
+        }
+        for e in edges.iter_mut().filter(|e| e.start == 0 && e.end == n) {
+            // Only where the penalty can change the outcome: a verb form far
+            // cheaper than the noun (긴, 빈, 간) stays first.
+            let penalise = match e.kind {
+                Kind::Verb { ending, .. } => {
+                    ending != BARE
+                        && noun_cost < e.cost + WHOLE_NOUN_PENALTY
+                        && matches!(ending_label(ending as usize), "(으)ㄴ" | "(으)ㄹ" | "(으)ㅁ" | "아/어라" | "기" | "진" | "(으)니라")
+                }
+                // A bound noun never opens a phrase on its own (거+의, 수+ㄹ):
+                // 거의 is the adverb 殆, 술 is 酒.
+                Kind::Nominal { entry, particle: Some(_) } => self.natives[entry as usize].pos == Pos::Bound && lexical_cost < e.cost + BOUND_MARGIN,
+                _ => false,
+            };
+            if penalise {
+                e.cost += WHOLE_NOUN_PENALTY;
+            }
+        }
     }
 
     /// k-best paths over a Hangul run (edge index lists, cheapest first).

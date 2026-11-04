@@ -13,4 +13,4 @@ mod old_spelling;
 pub mod engine;
 pub mod particles;
 
-pub use engine::{Candidate, Engine, Fragment, Options, Segment, Style};
+pub use engine::{Candidate, Engine, Fragment, Itda, Options, Segment, Style};

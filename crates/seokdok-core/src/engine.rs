@@ -34,6 +34,18 @@ pub enum Fragment {
     Letter,
 }
 
+/// Which row of 있다 comes first. The others stay offered.
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum Itda {
+    /// 有다
+    #[default]
+    Yu,
+    /// 在다
+    Jae,
+    /// 在ㅆ다
+    JaeCoda,
+}
+
 #[derive(Clone, Debug)]
 pub struct Options {
     pub style: Style,
@@ -46,6 +58,8 @@ pub struct Options {
     pub resyllabify: bool,
     /// Prefer 爲 for the light verb 하다 (安寧爲세요 over 安寧하세요).
     pub hada_kun: bool,
+    /// The spelling of 있다 listed first.
+    pub itda: Itda,
     /// Put the old spelling of 하 (ᄒᆞ ᄒᆞᆫ ᄒᆞᆯ ᄒᆞᆷ ᄒᆞᆸ ᄒᆡ) first where it is
     /// offered, with the modern spelling right behind it. Without it the old
     /// spelling comes third.
@@ -66,6 +80,7 @@ impl Default for Options {
             coda_always: false,
             resyllabify: false,
             hada_kun: false,
+            itda: Itda::Yu,
             old_ha: false,
             sino_only: false,
             max_candidates: 12,
@@ -74,6 +89,11 @@ impl Default for Options {
 }
 
 const NONE: u32 = u32::MAX;
+
+/// The cost of the chosen row of 있다: under the floor of 0.2 that any attested
+/// row can reach, so it leads 有다 however the counts grow, and close enough to
+/// 有다's own cost that segmentation stays as it was.
+const ITDA_CHOSEN_COST: f32 = 0.19;
 
 /// The honorific suffix 님 as conjoining jamo.
 const NIM: [char; 3] = ['\u{1102}', '\u{1175}', '\u{11B7}'];
@@ -628,6 +648,18 @@ impl Engine {
                 c += 5.0;
             } else if !n.hanja.is_empty() && !self.options.hada_kun {
                 c += 2.0;
+            }
+        }
+        // Only the chosen row moves: `read` breaks ties in this order, and the
+        // other rows keep their place against other words with the same Hanja.
+        if n.lemma == "있다" && n.hanja == "在" {
+            let chosen = match self.options.itda {
+                Itda::Yu => false,
+                Itda::Jae => n.tail != Tail::Coda,
+                Itda::JaeCoda => n.tail == Tail::Coda,
+            };
+            if chosen {
+                c = c.min(ITDA_CHOSEN_COST);
             }
         }
         c

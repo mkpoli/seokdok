@@ -1,7 +1,7 @@
 //! Every example in docs/orthography.md must be produced by the engine with
 //! the shipped dictionaries, as the first candidate or an alternative.
 
-use seokdok_core::{Engine, Fragment, Options, Style};
+use seokdok_core::{Engine, Fragment, Itda, Options, Style};
 use std::path::Path;
 
 fn engine(o: Options) -> Engine {
@@ -605,6 +605,33 @@ fn sino_words_with_their_own_row_convert_in_the_sino_mode() {
     // Native words stay in Hangul.
     assert_eq!(e.convert("하늘")[0].text, "하늘");
     assert_eq!(e.convert("수")[0].text, "수");
+}
+
+#[test]
+fn the_itda_setting_puts_its_row_first_and_keeps_the_others() {
+    let list = |e: &Engine, input: &str| e.convert(input).into_iter().map(|c| c.text).collect::<Vec<_>>();
+    let default = engine(Options::default());
+    assert_eq!(list(&default, "있다")[..3], ["有다", "在다", "在ㅆ다"]);
+    let jae = engine(Options { itda: Itda::Jae, ..Options::default() });
+    assert_eq!(list(&jae, "있다")[..3], ["在다", "有다", "在ㅆ다"]);
+    let coda = engine(Options { itda: Itda::JaeCoda, ..Options::default() });
+    assert_eq!(list(&coda, "있다")[..3], ["在ㅆ다", "有다", "在다"]);
+
+    // The other forms and whole sentences follow.
+    assert_eq!(jae.convert("있어요")[0].text, "在어요");
+    assert_eq!(coda.convert("있어요")[0].text, "在ㅆ어요");
+    assert_eq!(jae.convert("수있다")[0].text, "手在다");
+    // Under 在 the past is 在었다, with 在ㅆ다 right behind it in the word's list.
+    assert_eq!(jae.convert("있었다")[0].text, "在었다");
+    let segment: Vec<String> = jae.segments("있었다")[0].candidates.iter().map(|c| c.text.clone()).collect();
+    assert_eq!(segment[..2], ["在었다", "在ㅆ다"], "{segment:?}");
+
+    // Reading back does not depend on the setting, whichever was read first.
+    for e in [&default, &jae, &coda] {
+        for written in ["有다", "在다", "在ㅆ다"] {
+            assert_eq!(e.read(written), "있다", "{written}");
+        }
+    }
 }
 
 #[test]

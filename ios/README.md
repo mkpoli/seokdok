@@ -158,10 +158,13 @@ such limit, and its figures differ from a device's, so this has to be tried on
 an iPhone. It is above those published estimates, so a device may end the
 keyboard.
 
-Most of it is the Sino-Korean tables (`sino.tsv` and `fusion.tsv`). The engine
-alone uses about 59 MB (Linux, 2026-11-04, a small program calling
-`seokdok_session::engine_host::load_engine` and reading `VmHWM`): without both
-files about 25 MB; without `fusion.tsv` alone, about 58 MB.
+The engine alone peaks at about 44.5 MB, and the highest of 50 runs was
+44.6 MB (Linux, 2026-11-04, `VmHWM` from
+`cargo run --release -p seokdok-core --example memory -- dict`). Over half of
+that is the Sino-Korean tables (`sino.tsv` and `fusion.tsv`): without both files
+about 20 MB; without `fusion.tsv` alone, about 42 MB. Loading makes the same
+allocations in the same order on every run, which
+`crates/seokdok-core/tests/alloc_order.rs` checks.
 
 ## Licences
 

@@ -352,8 +352,9 @@ def parse_hunmong_table(page, out):
 
 
 def parse_hunmong_page(page, out):
-    """훈몽자회/天倫 and so on: `: {{크게|{{Wikt|身}}}} 몸〮 신(몸 신)`, under folio headings; in the parentheses
-    the Wikisource editors put the gloss in modern letters and, after a semicolon, the modern 訓音."""
+    """훈몽자회/天倫 and so on: `: {{크게|{{Wikt|身}}}} 몸〮 신(몸 신)` or, in 樹木 and others, `: {{크게|枳}} 티ᇰ〮ᄌᆞ〮 기〯(탱자 지)`,
+    under folio headings; in the parentheses the Wikisource editors put the gloss in modern letters and, after a
+    semicolon, the modern 訓音."""
     folio = ""
     section = page["title"].split("/")[-1]
     for line in plain(page["text"]).splitlines():
@@ -361,7 +362,7 @@ def parse_hunmong_page(page, out):
         if m:
             folio = m.group(1)
             continue
-        m = re.match(r":\s*\{\{크게\|\{\{[Ww]ikt\|([^}|]+)\}\}\}\}\s*([^\s(\[]+)\s+([^\s(\[]+)\s*[(\[]([^)\]]*)[)\]]", line)
+        m = re.match(r":\s*\{\{크게\|(?:\{\{[Ww]ikt\|)?([^{}|]+)(?:\}\})?\}\}\s*([^\s(\[]+)\s+([^\s(\[]+)\s*[(\[]([^)\]]*)[)\]]", line)
         if not m:
             continue
         ch, old, eum, par = m.groups()

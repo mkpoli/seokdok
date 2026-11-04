@@ -12,8 +12,8 @@ lemma	written	pos	class	source	count	note
 가득하다	滿하다	adj		eonhae		primer: 類合 1913, 유합.djvu/41: 滿 가득ᄒᆞᆯ 만
 가람	河	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/26: 河 ᄀᆞᄅᆞᆷ 하; 光州千字文 1575, 광주천자문.pdf/5: 河 ᄀᆞᄅᆞᆷ 하; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/15: 河 ᄀᆞᄅᆞᆷ 하
 가람	江	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/26: 江 ᄀᆞᄅᆞᆷ 가ᇰ
-가래나무	楸	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/39: 楸 ᄀᆞ래나모 츄
-가래나무	梓	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/39: 梓 ᄀᆞ래나모 ᄌᆡ
+가래나무	楸	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상11A: 楸 ᄀᆞ래나모 츄
+가래나무	梓	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상11A: 梓 ᄀᆞ래나모 ᄌᆡ
 가로다	云다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/28: 云 ᄀᆞᄅᆞᆯ 운
 가뢰	螌	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상23B: 螌 갈외 반
 가루	麵	noun		eonhae		primer: 類合 1913, 유합.djvu/24: 麵 가로 면
@@ -29,33 +29,34 @@ lemma	written	pos	class	source	count	note
 가마우지	鸕	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상17B: 鸕 가마오디 로
 가마우지	鷀	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상17B: 鷀 가마오디 ᄌᆞ
 가물다	旱다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.pdf/7: 旱 ᄀᆞ믈 한; 類合 1913, 유합.djvu/6: 旱 ᄀᆞ믈 한
-가물치	鱧	noun		eonhae		primer: 詩經諺解 物名 1820本, 詩經諺解 제1책/30: 鱧 가믈티 례
+가물치	鱧	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20B: 鱧 가모티 톄; 詩經諺解 物名 1820本, 詩經諺解 제1책/30: 鱧 가믈티 례
 가슴	膺	noun		eonhae		primer: 訓蒙字會 1527, 身體 상27A: 膺 가ᄉᆞᆷ 으ᇰ
 가슴	臆	noun		eonhae		primer: 訓蒙字會 1527, 身體 상27A: 臆 가ᄉᆞᆷ 억
 가슴	胸膛	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/71: 胸膛 가ᄉᆞᆷ
 가슴	胷	noun		eonhae		primer: 訓蒙字會 1527, 身體 상27A: 胷 가ᄉᆞᆷ 휴ᇰ
 가슴	膛	noun		eonhae		primer: 訓蒙字會 1527, 身體 상27A: 膛 가ᄉᆞᆷ 다ᇰ
-가시	荊	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/37: 荊 가ᄉᆡ 혀ᇰ
+가시	荊	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10A: 荊 가ᄉᆡ 혀ᇰ
 가죽	革	noun		eonhae		primer: 類合 1913, 유합.djvu/23: 革 가죡 혁
+가죽나무	樗	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10B: 樗 개듀ᇰ나모 뎌
 가죽띠	革帶	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/91: 革帶 가족ᄯᅴ
 가지다	持다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/43: 持 가질 디; 倭語類解 18世紀, 倭語類解.djvu/63: 持 가질 지; 類合 1913, 유합.djvu/31: 持 가질 지
-갈	蘆	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/33: 蘆 ᄀᆞᆯ 로; 類合 1913, 유합.djvu/9: 蘆 ᄀᆞᆯ 로
-갈	葦	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/33: 葦 ᄀᆞᆯ 위; 類合 1913, 유합.djvu/9: 葦 ᄀᆞᆯ 위
-갈	葭	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/33: 葭 ᄀᆞᆯ 가
+갈	蘆	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08A: 蘆 ᄀᆞᆯ 로; 類合 1913, 유합.djvu/9: 蘆 ᄀᆞᆯ 로
+갈	葦	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08A: 葦 ᄀᆞᆯ 위; 類合 1913, 유합.djvu/9: 葦 ᄀᆞᆯ 위
+갈	葭	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08A: 葭 ᄀᆞᆯ 가
 갈까마귀	鸒	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상16B: 鸒 ᄀᆞᆯ가마괴 여; 詩經諺解 物名 1820本, 詩經諺解 제1책/35: 鸒 ᄀᆞᆯ가마괴 여
 갈다	磨다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/17: 磨 ᄀᆞᆯ 마; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/40: 磨 ᄀᆞᆯ 마; 類合 1913, 유합.djvu/40: 磨 갈 마
-갈대	葭	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/33: 葭 ᄀᆞᆯ 가
+갈대	葭	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08A: 葭 ᄀᆞᆯ 가
 감	枾子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/110: 枾子 감
-강아지풀	稊	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/36: 稊 ᄀᆞ랏 뎨
+강아지풀	稊	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상09B: 稊 ᄀᆞ랏 뎨
 갖풀	膠	noun		eonhae		primer: 類合 1913, 유합.djvu/24: 膠 갓플 교
 같다	若다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/14: 若 ᄀᆞᄐᆞᆯ 약; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/33: 若 ᄀᆞᄐᆞᆯ 약; 類合 1913, 유합.djvu/42: 若 ᄀᆞᄐᆞᆯ 약
 같다	似다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/13: 似 ᄀᆞᄐᆞᆯ ᄉᆞ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/32: 似 ᄀᆞᄐᆞᆯ ᄉᆞ; 類合 1913, 유합.djvu/42: 似 ᄀᆞᄐᆞᆯ ᄉᆞ
 같다	猶다	adj		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/39: 猶 ᄀᆞᄐᆞᆯ 유
 갚다	償다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/115: 償 가풀 샹
 개	浦	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/27: 浦 개 보; 類合 1913, 유합.djvu/8: 浦 ᄀᆡ 포
-개	狗	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/56: 狗 가히 구; 類合 1913, 유합.djvu/14: 狗 개 구
+개	狗	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19B: 狗 가히 구; 類合 1913, 유합.djvu/14: 狗 개 구
 개다	晴다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/161: 晴 갤 쳐ᇰ; 類合 1913, 유합.djvu/5: 晴 갤 쳥
-개암	榛	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/40: 榛 개옴 진; 類合 1913, 유합.djvu/10: 榛 개암 진
+개암	榛	noun		eonhae		primer: 訓蒙字會 1527, 菓實 상11B: 榛 개옴 진; 類合 1913, 유합.djvu/10: 榛 개암 진
 개천	渠	noun		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/73: 渠 ᄀᆡ쳔 거; 倭語類解 18世紀, 倭語類解.pdf/22: 渠 ᄀᆡ쳔 거; 類合 1913, 유합.djvu/17: 渠 ᄀᆡ쳔 거
 개천	溝	noun		eonhae		primer: 類合 1913, 유합.djvu/17: 溝 ᄀᆡ쳔 구
 거느리다	領다	verb		eonhae		primer: 類合 1913, 유합.djvu/31: 領 거ᄂᆞ릴 령
@@ -66,7 +67,7 @@ lemma	written	pos	class	source	count	note
 거머리	蛭	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상23A: 蛭 거머리 딜
 거머리	蟥	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상23A: 蟥 거머리 화ᇰ
 거문고	琴	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/40: 琴 거믄고 금; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/86: 琴 거믄고 금; 倭語類解 18世紀, 倭語類解.djvu/89: 琴 거문고 금
-거북	龜	noun		eonhae		primer: 詩經諺解 物名 1820本, 詩經諺解 제1책/34: 龜 거복 귀; 類合 1913, 유합.djvu/14: 龜 거복 귀
+거북	龜	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 龜 거붑 귀; 詩經諺解 物名 1820本, 詩經諺解 제1책/34: 龜 거복 귀; 類合 1913, 유합.djvu/14: 龜 거복 귀
 거울	鏡	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/92: 鏡 거울 경; 類合 1913, 유합.djvu/22: 鏡 거울 경
 거울	鑑	noun		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/68: 鑑 거우루 감
 거위	鵝	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상16B: 鵝 거유 아
@@ -78,6 +79,8 @@ lemma	written	pos	class	source	count	note
 걷다	收다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/12: 收 거둘 슈; 類合 1913, 유합.djvu/40: 收 거둘 슈
 걷다	捲다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/64: 捲 거들 권
 검다	黑다	adj		eonhae		primer: 類合 1913, 유합.djvu/6: 黑 거믈 흑
+게	螃	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 螃 게 바ᇰ
+게	蠏	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 蠏 게 ᄒᆡ
 겨레	族	noun		eonhae		primer: 類合 1913, 유합.djvu/13: 族 결에 족
 겨레	戚	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.pdf/30: 戚 겨ᄅᆡ 쳑
 겨자	芥	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상14A: 芥 계ᄌᆞᆺ 개; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/15: 芥 계ᄌᆞ 개; 類合 1913, 유합.djvu/11: 芥 겨ᄌᆞ 개
@@ -89,7 +92,7 @@ lemma	written	pos	class	source	count	note
 고개	嶺頭	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/13: 嶺頭 고개
 고기	魚	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/163: 魚 고기 어; 光州千字文 1575, 광주천자문.pdf/30: 魚 고기 어; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/66: 魚 고기 어
 고두리	樸頭	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/44: 樸頭 고도리
-고라니	麅	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/53: 麅 고라니 포
+고라니	麅	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18A: 麅 고라니 포
 고랑	畎	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/31: 畎 고라ᇰ 겨ᇰ
 고사리	蕨	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상14B: 蕨 고사리 궐; 類合 1913, 유합.djvu/11: 蕨 고사리 궐
 고수	荽	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13B: 荽 고ᄉᆡ 유
@@ -101,7 +104,7 @@ lemma	written	pos	class	source	count	note
 고인물	死水	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/16: 死水 고인믈
 고자	閹	noun		eonhae		primer: 訓蒙字會 1527, 人類 중02A: 閹 고쟈 엄; 倭語類解 18世紀, 倭語類解.djvu/106: 閹 고쟈 엄
 고자	宦	noun		eonhae		primer: 訓蒙字會 1527, 人類 중02A: 宦 고쟈 환
-고추	椒	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/41: 椒 고쵸 쵸
+고추	椒	noun		eonhae		primer: 訓蒙字會 1527, 菓實 상12A: 椒 고쵸 쵸
 고치다	更다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/57: 更 고틸 ᄀᆡᆼ
 고치다	匡다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/55: 匡 고틸 광
 곧다	貞다	adj		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/23: 貞 고ᄃᆞᆯ 뎡; 倭語類解 18世紀, 倭語類解.djvu/48: 貞 고들 졍
@@ -111,7 +114,7 @@ lemma	written	pos	class	source	count	note
 골	衚	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/30: 衚 골 호
 골	衕	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/30: 衕 골 도ᇰ
 곪다	膿다	verb		eonhae		primer: 訓蒙字會 1527, 身體 상30A: 膿 골믈 노ᇰ
-곰	羆	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/55: 羆 곰 비
+곰	羆	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19A: 羆 곰 비
 곱다	曲다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/25: 曲 고ᄇᆞᆯ 곡; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/55: 曲 고ᄇᆞᆯ 곡; 類合 1913, 유합.djvu/35: 曲 고불 곡
 곱다	姸다	adj		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/88: 姸 고ᄋᆞᆯ 연
 곱다	妍다	adj		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/41: 妍 고올 연
@@ -126,6 +129,7 @@ lemma	written	pos	class	source	count	note
 국수	麵	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/103: 麵 국슈; 倭語類解 18世紀, 倭語類解.djvu/97: 麵 국슈 면
 굳다	堅다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/19: 堅 구들 견; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/43: 堅 구들 견; 類合 1913, 유합.djvu/43: 堅 구ᄃᆞᆯ 견
 굳다	固다	verb		eonhae		primer: 類合 1913, 유합.djvu/43: 固 구ᄃᆞᆯ 고
+굴	蠣	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 蠣 굴 려
 굽다	屈다	adj		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/62: 屈 구불 굴; 類合 1913, 유합.djvu/44: 屈 구불 굴
 굽다	炙다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/99: 炙 구을 젹
 귀	耳朶	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/67: 耳朶 귀
@@ -193,7 +197,7 @@ lemma	written	pos	class	source	count	note
 끄다	滅다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/26: 滅 ᄢᅳᆯ 멸; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/58: 滅 ᄢᅳᆯ 멸
 끝	末	noun		eonhae		primer: 類合 1913, 유합.djvu/44: 末 ᄭᅳᆺ 말
 끼치다	遺다	verb		eonhae		aligned (5 passages, 2 books): 古文眞寶諺解 英祖代 (고문진보언해 권5/33): 當年遺事久成空 → 당년의 기틴 일이 오라매 쇽졀; 小學諺解 1587 (소학언해/권5): 曰, 大學孔氏之遺書, 而初學入 → 은 孔氏의 기티신 글월이라 처엄
-나귀	驢	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/56: 驢 나귀 려; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/85: 驢 나귀 려; 類合 1913, 유합.djvu/14: 驢 나귀 려
+나귀	驢	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19B: 驢 나귀 려; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/85: 驢 나귀 려; 類合 1913, 유합.djvu/14: 驢 나귀 려
 나그네	旅	noun		eonhae		primer: 訓蒙字會 1527, 人類 중03A: 旅 나ᄀᆞ내 려
 나다	生다	verb		eonhae		primer: 訓蒙字會 1527, 儒學 상34A: 生 날 ᄉᆡᇰ; 光州千字文 1575, 광주천자문.pdf/4: 生 날 ᄉᆡᆼ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/13: 生 날 ᄉᆡᆼ
 나라	邦	noun		eonhae		primer: 訓蒙字會 1527, 人類 중01A: 邦 나라 바ᇰ
@@ -231,8 +235,8 @@ lemma	written	pos	class	source	count	note
 넘치다	濫다	verb		eonhae		primer: 訓蒙字會 1527, 雜語 하35B: 濫 넘ᄯᅵᆯ 람
 노닐다	逍다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/72: 逍 노닐 쇼
 노닐다	遊다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/75: 遊 노닐 유
-노루	麕	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/53: 麕 노ᄅᆞ 균
-노새	騾	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/56: 騾 노새 로; 光州千字文 1575, 광주천자문.pdf/40: 騾 노새 로
+노루	麕	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18A: 麕 노ᄅᆞ 균
+노새	騾	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19B: 騾 노새 로; 光州千字文 1575, 광주천자문.pdf/40: 騾 노새 로
 녹다	消다	verb		eonhae		primer: 類合 1913, 유합.djvu/43: 消 노글 쇼
 놀	霞	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/22: 霞 노을 하; 倭語類解 18世紀, 倭語類解.pdf/8: 霞 노을 하; 類合 1913, 유합.djvu/6: 霞 노을 하
 놀라다	驚다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/46: 驚 놀랄 경
@@ -249,14 +253,14 @@ lemma	written	pos	class	source	count	note
 눈썹	眉	noun		eonhae		primer: 訓蒙字會 1527, 身體 상25A: 眉 눈섬 미; 倭語類解 18世紀, 倭語類解.pdf/35: 眉 눈섭 미; 類合 1913, 유합.djvu/19: 眉 눈셥 미
 눈초리	眼角	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/66: 眼角 눈초리
 눈치	眼勢	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/80: 眼勢 눈츼
-느릅나무	枌	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/38: 枌 느릅나모 분
-느릅나무	榆	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/38: 榆 느릅나모 유
+느릅나무	枌	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10B: 枌 느릅나모 분
+느릅나무	榆	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10B: 榆 느릅나모 유
 느티나무	槐	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/23: 槐 누튀 괴
 늦다	晩다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/34: 晩 느즐 만; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/73: 晩 느즐 만; 倭語類解 18世紀, 倭語類解.pdf/13: 晩 느즐 만
 늦다	晚다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/20: 晚 느즐 만
 다	皆	adv		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/41: 皆 다 ᄀᆡ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/88: 皆 다 ᄀᆡ; 倭語類解 18世紀, 倭語類解.djvu/58: 皆 다 ᄀᆡ
 다락	樓	noun		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/46: 樓 다락 누; 倭語類解 18世紀, 倭語類解.djvu/66: 樓 다락 루; 類合 1913, 유합.djvu/20: 樓 다락 루
-다람쥐	鼯	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/56: 鼯 ᄃᆞ라미 오
+다람쥐	鼯	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19B: 鼯 ᄃᆞ라미 오
 다르다	殊다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/16: 殊 다ᄅᆞᆯ 슈; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/37: 殊 다ᄅᆞᆯ 슈; 類合 1913, 유합.djvu/42: 殊 다를 슈
 다만	但	adv		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/57: 但 다만 단
 다섯	五	num		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/8: 五 다ᄉᆞᆺ 오; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/22: 五 다ᄉᆞᆺ 오
@@ -269,9 +273,9 @@ lemma	written	pos	class	source	count	note
 다투다	爭다	verb		eonhae		primer: 類合 1913, 유합.djvu/36: 爭 ᄃᆞ톨 ᄌᆡᆼ
 닫다	閉다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/68: 閉 다들 폐; 類合 1913, 유합.djvu/44: 閉 다ᄃᆞᆯ 폐
 닫다	走다	verb		eonhae		primer: 類合 1913, 유합.djvu/29: 走 ᄃᆞ를 주
-달	蒹	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/33: 蒹 달 겸; 詩經諺解 物名 1820本, 詩經諺解 제1책/23: 蒹 달 겸
+달	蒹	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08A: 蒹 달 겸; 詩經諺解 物名 1820本, 詩經諺解 제1책/23: 蒹 달 겸
 달	月兒	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/3: 月兒 ᄃᆞᆯ
-달	荻	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/33: 荻 달 뎍
+달	荻	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08A: 荻 달 뎍
 달다	懸다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/42: 懸 ᄃᆞᆯ 현; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/89: 懸 ᄃᆞᆯ 현; 類合 1913, 유합.djvu/40: 懸 ᄃᆞᆯ 현
 달아나다	奔다	verb		eonhae		aligned (3 passages, 2 books): 古文眞寶諺解 英祖代 (고문진보언해 권5/44): 萬官奔竄鳥擇栖 → 만관이 ᄃᆞ라나 숨기 새 깃드릴; 十九史略諺解 1772 (十九史略諺解 권1/87): 失其官ᄒᆞ고 奔戎狄之間ᄒᆞᄃ → ᄉᆞ이로 ᄃᆞ라나다
 달이다	煎다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/99: 煎 달힐 젼
@@ -281,8 +285,8 @@ lemma	written	pos	class	source	count	note
 담	垣	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/35: 垣 담 원; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/76: 垣 담 완
 담다	盛다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/99: 盛 담을 셩
 답답하다	鬱하다	adj		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/45: 鬱 답답ᄒᆞᆯ 울
-대	竹	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/33: 竹 대 듁; 類合 1913, 유합.djvu/9: 竹 대 쥭
-대	篁	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/33: 篁 대 화ᇰ; 類合 1913, 유합.djvu/9: 篁 대 황
+대	竹	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08A: 竹 대 듁; 類合 1913, 유합.djvu/9: 竹 대 쥭
+대	篁	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08A: 篁 대 화ᇰ; 類合 1913, 유합.djvu/9: 篁 대 황
 대	筍	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/37: 筍 대 슌
 더듬다	探다	verb		eonhae		primer: 類合 1913, 유합.djvu/39: 探 더드믈 탐
 더불다	與다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/30: 與 더블 여; 類合 1913, 유합.djvu/45: 與 더블 여
@@ -298,6 +302,7 @@ lemma	written	pos	class	source	count	note
 덮다	覆다	verb		eonhae		primer: 類合 1913, 유합.djvu/3: 覆 더플 부
 덮다	掩다	verb		eonhae		primer: 類合 1913, 유합.djvu/36: 掩 더플 암
 덮다	盖다	verb		eonhae		primer: 類合 1913, 유합.djvu/27: 盖 더플 걔
+도꼬마리	葈	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08B: 葈 돗고마리 시
 도리	桁	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/67: 桁 도리 ᄒᆡᆼ
 도마뱀	蠑	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상23A: 蠑 도마ᄇᆡ얌 여ᇰ
 도요	鷸	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상15B: 鷸 도요 휼
@@ -317,7 +322,7 @@ lemma	written	pos	class	source	count	note
 두	貳	num		eonhae		primer: 類合 1913, 유합.djvu/3: 貳 두 이
 두꺼비	蟾	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상24A: 蟾 두터비 셤
 두꺼비	蜍	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상24A: 蜍 두터비 여
-두더지	鼢	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/56: 鼢 두디쥐 분
+두더지	鼢	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19B: 鼢 두디쥐 분
 두드리다	扣다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/63: 扣 두ᄃᆞ릴 고
 두드리다	擣다	verb		eonhae		primer: 類合 1913, 유합.djvu/31: 擣 두ᄃᆞ릴 도
 두루	周	adv		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/6: 周 두ᄅᆞ 쥬; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/18: 周 두루 쥬
@@ -325,6 +330,7 @@ lemma	written	pos	class	source	count	note
 두르다	旋다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/159: 旋 두를 션
 두텁다	厚다	adj		eonhae		primer: 類合 1913, 유합.djvu/41: 厚 두터울 후
 둥글다	圓다	adj		eonhae		primer: 類合 1913, 유합.djvu/42: 圓 둥글 원
+드렁허리	鱔	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20B: 鱔 드러ᇰ허리 션
 드물다	稀다	adj		eonhae		primer: 類合 1913, 유합.djvu/43: 稀 드믈 회
 듣다	聽다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/11: 聽 드를 텽; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/28: 聽 드를 텽; 類合 1913, 유합.djvu/28: 聽 드를 텽
 듣다	聞다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/92: 聞 드ᄅᆞᆯ 문
@@ -340,8 +346,9 @@ lemma	written	pos	class	source	count	note
 따르다	隨다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/62: 隨 ᄯᆞ를 슈
 딱따구리	鴷	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상16A: 鴷 뎌끄리 렬
 딸	女兒	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/116: 女兒 ᄯᆞᆯ
-딸기	苺	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/41: 苺 ᄠᅡᆯ기 ᄆᆡ
+딸기	苺	noun		eonhae		primer: 訓蒙字會 1527, 菓實 상12A: 苺 ᄠᅡᆯ기 ᄆᆡ
 땀띠	疿	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/105: 疿 ᄯᆞᆷᄯᅴ 불
+떡갈나무	櫟	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10B: 櫟 덥갈나모 륵
 떨기	叢	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/165: 叢 ᄠᅥᆯ기 초ᇰ
 떨다	抖다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/64: 抖 ᄠᅥᆯ 두
 떨치다	拂다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/64: 拂 ᄠᅥᆯ칠 불
@@ -360,6 +367,7 @@ lemma	written	pos	class	source	count	note
 마디	寸	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/12: 寸 ᄆᆞᄃᆡ 촌; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/30: 寸 ᄆᆞᄃᆡ 촌; 類合 1913, 유합.djvu/41: 寸 ᄆᆞᄃᆡ 촌
 마루	宗	noun		eonhae		primer: 訓蒙字會 1527, 天倫 상32B: 宗 ᄆᆞᄅᆞ 조ᇰ; 光州千字文 1575, 광주천자문.pdf/28: 宗 ᄆᆞᄅᆞ 종; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/61: 宗 ᄆᆞᄅᆞ 종
 마르다	乾다	verb		eonhae		primer: 類合 1913, 유합.djvu/41: 乾 ᄆᆞᄅᆞᆯ 간
+마름	芰	noun		eonhae		primer: 訓蒙字會 1527, 菓實 상12A: 芰 말왐 기
 마을	里	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/72: 里 ᄆᆞᄋᆞᆯ 리; 類合 1913, 유합.djvu/17: 里 ᄆᆞ을 리
 마지막	終	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/228: 終 ᄆᆞᄎᆞᆷ 죠ᇰ; 光州千字文 1575, 광주천자문.pdf/14: 終 ᄆᆞᄎᆞᆷ 죵; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/34: 終 ᄆᆞᄎᆞᆷ 죵
 마지막	竟	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/15: 竟 ᄆᆞᄎᆞᆷ 경; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/35: 竟 ᄆᆞᄎᆞᆷ 경
@@ -382,7 +390,7 @@ lemma	written	pos	class	source	count	note
 맏이	昆	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/29: 昆 ᄆᆞᆮ 곤; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/63: 昆 ᄆᆞᆮ 곤
 말	斗	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/113: 斗 말 두; 類合 1913, 유합.djvu/24: 斗 말 두
 말	辭	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/14: 辭 말 ᄉᆞ
-말	藻	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/36: 藻 ᄆᆞᆯ 조
+말	藻	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상09B: 藻 ᄆᆞᆯ 조
 말똥구리	蜣	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상22A: 蜣 ᄆᆞᆯᄯᅩᇰ구으리 가ᇰ
 말똥구리	蜋	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상22A: 蜋 ᄆᆞᆯᄯᅩᇰ구으리 랴ᇰ
 말뚝	橛子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/36: 橛子 말ᄯᅩᆨ
@@ -396,6 +404,7 @@ lemma	written	pos	class	source	count	note
 맑다	潔다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/9: 潔 ᄆᆞᆯᄀᆞᆯ 결
 맑다	朗다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/42: 朗 ᄆᆞᆯᄀᆞᆯ 랑
 맛보다	嘗다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/38: 嘗 맛볼 샹; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/82: 嘗 맛볼 샹; 類合 1913, 유합.djvu/33: 嘗 맛볼 샹
+망아지	駒	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18B: 駒 ᄆᆞ야지 구
 맞다	迎다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/87: 迎 마즐 명; 類合 1913, 유합.djvu/38: 迎 마즐 영
 맞다	的다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/73: 的 마ᄌᆞᆯ 뎍
 매	鶻	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상15B: 鶻 매 골
@@ -416,6 +425,7 @@ lemma	written	pos	class	source	count	note
 멀다	遼다	adj		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/86: 遼 멀 료
 멀다	邈다	adj		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/63: 邈 멀 막
 메	山	noun		eonhae		primer: 類合 1913, 유합.djvu/7: 山 뫼 산
+메기	鮎	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상21A: 鮎 메유기 졈
 메다	擔다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/63: 擔 멜 담; 類合 1913, 유합.djvu/39: 擔 멜 담
 메뚜기	蚱	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상23A: 蚱 묏도기 자
 메추라기	鶉	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상17A: 鶉 모ᄎᆞ라기 슌
@@ -425,7 +435,7 @@ lemma	written	pos	class	source	count	note
 모	隅	noun		eonhae		primer: 類合 1913, 유합.djvu/4: 隅 모 우
 모래	沙	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/25: 沙 몰애 사; 光州千字文 1575, 광주천자문.pdf/27: 沙 몰애 사; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/60: 沙 몰애 사
 모레	後日	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/8: 後日 모ᄅᆡ
-모시	苧	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/35: 苧 모시 뎌; 類合 1913, 유합.djvu/23: 苧 모시 져
+모시	苧	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상09A: 苧 모시 뎌; 類合 1913, 유합.djvu/23: 苧 모시 져
 모시	紵	noun		eonhae		primer: 詩經諺解 物名 1820本, 詩經諺解 제1책/24: 紵 모시 져
 모시다	侍다	verb		eonhae		primer: 類合 1913, 유합.djvu/34: 侍 모실 시
 모시다	陪다	verb		eonhae		primer: 類合 1913, 유합.djvu/34: 陪 모실 ᄇᆡ
@@ -454,7 +464,7 @@ lemma	written	pos	class	source	count	note
 무릎	膝	noun		eonhae		primer: 訓蒙字會 1527, 身體 상28A: 膝 무룹 슬; 倭語類解 18世紀, 倭語類解.djvu/39: 膝 무룹 슬
 무리	群	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/22: 群 물 군; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/50: 群 물 군; 類合 1913, 유합.djvu/14: 群 무리 군
 무리	徒	noun		eonhae		primer: 訓蒙字會 1527, 儒學 상34A: 徒 물 도
-무소	犀	noun		eonhae		primer: 類合 1913, 유합.djvu/13: 犀 무쇼 셔
+무소	犀	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18B: 犀 므쇼 셔; 類合 1913, 유합.djvu/13: 犀 무쇼 셔
 묵다	陳다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/34: 陳 무글 딘; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/74: 陳 무글 딘
 문득	忽	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/60: 忽 문득 홀; 類合 1913, 유합.djvu/43: 忽 믄득 홀
 문배	抄梨	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/111: 抄梨 문ᄇᆡ
@@ -471,8 +481,10 @@ lemma	written	pos	class	source	count	note
 묽다	淡다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/5: 淡 ᄆᆞᆯᄀᆞᆯ 담; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/15: 淡 ᄆᆞᆯ글 담
 뭇	庶	det		eonhae		primer: 類合 1913, 유합.djvu/16: 庶 뭇 셔
 뭇	束	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/43: 束 뭇 속
+미꾸라지	鰍	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20B: 鰍 믯구리 츄
+미꾸리	鰍	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20B: 鰍 믯구리 츄
 미나리	芹	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13B: 芹 미나리 근; 詩經諺解 物名 1820本, 詩經諺解 제1책/38: 芹 미나리 근; 類合 1913, 유합.djvu/12: 芹 미나리 근
-미르	龍	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/5: 龍 미ᄅᆞ 룡; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/16: 龍 미르 룡
+미르	龍	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 龍 미르 료ᇰ; 光州千字文 1575, 광주천자문.pdf/5: 龍 미ᄅᆞ 룡; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/16: 龍 미르 룡
 미르	辰	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/3: 辰 미르 진
 미리	龍	noun		eonhae		primer: 類合 1913, 유합.djvu/14: 龍 미리 룡
 미리	豫	adv		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/38: 豫 미리 예
@@ -527,7 +539,7 @@ lemma	written	pos	class	source	count	note
 배추	菘	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상14A: 菘 ᄇᆡᄎᆡ 쇼ᇰ
 뱁새	鷦	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상16B: 鷦 볍새 쵸
 버금	次	noun		eonhae		primer: 類合 1913, 유합.djvu/5: 次 버금 ᄎᆞ
-버들	楊	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/37: 楊 버들 야ᇰ; 詩經諺解 物名 1820本, 詩經諺解 제1책/22: 楊 버들 양; 類合 1913, 유합.djvu/10: 楊 버들 양
+버들	楊	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10A: 楊 버들 야ᇰ; 詩經諺解 物名 1820本, 詩經諺解 제1책/22: 楊 버들 양; 類合 1913, 유합.djvu/10: 楊 버들 양
 버섯	菌	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13B: 菌 버슷 균; 類合 1913, 유합.djvu/12: 菌 버슷 균
 버섯	蕈	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13B: 蕈 버슷 심
 버섯	䓴	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13B: 䓴 버슷 ᅀᅧᆫ
@@ -572,7 +584,8 @@ lemma	written	pos	class	source	count	note
 보름	月半	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/8: 月半 보롬
 보리	麰	noun		eonhae		primer: 訓蒙字會 1527, 禾糓 상12B: 麰 보리 모; 類合 1913, 유합.djvu/11: 麰 보리 모
 보리	牟	noun		eonhae		primer: 詩經諺解 物名 1820本, 詩經諺解 제1책/42: 牟 보리 모
-복숭아	桃	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/39: 桃 복셔ᇰ화 도
+복	魨	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상21A: 魨 복 돈
+복숭아	桃	noun		eonhae		primer: 訓蒙字會 1527, 菓實 상11A: 桃 복셔ᇰ화 도
 볼기	臀子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/72: 臀子 볼기
 볼모	質	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/115: 質 볼모 지
 뵈다	現다	verb		eonhae		primer: 類合 1913, 유합.djvu/44: 現 뵐 현
@@ -633,7 +646,7 @@ lemma	written	pos	class	source	count	note
 뻐꾸기	鴶	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상17A: 鴶 버국새 알
 뼈	骸	noun		eonhae		primer: 訓蒙字會 1527, 身體 상28B: 骸 ᄲᅧ ᄒᆡ; 光州千字文 1575, 광주천자문.pdf/39: 骸 ᄲᅧ ᄒᆡ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/84: 骸 ᄲᅧ ᄒᆡ
 뼈	骼	noun		eonhae		primer: 訓蒙字會 1527, 身體 상28B: 骼 ᄲᅧ 각
-뽕나무	桑	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/37: 桑 ᄲᅩᇰ나모 사ᇰ; 詩經諺解 物名 1820本, 詩經諺解 제1책/16: 桑 ᄲᅩᆼ나무 상; 類合 1913, 유합.djvu/10: 桑 ᄲᅩᆼ나모 상
+뽕나무	桑	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10A: 桑 ᄲᅩᇰ나모 사ᇰ; 詩經諺解 物名 1820本, 詩經諺解 제1책/16: 桑 ᄲᅩᆼ나무 상; 類合 1913, 유합.djvu/10: 桑 ᄲᅩᆼ나모 상
 뿌리	荄	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/164: 荄 불휘 ᄒᆡ
 뿌리다	灑다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.pdf/24: 灑 ᄲᅮ릴 쇄; 類合 1913, 유합.djvu/32: 灑 ᄲᅮ릴 쇄
 뿌리다	糝다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/92: 糝 ᄲᅮ릴 ᄉᆞᆷ
@@ -649,8 +662,8 @@ lemma	written	pos	class	source	count	note
 사무치다	通다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/22: 通 ᄉᆞᄆᆞᄎᆞᆯ 통; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/49: 通 ᄉᆞᄆᆞᄎᆞᆯ 통; 類合 1913, 유합.djvu/44: 通 사모ᄎᆞᆯ 통
 사무치다	達다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/22: 達 ᄉᆞᄆᆞᄎᆞᆯ 달; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/49: 達 ᄉᆞᄆᆞᄎᆞᆯ 달; 類合 1913, 유합.djvu/3: 達 ᄉᆞᄆᆞᄎᆞᆯ 달
 사슬	鐵鎖	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/134: 鐵鎖 사슬
-사슴	麋	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/53: 麋 사ᄉᆞᆷ 미
-사슴	麀	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/53: 麀 사ᄉᆞᆷ 우
+사슴	麋	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18A: 麋 사ᄉᆞᆷ 미
+사슴	麀	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18A: 麀 사ᄉᆞᆷ 우
 사위	女壻	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/116: 女壻 사회
 사위	壻	noun		eonhae		primer: 訓蒙字會 1527, 天倫 상32A: 壻 사회 셔
 사위	婿	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.pdf/29: 婿 사회 셔
@@ -667,22 +680,24 @@ lemma	written	pos	class	source	count	note
 살피다	省다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/32: 省 ᄉᆞᆯ필 ᄉᆡᆼ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/69: 省 ᄉᆞᆯ필 셩; 類合 1913, 유합.djvu/38: 省 ᄉᆞᆯ필 셩
 살피다	審다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/39: 審 ᄉᆞᆯ필 심; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/84: 審 ᄉᆞᆯ필 씸
 삶다	烹다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/36: 烹 ᄉᆞᆯᄆᆞᆯ ᄑᆡᆼ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/77: 烹 ᄉᆞᆯᄆᆞᆯ ᄑᆡᆼ; 倭語類解 18世紀, 倭語類解.djvu/99: 烹 ᄉᆞᆯ물 ᄑᆡᆼ
-삼	麻	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/35: 麻 삼 마; 詩經諺解 物名 1820本, 詩經諺解 제1책/15: 麻 삼 마; 類合 1913, 유합.djvu/23: 麻 삼 마
+삼	麻	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상09A: 麻 삼 마; 詩經諺解 物名 1820本, 詩經諺解 제1책/15: 麻 삼 마; 類合 1913, 유합.djvu/23: 麻 삼 마
 삼가다	愼다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/14: 愼 삼갈 신; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/34: 愼 삼갈 신
 삼가다	謹다	verb		eonhae		aligned (4 passages, 2 books): 古文眞寶諺解 英祖代 (고문진보언해 후집 권6/23): 謹缾甖之固濟 → ᄒᆞ기ᄅᆞᆯ 삼가; 小學諺解 1587 (소학언해/권2): , 因地之利, 謹身節用, 以養 → 몸ᄋᆞᆯ 삼가며
 삼키다	呑다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/101: 呑 ᄉᆞᆷ킬 ᄃᆞᆫ; 類合 1913, 유합.djvu/30: 呑 ᄉᆞᆷ킬 ᄐᆞᆫ
 삿갓	蓑笠	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/88: 蓑笠 삿갓
+상어	鯊	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상21A: 鯊 사ᇰᅌᅥᆺ 사
 새	禽	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/163: 禽 새 금; 光州千字文 1575, 광주천자문.pdf/20: 禽 새 금; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/46: 禽 새 금
 새	新	det		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/30: 新 새 신; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/65: 新 새 신; 類合 1913, 유합.djvu/12: 新 새 신
 새	隹	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상17A: 隹 새 쵸
 새	鸞	noun		eonhae		primer: 類合 1913, 유합.djvu/12: 鸞 새 난
 새	鵾	noun		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/75: 鵾 새 곤
-새끼	羔	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/55: 羔 삿기 고
+새끼	羔	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19A: 羔 삿기 고
 새다	漏다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.pdf/24: 漏 ᄉᆡᆯ 루
 새다	曙다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/20: 曙 샐 셔
 새매	鷂	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상16A: 鷂 새매 요
 새벽	晨	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/20: 晨 새배 신
-새삼	菟	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/34: 菟 새ᅀᅡᆷ 토
+새삼	菟	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08B: 菟 새ᅀᅡᆷ 토
+새우	鰕	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 鰕 새요 하
 새우	蝦兒	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0002/77: 蝦兒 새오
 샛별	明星	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/4: 明星 새별
 생각	念	noun		eonhae		primer: 類合 1913, 유합.djvu/35: 念 ᄉᆡᆼ각 념
@@ -714,11 +729,11 @@ lemma	written	pos	class	source	count	note
 손목	腕	noun		eonhae		primer: 訓蒙字會 1527, 身體 상26A: 腕 손목 완
 손바닥	掌	noun		eonhae		primer: 訓蒙字會 1527, 身體 상26A: 掌 소ᇇ바독 쟈ᇰ; 類合 1913, 유합.djvu/19: 掌 손바닥 쟝
 손톱	爪	noun		eonhae		primer: 訓蒙字會 1527, 身體 상26A: 爪 소ᇇ돕 조
-솔	松	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/39: 松 솔 쇼ᇰ; 光州千字文 1575, 광주천자문.pdf/13: 松 솔 숑; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/32: 松 솔 숑
+솔	松	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상11A: 松 솔 쇼ᇰ; 光州千字文 1575, 광주천자문.pdf/13: 松 솔 숑; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/32: 松 솔 숑
 솔	帿	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/84: 帿 솔 후
 솟다	湧다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.pdf/24: 湧 소ᄉᆞᆯ 용
 송곳	錐	noun		eonhae		primer: 類合 1913, 유합.djvu/25: 錐 송곳 츱
-송아지	犢	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/54: 犢 쇼ᇰ아지 독
+송아지	犢	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18B: 犢 쇼ᇰ아지 독
 쇠	金	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/4: 金 쇠 금; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/13: 金 쇠 금; 類合 1913, 유합.djvu/22: 金 쇠 금
 쇠	鐵	noun		eonhae		primer: 類合 1913, 유합.djvu/25: 鐵 쇠 텰
 수	雄	noun		eonhae		primer: 類合 1913, 유합.djvu/13: 雄 수 웅
@@ -729,6 +744,7 @@ lemma	written	pos	class	source	count	note
 순무	菁	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상14A: 菁 쉿무ᅀᅮ 쳐ᇰ
 술	匙	noun		eonhae		primer: 類合 1913, 유합.djvu/24: 匙 술 시
 숨다	隱다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/41: 隱 수믈 은; 類合 1913, 유합.djvu/44: 隱 수믈 은
+숭어	鯔	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20B: 鯔 슈어 츼
 숯	煤炭	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/110: 煤炭 숫
 쉬다	息다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/14: 息 쉴 식; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/33: 息 쉴 식; 倭語類解 18世紀, 倭語類解.djvu/43: 息 쉴 식
 스스로	自	noun		eonhae		aligned (90 passages, 8 books): 古文眞寶諺解 英祖代 (고문진보언해 권7/96): 自有兩兒郎 → 스ᄉᆞ로 두 아ᄃᆞᆯ이 이시되; 小學諺解 1587 (소학언해/권5): 與人同處, 不可自擇便利. → 숌애 可히 스스로 便코 利
@@ -750,8 +766,9 @@ lemma	written	pos	class	source	count	note
 심다	栽다	verb		eonhae		primer: 類合 1913, 유합.djvu/31: 栽 시믈 ᄌᆡ
 싸다	裹다	verb		eonhae		primer: 類合 1913, 유합.djvu/37: 裹 ᄡᆞᆯ 과
 써	以	adv		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/15: 以 ᄡᅥ 이; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/36: 以 ᄡᅥ 이; 倭語類解 18世紀, 倭語類解.djvu/56: 以 ᄡᅥ 이
+쏘가리	鱖	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20B: 鱖 소과리 궐
 쐐기	楔子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/36: 楔子 쇠야기
-쑥	蘩	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/35: 蘩 ᄡᅮᆨ 번
+쑥	蘩	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상09A: 蘩 ᄡᅮᆨ 번
 쓰다	辛다	adj		eonhae		primer: 類合 1913, 유합.djvu/33: 辛 쓸 신
 쓰다	寫다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/78: 寫 쓸 샤
 씻다	濯다	verb		eonhae		primer: 類合 1913, 유합.djvu/32: 濯 씨슬 탁
@@ -782,6 +799,7 @@ lemma	written	pos	class	source	count	note
 아침	清早	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/10: 清早 아ᄎᆞᆷ
 아홉	九	num		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/28: 九 아홉 구; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/61: 九 아홉 구
 암	雌	noun		eonhae		primer: 類合 1913, 유합.djvu/13: 雌 암 ᄌᆞ
+암눈비앗	蓷	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상09A: 蓷 눈비얏 퇴
 어금니	牙	noun		eonhae		primer: 訓蒙字會 1527, 身體 상26A: 牙 엄 아
 어기다	違다	verb		eonhae		primer: 類合 1913, 유합.djvu/35: 違 어긜 위
 어깨	肩膀	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/69: 肩膀 엇게
@@ -823,13 +841,13 @@ lemma	written	pos	class	source	count	note
 열쇠	鑰匙	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/29: 鑰匙 엸쇠
 열흘	旬	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/21: 旬 열흘 슌; 倭語類解 18世紀, 倭語類解.pdf/11: 旬 열흘 슌; 類合 1913, 유합.djvu/5: 旬 열흘 슌
 염소	羊	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/10: 羊 염 양
-염소	䍽	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/55: 䍽 염쇼 럭
+염소	䍽	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19A: 䍽 염쇼 럭
 염통	心	noun		eonhae		primer: 訓蒙字會 1527, 身體 상27A: 心 념토ᇰ 심; 譯語類解 1690, 譯語類解 0001/71: 心 념통; 倭語類解 18世紀, 倭語類解.djvu/40: 心 념통 심
 엿보다	窺다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/62: 窺 엳볼 규; 類合 1913, 유합.djvu/36: 窺 엿볼 규
 예	古	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/33: 古 녜 고; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/71: 古 녜 고; 類合 1913, 유합.djvu/18: 古 녜 고
 오금	䐐	noun		eonhae		primer: 訓蒙字會 1527, 身體 상28A: 䐐 오곰 츄
 오늬	筈	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/84: 筈 오ᄂᆡ 괄
-오디	葚	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/41: 葚 오ᄃᆡ 심
+오디	葚	noun		eonhae		primer: 訓蒙字會 1527, 菓實 상12A: 葚 오ᄃᆡ 심
 오래다	久다	adj		eonhae		primer: 類合 1913, 유합.djvu/43: 久 오ᄅᆡᆯ 구
 오르다	登다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/35: 登 오ᄅᆞᆯ 등; 倭語類解 18世紀, 倭語類解.djvu/62: 登 오를 등; 類合 1913, 유합.djvu/29: 登 오를 등
 오리	鳧	noun		eonhae		primer: 類合 1913, 유합.djvu/12: 鳧 오리 부
@@ -851,7 +869,7 @@ lemma	written	pos	class	source	count	note
 옴	疥瘡	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/124: 疥瘡 옴
 옷	服	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/6: 服 옷 복
 옻	漆	noun		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/50: 漆 옷 칠
-옻나무	㯃	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/38: 㯃 옷나모 칠
+옻나무	㯃	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10B: 㯃 옷나모 칠
 외롭다	孤다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/43: 孤 외ᄅᆞ올 고; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/92: 孤 외로ᄋᆞᆯ 고; 類合 1913, 유합.djvu/38: 孤 외로올 고
 외우다	誦다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/78: 誦 외올 숑
 요사이	近	adv		eonhae		aligned (6 passages, 2 books): 古文眞寶諺解 英祖代 (고문진보언해 권1/54): 近有蘇司業 → 요ᄉᆞ이 소ᄉᆞ업이 이셔; 小學諺解 1587 (소학언해/권5): 伊川先生曰, 近世淺薄, 以相 → ᄀᆞᆯᄋᆞ샤ᄃᆡ 요ᄉᆞ이 셰쇽이 여타오며
@@ -913,14 +931,16 @@ lemma	written	pos	class	source	count	note
 자다	寐다	verb		eonhae		primer: 訓蒙字會 1527, 身體 상30B: 寐 잘 ᄆᆡ; 光州千字文 1575, 광주천자문.pdf/37: 寐 잘 ᄆᆡ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/80: 寐 잘 ᄆᆡ
 자다	宿다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/3: 宿 잘 슉; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/11: 宿 잘 슉; 倭語類解 18世紀, 倭語類解.djvu/65: 宿 잘 귝
 자다	寢다	verb		eonhae		primer: 類合 1913, 유합.djvu/27: 寢 잘 침
+자라	黿	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 黿 쟈래 원
 자랑	誇	noun		eonhae		primer: 類合 1913, 유합.djvu/34: 誇 쟈랑 과
 자루	帒	noun		eonhae		primer: 類合 1913, 유합.djvu/27: 帒 쟈로 ᄃᆡ
 자못	頗	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/56: 頗 ᄌᆞ몯 파
 자취	跡	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/28: 跡 자최 젹; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/61: 跡 자최 젹; 倭語類解 18世紀, 倭語類解.djvu/43: 跡 자최 젹
 자취	蹤	noun		eonhae		primer: 類合 1913, 유합.djvu/28: 蹤 자최 죵
-잔나비	猴	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/54: 猴 납 후
-잔나비	猢	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/54: 猢 납 호
-잔나비	猻	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/54: 猻 납 손
+잔나비	猴	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18B: 猴 납 후
+잔나비	獼	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18B: 獼 납 미
+잔나비	猢	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18B: 猢 납 호
+잔나비	猻	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18B: 猻 납 손
 잔치	讌	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/38: 讌 잔ᄎᆡ 연
 잘하다	能하다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/24: 能 잘ᄒᆞᆯ 능
 잘하다	善하다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/50: 善 잘ᄒᆞᆯ 션
@@ -942,7 +962,7 @@ lemma	written	pos	class	source	count	note
 저울	衡	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/24: 衡 저울 형
 저울대	衡	noun		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/54: 衡 저울대 형
 적삼	衫	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/94: 衫 젹삼 삼
-전나무	檜	noun		eonhae		primer: 類合 1913, 유합.djvu/10: 檜 전나모 회
+전나무	檜	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10A: 檜 젓나모 회; 類合 1913, 유합.djvu/10: 檜 전나모 회
 절	刹	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/108: 刹 졀 찰
 젊다	少다	adj		eonhae		primer: 類合 1913, 유합.djvu/44: 少 절믈 쇼
 젖다	潤다	verb		eonhae		primer: 類合 1913, 유합.djvu/37: 潤 저ᄌᆞᆯ 윤
@@ -950,8 +970,9 @@ lemma	written	pos	class	source	count	note
 제비	鳦	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상17A: 鳦 져비 을
 제비	鳥	noun		eonhae		primer: 詩經諺解 物名 1820本, 詩經諺解 제1책/44: 鳥 져비 됴
 조	粟	noun		eonhae		primer: 訓蒙字會 1527, 禾糓 상12B: 粟 조 속; 類合 1913, 유합.djvu/11: 粟 조 속
-조개	蛤	noun		eonhae		primer: 類合 1913, 유합.djvu/15: 蛤 됴개 합
-조뱅이	薊	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/34: 薊 조바ᇰ이 계
+조개	蛤	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 蛤 죠개 합; 類合 1913, 유합.djvu/15: 蛤 됴개 합
+조개	蜊	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 蜊 죠개 리
+조뱅이	薊	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08B: 薊 조바ᇰ이 계
 좀	蛀	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상24A: 蛀 좀 쥬
 좀	蠧	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상24A: 蠧 좀 두
 종	奴	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.pdf/34: 奴 죵 노; 類合 1913, 유합.djvu/18: 奴 죵 노
@@ -966,10 +987,11 @@ lemma	written	pos	class	source	count	note
 주리다	飢다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/36: 飢 주릴 긔; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/78: 飢 주릴 긔; 倭語類解 18世紀, 倭語類解.djvu/102: 飢 주릴 긔
 주머니	囊	noun		eonhae		primer: 類合 1913, 유합.djvu/27: 囊 쥬머니 낭
 주먹	拳頭	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/70: 拳頭 주머귀
+준치	鰳	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20B: 鰳 쥰티 륵
 줄기	莖	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/165: 莖 줄기 ᄀᆡᇰ; 類合 1913, 유합.djvu/9: 莖 줄기 경
 줍다	拾다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/64: 拾 주을 습; 類合 1913, 유합.djvu/40: 拾 주을 습
 중	僧	noun		eonhae		primer: 訓蒙字會 1527, 人類 중02B: 僧 쥬ᇰ 스ᇰ; 倭語類解 18世紀, 倭語類解.djvu/109: 僧 즁 승; 類合 1913, 유합.djvu/16: 僧 즁 승
-쥐	䑕	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/56: 䑕 쥐 셔
+쥐	䑕	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19B: 䑕 쥐 셔
 즈믄	千	num		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/23: 千 즈믄 쳔
 즐기다	樂다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/49: 樂 즐길 락; 類合 1913, 유합.djvu/29: 樂 즐길 락
 즐기다	歡다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/72: 歡 즐길 환; 類合 1913, 유합.djvu/33: 歡 즐길 환
@@ -1036,7 +1058,7 @@ lemma	written	pos	class	source	count	note
 칼	枷	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/134: 枷 칼
 칼집	鞘	noun		eonhae		primer: 類合 1913, 유합.djvu/27: 鞘 칼집 쵸
 코	鼻子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/67: 鼻子 코
-코끼리	象	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/53: 象 고키리 샤ᇰ; 光州千字文 1575, 광주천자문.pdf/37: 象 고키리 샹; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/80: 象 고키리 샹
+코끼리	象	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18A: 象 고키리 샤ᇰ; 光州千字文 1575, 광주천자문.pdf/37: 象 고키리 샹; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/80: 象 고키리 샹
 콧물	涕	noun		eonhae		primer: 訓蒙字會 1527, 身體 상29B: 涕 곳믈 톄
 콩	菽	noun		eonhae		primer: 訓蒙字會 1527, 禾糓 상13A: 菽 코ᇰ 슉; 詩經諺解 物名 1820本, 詩經諺解 제1책/27: 菽 콩 슉; 類合 1913, 유합.djvu/11: 菽 콩 슉
 콩팥	腰子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/71: 腰子 콩ᄑᆞᆺ
@@ -1044,6 +1066,7 @@ lemma	written	pos	class	source	count	note
 큰길	大路	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/13: 大路 큰길
 타다	受다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/16: 受 ᄐᆞᆯ 슈
 타다	登다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/15: 登 ᄐᆞᆯ 등
+탱자	枳	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10A: 枳 티ᇰᄌᆞ 기
 터	場	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/72: 場 터 쟝
 터	境	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/30: 境 터 겨ᇰ
 터럭	髮	noun		eonhae		primer: 訓蒙字會 1527, 身體 상28A: 髮 터럭 발; 光州千字文 1575, 광주천자문.pdf/8: 髮 터럭 발; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/22: 髮 터럭 발

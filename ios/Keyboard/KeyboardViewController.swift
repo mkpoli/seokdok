@@ -12,6 +12,9 @@ final class KeyboardViewController: UIInputViewController {
     /// The marked text this keyboard last wrote into the document, if any.
     private var marked: String?
     private var loadTimer: Timer?
+    /// Bumped whenever a composition ends or its field changes, so a delayed
+    /// check for an earlier text change does nothing.
+    private var checkGeneration = 0
     /// What the focused field asks for; only `.standard` converts.
     private var layout = Layout.standard
 
@@ -81,21 +84,31 @@ final class KeyboardViewController: UIInputViewController {
     /// text, so drop the composition instead of writing it again. The proxy's
     /// context can lag behind our own setMarkedText, so a mismatch counts
     /// only when it persists a moment later; judging at once dropped the
-    /// first jamo of a word on a slow device.
+    /// first jamo of a word on a slow device. A change of field is told apart
+    /// by its layout and cancels any check still waiting.
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
-        // The next field may want another layout.
-        updateLayout()
+        if updateLayout() { return }
         guard marked != nil else { return }
+        checkGeneration += 1
+        let generation = checkGeneration
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            guard let self, let m = self.marked else { return }
+            guard let self, generation == self.checkGeneration, let m = self.marked else { return }
             let before = self.textDocumentProxy.documentContextBeforeInput ?? ""
             if !before.hasSuffix(m) {
-                self.session.reset()
-                self.marked = nil
-                self.refresh()
+                self.abandonComposition()
             }
         }
+    }
+
+    /// Forget the composition without writing it: the document it was typed
+    /// into already holds it as plain text, and the document now in focus
+    /// does not own it.
+    private func abandonComposition() {
+        checkGeneration += 1
+        session.reset()
+        marked = nil
+        refresh()
     }
 
     /// The layout the field in focus asks for. Number pads and the like
@@ -116,16 +129,20 @@ final class KeyboardViewController: UIInputViewController {
         }
     }
 
-    /// Leaving the Hangul layout commits what is being composed first.
-    private func updateLayout() {
+    /// Follow the field in focus. A field that wants another layout is
+    /// another field, so what was being composed stays behind in the old one
+    /// (the system keeps its marked text as plain text) instead of being
+    /// inserted into the new one. Returns whether the layout changed.
+    @discardableResult
+    private func updateLayout() -> Bool {
         let next = fieldLayout()
-        guard next != layout else { return }
-        if layout.converts {
-            session.flush()
-            apply()
+        guard next != layout else { return false }
+        if marked != nil || !session.preedit().isEmpty {
+            abandonComposition()
         }
         layout = next
         refresh()
+        return true
     }
 
     /// Until the dictionaries load, the strip says so; refresh once they have.

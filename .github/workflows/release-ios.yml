@@ -38,9 +38,10 @@ jobs:
     if: needs.check.outputs.ready == 'true'
     runs-on: macos-15
     timeout-minutes: 60
-    env:
-      KEY_PATH: ${{ runner.temp }}/AuthKey.p8
     steps:
+      - name: Paths
+        run: echo "KEY_PATH=$RUNNER_TEMP/AuthKey.p8" >> "$GITHUB_ENV"
+
       - uses: actions/checkout@v4
 
       - name: Rust targets

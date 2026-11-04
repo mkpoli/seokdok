@@ -225,3 +225,96 @@ fn demonstratives_take_every_spelling_of_geot() {
         assert_eq!(e.read(&format!("{han}物을")), format!("{ko}것을"));
     }
 }
+
+/// The texts of a segment's candidates.
+fn candidates(e: &Engine, input: &str) -> Vec<String> {
+    e.segments(input)[0].candidates.iter().map(|c| c.text.clone()).collect()
+}
+
+/// Whether `want` appears in `list` in this order (other items may lie between).
+fn in_order(list: &[String], want: &[&str]) -> bool {
+    let mut at = 0;
+    for w in want {
+        match list[at..].iter().position(|c| c == w) {
+            Some(i) => at += i + 1,
+            None => return false,
+        }
+    }
+    true
+}
+
+#[test]
+fn other_okurigana_follow_the_dictionary_form() {
+    let e = engine(Options::default());
+    for (input, want) in [
+        ("너무", &["超무", "超ㅜ", "超"][..]),
+        ("처음", &["初음", "初ㅁ", "初"]),
+        ("어떻게", &["何떻게", "何게", "何ㅔ", "何"]),
+        ("말씀", &["言씀", "言ㅁ", "言"]),
+        ("오히려", &["尙려", "尙히려", "尙ㅕ", "尙"]),
+        // The particle follows the chosen form.
+        ("너무도", &["超무도", "超ㅜ도", "超도"]),
+        ("처음에", &["初음에", "初ㅁ에", "初에"]),
+        ("말씀을", &["言씀을", "言ㅁ을", "言을"]),
+        // An inflected stem keeps its ending; the rest of the stem comes back.
+        ("가까웠다", &["近웠다", "近까웠다"]),
+        ("가깝고", &["近고", "近깝고"]),
+    ] {
+        let got = candidates(&e, input);
+        assert!(in_order(&got, want), "{input}: {want:?} not in order in {got:?}");
+        // The dictionary form stays first and nothing is listed twice.
+        assert_eq!(got[0], want[0], "{input}");
+        let mut seen = std::collections::HashSet::new();
+        assert!(got.iter().all(|c| seen.insert(c)), "{input}: duplicates in {got:?}");
+        assert_eq!(e.convert(input)[0].text, want[0], "{input}");
+    }
+    // 過무 can be typed for 너무.
+    assert!(candidates(&e, "너무").iter().any(|c| c == "過무"));
+    assert!(candidates(&e, "너무도").iter().any(|c| c == "過무도"));
+    // The dictionary forms of a word come before its other forms.
+    let got = candidates(&e, "오히려");
+    assert!(got.iter().position(|c| c == "尙려") < got.iter().position(|c| c == "尙히려"));
+}
+
+#[test]
+fn one_syllable_words_have_the_letter_and_the_character() {
+    let e = engine(Options::default());
+    let got = candidates(&e, "나");
+    assert!(in_order(&got, &["我", "我ㅏ"]), "{got:?}");
+    let got = candidates(&e, "달");
+    assert!(in_order(&got, &["月", "月ㄹ"]), "{got:?}");
+    // The form that exists already is not offered twice.
+    let got = candidates(&e, "좀");
+    assert_eq!(got.iter().filter(|c| *c == "少ㅁ").count(), 1, "{got:?}");
+}
+
+#[test]
+fn forms_of_lists_dictionary_forms_only() {
+    let e = engine(Options::default());
+    let find = |lemma: &str, hanja: &str| e.natives.iter().position(|n| n.lemma == lemma && n.hanja == hanja).unwrap_or_else(|| panic!("{lemma} {hanja}"));
+    let neomu = e.forms_of(find("너무", "超"));
+    assert!(!neomu.is_empty() && neomu.iter().all(|(w, _)| w.starts_with("超무")), "{neomu:?}");
+    let chaeum = e.forms_of(find("처음", "初"));
+    assert!(chaeum.iter().all(|(w, _)| w.starts_with("初음")), "{chaeum:?}");
+    let gakkapda = e.forms_of(find("가깝다", "近"));
+    assert!(gakkapda.iter().all(|(w, _)| !w.starts_with("近까") && !w.starts_with("近깝")), "{gakkapda:?}");
+    // Nothing the strategies add is a dictionary form of these entries.
+    for (forms, extra) in [(&neomu, ["超ㅜ", "超"]), (&chaeum, ["初ㅁ", "初"])] {
+        assert!(forms.iter().all(|(w, _)| !extra.contains(&w.as_str())), "{forms:?}");
+    }
+}
+
+#[test]
+fn okurigana_variants_read_back() {
+    let e = engine(Options::default());
+    for (written, read) in [
+        ("超ㅜ", "너무"), ("過무", "너무"), ("超무", "너무"), ("初ㅁ에", "처음에"),
+        ("尙히려", "오히려"), ("近까웠다", "가까웠다"), ("近깝고", "가깝고"), ("言씀을", "말씀을"),
+        ("何ㅔ", "어떻게"),
+    ] {
+        assert_eq!(e.read(written), read, "{written}");
+    }
+    // The Hanja alone is read by sound, as before.
+    assert_eq!(e.read("超"), "초");
+    assert_eq!(e.read("初에"), "초에");
+}

@@ -16,6 +16,9 @@
 //! A ㅣ standing after Hanja is also written as a syllable (基ㅣ니 as 基이니,
 //! 基ㅣㄴ데 as 基인데, 我ㅣ as 我이).
 //!
+//! The past 았/었 right after Hanja is also written ㅆ, with the Hanja standing
+//! for the vowel too (在었다 as 在ㅆ다, 食었어요 as 食ㅆ어요).
+//!
 //! The plural 들 is also written 等 or 們 (人들 as 人等, 人們). After a word that
 //! already ends in one of them (我等 우리), the form without 들 comes first.
 
@@ -96,6 +99,36 @@ pub(super) fn add_i_spellings(list: &mut Vec<Candidate>) {
 }
 
 impl Engine {
+    /// Add the ㅆ spelling of each form of a verb edge `e` with the past 았/었
+    /// right after its Hanja.
+    pub(super) fn add_past_forms(&self, e: &Edge, forms: &mut Vec<Candidate>) {
+        let Kind::Verb { entry, .. } = e.kind else { return };
+        let hanja = &self.natives[entry as usize].hanja;
+        if hanja.is_empty() {
+            return;
+        }
+        let mut out = Vec::with_capacity(forms.len() + 1);
+        for c in forms.drain(..) {
+            let past = c.text.strip_prefix(hanja.as_str()).and_then(|r| r.strip_prefix(['았', '었'])).map(|rest| format!("{hanja}ㅆ{rest}"));
+            let note = c.note.clone();
+            out.push(c);
+            if let Some(text) = past {
+                out.push(Candidate { text, note });
+            }
+        }
+        *forms = out;
+    }
+
+    /// Whether edge `e` keeps its other spellings beside its dictionary form.
+    pub(super) fn has_past_form(&self, comps: &[char], e: &Edge) -> bool {
+        let Kind::Verb { entry, .. } = e.kind else { return false };
+        let hanja = &self.natives[entry as usize].hanja;
+        !hanja.is_empty()
+            && self.render_dict(comps, e).first().is_some_and(|c| {
+                c.text.strip_prefix(hanja.as_str()).is_some_and(|r| r.starts_with(['았', '었']))
+            })
+    }
+
     /// Add the 等 and 們 spellings of a plural 들 to the forms of edge `e`. A
     /// word that is already plural (我等 우리) puts the form without 들 first.
     pub(super) fn add_plural_forms(&self, e: &Edge, forms: &mut Vec<Candidate>) {
@@ -206,6 +239,12 @@ impl Engine {
         let mut add = |comps: Vec<char>, kind: Kind| {
             let edge = Edge { start: 0, end: comps.len(), cost: 0.0, kind };
             let surface = compose(&comps);
+            let mut past = self.render_dict_as(&comps, &edge, true);
+            let before = past.len();
+            self.add_past_forms(&edge, &mut past);
+            if past.len() > before {
+                out.extend(past.into_iter().filter(|c| c.text.contains('ㅆ')).map(|c| (c.text, surface.clone())));
+            }
             for c in self.okurigana(&comps, &edge, &[], false) {
                 out.push((c.text, surface.clone()));
             }

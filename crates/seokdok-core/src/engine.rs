@@ -980,6 +980,7 @@ impl Engine {
         let mut out = self.render_dict(comps, e);
         if !self.options.sino_only {
             self.add_plural_forms(e, &mut out);
+            self.add_past_forms(e, &mut out);
             let more = self.okurigana(comps, e, &out, true);
             out.extend(more);
         }
@@ -1389,7 +1390,7 @@ impl Engine {
                     matches!(e.kind, Kind::Nominal { entry, .. } if crate::jamo::syllable_count(&self.natives[entry as usize].stem) == 1)
                 };
                 for &(_, i) in &alts {
-                    let forms = if one_syllable(&edges[i]) || self.is_plural(&edges[i]) { self.render(&comps, &edges[i]) } else { self.render_dict(&comps, &edges[i]) };
+                    let forms = if one_syllable(&edges[i]) || self.is_plural(&edges[i]) || self.has_past_form(&comps, &edges[i]) { self.render(&comps, &edges[i]) } else { self.render_dict(&comps, &edges[i]) };
                     for c in forms {
                         if !cands.iter().any(|x| x.text == c.text) {
                             cands.push(c);

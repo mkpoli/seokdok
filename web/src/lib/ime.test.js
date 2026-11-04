@@ -1011,6 +1011,7 @@ test('dictation: a finished run of Hangul waits to convert', async () => {
   p.play([['input', 'insertDictationResult', '안녕']])
   expect(p.ime.pre).toBe('안녕')
   expect(p.ime.doc).toBe('')
+  p.sink.now = () => 1e12 // dictation has stopped
   await expectConverts(p, '안녕', '安寧')
 })
 
@@ -1020,6 +1021,26 @@ test('dictation: several words and punctuation, and the keyboard revising them',
   expect(p.ime.pre).toBe('하늘 봤다.')
   p.play([['input', 'insertReplacementText', '하늘을 봤다.', 6]])
   expect(p.ime.pre).toBe('하늘을 봤다.')
+})
+
+test('dictation rewriting its text is not doubled, and Space converts afterwards', async () => {
+  const p = page()
+  let now = 0
+  p.sink.now = () => now
+  // iOS sends the sentence in runs, ending some in a space, and revises them.
+  p.play([['input', 'insertDictationResult', '안녕하세요 ']])
+  now += 300
+  p.play([['input', 'insertDictationResult', '음성으로 ']])
+  now += 300
+  p.play([['input', 'insertDictationResult', '.']])
+  now += 300
+  p.play([['input', 'insertReplacementText', '안녕하세요. 음성으로 입력해요. ', 12]])
+  expect(p.ime.doc).toBe('')
+  expect(p.ime.pre).toBe('안녕하세요. 음성으로 입력해요. ')
+  // Once it has stopped, Space is Space again.
+  now += 2000
+  await space(p)
+  expect(p.ime.segs).not.toBe(null)
 })
 
 test('Korean autocomplete replacing a word follows the keyboard', () => {

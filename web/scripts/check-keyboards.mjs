@@ -204,6 +204,8 @@ const CHECKS = {
   'Dictation: finished words wait to convert': async (d, see) => {
     await d.whole('하늘을 봤다')
     await see({ pre: '하늘을 봤다', doc: '' })
+    // Space within a second of a run of Hangul is taken as dictation still at work.
+    await new Promise((r) => setTimeout(r, 1100))
     await d.send(' ')
     await see({ doc: '', pre: '' })
   },

@@ -7,7 +7,8 @@
 // event's data. They read the textarea and compare it with what it held:
 //
 //   - a single character no Korean keyboard composes is the same as a key press;
-//   - a Space or line break added at the end is that key;
+//   - a Space or line break added at the end is that key, unless a run of
+//     Hangul has just arrived, which is dictation at work;
 //   - Hangul, and whatever is being composed, stays in the textarea and the
 //     preedit is recomposed from it on every change, so the keyboard keeps the
 //     context it edits and any edit it makes simply shows;
@@ -39,6 +40,10 @@ export const syllables = (s) =>
 const MARK = '\u200B'
 const LATIN = /^[a-zA-Z]$/
 const BREAK = /^[ \n]$/
+// Dictation keeps its own idea of the text and rewrites it as it goes, in runs
+// of Hangul. While it may still be doing that, nothing is a key press: a commit
+// would clear what it goes on to write again in full.
+const BULK_MS = 1000
 
 /** @typedef {{ c: string, finished: boolean }} Unit one code point, sent alone or as part of finished text */
 
@@ -53,6 +58,8 @@ export class Sink {
   /** Characters at the start of the textarea that are spent but cannot be
    *  removed yet: writing to it would break the composition. */
   #stale = 0
+  /** When the textarea last changed by several characters at once. */
+  #bulkAt = -Infinity
 
   /**
    * @param {import('./ime.svelte.js').Ime} ime
@@ -75,6 +82,11 @@ export class Sink {
     if (e.key.length === 1 && e.key > '~') return false
     // The browser deletes what the keyboard typed.
     return !(e.key === 'Backspace' && this.#units.length)
+  }
+
+  /** The clock, for tests to replace. */
+  now() {
+    return performance.now()
   }
 
   /** Run `f` now, or in turn behind a conversion in flight. The textarea is
@@ -173,11 +185,16 @@ export class Sink {
       added = added.filter((c) => BREAK.test(c)).slice(-1)
     }
 
+    const now = this.now()
+    const runOfHangul = added.length > 1 && added.some((c) => HANGUL.test(c))
+    if (!composing && runOfHangul) this.#bulkAt = now
+    const bulk = now - this.#bulkAt < BULK_MS
+
     let press = null
-    if (!composing && BREAK.test(added.at(-1)) && !added.slice(0, -1).some((c) => BREAK.test(c))) press = added.pop()
+    if (!composing && !bulk && BREAK.test(added.at(-1)) && !added.slice(0, -1).some((c) => BREAK.test(c))) press = added.pop()
 
     const kept = spent ? [] : prev.slice(0, at)
-    if (!composing && added.length === 1 && added[0].length === 1 && !HANGUL.test(added[0])) {
+    if (!composing && !bulk && added.length === 1 && added[0].length === 1 && !HANGUL.test(added[0])) {
       if (kept.length !== prev.length && !spent) this.#fill(kept)
       ime.key({ key: added[0] })
       this.#rebase()

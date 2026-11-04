@@ -38,11 +38,11 @@ pub mod vk {
     pub const RCONTROL: u16 = 0xA3;
     pub const LMENU: u16 = 0xA4;
     pub const RMENU: u16 = 0xA5;
-    /// VK_DBE_HIRAGANA: カタカナ/ひらがな on a Japanese layout.
-    pub const DBE_HIRAGANA: u16 = 0xF2;
-    /// VK_DBE_SBCSCHAR and VK_DBE_DBCSCHAR: 半角/全角 on a Japanese layout.
-    pub const DBE_SBCSCHAR: u16 = 0xF3;
-    pub const DBE_DBCSCHAR: u16 = 0xF4;
+    /// カタカナ/ひらがな on a Japanese layout.
+    pub const OEM_COPY: u16 = 0xF2;
+    /// 半角/全角 on a Japanese layout, one code for each state.
+    pub const OEM_AUTO: u16 = 0xF3;
+    pub const OEM_ENLW: u16 = 0xF4;
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]

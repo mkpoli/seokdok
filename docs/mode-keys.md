@@ -11,8 +11,8 @@ what 釋讀 binds by default. Sources were read on 2026-11-04. The lists are
 |---|---|---|---|
 | Windows, Microsoft IME | Right Alt switches Korean and English; right Ctrl converts to Hanja | `RAlt` tap, `RCtrl` tap | [1] |
 | Windows, keyboard drivers | The driver maps keys to 한/영 and 한자: `kbd101a` right Alt, right Ctrl; `kbd101b` right Ctrl, right Alt; `kbd101c` Shift+Space, Ctrl+Space; `kbd103` dedicated keys | `Hangul`, `Hanja`, which these all produce. Shift+Space stays 띄어쓰기 unless the type 3 driver turns it into 한/영 first | [2], [3], [4] |
-| Windows, Microsoft Japanese IME | 半角/全角 turns Japanese input on and off; 変換 reconverts, 無変換 cycles kana, unless the ATOK template or a key assignment changes them | `Zenkaku` toggles. `Muhenkan` to Latin, `Henkan` back, then converts | [5], [6], [7] |
-| Windows, ImeOn and ImeOff keys | LANG1, LANG2: scan 0xF2, 0xF1, VK_IME_ON, VK_IME_OFF | `ImeOn` back to Korean, `ImeOff` to Latin | [6], [8] |
+| Windows, Microsoft Japanese IME | 半角/全角 turns Japanese input on and off; 変換 reconverts, 無変換 cycles kana, unless the ATOK template or a key assignment changes them | `Zenkaku` toggles. `Muhenkan` to Latin, `Henkan` back, then converts | [5], [7], [8] |
+| Windows, ImeOn and ImeOff keys | LANG1, LANG2: scan 0xF2, 0xF1, VK_IME_ON, VK_IME_OFF | `ImeOn` back to Korean, `ImeOff` to Latin | [4], [6] |
 | macOS, system | Control-Space, Control-Option-Space, the Fn or Globe key, and Caps Lock (an option in Input Sources) switch input sources | Not bound: the system takes them. The three 釋讀 modes are input sources, so these reach them | [9] |
 | macOS, Apple Korean | Option-Return opens the Hanja candidates | `Alt+Enter` | [10] |
 | macOS, JIS keyboards | 英数 and かな | `Eisu` to Latin, `Kana` back. Korean keyboards send 한/영 and 한자 on the same USB usages, so a Korean PC keyboard reaches these two entries | [11] |
@@ -82,7 +82,7 @@ preserved key would not replace. The sink stays the single path, so
 5. Microsoft Support, [Microsoft Japanese IME](https://support.microsoft.com/windows/microsoft-japanese-ime-da40471d-6b91-4042-ae8b-713a96476916).
 6. Microsoft Learn, [Keyboard Japan ImeOn/ImeOff implementation](https://learn.microsoft.com/en-us/windows-hardware/design/component-guidelines/keyboard-japan-ime).
 7. MDN, [Keyboard event code values](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_code_values): scan codes 0x70, 0x79, 0x7B, 0x29, 0xE0F1, 0xE0F2.
-8. `VK_DBE_HIRAGANA`, `VK_DBE_SBCSCHAR`, `VK_DBE_DBCSCHAR` as defined by the `windows` crate 0.62 (`Win32::UI::Input::KeyboardAndMouse`). Their use on a Japanese layout is from memory of `ime.h`, not a Microsoft page.
+8. MDN, [Keyboard event key values](https://developer.mozilla.org/en-US/docs/Web/API/UI_Events/Keyboard_event_key_values): `VK_OEM_AUTO` 0xF3, `VK_OEM_ENLW` 0xF4, `VK_OEM_COPY` 0xF2 on Japanese keyboards. Microsoft's virtual-key table lists 0xE9-F5 only as OEM specific.
 9. Apple, [Write in another language on Mac](https://support.apple.com/guide/mac-help/mchlp1406/mac) and [Change Input Sources settings on Mac](https://support.apple.com/guide/mac-help/change-input-sources-settings-mchl84525d76/mac).
 10. Apple, [Korean Input Method User Guide](https://support.apple.com/guide/korean-input-method/korean-hangul-input-method-user-guide-him001/mac).
 11. Apple Developer, [`UIKeyboardHIDUsage.keyboardLANG1`](https://developer.apple.com/documentation/uikit/uikeyboardhidusage/keyboardlang1) and [`keyboardLANG2`](https://developer.apple.com/documentation/uikit/uikeyboardhidusage/keyboardlang2). Written for UIKit; that AppKit's key codes follow them is an inference.

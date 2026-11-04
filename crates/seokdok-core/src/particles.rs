@@ -5,7 +5,7 @@
 use crate::jamo::decompose;
 
 /// Which nominal endings a particle form may follow.
-#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
 pub enum Cond {
     Cons,
     Vowel,
@@ -107,6 +107,13 @@ pub fn particles() -> Vec<Particle> {
     for (s, cond) in CONTRACT {
         add(s, *cond, false);
     }
+    // One entry per form: where a form that fits only one kind of noun (이다
+    // after a consonant) is also listed for any noun, the any-noun entry
+    // stands alone. A repeat would give every path through it twice and use
+    // up the search's list of best paths.
+    let any: std::collections::HashSet<Vec<char>> = out.iter().filter(|p| p.cond == Cond::Any).map(|p| p.comps.clone()).collect();
+    let mut seen = std::collections::HashSet::new();
+    out.retain(|p| (p.cond == Cond::Any || !any.contains(&p.comps)) && seen.insert((p.comps.clone(), p.cond)));
     out
 }
 

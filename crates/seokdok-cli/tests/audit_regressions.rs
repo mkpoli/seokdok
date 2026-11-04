@@ -179,6 +179,12 @@ fn nouns_that_a_bare_stem_would_take() {
 }
 
 #[test]
+fn a_copula_form_is_listed_once() {
+    // Listed twice, it would fill the search's best paths with copies and push 第이다 out.
+    offers(&[("집이다", "第이다"), ("집이다", "宙이다")]);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "吾ㄹ")]);
 }

@@ -114,6 +114,12 @@ The app writes its settings as `config.toml` (the format of
 keyboard reads it, with `custom.json` and `user.tsv` if present there, each
 time it appears.
 
+The keyboard keeps the candidates a person picks in `learned.tsv`
+([docs/learning.md](../docs/learning.md)): in the App Group container with Full
+Access, where the app's button clears it, and in its own container without it.
+There the app cannot reach the file, so holding the 釋 key shows the controls in
+the strip above the keys.
+
 A keyboard reaches the shared container only with Full Access (Apple's App
 Extension Programming Guide, Custom Keyboard, Table 8-1: without it "No
 shared container with containing app"). Without Full Access the keyboard

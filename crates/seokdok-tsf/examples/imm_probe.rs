@@ -13,9 +13,12 @@
 //! IME message it receives. Options: `--native` (Hangul
 //! mode first), `--ms` (Microsoft's Korean IME, as a control), `--dll=PATH`
 //! (serve the text service from a build, for this process only), `--idle=SECS`.
-//! With `--tsf`: `--refuse-start` (reject every composition) and
-//! `--refuse-write=N` (end the composition right after its Nth write). In the
-//! keys, `_` is Space, `~` is Enter and `.` waits one tick.
+//! With `--tsf`: `--refuse-start` (reject every composition),
+//! `--refuse-write=N` (end the composition right after its Nth write),
+//! `--drain-write=N` (empty the composition after its Nth write, as a bridge
+//! that delivered the text would) and `--move-focus=N` (give the focus to a
+//! second document before the Nth key). In the keys, `_` is Space, `~` is Enter
+//! and `.` waits one tick.
 
 #[cfg(windows)]
 fn main() -> windows::core::Result<()> {
@@ -51,8 +54,8 @@ mod probe {
     use windows::Win32::UI::TextServices::{
         CLSID_TF_InputProcessorProfiles, CLSID_TF_ThreadMgr, ITfCompositionView, ITfContext, ITfContextOwner,
         ITfContextOwnerCompositionServices, ITfContextOwnerCompositionSink, ITfContextOwnerCompositionSink_Impl,
-        ITfContextOwner_Impl, ITfEditRecord, ITfEditSession, ITfEditSession_Impl, ITfInputProcessorProfileMgr, ITfRange,
-        ITfSource, ITfTextEditSink, ITfTextEditSink_Impl, ITfThreadMgr, TF_ES_READ, TF_ES_SYNC,
+        ITfContextOwner_Impl, ITfDocumentMgr, ITfEditRecord, ITfEditSession, ITfEditSession_Impl, ITfInputProcessorProfileMgr, ITfRange,
+        ITfSource, ITfTextEditSink, ITfTextEditSink_Impl, ITfThreadMgr, TF_ES_READ, TF_ES_READWRITE, TF_ES_SYNC,
         TF_IPPMF_DONTCARECURRENTINPUTLANGUAGE, TF_IPPMF_FORPROCESS, TF_PROFILETYPE_INPUTPROCESSOR, TS_SS_NOHIDDENTEXT,
         TS_SS_TRANSITORY, TS_STATUS,
     };
@@ -63,8 +66,11 @@ mod probe {
         static TEXT: RefCell<String> = RefCell::new(String::new());
         /// The virtual keys this probe types; any other key is somebody's.
         static OURS: RefCell<Vec<u16>> = const { RefCell::new(Vec::new()) };
-        /// `--tsf`: the context this window owns, and the client id to read it with.
-        static CONTEXT: RefCell<Option<(ITfContext, u32)>> = const { RefCell::new(None) };
+        /// `--tsf`: the contexts this window owns, and the client id to read them with.
+        static CONTEXTS: RefCell<Vec<ITfContext>> = const { RefCell::new(Vec::new()) };
+        static CLIENT: Cell<u32> = const { Cell::new(0) };
+        /// `--move-focus`: the thread manager and the document to move to.
+        static SECOND: RefCell<Option<(ITfThreadMgr, ITfDocumentMgr)>> = const { RefCell::new(None) };
     }
 
     fn log(s: String) {
@@ -79,6 +85,8 @@ mod probe {
         refuse_start: bool,
         /// Writes left until the composition is ended; 0 never ends it.
         refuse_write: Cell<u32>,
+        /// Writes left until the composition is emptied; 0 never empties it.
+        drain_write: Cell<u32>,
         composing: Cell<bool>,
     }
 
@@ -106,6 +114,14 @@ mod probe {
                 if left == 1 {
                     // SAFETY: hwnd is this probe's window.
                     unsafe { PostMessageW(Some(self.hwnd), WM_APP, WPARAM(0), LPARAM(0))? };
+                }
+            }
+            let left = self.drain_write.get();
+            if self.composing.get() && left > 0 {
+                self.drain_write.set(left - 1);
+                if left == 1 {
+                    // SAFETY: hwnd is this probe's window.
+                    unsafe { PostMessageW(Some(self.hwnd), WM_APP + 1, WPARAM(0), LPARAM(0))? };
                 }
             }
             Ok(())
@@ -141,10 +157,11 @@ mod probe {
         }
     }
 
-    /// Reads the whole document.
+    /// Reads the whole document, or empties it.
     #[implement(ITfEditSession)]
     struct Reader {
         context: ITfContext,
+        drain: bool,
     }
 
     impl ITfEditSession_Impl for Reader_Impl {
@@ -154,6 +171,10 @@ mod probe {
                 let range = self.context.GetStart(ec)?;
                 let mut shifted = 0;
                 range.ShiftEnd(ec, 4096, &mut shifted, std::ptr::null())?;
+                if self.drain {
+                    log("store: emptied the document".into());
+                    return range.SetText(ec, 0, &[]);
+                }
                 let mut buf = [0u16; 4096];
                 let mut len = 0;
                 range.GetText(ec, 0, &mut buf, &mut len)?;
@@ -164,23 +185,42 @@ mod probe {
     }
 
     fn log_document() {
-        CONTEXT.with(|c| {
-            if let Some((context, client)) = c.borrow().as_ref() {
-                let session: ITfEditSession = Reader { context: context.clone() }.into();
+        CONTEXTS.with(|c| {
+            for context in c.borrow().iter() {
+                let session: ITfEditSession = Reader { context: context.clone(), drain: false }.into();
                 // SAFETY: context and session are valid.
-                let _ = unsafe { context.RequestEditSession(*client, &session, TF_ES_SYNC | TF_ES_READ) };
+                let _ = unsafe { context.RequestEditSession(CLIENT.get(), &session, TF_ES_SYNC | TF_ES_READ) };
             }
         });
     }
 
-    /// Give `hwnd` a transitory context of its own, as Windows Terminal does
-    /// in src/tsf/Implementation.cpp.
-    unsafe fn own_a_context(hwnd: HWND, refuse_start: bool, refuse_write: u32) -> windows::core::Result<()> {
-        let manager: ITfThreadMgr = CoCreateInstance(&CLSID_TF_ThreadMgr, None, CLSCTX_INPROC_SERVER)?;
-        let client = manager.Activate()?;
+    fn drain_document() {
+        CONTEXTS.with(|c| {
+            if let Some(context) = c.borrow().first() {
+                let session: ITfEditSession = Reader { context: context.clone(), drain: true }.into();
+                // SAFETY: context and session are valid.
+                let _ = unsafe { context.RequestEditSession(CLIENT.get(), &session, TF_ES_SYNC | TF_ES_READWRITE) };
+            }
+        });
+    }
+
+    fn move_focus(hwnd: HWND) {
+        SECOND.with(|s| {
+            if let Some((manager, documents)) = s.borrow().as_ref() {
+                // SAFETY: manager and documents are valid; hwnd is this probe's window.
+                let r = unsafe { manager.AssociateFocus(hwnd, documents).map(|_| ()).and_then(|()| manager.SetFocus(documents)) };
+                log(format!("store: moved the focus to the second document: {r:?}"));
+            }
+        });
+    }
+
+    /// A transitory document with its store, pushed and ready for focus.
+    unsafe fn new_document(
+        manager: &ITfThreadMgr,
+        client: u32,
+        store: ITfContextOwnerCompositionSink,
+    ) -> windows::core::Result<ITfDocumentMgr> {
         let documents = manager.CreateDocumentMgr()?;
-        let store: ITfContextOwnerCompositionSink =
-            Store { hwnd, refuse_start, refuse_write: Cell::new(refuse_write), composing: Cell::new(false) }.into();
         let (mut context, mut cookie) = (None, 0);
         documents.CreateContext(client, 0, &store, &mut context, &mut cookie)?;
         let context = context.ok_or(windows::core::Error::from(E_NOTIMPL))?;
@@ -188,12 +228,36 @@ mod probe {
         source.AdviseSink(&ITfContextOwner::IID, &store)?;
         source.AdviseSink(&ITfTextEditSink::IID, &store)?;
         documents.Push(&context)?;
-        manager.AssociateFocus(hwnd, &documents).ok();
-        manager.SetFocus(&documents)?;
-        CONTEXT.with(|c| *c.borrow_mut() = Some((context, client)));
+        CONTEXTS.with(|c| c.borrow_mut().push(context));
         // Stays until the process exits.
-        std::mem::forget((manager, documents, store));
-        log("window owns a transitory context".into());
+        std::mem::forget(store);
+        Ok(documents)
+    }
+
+    /// Give `hwnd` a transitory context of its own, as Windows Terminal does
+    /// in src/tsf/Implementation.cpp.
+    unsafe fn own_a_context(hwnd: HWND, refuse_start: bool, refuse_write: u32, drain_write: u32) -> windows::core::Result<()> {
+        let manager: ITfThreadMgr = CoCreateInstance(&CLSID_TF_ThreadMgr, None, CLSCTX_INPROC_SERVER)?;
+        let client = manager.Activate()?;
+        CLIENT.set(client);
+        let store = |refuse_start, refuse_write, drain_write| -> ITfContextOwnerCompositionSink {
+            Store {
+                hwnd,
+                refuse_start,
+                refuse_write: Cell::new(refuse_write),
+                drain_write: Cell::new(drain_write),
+                composing: Cell::new(false),
+            }
+            .into()
+        };
+        let first = new_document(&manager, client, store(refuse_start, refuse_write, drain_write))?;
+        let second = new_document(&manager, client, store(false, 0, 0))?;
+        manager.AssociateFocus(hwnd, &first).ok();
+        manager.SetFocus(&first)?;
+        SECOND.with(|s| *s.borrow_mut() = Some((manager, second)));
+        // Stays until the process exits.
+        std::mem::forget(first);
+        log("window owns transitory contexts".into());
         Ok(())
     }
 
@@ -251,14 +315,18 @@ mod probe {
                 unsafe { DefWindowProcW(hwnd, msg, wp, lp) }
             }
             WM_APP => {
-                CONTEXT.with(|c| {
-                    if let Some((context, _)) = c.borrow().as_ref() {
+                CONTEXTS.with(|c| {
+                    if let Some(context) = c.borrow().first() {
                         let services: windows::core::Result<ITfContextOwnerCompositionServices> = context.cast();
                         // SAFETY: services is a valid interface of the context.
                         let r = services.and_then(|s| unsafe { s.TerminateComposition(None) });
                         log(format!("store: ended the composition: {r:?}"));
                     }
                 });
+                LRESULT(0)
+            }
+            m if m == WM_APP + 1 => {
+                drain_document();
                 LRESULT(0)
             }
             WM_DESTROY => {
@@ -370,7 +438,8 @@ mod probe {
             if std::env::args().any(|a| a == "--tsf") {
                 let refuse_start = std::env::args().any(|a| a == "--refuse-start");
                 let refuse_write = std::env::args().find_map(|a| a.strip_prefix("--refuse-write=").and_then(|v| v.parse().ok())).unwrap_or(0);
-                own_a_context(hwnd, refuse_start, refuse_write)?;
+                let drain_write = std::env::args().find_map(|a| a.strip_prefix("--drain-write=").and_then(|v| v.parse().ok())).unwrap_or(0);
+                own_a_context(hwnd, refuse_start, refuse_write, drain_write)?;
             }
             let _ = SetForegroundWindow(hwnd);
             let _ = SetFocus(Some(hwnd));
@@ -385,6 +454,8 @@ mod probe {
             let mut msg = MSG::default();
             let mut queue: std::collections::VecDeque<char> = keys.chars().collect();
             let mut started = false;
+            let mut typed = 0u32;
+            let move_focus = std::env::args().find_map(|a| a.strip_prefix("--move-focus=").and_then(|v| v.parse().ok())).unwrap_or(0u32);
             let mut idle = 0;
             while GetMessageW(&mut msg, None, 0, 0).into() {
                 if msg.message == WM_TIMER {
@@ -404,6 +475,10 @@ mod probe {
                     log_document();
                     match queue.pop_front() {
                         Some(ch) => {
+                            typed += 1;
+                            if typed == move_focus {
+                                self::move_focus(hwnd);
+                            }
                             if GetForegroundWindow() != hwnd {
                                 log("lost the foreground; stopped typing".into());
                                 queue.clear();

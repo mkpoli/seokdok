@@ -5,6 +5,7 @@
 use std::time::Duration;
 
 use crate::config::Surface;
+use crate::keys::Key;
 
 /// A composition that ends this soon after its first write was ended by the
 /// document's reaction to that write: nobody clicks or switches that fast.
@@ -109,6 +110,18 @@ pub fn commits_plainly(through_imm32: bool, window_class: &str) -> bool {
     !through_imm32 && window_class.starts_with("Chrome_WidgetWin_")
 }
 
+/// A commit found the composition drained, so all of it counts as delivered.
+/// Whether the key goes round again: a letter or a punctuation mark is new
+/// input, while Enter, Space and a candidate digit only confirmed what is
+/// already there. A digit typed on an unopened conversion is lost with them.
+pub fn replays_after_drained_commit(key: Key) -> bool {
+    match key {
+        Key::Letter { .. } => true,
+        Key::Printable(c) => !c.is_ascii_digit(),
+        _ => false,
+    }
+}
+
 /// Decides when refusals are enough to float this process from now on. A web
 /// page can cancel a composition right after a key too, so one refusal after
 /// the edit session only floats that composition.
@@ -197,6 +210,15 @@ mod tests {
         assert!(!commits_plainly(true, "Chrome_WidgetWin_1"));
         assert!(!commits_plainly(false, "CASCADIA_HOSTING_WINDOW_CLASS"));
         assert!(!commits_plainly(false, ""));
+    }
+
+    #[test]
+    fn a_drained_commit_replays_only_new_input() {
+        assert!(replays_after_drained_commit(Key::Letter { ch: 'r', shift: false }));
+        assert!(replays_after_drained_commit(Key::Printable(',')));
+        assert!(!replays_after_drained_commit(Key::Printable('1')));
+        assert!(!replays_after_drained_commit(Key::Enter));
+        assert!(!replays_after_drained_commit(Key::Space { shift: false }));
     }
 
     #[test]

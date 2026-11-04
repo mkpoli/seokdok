@@ -23,7 +23,7 @@ use crate::config::Surface;
 use crate::edit_session::run_sync;
 use crate::engine_host::HOST;
 use crate::session::{Attr, Effect, Run};
-use crate::surface::{at_boundary, choose, classify_end, commits_plainly, undelivered, AtBoundary, End, Facts};
+use crate::surface::{at_boundary, choose, classify_end, commits_plainly, replays_after_drained_commit, undelivered, AtBoundary, End, Facts};
 use crate::text_service::TextService_Impl;
 
 /// This process refused a composition, so it gets the floating preedit.
@@ -161,7 +161,12 @@ impl TextService_Impl {
                     self.inner_mut().floating = None;
                     let r = self.commit(context, &text);
                     self.redraw();
-                    r
+                    match r {
+                        // The rest of these effects would write what the
+                        // application already has.
+                        Ok(true) => return result.and(self.start_over_after_drain(context)),
+                        other => other.map(|_| ()),
+                    }
                 }
                 Effect::Cancel => {
                     self.inner_mut().floating = None;
@@ -421,23 +426,8 @@ impl TextService_Impl {
                 self.float_preedit(context, runs);
             }
             Written::Vanished => {
-                self.remember_floating("the composition's text vanished");
                 crate::debug_log::log(|| "  the text so far counts as delivered; replaying this key".to_string());
-                let effects = {
-                    let mut state = self.inner_mut();
-                    state.composition = None;
-                    state.drawn.clear();
-                    state.session.reset();
-                    match state.current_key.take() {
-                        Some(key) => {
-                            let output = state.session.handle(key, &HOST);
-                            state.replay_passed = !output.eaten;
-                            output.effects
-                        }
-                        None => Vec::new(),
-                    }
-                };
-                return self.apply(context, effects);
+                return self.start_over(context, true);
             }
             Written::FirstWriteFailed { undone: true } => {
                 crate::debug_log::log(|| "  undone before the document saw it, floating this composition".to_string());
@@ -455,13 +445,47 @@ impl TextService_Impl {
         Ok(())
     }
 
+    /// A commit found the composition drained: all of it counts as delivered.
+    fn start_over_after_drain(&self, context: &ITfContext) -> windows::core::Result<()> {
+        let replay = self.inner().current_key.is_some_and(replays_after_drained_commit);
+        crate::debug_log::log(|| format!("  the whole composition counts as delivered, session reset, replay={replay}"));
+        self.start_over(context, replay)
+    }
+
+    /// The composition was drained: float from now on and forget its text. With
+    /// `replay` the key being handled goes round again on the empty session,
+    /// so it adds only itself, or passes on to the application if it is not
+    /// input there.
+    fn start_over(&self, context: &ITfContext, replay: bool) -> windows::core::Result<()> {
+        self.remember_floating("the composition's text vanished");
+        let effects = {
+            let mut state = self.inner_mut();
+            state.composition = None;
+            state.anchor = None;
+            state.drawn.clear();
+            state.popup = None;
+            state.session.reset();
+            match state.current_key.take().filter(|_| replay) {
+                Some(key) => {
+                    let output = state.session.handle(key, &HOST);
+                    state.replay_passed = !output.eaten;
+                    output.effects
+                }
+                None => Vec::new(),
+            }
+        };
+        self.redraw();
+        self.apply(context, effects)
+    }
+
     /// Replace the composition by final text and end it. With no composition
     /// the text goes in at the selection, plainly or through a composition that
-    /// starts and ends here (see [`commits_plainly`]).
-    fn commit(&self, context: &ITfContext, text: &str) -> windows::core::Result<()> {
+    /// starts and ends here (see [`commits_plainly`]). Returns true if the
+    /// composition turned out to be drained.
+    fn commit(&self, context: &ITfContext, text: &str) -> windows::core::Result<bool> {
         let open = self.inner().composition.is_some();
         if !open && text.is_empty() {
-            return Ok(());
+            return Ok(false);
         }
         let transitory = is_transitory(context);
         let through_imm32 = self.inner().imm32_context == Some(context.as_raw() as usize);
@@ -481,7 +505,8 @@ impl TextService_Impl {
                 if plain {
                     let range = composer.insert.InsertTextAtSelection(ec, Default::default(), &wide)?;
                     range.Collapse(ec, TF_ANCHOR_END)?;
-                    return set_single_selection(&ctx, ec, &range);
+                    set_single_selection(&ctx, ec, &range)?;
+                    return Ok(false);
                 }
                 let comp = composer.get(ec)?;
                 let range = comp.GetRange()?;
@@ -490,23 +515,24 @@ impl TextService_Impl {
                     range.SetText(ec, 0, &owed)?;
                     range.Collapse(ec, TF_ANCHOR_END)?;
                     set_single_selection(&ctx, ec, &range)?;
-                    return comp.EndComposition(ec);
+                    comp.EndComposition(ec)?;
+                    return Ok(true);
                 }
                 range.SetText(ec, 0, &wide)?;
                 ctx.GetProperty(&GUID_PROP_ATTRIBUTE)?.Clear(ec, &range)?;
                 range.Collapse(ec, TF_ANCHOR_END)?;
                 set_single_selection(&ctx, ec, &range)?;
                 comp.EndComposition(ec)?;
-                Ok(())
+                Ok(false)
             }
         });
         self.inner_mut().ending = false;
-        result?;
+        let drained = result?;
         let mut state = self.inner_mut();
         state.composition = None;
         state.anchor = None;
         state.drawn.clear();
-        Ok(())
+        Ok(drained)
     }
 
     fn cancel(&self, context: &ITfContext) -> windows::core::Result<()> {

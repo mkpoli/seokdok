@@ -5,7 +5,7 @@
 use crate::jamo::decompose;
 
 /// Which nominal endings a particle form may follow.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, PartialOrd, Ord)]
 pub enum Cond {
     Cons,
     Vowel,
@@ -111,9 +111,11 @@ pub fn particles() -> Vec<Particle> {
     // One entry per form: where a form that fits only one kind of noun (이다
     // after a consonant) is also listed for any noun, the any-noun entry
     // stands alone. A repeat would give every path through it twice and use
-    // up the search's list of best paths.
-    let any: std::collections::HashSet<Vec<char>> = out.iter().filter(|p| p.cond == Cond::Any).map(|p| p.comps.clone()).collect();
-    let mut seen = std::collections::HashSet::new();
+    // up the search's list of best paths. Ordered sets, because a hash set
+    // frees its keys in an order that differs per process, which moved the
+    // heap's large blocks between runs and the resident peak by 3.5 MB.
+    let any: std::collections::BTreeSet<Vec<char>> = out.iter().filter(|p| p.cond == Cond::Any).map(|p| p.comps.clone()).collect();
+    let mut seen = std::collections::BTreeSet::new();
     out.retain(|p| (p.cond == Cond::Any || !any.contains(&p.comps)) && seen.insert((p.comps.clone(), p.cond)));
     out
 }

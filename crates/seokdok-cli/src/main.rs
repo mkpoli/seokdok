@@ -185,7 +185,8 @@ fn attest(eng: &Engine, args: &[String]) {
     let mut out = String::from("file\tline\tlemma\twritten\tcount\n");
     for (i, n) in eng.natives.iter().enumerate() {
         if credit[i] > 0 {
-            out.push_str(&format!("{}\t{}\t{}\t{}\t{}\n", n.origin.0, n.origin.1, n.lemma, n.hanja, credit[i]));
+            let (label, line) = eng.origin(i);
+            out.push_str(&format!("{label}\t{line}\t{}\t{}\t{}\n", n.lemma, n.hanja, credit[i]));
         }
     }
     std::fs::write(&args[1], out).expect("write");

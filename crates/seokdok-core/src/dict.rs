@@ -123,7 +123,6 @@ pub struct Native {
     pub hanja: String,
     /// Lemma components without 다 for inflecting words.
     pub stem: Vec<char>,
-    pub stem_str: String,
     /// Number of components covered by the Hanja.
     pub cover: usize,
     pub tail: Tail,
@@ -133,8 +132,8 @@ pub struct Native {
     pub source: Source,
     pub count: u32,
     pub cost: f32,
-    /// File label and line the entry came from.
-    pub origin: (String, usize),
+    /// File the entry came from, as an index for [`crate::engine::Engine::origin`], and its line.
+    pub origin: (u32, u32),
 }
 
 #[derive(Clone, Debug)]
@@ -278,7 +277,6 @@ pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
         pos,
         hanja: hanja.to_string(),
         stem,
-        stem_str,
         cover,
         tail,
         class,
@@ -287,7 +285,7 @@ pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
         source,
         count,
         cost: native_cost(source, count),
-        origin: (String::new(), 0),
+        origin: (0, 0),
     })
 }
 
@@ -315,14 +313,36 @@ pub fn parse_sino(fields: &[&str]) -> Result<Sino, String> {
 /// Read a TSV file's data lines (skipping blanks, `#` comments and a header
 /// line starting with `lemma` or `reading`).
 pub fn tsv_lines(text: &str) -> impl Iterator<Item = (usize, Vec<&str>)> {
-    text.lines().enumerate().filter_map(|(i, l)| {
-        let t = l.trim_end_matches('\r');
-        if t.trim().is_empty() || t.starts_with('#') || t.starts_with("lemma\t") || t.starts_with("reading\t") {
-            None
-        } else {
-            Some((i + 1, t.split('\t').collect()))
+    text.lines().enumerate().filter_map(|(i, l)| tsv_fields(l).map(|f| (i + 1, f)))
+}
+
+/// One line's fields, or `None` for a blank, comment or header line.
+pub fn tsv_fields(line: &str) -> Option<Vec<&str>> {
+    let t = line.trim_end_matches('\r');
+    if t.trim().is_empty() || t.starts_with('#') || t.starts_with("lemma\t") || t.starts_with("reading\t") {
+        None
+    } else {
+        Some(t.split('\t').collect())
+    }
+}
+
+/// Call `row` with each data line of a file and its line number, holding one
+/// line at a time. A read error or a line that is not UTF-8 ends the file.
+pub fn tsv_file(path: &std::path::Path, mut row: impl FnMut(usize, &[&str])) -> std::io::Result<()> {
+    use std::io::BufRead;
+    let mut reader = std::io::BufReader::with_capacity(1 << 16, std::fs::File::open(path)?);
+    let mut line = String::new();
+    let mut number = 0;
+    loop {
+        line.clear();
+        if reader.read_line(&mut line)? == 0 {
+            return Ok(());
         }
-    })
+        number += 1;
+        if let Some(fields) = tsv_fields(line.strip_suffix('\n').unwrap_or(&line)) {
+            row(number, &fields);
+        }
+    }
 }
 
 #[cfg(test)]

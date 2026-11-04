@@ -391,6 +391,16 @@ const BARE: u16 = u16::MAX;
 /// Extra cost for one-syllable words, which are the most ambiguous.
 const SHORT_COST: f32 = 2.5;
 const EDGE_COST: f32 = 1.0;
+/// One-character Sino-Korean suffixes, with the reading they attach by: a known
+/// Sino-Korean word and one of these make up a whole word (표시용 表示用, 현실적
+/// 現實的). Only suffixes with no common homophone of their own use: not 권 圈/權.
+const SUFFIX_COST: f32 = 1.0;
+const SINO_SUFFIXES: &[(&str, &str)] = &[
+    ("용", "用"), ("적", "的"), ("성", "性"), ("화", "化"), ("형", "型"), ("률", "率"), ("율", "率"), ("어", "語"), ("류", "類"), ("유", "類"),
+    ("식", "式"), ("론", "論"), ("학", "學"), ("법", "法"),
+];
+/// How often the word before a suffix must be used.
+const SUFFIX_WORD_COUNT: u32 = 5;
 /// Added to a bare adnominal verb form that a whole noun also spells.
 const WHOLE_NOUN_PENALTY: f32 = 2.5;
 /// How close a noun must come to a bound noun with a particle (거+의) to replace it.
@@ -586,13 +596,25 @@ impl Engine {
         self.particle_trie.freeze();
     }
 
-    /// Whether native entry `n` is a Sino-Korean word given its own row: a
-    /// hand-made entry whose Hanja are in the Sino table under its reading. The
+    /// Whether the Hanja of native entry `n` are in the Sino table under its reading.
+    fn in_sino_table(&self, n: &Native) -> bool {
+        self.sino.prefixes(&n.stem, 0).iter().any(|(q, items)| *q == n.stem.len() && items.iter().any(|&i| self.sinos.hanja(i as usize) == n.hanja))
+    }
+
+    /// Whether the Hanja of native entry `n` are in the Sino table under its
+    /// reading, far behind a more frequent character (龍 behind 用, not 房 behind 方).
+    fn outranked_in_sino_table(&self, n: &Native) -> bool {
+        self.sino.prefixes(&n.stem, 0).iter().filter(|(q, _)| *q == n.stem.len()).any(|(_, items)| {
+            let count = |i: u32| self.sinos.count(i as usize);
+            let top = items.iter().map(|&i| count(i)).max().unwrap_or(0);
+            items.iter().any(|&i| self.sinos.hanja(i as usize) == n.hanja && count(i).saturating_mul(10) < top)
+        })
+    }
+
+    /// Whether native entry `n` is a Sino-Korean word given its own row. The
     /// bound noun 수 is native whatever the chat writes it with (手).
     fn is_sino_word(&self, n: &Native) -> bool {
-        matches!(n.source, Source::Editorial | Source::Corpus)
-            && n.lemma != "수"
-            && self.sino.prefixes(&n.stem, 0).iter().any(|(q, items)| *q == n.stem.len() && items.iter().any(|&i| self.sinos.hanja(i as usize) == n.hanja))
+        matches!(n.source, Source::Editorial | Source::Corpus) && n.lemma != "수" && self.in_sino_table(n)
     }
 
     fn native_cost(&self, n: &Native) -> f32 {
@@ -621,6 +643,12 @@ impl Engine {
             if p.cond == crate::particles::Cond::Vowel && short && !common { 2.5 } else { 0.0 }
         };
         let mut edges = Vec::new();
+        // Where a used Sino-Korean word of two syllables or more, from the start, ends.
+        let mut after_word = vec![false; n + 1];
+        for (q, items) in self.sino.prefixes(comps, 0) {
+            let used = items.iter().any(|&i| self.sinos.count(i as usize) >= SUFFIX_WORD_COUNT);
+            after_word[q] = used && boundary(q) && crate::jamo::syllable_count(&comps[..q]) >= 2;
+        }
         for s in 0..n {
             if !is_l(comps[s]) {
                 continue;
@@ -662,8 +690,16 @@ impl Engine {
                     continue;
                 }
                 for &i in items {
-                    let short = if crate::jamo::syllable_count(&comps[s..q]) == 1 { SHORT_COST } else { 0.0 };
-                    let base = EDGE_COST + self.sinos.cost(i as usize) + short;
+                    let one = crate::jamo::syllable_count(&comps[s..q]) == 1;
+                    let suffix = one
+                        && after_word[s]
+                        && (q == n || self.particle_trie.prefixes(comps, q).iter().any(|(r, _)| *r == n))
+                        && SINO_SUFFIXES.contains(&(self.sinos.reading(i as usize), self.sinos.hanja(i as usize)));
+                    let base = if suffix {
+                        EDGE_COST + SUFFIX_COST
+                    } else {
+                        EDGE_COST + self.sinos.cost(i as usize) + if one { SHORT_COST } else { 0.0 }
+                    };
                     edges.push(Edge { start: s, end: q, cost: base, kind: Kind::Sino { entry: i, particle: None } });
                     for (r, pis) in self.particle_trie.prefixes(comps, q) {
                         if !boundary(r) {
@@ -687,6 +723,11 @@ impl Engine {
             for (q, items) in self.nominals.prefixes(comps, s) {
                 for &i in items {
                     let entry = &self.natives[i as usize];
+                    // A dictionary gloss must not put a rarer Sino-Korean character
+                    // ahead of the usual one with its reading (용 龍 before 用).
+                    if entry.source == Source::Gloss && self.outranked_in_sino_table(entry) {
+                        continue;
+                    }
                     let short = if crate::jamo::syllable_count(&entry.stem) > 1 {
                         0.0
                     } else {

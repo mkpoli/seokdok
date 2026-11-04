@@ -164,6 +164,13 @@ fn words_that_look_like_a_loanword_or_an_ending_keep_their_reading() {
 }
 
 #[test]
+fn nouns_that_a_bare_stem_would_take() {
+    first(&[("돌", "石"), ("발", "足"), ("털", "毛"), ("감", "柿"), ("실", "絲")]);
+    // No chat attestation of 蜂, and 살 stays the verb stem (生 22× in the chat against 歲 11×, 肉 8×, 膚 1×).
+    first(&[("벌", "벌"), ("살", "生")]);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "吾ㄹ")]);
 }

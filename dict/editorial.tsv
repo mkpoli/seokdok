@@ -225,3 +225,8 @@ lemma	written	pos	class	source	count	note
 아니라	非라	adv		editorial	14	the chat writes 非라 (14×); 아니다 + 라 (아니라 …이다)
 강하다	強하다	adj		editorial	3	the chat writes 強하고 (2×) and 強해서 (1×); 強 alone 24×
 주소	住所	noun		editorial	1	the chat writes 住所 alone once and with a Hangul ending four more times (住所입니다, 住所라, 住所주소)
+돌	石	noun		editorial	9	the chat writes 石 (9×) for 돌 (stone); community.tsv also has 石
+발	足	noun		editorial	3	the chat writes 足 (3×) for 발 (foot); community.tsv also has 足
+털	毛	noun		editorial	1	the chat writes 毛 (1×) for 털 (hair); community.tsv also has 毛
+감	柿	noun		editorial	1	the chat writes 柿 (1×) for 감 (persimmon); community.tsv also has 柿
+실	絲	noun		editorial	1	the chat writes 絲 (1×) for 실 (thread); community.tsv also has 絲

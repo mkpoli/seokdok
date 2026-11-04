@@ -2,8 +2,9 @@
 # primer: a character primer glosses the character with the old form of this word (book, year, page, entry).
 # aligned: 諺解 passages print the Chinese next to the Korean; the note gives the count and quotes the shortest.
 # Text from the transcriptions on Korean Wikisource, dump of 2026-11-01, and on 나무위키, saved 2026-11-04.
+# Old words reach modern ones through English Wiktionary, via wiktextract: extract of 2026-10-30 and dump of 2026-11-04.
 # Built by tools/build_eonhae.py. Ranks below the hand-made tiers.
-# CC BY-SA 4.0 (Wikisource, Wiktionary); citations of 나무위키 say CC BY-NC-SA 2.0 KR, an anonymously edited
+# CC BY-SA 4.0 (Wikisource), CC BY-SA 4.0 and GFDL (Wiktionary); citations of 나무위키 say CC BY-NC-SA 2.0 KR, an anonymously edited
 # wiki's transcription that names no copy of the book and has not been read against a scan. See dict/README.md.
 lemma	written	pos	class	source	count	note
 가	邊	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 45 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 邊 ᄀᆞᆺ 변; 類合 1913, 유합.djvu/4: 邊 ᄀᆞᆺ 변
@@ -13,6 +14,7 @@ lemma	written	pos	class	source	count	note
 가다	之다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/13: 之 갈 지; 新增類合 1576, 나무위키 신증유합/상권 310 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 之 갈 지; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/32: 之 갈 지; 類合 1913, 유합.djvu/11: 之 갈 지
 가다	逝다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2333 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 逝 갈 셔
 가두다	囚다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1655 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 囚 가돌 슈; 倭語類解 18世紀, 倭語類解.djvu/110: 囚 가돌 슈
+가두다	監囚다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0001/134: 監囚 가도다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 가도다
 가득하다	滿하다	adj		eonhae		primer: 類合 1913, 유합.djvu/41: 滿 가득ᄒᆞᆯ 만
 가람	河	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/26: 河 ᄀᆞᄅᆞᆷ 하; 訓蒙字會 1527, 나무위키 훈몽자회/상권 地理 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 河 ᄀᆞᄅᆞᆷ 하; 光州千字文 1575, 광주천자문.pdf/5: 河 ᄀᆞᄅᆞᆷ 하; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/15: 河 ᄀᆞᄅᆞᆷ 하
 가람	江	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/26: 江 ᄀᆞᄅᆞᆷ 가ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 地理 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 江 ᄀᆞᄅᆞᆷ 가ᇰ
@@ -26,9 +28,13 @@ lemma	written	pos	class	source	count	note
 가루	麪	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 826 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 麪 ᄀᆞᄅᆞ 면
 가르치다	訓다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/16: 訓 ᄀᆞᄅᆞ칠 훈; 新增類合 1576, 나무위키 신증유합/하권 2340 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 訓 ᄀᆞᄅᆞ칠 훈; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/38: 訓 ᄀᆞᄅᆞ칠 훈; 倭語類解 18世紀, 倭語類解.djvu/78: 訓 ᄀᆞᄅᆞ칠 훈; 類合 1913, 유합.djvu/32: 訓 ᄀᆞᄅᆞ칠 훈
 가르치다	誨다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1246 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 誨 가ᄅᆞ칠 회; 類合 1913, 유합.djvu/32: 誨 ᄀᆞᄅᆞ칠 회
-가르치다	指다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/90: 指 ᄀᆞᄅᆞ칠 지
+가리다	辨다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/31: 辨 ᄀᆞᆯᄒᆡᆯ 변; 新增類合 1576, 나무위키 신증유합/하권 1558 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 辨 ᄀᆞᆯᄒᆡᆯ 변; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/68: 辨 ᄀᆞᆯᄒᆡᆯ 변
 가리다	翳다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/34: 翳 ᄀᆞ릴 예; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/74: 翳 ᄀᆞ릴 예
+가리다	選다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1305 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 選 ᄀᆞᆯᄒᆡᆯ 션
+가리다	擇다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1249 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 擇 ᄀᆞᆯᄒᆡᆯ ᄐᆡᆨ
 가리다	蔽다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1961 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蔽 ᄀᆞ릴 폐
+가리다	揀다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1309 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 揀 ᄀᆞᆯᄒᆡᆯ 간
+가리키다	指다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/90: 指 ᄀᆞᄅᆞ칠 지
 가마	釜	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 852 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 釜 가마 부; 類合 1913, 유합.djvu/24: 釜 가마 부
 가마	鑊	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 850 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鑊 가마 확; 類合 1913, 유합.djvu/24: 鑊 가마 확
 가마	䪿	noun		eonhae		primer: 訓蒙字會 1527, 身體 상24B: 䪿 가마 신; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 䪿 가마 신
@@ -43,6 +49,7 @@ lemma	written	pos	class	source	count	note
 가슴	胷	noun		eonhae		primer: 訓蒙字會 1527, 身體 상27A: 胷 가ᄉᆞᆷ 휴ᇰ
 가슴	膛	noun		eonhae		primer: 訓蒙字會 1527, 身體 상27A: 膛 가ᄉᆞᆷ 다ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 膛 가ᄉᆞᆷ 다ᇰ
 가시	荊	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10A: 荊 가ᄉᆡ 혀ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 樹木 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 荊 가ᄉᆡ 혀ᇰ
+가위	中秋	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/10: 中秋 가외; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 가외
 가죽	革	noun		eonhae		primer: 類合 1913, 유합.djvu/23: 革 가죡 혁
 가죽나무	樗	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10B: 樗 개듀ᇰ나모 뎌; 訓蒙字會 1527, 나무위키 훈몽자회/상권 樹木 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 樗 개듀ᇰ나모 뎌
 가죽띠	革帶	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/91: 革帶 가족ᄯᅴ
@@ -85,8 +92,9 @@ lemma	written	pos	class	source	count	note
 거미	蜘	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蜘 거믜 디; 新增類合 1576, 나무위키 신증유합/상권 485 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蜘 거믜 디
 거북	龜	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 龜 거붑 귀; 訓蒙字會 1527, 나무위키 훈몽자회/상권 鱗介 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 龜 거붑 귀; 新增類合 1576, 나무위키 신증유합/상권 442 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 龜 거붑 귀; 詩經諺解 物名 1820本, 詩經諺解 제1책/34: 龜 거복 귀; 類合 1913, 유합.djvu/14: 龜 거복 귀
 거북	蔡	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1724 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蔡 거붑 쵀
-거울	鏡	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/92: 鏡 거울 경; 類合 1913, 유합.djvu/22: 鏡 거울 경
-거울	鑑	noun		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/68: 鑑 거우루 감
+거스르다	悖다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1451 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 悖 거슬ᄧᅳᆯ 패
+거울	鑑	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/31: 鑑 거우로 감; 新增類合 1576, 나무위키 신증유합/하권 1476 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鑑 거으로 감; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/68: 鑑 거우루 감
+거울	鏡	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 770 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鏡 거우로 경; 倭語類解 18世紀, 倭語類解.djvu/92: 鏡 거울 경; 類合 1913, 유합.djvu/22: 鏡 거울 경
 거위	鵝	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상16B: 鵝 거유 아; 訓蒙字會 1527, 나무위키 훈몽자회/상권 禽鳥 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鵝 거유 아
 거의	幾	adv		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/67: 幾 거의 긔; 倭語類解 18世紀, 倭語類解.djvu/57: 幾 거의 긔
 거짓	僞	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1556 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 僞 거ᄌᆞᆺ 위; 類合 1913, 유합.djvu/35: 僞 거즛 위
@@ -109,10 +117,13 @@ lemma	written	pos	class	source	count	note
 게으르다	惰다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1846 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 惰 게으를 타
 겨레	族	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 392 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 族 결에 족; 類合 1913, 유합.djvu/13: 族 결에 족
 겨레	戚	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.pdf/30: 戚 겨ᄅᆡ 쳑
+겨루다	抗다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1791 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 抗 결울 항; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/69: 抗 결울 항
+겨루다	競다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2135 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 競 결울 경
 겨를	暇	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1955 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 暇 겨를 가
 겨를	閑	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1193 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 閑 겨를 한
 겨우	僅	adv		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1698 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 僅 계우 근
 겨우	纔	adv		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1697 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 纔 계우 ᄌᆞ
+겨우살이	蔦	noun		eonhae		primer: 詩經諺解 物名 1820本, 詩經諺解 제1책/37: 蔦 겨으사리 됴; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 겨으사리
 겨자	芥	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상14A: 芥 계ᄌᆞᆺ 개; 新增類合 1576, 나무위키 신증유합/상권 320 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 芥 계ᄌᆞ 개; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/15: 芥 계ᄌᆞ 개; 類合 1913, 유합.djvu/11: 芥 겨ᄌᆞ 개
 견디다	耐다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1346 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 耐 견ᄃᆡᆯ 내; 倭語類解 18世紀, 倭語類解.djvu/46: 耐 견ᄃᆡᆯ 내
 견주다	比다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/39: 比 견줄 비
@@ -134,6 +145,8 @@ lemma	written	pos	class	source	count	note
 고을	郡	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/28: 郡 고을 군; 新增類合 1576, 나무위키 신증유합/하권 1308 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 郡 고을 군; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/61: 郡 고ᄋᆞᆯ 군
 고을	邑	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/19: 邑 고ᄋᆞᆯ 읍; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/44: 邑 고을 읍; 類合 1913, 유합.djvu/18: 邑 고을 읍
 고을	縣	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/23: 縣 고을 현; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/51: 縣 고ᄋᆞᆯ 현
+고이다	撑다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2761 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 撑 괴올 ᄐᆡᆼ; 倭語類解 18世紀, 倭語類解.djvu/64: 撑 괴올 ᄐᆡᆼ
+고이다	支다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1377 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 支 괴올 지
 고인물	死水	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/16: 死水 고인믈
 고자	閹	noun		eonhae		primer: 訓蒙字會 1527, 人類 중02A: 閹 고쟈 엄; 倭語類解 18世紀, 倭語類解.djvu/106: 閹 고쟈 엄
 고자	宦	noun		eonhae		primer: 訓蒙字會 1527, 人類 중02A: 宦 고쟈 환
@@ -141,22 +154,26 @@ lemma	written	pos	class	source	count	note
 고치다	更다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2437 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 更 고틸 ᄀᆡᆼ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/57: 更 고틸 ᄀᆡᆼ
 고치다	匡다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1255 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 匡 고틸 광; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/55: 匡 고틸 광
 곧	卽	adv		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2490 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 卽 곧 즉
-곧다	貞다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1079 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 貞 고ᄃᆞᆯ 뎡; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/23: 貞 고ᄃᆞᆯ 뎡; 倭語類解 18世紀, 倭語類解.djvu/48: 貞 고들 졍
-곧다	直다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1560 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 直 고ᄃᆞᆯ 딕; 類合 1913, 유합.djvu/35: 直 고ᄃᆞᆯ 직
+곧다	直다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/30: 直 고든 딕; 新增類合 1576, 나무위키 신증유합/하권 1560 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 直 고ᄃᆞᆯ 딕; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/66: 直 고ᄃᆞᆫ 딕; 類合 1913, 유합.djvu/35: 直 고ᄃᆞᆯ 직
+곧다	貞다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/9: 貞 고ᄃᆞᆫ 뎡; 新增類合 1576, 나무위키 신증유합/하권 1079 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 貞 고ᄃᆞᆯ 뎡; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/23: 貞 고ᄃᆞᆯ 뎡; 倭語類解 18世紀, 倭語類解.djvu/48: 貞 고들 졍
 골	谷	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 地理 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 谷 골 곡; 光州千字文 1575, 광주천자문.pdf/11: 谷 골 곡; 新增類合 1576, 나무위키 신증유합/상권 158 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 谷 골 곡; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/28: 谷 골 곡; 倭語類解 18世紀, 倭語類解.pdf/19: 谷 골 곡; 類合 1913, 유합.djvu/7: 谷 골 곡
 골	洞	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/29: 洞 골 동; 新增類合 1576, 나무위키 신증유합/상권 157 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 洞 골 동; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/63: 洞 골 동; 倭語類解 18世紀, 倭語類解.pdf/19: 洞 골 동; 類合 1913, 유합.djvu/7: 洞 골 동
 골	髓	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 664 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 髓 골 슈
 골	衚	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/30: 衚 골 호; 訓蒙字會 1527, 나무위키 훈몽자회/상권 地理 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 衚 골 호
 골	衕	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/30: 衕 골 도ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 地理 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 衕 골 도ᇰ
-골뱅이	螺	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 螺 골와ᇰ이 라
-골뱅이	螄	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 螄 골와ᇰ이 ᄉᆞ
+골뱅이	螺	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상23B: 螺 골왕이 라; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 螺 골와ᇰ이 라
+골뱅이	螄	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상23B: 螄 골왕이 ᄉᆞ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 螄 골와ᇰ이 ᄉᆞ
 곪다	膿다	verb		eonhae		primer: 訓蒙字會 1527, 身體 상30A: 膿 골믈 노ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 膿 골믈 노ᇰ
 곰	羆	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19A: 羆 곰 비; 訓蒙字會 1527, 나무위키 훈몽자회/상권 獸畜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 羆 곰 비
 곱다	曲다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/25: 曲 고ᄇᆞᆯ 곡; 新增類合 1576, 나무위키 신증유합/하권 1559 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 曲 고ᄇᆞᆯ 곡; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/55: 曲 고ᄇᆞᆯ 곡; 類合 1913, 유합.djvu/35: 曲 고불 곡
 곱다	姸다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2639 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 姸 고ᄋᆞᆯ 연; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/88: 姸 고ᄋᆞᆯ 연
+곱다	可喜다	adj		eonhae		primer: 譯語類解 1690, 譯語類解 0002/90: 可喜 곱다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 곱다
 곱다	妍다	adj		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/41: 妍 고올 연
+괴다	支다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1377 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 支 괴올 지; 類合 1913, 유합.djvu/33: 支 괴을 디
+괴다	撑다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2761 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 撑 괴올 ᄐᆡᆼ; 倭語類解 18世紀, 倭語類解.djvu/64: 撑 괴올 ᄐᆡᆼ
 구더기	蛆	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상24A: 蛆 귀더기 져; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蛆 귀더기 져; 新增類合 1576, 나무위키 신증유합/상권 493 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蛆 구더기 져
 구들	房	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/37: 房 구들 방; 倭語類解 18世紀, 倭語類解.djvu/66: 房 구들 방
+구렁	坎	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.pdf/20: 坎 굴헝 감; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 굴헝
 구리	紅銅	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0002/5: 紅銅 구리
 구슬	玉	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/4: 玉 구슬 옥; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/14: 玉 구슬 옥; 類合 1913, 유합.djvu/23: 玉 구술 옥
 구슬	珠	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/4: 珠 구슬 쥬; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/14: 珠 구ᄉᆞᆯ 쥬; 類合 1913, 유합.djvu/23: 珠 구슐 쥬
@@ -180,6 +197,7 @@ lemma	written	pos	class	source	count	note
 그늘	陰	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 天文 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 陰 ᄀᆞᄂᆞᆯ 음; 光州千字文 1575, 광주천자문.pdf/12: 陰 ᄀᆞᄂᆞᆯ 음; 新增類合 1576, 나무위키 신증유합/상권 121 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 陰 그늘 음; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/30: 陰 그늘 음; 類合 1913, 유합.djvu/6: 陰 그늘 음
 그르다	差다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2917 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 差 그를 차
 그르다	錯다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1704 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 錯 그를 착
+그릇되다	訛다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2918 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 訛 그르될 와
 그리다	戀다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1335 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 戀 그릴 련; 倭語類解 18世紀, 倭語類解.djvu/46: 戀 그릴 련; 類合 1913, 유합.djvu/33: 戀 그릴 련
 그리다	畵다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2312 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 畵 그릴 하
 그림	畵	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/20: 畵 그림 화; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/46: 畵 그림 화; 倭語類解 18世紀, 倭語類解.djvu/79: 畵 그림 화; 類合 1913, 유합.djvu/38: 畵 그림 화
@@ -196,6 +214,8 @@ lemma	written	pos	class	source	count	note
 글월	簡	noun		eonhae		primer: 訓蒙字會 1527, 書式 상35A: 簡 글월 간; 訓蒙字會 1527, 나무위키 훈몽자회/상권 書式 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 簡 글월 간; 光州千字文 1575, 광주천자문.pdf/39: 簡 글월 간
 긁다	刮다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1750 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 刮 글글 괄
 긋다	畵다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/78: 畵 그을 획
+기다리다	俟다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1952 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 俟 기드릴 ᄉᆞ
+기다리다	竢다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1952 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 竢 기드릴 ᄉᆞ
 기둥	楹	noun		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/47: 楹 기동 영
 기둥	停柱	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/35: 停柱 기동
 기러기	鴈	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상15A: 鴈 긔려기 안; 類合 1913, 유합.djvu/12: 鴈 기러기 안
@@ -204,6 +224,7 @@ lemma	written	pos	class	source	count	note
 기름	脂	noun		eonhae		primer: 類合 1913, 유합.djvu/23: 脂 기름 지
 기리다	譽다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2412 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 譽 기릴 예; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/60: 譽 기릴 예; 倭語類解 18世紀, 倭語類解.djvu/54: 譽 기릴 예
 기리다	讚다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/10: 讚 기릴 찬; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/26: 讚 기릴 찬
+기쁘다	喜歡다	adj		eonhae		primer: 譯語類解 1690, 譯語類解 0002/87: 喜歡 깃브다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 깃브다
 기와	瓦	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 707 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 瓦 디새 와; 類合 1913, 유합.djvu/21: 瓦 기와 와
 기울다	傾다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/25: 傾 기울 경; 新增類合 1576, 나무위키 신증유합/하권 1378 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 傾 기울 경; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/56: 傾 기울 경
 기울다	昃다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/161: 昃 기울 ᄎᆡᆨ; 光州千字文 1575, 광주천자문.pdf/3: 昃 기울 ᄎᆡᆨ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/11: 昃 기울 ᄎᆡᆨ
@@ -249,15 +270,20 @@ lemma	written	pos	class	source	count	note
 꾸짖다	叱다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1817 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 叱 ᄭᅮ지즐 즐; 倭語類解 18世紀, 倭語類解.djvu/55: 叱 ᄭᅮ지즐 즐; 類合 1913, 유합.djvu/36: 叱 ᄭᅮ디즐 즐
 꾸짖다	罵다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1818 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 罵 ᄭᅮ지즐 매; 類合 1913, 유합.djvu/36: 罵 ᄭᅮ디즐 매
 꾸짖다	呵다	verb		eonhae		primer: 類合 1913, 유합.djvu/36: 呵 ᄭᅮ디즐 가
+꾸짖다	誚다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/92: 誚 구지ᄌᆞᆯ 쵸
 꾸짖다	詈다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2072 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 詈 ᄭᅮ지즐 리
 꿀	蜂蜜	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/105: 蜂蜜 ᄭᅮᆯ
 꿩	鷮	noun		eonhae		primer: 詩經諺解 物名 1820本, 詩經諺解 제1책/37: 鷮 ᄭᅯᆼ 교
 끄다	滅다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/26: 滅 ᄢᅳᆯ 멸; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/58: 滅 ᄢᅳᆯ 멸
+끄르다	解다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2456 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 解 그를 ᄒᆡ; 類合 1913, 유합.djvu/39: 解 그를 ᄒᆡ
+끊다	切다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/40: 切 그츨 졀
+끊다	絶다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1384 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 絶 그츨 졀
 끌	鑿	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 876 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鑿 ᄭᅳᆯ 착
 끝	末	noun		eonhae		primer: 類合 1913, 유합.djvu/44: 末 ᄭᅳᆺ 말
 끼다	挾다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2476 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 挾 ᄢᅵᆯ 협
 끼다	夾다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2697 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 夾 ᄢᅵᆯ 협
-끼치다	遺다	verb		eonhae		aligned (5 passages, 2 books): 古文眞寶諺解 英祖代 (고문진보언해 권5/33): 當年遺事久成空 → 당년의 기틴 일이 오라매 쇽졀; 小學諺解 1587 (소학언해/권5): 曰, 大學孔氏之遺書, 而初學入 → 은 孔氏의 기티신 글월이라 처엄
+끼치다	遺다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1395 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 遺 기틸 유; 類合 1913, 유합.djvu/34: 遺 기틸 유
+끼치다	貽다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/31: 貽 기틸 이
 나	余	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1186 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 余 나 여; 類合 1913, 유합.djvu/30: 余 나 여
 나귀	驢	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19B: 驢 나귀 려; 訓蒙字會 1527, 나무위키 훈몽자회/상권 獸畜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 驢 나귀 려; 新增類合 1576, 나무위키 신증유합/상권 415 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 驢 나귀 려; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/85: 驢 나귀 려; 類合 1913, 유합.djvu/14: 驢 나귀 려
 나그네	旅	noun		eonhae		primer: 訓蒙字會 1527, 人類 중03A: 旅 나ᄀᆞ내 려
@@ -293,6 +319,7 @@ lemma	written	pos	class	source	count	note
 내	烟	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/227: 烟 ᄂᆡ 연; 新增類合 1576, 나무위키 신증유합/상권 105 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 烟 ᄂᆡ 연; 倭語類解 18世紀, 倭語類解.djvu/102: 烟 ᄂᆡ 연; 類合 1913, 유합.djvu/6: 烟 내 연
 내	臭	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1355 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 臭 내 취; 倭語類解 18世紀, 倭語類解.djvu/100: 臭 내 ᄎᆔ
 내	煙	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 105 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 煙 ᄂᆡ 연
+내리다	降다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1146 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 降 ᄂᆞ릴 강; 倭語類解 18世紀, 倭語類解.djvu/62: 降 ᄂᆞ릴 강; 類合 1913, 유합.djvu/29: 降 ᄂᆞ릴 강
 내치다	黜다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2413 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 黜 내틸 츌; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/66: 黜 내틸 튤; 倭語類解 18世紀, 倭語類解.djvu/111: 黜 내칠 츌
 내치다	擯다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1489 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 擯 내틸 빈
 냇물	河水	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/15: 河水 냇믈
@@ -301,10 +328,15 @@ lemma	written	pos	class	source	count	note
 너르다	寬다	adj		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/49: 寬 너를 관
 너르다	曠다	adj		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/63: 曠 너를 광
 넉	四	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/8: 四 넉 ᄉᆞ; 新增類合 1576, 나무위키 신증유합/상권 4 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 四 넉 ᄉᆞ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/22: 四 넉 ᄉᆞ; 倭語類解 18世紀, 倭語類解.djvu/112: 四 넉 ᄉᆞ
+넓다	洪다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/2: 洪 너블 홍; 新增類合 1576, 나무위키 신증유합/하권 2615 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 洪 너블 홍; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/10: 洪 너블 홍
+넓다	普다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1443 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 普 너블 보
+넓다	博다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1119 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 博 너블 박
+넓다	溥다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1634 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 溥 너블 부
 넘다	踰다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1813 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 踰 너믈 유; 倭語類解 18世紀, 倭語類解.djvu/65: 踰 넘을 유; 類合 1913, 유합.djvu/36: 踰 너믈 유
 넘다	逾다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1813 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 逾 너믈 유
 넘치다	濫다	verb		eonhae		primer: 訓蒙字會 1527, 雜語 하35B: 濫 넘ᄯᅵᆯ 람
 노	繩	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 892 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 繩 노 승
+노느다	分다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/17: 分 ᄂᆞᆫ홀 분; 新增類合 1576, 나무위키 신증유합/상권 31 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 分 ᄂᆞᆫ홀 분; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/40: 分 ᄂᆞᆫ홀 분
 노닐다	逍다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1893 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 逍 노닐 쇼; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/72: 逍 노닐 쇼
 노닐다	遙다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1894 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 遙 노닐 요; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/72: 遙 노닐 요
 노닐다	游다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1204 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 游 노닐 유
@@ -318,6 +350,9 @@ lemma	written	pos	class	source	count	note
 놀라다	駭다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1835 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 駭 놀랄 ᄒᆡ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/85: 駭 놀랄 ᄒᆡ
 놀라다	驚다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/46: 驚 놀랄 경
 놀라다	愕다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1836 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 愕 놀랄 악
+놀라다	喫驚다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0001/77: 喫驚 놀라다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 놀라다
+놀랍다	驚恐다	adj		eonhae		primer: 譯語類解 1690, 譯語類解 0001/77: 驚恐 놀랍다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 놀랍다
+놀리다	弄다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2298 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 弄 놀일 롱
 높다	尊다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 543 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 尊 노ᄑᆞᆯ 존; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/37: 尊 노ᄑᆞᆯ 존; 類合 1913, 유합.djvu/17: 尊 노플 존
 높다	卓다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2772 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 卓 노ᄑᆞᆯ 탁
 높다	巍다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2673 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 巍 노ᄑᆞᆯ 외
@@ -327,7 +362,7 @@ lemma	written	pos	class	source	count	note
 누르다	壓다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2035 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 壓 누를 압
 누르다	鎭다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1313 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鎭 누를 딘
 누르다	抑다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2409 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 抑 누를 억
-누리다	葷다	adj		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/100: 葷 누릴 훈
+누리다	葷다	adj		eonhae		primer: 譯語類解 1690, 譯語類解 0001/108: 葷 누리다; 倭語類解 18世紀, 倭語類解.djvu/100: 葷 누릴 훈
 누에	蚕	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상22B: 蚕 누에 ᄌᆞᆷ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蚕 누에 ᄌᆞᆷ; 新增類合 1576, 나무위키 신증유합/상권 481 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蚕 누에 ᄌᆞᆷ
 누이	妹	noun		eonhae		primer: 類合 1913, 유합.djvu/18: 妹 누의 ᄆᆡ
 눈	眼	noun		eonhae		primer: 訓蒙字會 1527, 身體 상25A: 眼 눈 안; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 眼 눈 안; 新增類合 1576, 나무위키 신증유합/상권 630 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 眼 눈 안; 譯語類解 1690, 譯語類解 0001/66: 眼 눈; 類合 1913, 유합.djvu/19: 眼 눈 안
@@ -337,6 +372,7 @@ lemma	written	pos	class	source	count	note
 눈초리	眼角	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/66: 眼角 눈초리
 눈치	眼勢	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/80: 眼勢 눈츼
 눋다	焦다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2633 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 焦 누를 쵸
+눕다	臥倒다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0001/81: 臥倒 눕다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 눕다
 느릅나무	楡	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 樹木 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 楡 느릅나모 유
 느릅나무	枌	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10B: 枌 느릅나모 분; 訓蒙字會 1527, 나무위키 훈몽자회/상권 樹木 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 枌 느릅나모 분
 느릅나무	榆	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10B: 榆 느릅나모 유
@@ -351,7 +387,7 @@ lemma	written	pos	class	source	count	note
 다락	樓	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 699 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 樓 다락 루; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/46: 樓 다락 누; 倭語類解 18世紀, 倭語類解.djvu/66: 樓 다락 루; 類合 1913, 유합.djvu/20: 樓 다락 루
 다람쥐	鼯	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19B: 鼯 ᄃᆞ라미 오; 訓蒙字會 1527, 나무위키 훈몽자회/상권 獸畜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鼯 ᄃᆞ라미 오
 다르다	殊다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/16: 殊 다ᄅᆞᆯ 슈; 新增類合 1576, 나무위키 신증유합/하권 2947 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 殊 다ᄅᆞᆯ 슈; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/37: 殊 다ᄅᆞᆯ 슈; 類合 1913, 유합.djvu/42: 殊 다를 슈
-다리다	熨다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2287 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 熨 다릴 울
+다리다	熨다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2287 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 熨 다릴 울; 類合 1913, 유합.djvu/37: 熨 달일 울
 다만	但	adv		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/57: 但 다만 단
 다섯	五	num		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/8: 五 다ᄉᆞᆺ 오; 新增類合 1576, 나무위키 신증유합/상권 5 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 五 다ᄉᆞᆺ 오; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/22: 五 다ᄉᆞᆺ 오
 다섯	伍	num		eonhae		primer: 類合 1913, 유합.djvu/3: 伍 다ᄉᆞᆺ 오
@@ -391,6 +427,8 @@ lemma	written	pos	class	source	count	note
 더하다	加하다	verb		eonhae		primer: 類合 1913, 유합.djvu/39: 加 더ᄒᆞᆯ 가
 더하다	增하다	verb		eonhae		primer: 類合 1913, 유합.djvu/39: 增 더ᄒᆞᆯ 증
 더하다	添하다	verb		eonhae		primer: 類合 1913, 유합.djvu/39: 添 더ᄒᆞᆯ 텸
+던지다	投다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2485 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 投 더딜 투; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/40: 投 더딜 투; 類合 1913, 유합.djvu/40: 投 더딜 두
+던지다	擲다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2486 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 擲 더딜 텩; 類合 1913, 유합.djvu/40: 擲 더딜 쳑
 덜다	減다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2842 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 減 덜 감; 類合 1913, 유합.djvu/43: 減 덜 감
 덜다	除다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2841 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 除 덜 뎨; 類合 1913, 유합.djvu/43: 除 덜 졔
 덥다	熱다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/39: 熱 더울 열; 新增類合 1576, 나무위키 신증유합/상권 64 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 熱 더울 열; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/84: 熱 더울 열; 類合 1913, 유합.djvu/4: 熱 더울 열
@@ -412,6 +450,11 @@ lemma	written	pos	class	source	count	note
 돌다	斡다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/89: 斡 돌 알
 돌다리	矼	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/71: 矼 돌ᄃᆞ리 강
 돌다리	石橋	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/30: 石橋 돌ᄃᆞ리
+돌아가다	歸다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1227 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 歸 도라갈 귀; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/20: 歸 도라갈 귀; 倭語類解 18世紀, 倭語類解.djvu/61: 歸 도라갈 귀; 類合 1913, 유합.djvu/31: 歸 도라갈 귀
+돌아오다	還다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1586 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 還 도라올 환; 倭語類解 18世紀, 倭語類解.djvu/61: 還 도라올 환; 類合 1913, 유합.djvu/35: 還 도라올 환
+돌아오다	返다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1228 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 返 도라올 반; 類合 1913, 유합.djvu/31: 返 도라올 반
+돌아오다	歸다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1227 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 歸 도라올 귀
+돌아오다	廻다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/56: 廻 도라올 회
 돕다	佐다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/24: 佐 도올 좌; 新增類合 1576, 나무위키 신증유합/하권 1327 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 佐 도ᄋᆞᆯ 좌; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/54: 佐 도ᄋᆞᆯ 자; 類合 1913, 유합.djvu/32: 佐 도을 좌
 돕다	贊다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2019 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 贊 도ᄋᆞᆯ 찬
 동이	盆	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 846 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 盆 동ᄒᆡ 분
@@ -449,20 +492,28 @@ lemma	written	pos	class	source	count	note
 들다	爭다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/55: 爭 ᄃᆞ롤 ᄌᆡᆼ
 들보	梁	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 715 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 梁 들보 량
 들보	樑	noun		eonhae		primer: 類合 1913, 유합.djvu/21: 樑 들보 량
+들이다	納다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/21: 納 드릴 납; 新增類合 1576, 나무위키 신증유합/하권 1434 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 納 드릴 납; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/48: 納 드릴 랍; 類合 1913, 유합.djvu/34: 納 드릴 납
 듯하다	似하다	adj		eonhae		aligned (4 passages, 2 books): 古文眞寶諺解 英祖代 (고문진보언해 권1/50): 似惜錦障泥 → 앗기ᄂᆞᆫ ᄃᆞᆺᄒᆞ도다; 小學諺解 1587 (소학언해/권5): , 孀婦於理, 似不可取. 如何 → 몯ᄒᆞᆯ ᄃᆞᆺᄒᆞ니 엇
 등	脊背	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/71: 脊背 등
+따르다	追다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1155 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 追 ᄠᆞᆯ올 튜
 따르다	隨다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/62: 隨 ᄯᆞ를 슈
 딱따구리	鴷	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상16A: 鴷 뎌끄리 렬; 訓蒙字會 1527, 나무위키 훈몽자회/상권 禽鳥 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鴷 뎌고리 렬
 딸	女兒	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/116: 女兒 ᄯᆞᆯ
 딸기	苺	noun		eonhae		primer: 訓蒙字會 1527, 菓實 상12A: 苺 ᄠᅡᆯ기 ᄆᆡ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 菓實 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 苺 ᄠᅡᆯ기 ᄆᆡ
 땀띠	疿	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/105: 疿 ᄯᆞᆷᄯᅴ 불
+땅	坤	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/19: 坤 ᄯᅡ 곤; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天文 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 坤 ᄯᅡ 곤; 新增類合 1576, 나무위키 신증유합/상권 30 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 坤 ᄯᅡ 곤; 類合 1913, 유합.djvu/3: 坤 ᄯᅡ 곤; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): ᄯᅡ
+땅	壤	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/19: 壤 ᄯᅡ ᅀᅣᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天文 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 壤 ᄯᅡ ᅀᅣᇰ; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): ᄯᅡ
 떠오르다	騰다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1158 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 騰 ᄠᅥ오ᄅᆞᆯ 등
 떡갈나무	櫟	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10B: 櫟 덥갈나모 륵; 訓蒙字會 1527, 나무위키 훈몽자회/상권 樹木 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 櫟 덥갈나모 륵
 떨기	叢	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/165: 叢 ᄠᅥᆯ기 초ᇰ; 新增類合 1576, 나무위키 신증유합/상권 591 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 叢 ᄠᅥᆯ기 총
 떨다	抖다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/64: 抖 ᄠᅥᆯ 두
+떨어지다	落다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2744 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 落 ᄠᅥ러딜 락
+떨어지다	墜다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2764 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 墜 ᄠᅥ러딜 튜
+떨어지다	隕다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2763 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 隕 ᄠᅥ러딜 운
 떨치다	拂다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1238 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 拂 ᄠᅥᆯ틸 블; 倭語類解 18世紀, 倭語類解.djvu/64: 拂 ᄠᅥᆯ칠 불
 떨치다	抖다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1269 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 抖 ᄠᅥᆯ틸 두
 떨치다	擻다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1270 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 擻 ᄠᅥᆯ틸 수
+떫다	澁다	adj		eonhae		primer: 譯語類解 1690, 譯語類解 0001/108: 澁 ᄠᅥᆲ다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): ᄠᅥᆲ다
 또	又	adv		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2439 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 又 ᄯᅩ 우; 倭語類解 18世紀, 倭語類解.djvu/57: 又 또 우; 類合 1913, 유합.djvu/39: 又 ᄯᅩ 우
 똥	屎	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/40: 屎 ᄯᅩᆼ 시
 뛰다	躍다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/85: 躍 ᄠᅱᆯ 약; 倭語類解 18世紀, 倭語類解.djvu/65: 躍 ᄯᅱᆯ 약; 類合 1913, 유합.djvu/34: 躍 ᄯᅱᆯ 약
@@ -501,11 +552,12 @@ lemma	written	pos	class	source	count	note
 막다	禦다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1316 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 禦 마글 어; 類合 1913, 유합.djvu/32: 禦 마글 어
 막다	窒다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1974 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 窒 마글 딜
 막대	杖	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 755 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 杖 막대 댱; 倭語類解 18世紀, 倭語類解.djvu/111: 杖 막대 쟝; 類合 1913, 유합.djvu/22: 杖 막대 쟝
-막히다	阻다	verb		eonhae		primer: 類合 1913, 유합.djvu/33: 阻 막힐 조
+막히다	阻다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1352 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 阻 마킬 조; 類合 1913, 유합.djvu/33: 阻 막힐 조
 막히다	隔다	verb		eonhae		primer: 類合 1913, 유합.djvu/36: 隔 막힐 격
 만나다	遇다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2104 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 遇 만날 우; 類合 1913, 유합.djvu/37: 遇 만날 우
 만나다	逢다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2369 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 逢 만날 봉
 만나다	遭다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1899 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 遭 만날 조
+많다	殷다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1907 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 殷 만ᄒᆞᆯ 은; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/18: 殷 만ᄒᆞᆯ 은
 맏이	兄	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 兄 ᄆᆞᆮ 혀ᇰ; 光州千字文 1575, 광주천자문.pdf/17: 兄 ᄆᆞᆮ 형; 新增類合 1576, 나무위키 신증유합/상권 603 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 兄 ᄆᆞᆮ 형; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/39: 兄 ᄆᆞᆮ 형; 倭語類解 18世紀, 倭語類解.pdf/28: 兄 ᄆᆞᆮ 형
 맏이	昆	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 昆 ᄆᆞᆮ 곤; 光州千字文 1575, 광주천자문.pdf/29: 昆 ᄆᆞᆮ 곤; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/63: 昆 ᄆᆞᆮ 곤
 맏이	伯	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/17: 伯 ᄆᆞᆮ ᄇᆡᆨ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/39: 伯 ᄆᆞᆮ ᄇᆡᆨ
@@ -532,13 +584,15 @@ lemma	written	pos	class	source	count	note
 맞다	邀다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2133 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 邀 마ᄌᆞᆯ 요
 맞다	的다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/73: 的 마ᄌᆞᆯ 뎍
 맞다	迓다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2134 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 迓 마ᄌᆞᆯ 아
+맞이하다	接風하다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0002/92: 接風 마지ᄒᆞ다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 마지ᄒᆞ다
+맡기다	委다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1642 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 委 맛딜 위
 매	鶻	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상15B: 鶻 매 골; 訓蒙字會 1527, 나무위키 훈몽자회/상권 禽鳥 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鶻 매 골
 매	隼	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상15B: 隼 매 쥰; 訓蒙字會 1527, 나무위키 훈몽자회/상권 禽鳥 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 隼 매 쥰
 매	鷂	noun		eonhae		primer: 類合 1913, 유합.djvu/12: 鷂 매 요
 매다	結다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/4: 結 ᄆᆡᆯ 결; 新增類合 1576, 나무위키 신증유합/하권 2279 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 結 ᄆᆡᆯ 결; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/13: 結 ᄆᆡᆯ 결; 類合 1913, 유합.djvu/37: 結 ᄆᆡᆯ 결
 매다	繫다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2470 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 繫 ᄆᆡᆯ 계; 類合 1913, 유합.djvu/40: 繫 ᄆᆡᆯ 계
 매다	締다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1802 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 締 ᄆᆡᆯ 톄
-매미	蜩	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상22B: 蜩 ᄆᆡᅌᅣ미 됴; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蜩 ᄆᆡ야미 됴
+매미	蜩	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상22B: 蜩 ᄆᆡᅌᅣ미 됴; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蜩 ᄆᆡ야미 됴; 詩經諺解 物名 1820本, 詩經諺解 제1책/27: 蜩 ᄆᆡ얌이 됴
 매미	螗	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상22B: 螗 ᄆᆡ야미 다ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 螗 ᄆᆡ야미 다ᇰ
 매미	螓	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상22B: 螓 ᄆᆡ야미 진; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 螓 ᄆᆡ야미 진
 머금다	含다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2493 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 含 머구믈 함; 類合 1913, 유합.djvu/40: 含 머그믈 함
@@ -546,9 +600,11 @@ lemma	written	pos	class	source	count	note
 머리	首	noun		eonhae		primer: 訓蒙字會 1527, 身體 상24B: 首 마리 슈; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 首 마리 슈; 光州千字文 1575, 광주천자문.pdf/7: 首 마리 슈; 新增類合 1576, 나무위키 신증유합/상권 627 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 首 마리 슈; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/19: 首 머리 슈; 類合 1913, 유합.djvu/19: 首 머리 슈
 머리	元	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1719 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 元 머리 원
 머리털	髮	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 642 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 髮 머리털 발
+머뭇거리다	躊躇다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0002/87: 躊躇 머믓거리다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 머믓거리다
 먹	墨	noun		eonhae		primer: 訓蒙字會 1527, 儒學 상34B: 墨 먹 믁; 訓蒙字會 1527, 나무위키 훈몽자회/상권 儒學 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 墨 먹 믁; 新增類合 1576, 나무위키 신증유합/상권 774 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 墨 먹 믁; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/26: 墨 먹 믁; 倭語類解 18世紀, 倭語類解.djvu/80: 墨 먹 목; 類合 1913, 유합.djvu/22: 墨 먹 묵
 먹다	喫다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1173 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 喫 머글 긱; 類合 1913, 유합.djvu/30: 喫 머글 긱
 먹이다	餉다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/100: 餉 먹일 향
+먹이다	哺다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1286 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 哺 머길 보
 먼저	先	adv		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1522 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 先 몬져 션; 類合 1913, 유합.djvu/35: 先 몬져 션
 멀다	遼다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2725 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 遼 멀 료; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/86: 遼 멀 료
 멀다	邈다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1490 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 邈 멀 막; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/63: 邈 멀 막
@@ -569,8 +625,12 @@ lemma	written	pos	class	source	count	note
 모레	後日	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/8: 後日 모ᄅᆡ
 모시	苧	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상09A: 苧 모시 뎌; 訓蒙字會 1527, 나무위키 훈몽자회/상권 草卉 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 苧 모시 뎌; 新增類合 1576, 나무위키 신증유합/상권 809 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 苧 모시 뎌; 類合 1913, 유합.djvu/23: 苧 모시 져
 모시	紵	noun		eonhae		primer: 詩經諺解 物名 1820本, 詩經諺解 제1책/24: 紵 모시 져
-모시다	侍다	verb		eonhae		primer: 類合 1913, 유합.djvu/34: 侍 모실 시
-모시다	陪다	verb		eonhae		primer: 類合 1913, 유합.djvu/34: 陪 모실 ᄇᆡ
+모시다	侍다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/37: 侍 뫼실 시; 新增類合 1576, 나무위키 신증유합/하권 1439 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 侍 뫼실 시; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/79: 侍 뫼실 시; 類合 1913, 유합.djvu/34: 侍 모실 시
+모시다	陪다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/23: 陪 뫼실 ᄇᆡ; 新增類合 1576, 나무위키 신증유합/하권 1438 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 陪 뫼실 ᄇᆡ; 類合 1913, 유합.djvu/34: 陪 모실 ᄇᆡ
+모시다	御다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/79: 御 뫼실 어
+모으다	總다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 741 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 總 뫼홀 총
+모으다	輯다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1754 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 輯 뫼홀 즙
+모으다	裒다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1753 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 裒 뫼홀 부
 모자라다	乏다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2854 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 乏 모ᄌᆞ랄 핍
 모자라다	欠다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1548 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 欠 모ᄌᆞ랄 흠
 모자라다	歉다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2910 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 歉 모ᄌᆞ랄 혐
@@ -646,7 +706,8 @@ lemma	written	pos	class	source	count	note
 밑	底	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2686 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 底 믿 뎌; 倭語類解 18世紀, 倭語類解.pdf/26: 底 믿 뎌
 바	所	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/15: 所 바 소; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/35: 所 바 소
 바구니	筐	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 870 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 筐 바고니 광
-바꾸다	易다	verb		eonhae		primer: 訓蒙字會 1527, 儒學 상34A: 易 밧ᄭᅩᆯ 억
+바꾸다	易다	verb		eonhae		primer: 訓蒙字會 1527, 儒學 상34A: 易 밧ᄭᅩᆯ 억; 新增類合 1576, 나무위키 신증유합/상권 120 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 易 밧골 역; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/76: 易 밧골 역; 類合 1913, 유합.djvu/6: 易 밧골 역
+바꾸다	換다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2420 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 換 밧골 환
 바늘	鍼	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 878 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鍼 바ᄂᆞᆯ 침
 바다	洋	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/28: 洋 바다 야ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 地理 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 洋 바다 야ᇰ
 바다	溟	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1999 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 溟 바다 명
@@ -658,7 +719,9 @@ lemma	written	pos	class	source	count	note
 바라다	冀다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1960 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 冀 ᄇᆞ랄 긔
 바라다	覬다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2331 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 覬 ᄇᆞ랄 긔
 바르다	塗다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/92: 塗 바를 도
-바리	鉢	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 833 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鉢 바리 발
+바리	鉢	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 833 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鉢 바리 발; 類合 1913, 유합.djvu/24: 鉢 발이 발
+바쁘다	忙다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1194 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 忙 밧ᄇᆞᆯ 망
+바쁘다	悤다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1855 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 悤 밧ᄇᆞᆯ 총
 바치다	貢다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/30: 貢 바틸 공; 新增類合 1576, 나무위키 신증유합/상권 589 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 貢 바틸 공; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/65: 貢 바틸 공; 類合 1913, 유합.djvu/18: 貢 바틸 공
 박	瓢	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 857 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 瓢 박 표
 박	匏	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13B: 匏 박 포; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蔬菜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 匏 박 포
@@ -701,10 +764,13 @@ lemma	written	pos	class	source	count	note
 배다	姙다	verb		eonhae		primer: 訓蒙字會 1527, 天倫 상33B: 姙 ᄇᆡᆯ ᅀᅵᆷ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 姙 ᄇᆡᆯ ᅀᅵᆷ
 배다	娠다	verb		eonhae		primer: 訓蒙字會 1527, 天倫 상33B: 娠 ᄇᆡᆯ 신; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 娠 ᄇᆡᆯ 신
 배부르다	飽다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1200 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 飽 ᄇᆡ브를 포; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/77: 飽 ᄇᆡ브ᄅᆞᆯ 포; 倭語類解 18世紀, 倭語類解.djvu/101: 飽 ᄇᆡ브를 포; 類合 1913, 유합.djvu/31: 飽 ᄇᆡ브를 포
+배우다	習다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/11: 習 ᄇᆡ홀 습
 배추	菘	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상14A: 菘 ᄇᆡᄎᆡ 쇼ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蔬菜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 菘 ᄇᆡᄎᆡ 쇼ᇰ
 뱁새	鷦	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상16B: 鷦 볍새 쵸
 버금	次	noun		eonhae		primer: 類合 1913, 유합.djvu/5: 次 버금 ᄎᆞ
 버들	楊	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10A: 楊 버들 야ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 樹木 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 楊 버들 야ᇰ; 新增類合 1576, 나무위키 신증유합/상권 267 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 楊 버들 양; 詩經諺解 物名 1820本, 詩經諺解 제1책/22: 楊 버들 양; 類合 1913, 유합.djvu/10: 楊 버들 양
+버리다	棄다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2488 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 棄 ᄇᆞ릴 기
+버리다	抛다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2487 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 抛 ᄇᆞ릴 포
 버섯	菌	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13B: 菌 버슷 균; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蔬菜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 菌 버슷 균; 新增類合 1576, 나무위키 신증유합/상권 328 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 菌 버슷 균; 類合 1913, 유합.djvu/12: 菌 버슷 균
 버섯	蕈	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13B: 蕈 버슷 심; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蔬菜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蕈 버슷 심
 버섯	䓴	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13B: 䓴 버슷 ᅀᅧᆫ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蔬菜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 䓴 버슷 ᅀᅧᆫ
@@ -752,14 +818,17 @@ lemma	written	pos	class	source	count	note
 보다	看다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2361 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 看 볼 간; 類合 1913, 유합.djvu/38: 看 볼 간
 보다	眺다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/43: 眺 볼 도; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/92: 眺 볼 됴
 보다	覽다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2174 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 覽 볼 람
+보다	瞧瞧다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0002/90: 瞧瞧 보다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 보다
 보다	覯다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1904 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 覯 볼 구
 보드랍다	軟다	adj		eonhae		primer: 類合 1913, 유합.djvu/11: 軟 보ᄃᆞ라울 던
 보름	望	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/21: 望 보롬 마ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天文 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 望 보롬 마ᇰ; 新增類合 1576, 나무위키 신증유합/상권 86 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 望 보롬 망; 倭語類解 18世紀, 倭語類解.pdf/11: 望 보롬 망
 보름	月半	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/8: 月半 보롬
 보리	麰	noun		eonhae		primer: 訓蒙字會 1527, 禾糓 상12B: 麰 보리 모; 訓蒙字會 1527, 나무위키 훈몽자회/상권 禾穀 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 麰 보리 모; 新增類合 1576, 나무위키 신증유합/상권 301 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 麰 보리 모; 類合 1913, 유합.djvu/11: 麰 보리 모
 보리	牟	noun		eonhae		primer: 詩經諺解 物名 1820本, 詩經諺解 제1책/42: 牟 보리 모
+보이다	現다	verb		eonhae		primer: 類合 1913, 유합.djvu/44: 現 뵐 현
+보이다	示다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2242 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 示 뵐 시
 복	魨	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상21A: 魨 복 돈; 訓蒙字會 1527, 나무위키 훈몽자회/상권 鱗介 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 魨 복 돈
-복숭아	桃	noun		eonhae		primer: 訓蒙字會 1527, 菓實 상11A: 桃 복셔ᇰ화 도; 訓蒙字會 1527, 나무위키 훈몽자회/상권 菓實 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 桃 복셩화 도
+복숭아	桃	noun		eonhae		primer: 訓蒙字會 1527, 菓實 상11A: 桃 복셔ᇰ화 도; 訓蒙字會 1527, 나무위키 훈몽자회/상권 菓實 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 桃 복셩화 도; 新增類合 1576, 나무위키 신증유합/상권 277 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 桃 복셩화 도
 볼기	臀子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/72: 臀子 볼기
 볼모	質	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/115: 質 볼모 지
 뵈다	現다	verb		eonhae		primer: 類合 1913, 유합.djvu/44: 現 뵐 현
@@ -771,8 +840,10 @@ lemma	written	pos	class	source	count	note
 부르다	唱다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/16: 唱 브를 챵; 新增類合 1576, 나무위키 신증유합/하권 1178 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 唱 브를 챵; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/38: 唱 브를 챵; 類合 1913, 유합.djvu/30: 唱 부를 챵
 부르다	呼다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1177 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 呼 브를 호; 倭語類解 18世紀, 倭語類解.djvu/44: 呼 부를 호; 類合 1913, 유합.djvu/30: 呼 부를 호
 부르다	喚다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1179 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 喚 브를 환; 類合 1913, 유합.djvu/30: 喚 부를 환
+부르다	叫喚다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0001/83: 叫喚 브르다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 브르다
 부리	觜	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 387 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 觜 부리 ᄎᆐ; 類合 1913, 유합.djvu/13: 觜 부리 ᄎᆔ
 부리다	役다	verb		eonhae		primer: 訓蒙字會 1527, 人類 중02A: 役 브릴 역
+부시다	蕩다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1709 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蕩 보쇨 탕
 부아	肺	noun		eonhae		primer: 訓蒙字會 1527, 身體 상27A: 肺 부화 폐; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 肺 부화 폐; 新增類合 1576, 나무위키 신증유합/상권 682 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 肺 부화 폐; 倭語類解 18世紀, 倭語類解.djvu/40: 肺 부화 폐
 부아	肺子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/71: 肺子 부하
 부엉이	鵂	noun		eonhae		primer: 類合 1913, 유합.djvu/12: 鵂 부헝이 휴
@@ -785,6 +856,7 @@ lemma	written	pos	class	source	count	note
 부추	薤	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13A: 薤 부ᄎᆡ 혜; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蔬菜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 薤 부ᄎᆡ 혜; 新增類合 1576, 나무위키 신증유합/상권 316 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 薤 부ᄎᆡ ᄒᆡ; 類合 1913, 유합.djvu/11: 薤 부ᄎᆡ (ᄒᆡ)
 부치다	寄다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2275 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 寄 브틸 긔; 類合 1913, 유합.djvu/37: 寄 부틸 긔
 북	梭	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0002/7: 梭 북
+북돋우다	耔다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1212 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 耔 붓도돌 ᄌᆞ
 붇다	滋다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2911 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 滋 부를 ᄌᆞ; 倭語類解 18世紀, 倭語類解.pdf/24: 滋 부ᄅᆞᆯ ᄌᆞ
 붇다	殖다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/162: 殖 부를 식; 新增類合 1576, 나무위키 신증유합/하권 2912 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 殖 부를 식
 불꽃	焰	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2702 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 焰 블곳 염
@@ -804,15 +876,19 @@ lemma	written	pos	class	source	count	note
 붙다	附다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2128 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 附 브틀 부
 붙다	著다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 289 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 著 브틀 탹
 붙들다	扶다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/63: 扶 붇들 부; 類合 1913, 유합.djvu/32: 扶 붓들 부
+붙이다	付다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2276 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 付 브틸 부
 비누	皂角	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/97: 皂角 비노
-비다	虛다	verb		eonhae		primer: 類合 1913, 유합.djvu/42: 虛 븰 허
+비다	虛다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/11: 虛 뷜 허; 新增類合 1576, 나무위키 신증유합/하권 2540 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 虛 뷜 허; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/28: 虛 뷜 허; 類合 1913, 유합.djvu/42: 虛 븰 허
 비로소	始	adv		eonhae		aligned (13 passages, 4 books): 古文眞寶諺解 英祖代 (고문진보언해 권7/109): 始是新承恩澤時 → 비로소 이 새로 은ᄐᆡᆨ을; 十九史略諺解 1772 (十九史略諺解 권1/19): 始作曆ᄒᆞ야  → 비로소 ᄎᆡᆨ력을 ᄆᆡᆼ그라
 비록	雖	adv		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/59: 雖 비록 슈
+비롯하다	俶하다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/65: 俶 비ᄅᆞᄉᆞᆯ 슉
 비름	莧	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상13B: 莧 비름 현; 類合 1913, 유합.djvu/9: 莧 비름 현
-비리다	腥다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 457 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 腥 비릴 셩; 倭語類解 18世紀, 倭語類解.djvu/100: 腥 비릴 셩; 類合 1913, 유합.djvu/15: 腥 비릴 셩
+비리다	腥다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 457 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 腥 비릴 셩; 譯語類解 1690, 譯語類解 0001/108: 腥 비리다; 倭語類解 18世紀, 倭語類解.djvu/100: 腥 비릴 셩; 類合 1913, 유합.djvu/15: 腥 비릴 셩
 비웃다	嗤다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1933 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 嗤 비우슬 치
 비웃다	譏다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/55: 譏 비우슬 긔
+비추다	暉다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/160: 暉 비췰 휘
 비치다	映다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/33: 映 비칄 영
+비치다	照다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/90: 照 비췰 죠
 빌다	祝다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1428 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 祝 빌 츅; 類合 1913, 유합.djvu/34: 祝 빌 츅
 빌다	禱다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1431 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 禱 빌 도
 빌다	丐다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2425 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 丐 빌 개
@@ -833,6 +909,8 @@ lemma	written	pos	class	source	count	note
 빠지다	淪다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2755 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 淪 ᄲᅡ딜 륜
 빨다	吮다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/101: 吮 ᄲᆞᆯ 연
 빨다	濯다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1236 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 濯 ᄲᆞᆯ 탁
+빼다	抽다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/34: 抽 ᄲᅡ일 듀; 新增類合 1576, 나무위키 신증유합/상권 306 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 抽 ᄲᅡ일 튜; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/73: 抽 ᄲᅡ일 튜; 類合 1913, 유합.djvu/11: 抽 ᄲᅡ일 튜
+빼다	拔다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1324 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 拔 ᄲᅢ틸 발
 뺨	顋	noun		eonhae		primer: 訓蒙字會 1527, 身體 상25A: 顋 ᄲᅡᆷ 싀; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 顋 ᄲᅡᆷ 싀
 뺨	顴	noun		eonhae		primer: 訓蒙字會 1527, 身體 상25A: 顴 ᄲᅡᆷ 관; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 顴 ᄲᅣᆷ 관
 뺨	腮頰	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/68: 腮頰 ᄲᅣᆷ
@@ -854,6 +932,8 @@ lemma	written	pos	class	source	count	note
 사랑	愛	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1065 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 愛 ᄉᆞ랑 ᄋᆡ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/19: 愛 ᄉᆞ랑 ᄋᆡ; 類合 1913, 유합.djvu/29: 愛 ᄉᆞ랑 ᄋᆡ
 사로잡다	擒다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/82: 擒 사로잡을 금
 사로잡다	虜다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2044 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 虜 사ᄅᆞ자ᄇᆞᆯ 로
+사뢰다	白다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/53: 白 ᄉᆞᆯ올 ᄇᆡᆨ; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): ᄉᆞᆯ올
+사뢰다	奏다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/72: 奏 ᄉᆞᆯ올 주; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): ᄉᆞᆯ올
 사립	扉	noun		eonhae		primer: 類合 1913, 유합.djvu/21: 扉 사립 비
 사무치다	通다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/22: 通 ᄉᆞᄆᆞᄎᆞᆯ 통; 新增類合 1576, 나무위키 신증유합/하권 2975 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 通 ᄉᆞᄆᆞᄎᆞᆯ 통; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/49: 通 ᄉᆞᄆᆞᄎᆞᆯ 통; 類合 1913, 유합.djvu/44: 通 사모ᄎᆞᆯ 통
 사무치다	達다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/22: 達 ᄉᆞᄆᆞᄎᆞᆯ 달; 新增類合 1576, 나무위키 신증유합/상권 24 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 達 ᄉᆞᄆᆞᄎᆞᆯ 달; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/49: 達 ᄉᆞᄆᆞᄎᆞᆯ 달; 類合 1913, 유합.djvu/3: 達 ᄉᆞᄆᆞᄎᆞᆯ 달
@@ -883,7 +963,8 @@ lemma	written	pos	class	source	count	note
 삼	麻	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상09A: 麻 삼 마; 訓蒙字會 1527, 나무위키 훈몽자회/상권 草卉 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 麻 삼 마; 新增類合 1576, 나무위키 신증유합/상권 810 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 麻 삼 마; 詩經諺解 物名 1820本, 詩經諺解 제1책/15: 麻 삼 마; 類合 1913, 유합.djvu/23: 麻 삼 마
 삼가다	愼다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/14: 愼 삼갈 신; 新增類合 1576, 나무위키 신증유합/하권 1075 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 愼 삼갈 신; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/34: 愼 삼갈 신
 삼가다	謹다	verb		eonhae		aligned (4 passages, 2 books): 古文眞寶諺解 英祖代 (고문진보언해 후집 권6/23): 謹缾甖之固濟 → ᄒᆞ기ᄅᆞᆯ 삼가; 小學諺解 1587 (소학언해/권2): , 因地之利, 謹身節用, 以養 → 몸ᄋᆞᆯ 삼가며
-삼키다	呑다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/101: 呑 ᄉᆞᆷ킬 ᄃᆞᆫ; 類合 1913, 유합.djvu/30: 呑 ᄉᆞᆷ킬 ᄐᆞᆫ
+삼키다	呑다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1183 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 呑 ᄉᆞᆷᄭᅵᆯ ᄐᆞᆫ; 倭語類解 18世紀, 倭語類解.djvu/101: 呑 ᄉᆞᆷ킬 ᄃᆞᆫ; 類合 1913, 유합.djvu/30: 呑 ᄉᆞᆷ킬 ᄐᆞᆫ
+삼키다	呑下다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0001/109: 呑下 ᄉᆞᆷᄭᅵ다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): ᄉᆞᆷᄭᅵ다
 삿갓	蓑笠	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/88: 蓑笠 삿갓
 상어	鯊	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상21A: 鯊 사ᇰᅌᅥᆺ 사; 訓蒙字會 1527, 나무위키 훈몽자회/상권 鱗介 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鯊 사ᇰ엇 사
 새	新	det		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/30: 新 새 신; 新增類合 1576, 나무위키 신증유합/상권 336 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 新 새 신; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/65: 新 새 신; 類合 1913, 유합.djvu/12: 新 새 신
@@ -891,6 +972,7 @@ lemma	written	pos	class	source	count	note
 새	隹	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상17A: 隹 새 쵸; 訓蒙字會 1527, 나무위키 훈몽자회/상권 禽鳥 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 隹 새 쵸
 새	鸞	noun		eonhae		primer: 類合 1913, 유합.djvu/12: 鸞 새 난
 새	鵾	noun		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/75: 鵾 새 곤
+새기다	講다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1247 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 講 사길 강
 새끼	羔	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19A: 羔 삿기 고; 訓蒙字會 1527, 나무위키 훈몽자회/상권 獸畜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 羔 삿기 고
 새다	漏다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.pdf/24: 漏 ᄉᆡᆯ 루
 새다	曙다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/20: 曙 샐 셔; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天文 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 曙 ᄉᆡᆯ 셔
@@ -899,15 +981,18 @@ lemma	written	pos	class	source	count	note
 새삼	菟	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상08B: 菟 새ᅀᅡᆷ 토; 訓蒙字會 1527, 나무위키 훈몽자회/상권 草卉 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 菟 새ᅀᅡᆷ 토
 새우	鰕	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20A: 鰕 새요 하; 訓蒙字會 1527, 나무위키 훈몽자회/상권 鱗介 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鰕 새요 하
 새우	蝦兒	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0002/77: 蝦兒 새오
+새치	雜頭髮	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/69: 雜頭髮 샤티; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 샤티
 샘	嫉	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1992 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 嫉 새옴 질
 샛별	明星	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/4: 明星 새별
 생각	念	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1521 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 念 ᄉᆡᆼ각 념; 類合 1913, 유합.djvu/35: 念 ᄉᆡᆼ각 념
 생각	想	noun		eonhae		primer: 類合 1913, 유합.djvu/32: 想 ᄉᆡᆼ각 샹
 생각	憶	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1527 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 憶 ᄉᆡᆼ각 억
+서늘하다	凉快하다	adj		eonhae		primer: 譯語類解 1690, 譯語類解 0001/12: 凉快 서늘ᄒᆞ다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 서늘ᄒᆞ다
 서로	相	adv		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/23: 相 서르 샹; 新增類合 1576, 나무위키 신증유합/상권 123 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 相 서르 샹; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/51: 相 서르 샹; 類合 1913, 유합.djvu/6: 相 서르 샹
 서울	京城	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/29: 京城 셔올
 석	三	num		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 3 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 三 석 삼; 倭語類解 18世紀, 倭語類解.djvu/112: 三 석 삼
 석	參	num		eonhae		primer: 類合 1913, 유합.djvu/3: 參 셕 삼
+섞이다	雜다	verb		eonhae		primer: 類合 1913, 유합.djvu/26: 雜 섯길 잡
 선비	士	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 519 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 士 션ᄇᆡ ᄉᆞ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/57: 士 션ᄇᆡ ᄉᆞ; 倭語類解 18世紀, 倭語類解.pdf/31: 士 션ᄇᆡ ᄉᆞ; 類合 1913, 유합.djvu/16: 士 션ᄇᆡ ᄉᆞ
 선비	儒	noun		eonhae		primer: 訓蒙字會 1527, 儒學 상34A: 儒 션븨 ᅀᅲ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 儒學 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 儒 션븨 ᅀᅲ; 新增類合 1576, 나무위키 신증유합/상권 537 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 儒 션ᄇᆡ 유
 섣달	臘月	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/10: 臘月 섯ᄃᆞᆯ
@@ -919,15 +1004,23 @@ lemma	written	pos	class	source	count	note
 성내다	怒다	verb		eonhae		primer: 類合 1913, 유합.djvu/29: 怒 셩ᄂᆡᆯ 노
 섶	薪	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/42: 薪 섭 신; 新增類合 1576, 나무위키 신증유합/하권 1879 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 薪 섭 신; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/90: 薪 섭 신
 섶나무	薪	noun		eonhae		primer: 詩經諺解 物名 1820本, 詩經諺解 제1책/15: 薪 섭나무 신
+세다	計다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1638 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 計 혤 계
+세다	算數다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0001/129: 算數 혜다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 혜다
 세다	强다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1047 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 强 셀 강
 세다	彊다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1047 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 彊 셀 강
+세다	筭다	verb		eonhae		primer: 訓蒙字會 1527, 人類 중02B: 筭 혤 산
 세다	勁다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2051 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 勁 셀 경
+세우다	建다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1405 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 建 셸 건; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/27: 建 셸 건
+세우다	竪다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2711 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 竪 셰울 슈
 셈	數	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/112: 數 혬 수
 소금	塩	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 932 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 塩 소곰 염
 소리	聲	noun		eonhae		primer: 訓蒙字會 1527, 身體 상29A: 聲 소ᄅᆡ 셔ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 聲 소ᄅᆡ 셔ᇰ; 光州千字文 1575, 광주천자문.pdf/11: 聲 소ᄅᆡ 셩; 新增類合 1576, 나무위키 신증유합/하권 1009 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 聲 소ᄅᆡ 셩; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/28: 聲 소ᄅᆡ 셩; 倭語類解 18世紀, 倭語類解.djvu/44: 聲 소ᄅᆡ 셩; 類合 1913, 유합.djvu/27: 聲 소ᄅᆡ 셩
 소리	響	noun		eonhae		primer: 類合 1913, 유합.djvu/28: 響 소ᄅᆡ 향
 소매	袖子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0002/13: 袖子 ᄉᆞ매
 속	裏	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 47 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 裏 속 니; 類合 1913, 유합.djvu/4: 裏 속 리
+속이다	欺다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2131 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 欺 소길 긔
+속이다	詭다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2060 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 詭 소길 궤
+속이다	誑다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2132 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 誑 소길 광
 손	客	noun		eonhae		primer: 訓蒙字會 1527, 人類 중03A: 客 손 ᄀᆡᆨ; 新增類合 1576, 나무위키 신증유합/상권 530 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 客 손 ᄀᆡᆨ; 倭語類解 18世紀, 倭語類解.djvu/87: 客 손 ᄀᆡᆨ; 類合 1913, 유합.djvu/16: 客 손 ᄀᆡᆨ
 손	賓	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/7: 賓 손 빙; 新增類合 1576, 나무위키 신증유합/상권 529 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 賓 손 빈; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/20: 賓 손 빈; 類合 1913, 유합.djvu/16: 賓 손 빈
 손	賔	noun		eonhae		primer: 訓蒙字會 1527, 人類 중03A: 賔 손 비ᇰ
@@ -976,26 +1069,38 @@ lemma	written	pos	class	source	count	note
 시루	甑	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 851 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 甑 시르 증; 類合 1913, 유합.djvu/24: 甑 시로 증
 시어미	姑	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 614 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 姑 싀어미 고; 倭語類解 18世紀, 倭語類解.pdf/27: 姑 싀어미 고; 類合 1913, 유합.djvu/18: 姑 싀어미 고
 시위	弦	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/84: 弦 시위 현
+시키다	命다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1040 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 命 시길 명
 신	鞋	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 982 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鞋 신 혀; 類合 1913, 유합.djvu/27: 鞋 신 혜
 신	鞵	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 982 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鞵 신 혀
+싫다	厭다	adj		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/78: 厭 슬ᄒᆞᆯ 염; 類合 1913, 유합.djvu/15: 厭 슬ᄒᆞᆯ 염
 심다	栽다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2301 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 栽 시믈 ᄌᆡ; 類合 1913, 유합.djvu/31: 栽 시믈 ᄌᆡ
 심다	稼다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/29: 稼 시믈 가
 심다	種다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1210 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 種 시믈 죵
 싸다	裹다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2280 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 裹 ᄡᆞᆯ 과; 類合 1913, 유합.djvu/37: 裹 ᄡᆞᆯ 과
+싸우다	鬪다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/81: 鬪 싸홀 투; 類合 1913, 유합.djvu/36: 鬪 싸홀 투
+싸우다	戰다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/81: 戰 싸홀 젼
 써	以	adv		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/15: 以 ᄡᅥ 이; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/36: 以 ᄡᅥ 이; 倭語類解 18世紀, 倭語類解.djvu/56: 以 ᄡᅥ 이
+썩다	朽다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2782 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 朽 서글 후
 쏘가리	鱖	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20B: 鱖 소과리 궐; 訓蒙字會 1527, 나무위키 훈몽자회/상권 鱗介 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鱖 소가리 궐
 쐐기	楔子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/36: 楔子 쇠야기
 쑥	蘩	noun		eonhae		primer: 訓蒙字會 1527, 草卉 상09A: 蘩 ᄡᅮᆨ 번; 訓蒙字會 1527, 나무위키 훈몽자회/상권 草卉 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蘩 ᄡᅮᆨ 번
 쓰다	辛다	adj		eonhae		primer: 類合 1913, 유합.djvu/33: 辛 쓸 신
 쓰다	寫다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/78: 寫 쓸 샤
 씨	緯	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 896 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 緯 씨 위
+씹다	嚼다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1175 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 嚼 시블 쟉; 譯語類解 1690, 譯語類解 0001/109: 嚼 십다; 類合 1913, 유합.djvu/30: 嚼 ᄡᅵ블 쟉
+씹다	咀다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1354 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 咀 시블 져
 씻다	濯다	verb		eonhae		primer: 類合 1913, 유합.djvu/32: 濯 씨슬 탁
+씻다	滌다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1710 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 滌 시슬 텩
+씻다	湔다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1657 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 湔 시슬 젼
+씻다	澡다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2161 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 澡 시슬 조
+아끼다	惜다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1822 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 惜 앗길 셕; 類合 1913, 유합.djvu/36: 惜 앗길 셕
+아끼다	慳다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1821 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 慳 앗길 간; 類合 1913, 유합.djvu/36: 慳 앗길 간
 아니다	不다	adj	ani	eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1394 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 不 아닐 블; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/33: 不 아닐 블
 아득하다	緲하다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 192 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 緲 아ᄃᆞᆨᄒᆞᆯ 묘; 類合 1913, 유합.djvu/8: 緲 아득ᄒᆞᆯ 묘
 아들	子	noun		eonhae		primer: 訓蒙字會 1527, 天倫 상32A: 子 아ᄃᆞᆯ ᄌᆞ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 子 아ᄃᆞᆯ ᄌᆞ; 新增類合 1576, 나무위키 신증유합/상권 290 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 子 아ᄃᆞᆯ ᄌᆞ; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/39: 子 아ᄃᆞᆯ ᄌᆞ; 倭語類解 18世紀, 倭語類解.pdf/28: 子 아들 ᄌᆞ; 類合 1913, 유합.djvu/10: 子 아ᄃᆞᆯ ᄌᆞ
 아들	男	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 521 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 男 아ᄃᆞᆯ 남; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/24: 男 아ᄃᆞᆯ 남; 類合 1913, 유합.djvu/16: 男 아ᄃᆞᆯ 남
 아래	下	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/16: 下 아래 하; 新增類合 1576, 나무위키 신증유합/상권 38 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 下 아래 하; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/37: 下 아래 하; 倭語類解 18世紀, 倭語類解.pdf/26: 下 아ᄅᆡ 하; 類合 1913, 유합.djvu/4: 下 아ᄅᆡ 하
-아뢰다	誥다	verb		eonhae		primer: 訓蒙字會 1527, 書式 상35A: 誥 알욀 고
+아뢰다	誥다	verb		eonhae		primer: 訓蒙字會 1527, 書式 상35A: 誥 알욀 고; 訓蒙字會 1527, 나무위키 훈몽자회/상권 書式 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 誥 알욀 고
 아름답다	嘉다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/31: 嘉 아ᄅᆞᆷ다올 가; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/68: 嘉 아ᄅᆞᆷ다올 가; 類合 1913, 유합.djvu/26: 嘉 아ᄅᆞᆷ다올 가
 아름답다	佳다	adj		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/88: 佳 아ᄅᆞᆷ다올 가
 아리새	鶬	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상16B: 鶬 아리새 차ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 禽鳥 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鶬 아리새 차ᇰ
@@ -1004,7 +1109,7 @@ lemma	written	pos	class	source	count	note
 아비	父	noun		eonhae		primer: 訓蒙字會 1527, 天倫 상31A: 父 아비 부; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 父 아비 부; 光州千字文 1575, 광주천자문.pdf/12: 父 아비 부; 新增類合 1576, 나무위키 신증유합/상권 601 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 父 아비 부; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/30: 父 아비 부; 倭語類解 18世紀, 倭語類解.pdf/27: 父 아비 부; 類合 1913, 유합.djvu/18: 父 아비 부
 아비	爺	noun		eonhae		primer: 訓蒙字會 1527, 天倫 상31A: 爺 아비 야; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 爺 아비 야
 아비	爹	noun		eonhae		primer: 訓蒙字會 1527, 天倫 상31A: 爹 아비 다; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 爹 아비 다
-아욱	葵	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상15A: 葵 아옥 규; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蔬菜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 葵 아옥 규
+아욱	葵	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상15A: 葵 아옥 규; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蔬菜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 葵 아옥 규; 新增類合 1576, 나무위키 신증유합/상권 317 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 葵 아혹 규; 詩經諺解 物名 1820本, 詩經諺解 제1책/27: 葵 아혹 규; 類合 1913, 유합.djvu/11: 葵 아혹 규
 아이	童	noun		eonhae		primer: 訓蒙字會 1527, 天倫 상32A: 童 아ᄒᆡ 도ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 童 아ᄒᆡ 도ᇰ; 新增類合 1576, 나무위키 신증유합/상권 526 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 童 아ᄒᆡ 동; 倭語類解 18世紀, 倭語類解.pdf/32: 童 아ᄒᆡ 동; 類合 1913, 유합.djvu/16: 童 ᄋᆞᄒᆡ 동
 아이	孩	noun		eonhae		primer: 訓蒙字會 1527, 天倫 상32B: 孩 아ᄒᆡ ᄒᆡ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 孩 아ᄒᆡ ᄒᆡ
 아이	孺	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1288 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 孺 아ᄒᆡ 유
@@ -1031,6 +1136,7 @@ lemma	written	pos	class	source	count	note
 어둡다	幽다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1531 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 幽 어두울 유
 어둡다	昧다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2344 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 昧 어두을 ᄆᆡ
 어렵다	艱다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2809 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 艱 어려울 간
+어루만지다	撫다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1413 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 撫 어르ᄆᆞᆫ질 무
 어리다	愚다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/43: 愚 어릴 우; 新增類合 1576, 나무위키 신증유합/하권 1042 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 愚 어릴 우; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/92: 愚 어릴 우; 倭語類解 18世紀, 倭語類解.djvu/51: 愚 어릴 우
 어리다	癡다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1099 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 癡 어릴 티; 倭語類解 18世紀, 倭語類解.djvu/52: 癡 어릴 치
 어리다	幼다	adj		eonhae		primer: 類合 1913, 유합.djvu/16: 幼 어릴 유
@@ -1066,7 +1172,7 @@ lemma	written	pos	class	source	count	note
 여덟	捌	num		eonhae		primer: 類合 1913, 유합.djvu/3: 捌 여ᄃᆞᆲ 팔
 여름짓다	農다	verb		eonhae		primer: 訓蒙字會 1527, 人類 중03B: 農 녀름지ᅀᅳᆯ 노ᇰ; 新增類合 1576, 나무위키 신증유합/하권 1748 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 農 녀름지을 롱; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/64: 農 녀름지을 롱
 여물다	實다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 294 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 實 여믈 실
-여우	狐	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 獸畜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 狐 여으 호
+여우	狐	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상19A: 狐 여ᅀᅳ 호; 訓蒙字會 1527, 나무위키 훈몽자회/상권 獸畜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 狐 여으 호
 여위다	羸다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1543 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 羸 여윌 리
 여위다	瘠다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1544 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 瘠 여윌 쳑
 여위다	臞다	verb		eonhae		primer: 訓蒙字會 1527, 身體 상29B: 臞 여윌 구; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 臞 여윌 구
@@ -1089,7 +1195,7 @@ lemma	written	pos	class	source	count	note
 오금	䐐	noun		eonhae		primer: 訓蒙字會 1527, 身體 상28A: 䐐 오곰 츄; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 䐐 오곰 츄
 오늬	筈	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/84: 筈 오ᄂᆡ 괄
 오디	葚	noun		eonhae		primer: 訓蒙字會 1527, 菓實 상12A: 葚 오ᄃᆡ 심; 訓蒙字會 1527, 나무위키 훈몽자회/상권 菓實 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 葚 오ᄃᆡ 심
-오래다	久다	adj		eonhae		primer: 類合 1913, 유합.djvu/43: 久 오ᄅᆡᆯ 구
+오래다	久다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2857 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 久 오랄 구; 類合 1913, 유합.djvu/43: 久 오ᄅᆡᆯ 구
 오르다	登다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1145 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 登 오ᄅᆞᆯ 등; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/35: 登 오ᄅᆞᆯ 등; 倭語類解 18世紀, 倭語類解.djvu/62: 登 오를 등; 類合 1913, 유합.djvu/29: 登 오를 등
 오르다	陟다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2414 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 陟 오ᄅᆞᆯ 텩; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/66: 陟 오ᄅᆞᆯ 텩
 오리	鳧	noun		eonhae		primer: 類合 1913, 유합.djvu/12: 鳧 오리 부
@@ -1108,8 +1214,8 @@ lemma	written	pos	class	source	count	note
 올	條	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/34: 條 올 됴; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/73: 條 올 됴
 올	縷	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 894 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 縷 올 루
 올빼미	梟	noun		eonhae		primer: 訓蒙字會 1527, 禽鳥 상17A: 梟 옫바미 효; 訓蒙字會 1527, 나무위키 훈몽자회/상권 禽鳥 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 梟 옫바미 효
-올챙이	蝌	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상24A: 蝌 올차ᇰ이 과; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蝌 올차ᇰ이 과
-올챙이	蚪	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상24A: 蚪 올차ᇰ이 두
+올챙이	蝌	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상24A: 蝌 올차ᇰ이 과; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蝌 올차ᇰ이 과; 新增類合 1576, 나무위키 신증유합/상권 477 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蝌 올창이 과
+올챙이	蚪	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상24A: 蚪 올차ᇰ이 두; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蚪 올차ᇰ이 두; 新增類合 1576, 나무위키 신증유합/상권 478 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蚪 올창이 두
 옮다	移다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2990 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 移 올ᄆᆞᆯ 이
 옮다	遷다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2989 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 遷 올ᄆᆞᆯ 쳔
 옮다	轉다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/159: 轉 올믈 뎐
@@ -1129,6 +1235,7 @@ lemma	written	pos	class	source	count	note
 울	藩	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1891 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 藩 울 번
 울다	哭다	verb		eonhae		primer: 訓蒙字會 1527, 身體 상29B: 哭 울 곡; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 哭 울 곡; 新增類合 1576, 나무위키 신증유합/하권 1708 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 哭 울 곡
 울다	啼다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1167 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 啼 울 뎨; 類合 1913, 유합.djvu/30: 啼 울 뎨
+울다	啼哭다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0001/85: 啼哭 우다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 우다
 움	萌	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/164: 萌 움 ᄆᆡᇰ; 新增類合 1576, 나무위키 신증유합/하권 2783 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 萌 움 ᄆᆡᆼ
 움	苗	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 305 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 苗 움 묘; 類合 1913, 유합.djvu/11: 苗 움 묘
 움	芽	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2579 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 芽 움 아
@@ -1148,12 +1255,14 @@ lemma	written	pos	class	source	count	note
 이	牙齒	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/68: 牙齒 니
 이기다	剋다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/11: 剋 이긜 극; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/27: 剋 이긜 극
 이기다	克다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1105 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 克 이긜 극
+이끌다	牽다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2441 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 牽 잇글 견; 類合 1913, 유합.djvu/39: 牽 잇글 견
+이끌다	携다	verb		eonhae		primer: 類合 1913, 유합.djvu/40: 携 잇글 휴
 이다	戴다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2448 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 戴 일 ᄃᆡ; 類合 1913, 유합.djvu/39: 戴 일 ᄃᆡ
 이랑	畝	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 地理 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 畝 이라ᇰ 모; 光州千字文 1575, 광주천자문.pdf/30: 畝 이랑 묘; 類合 1913, 유합.djvu/7: 畝 이랑 묘
 이랑	畦	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/31: 畦 이라ᇰ 규; 訓蒙字會 1527, 나무위키 훈몽자회/상권 地理 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 畦 이라ᇰ 규; 類合 1913, 유합.djvu/7: 畦 이랑 규
 이랑	疇	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/31: 疇 이라ᇰ 듀; 訓蒙字會 1527, 나무위키 훈몽자회/상권 地理 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 疇 이라ᇰ 듀
 이랑	畒	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/31: 畒 이라ᇰ 모
-이르다	早다	adj		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/20: 早 이를 조; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天文 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 早 이를 조; 光州千字文 1575, 광주천자문.pdf/34: 早 이를 조; 新增類合 1576, 나무위키 신증유합/하권 2807 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 早 이를 조; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/74: 早 이ᄅᆞᆯ 조; 類合 1913, 유합.djvu/43: 早 이ᄅᆞᆯ 죠
+이르다	早다	adj		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/20: 早 이를 조; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天文 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 早 이를 조; 光州千字文 1575, 광주천자문.pdf/34: 早 이를 조; 新增類合 1576, 나무위키 신증유합/하권 2807 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 早 이를 조; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/74: 早 이ᄅᆞᆯ 조; 倭語類解 18世紀, 倭語類解.pdf/13: 早 일을 조; 類合 1913, 유합.djvu/43: 早 이ᄅᆞᆯ 죠
 이르다	云다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 918 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 云 니를 운; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/62: 云 니ᄅᆞᆯ 운; 倭語類解 18世紀, 倭語類解.djvu/59: 云 니ᄅᆞᆯ 운; 類合 1913, 유합.djvu/25: 云 니를 운
 이르다	謂다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 309 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 謂 니를 위; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/93: 謂 니ᄅᆞᆯ 위; 類合 1913, 유합.djvu/11: 謂 니를 위
 이르다	說다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/25: 說 니를 셜; 新增類合 1576, 나무위키 신증유합/하권 1028 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 說 니ᄅᆞᆯ 셜; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/56: 說 니ᄅᆞᆯ 셜
@@ -1162,7 +1271,7 @@ lemma	written	pos	class	source	count	note
 이르다	臻다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2185 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 臻 니를 진
 이마	顙	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/39: 顙 니마 상; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/83: 顙 니마 상
 이마	䫙	noun		eonhae		primer: 訓蒙字會 1527, 身體 상24B: 䫙 니마 사ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 䫙 니마 사ᇰ
-이미	旣	adv		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/22: 旣 이믜 긔; 新增類合 1576, 나무위키 신증유합/상권 947 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 旣 이믜 긔; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/49: 旣 이믜 긔; 類合 1913, 유합.djvu/26: 旣 이믜 긔
+이미	旣	adv		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/22: 旣 이믜 긔; 新增類合 1576, 나무위키 신증유합/상권 947 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 旣 이믜 긔; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/49: 旣 이믜 긔; 倭語類解 18世紀, 倭語類解.djvu/59: 旣 임의 긔; 類合 1913, 유합.djvu/26: 旣 이믜 긔
 이불	被	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/8: 被 니블 피; 新增類合 1576, 나무위키 신증유합/하권 2454 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 被 니블 피; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/21: 被 니블 피; 類合 1913, 유합.djvu/39: 被 니블 피
 이에	乃	adv		eonhae		primer: 類合 1913, 유합.djvu/13: 乃 이에 내
 이울다	枯다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2591 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 枯 이울 고; 類合 1913, 유합.djvu/42: 枯 이올 고
@@ -1186,7 +1295,8 @@ lemma	written	pos	class	source	count	note
 잇다	承다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1262 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 承 니ᅀᅳᆯ 승
 잇다	紹다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2358 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 紹 니ᅀᅳᆯ 쇼
 잇몸	齗	noun		eonhae		primer: 訓蒙字會 1527, 身體 상26A: 齗 닛믜임 흔; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 齗 닛믜임 은
-있다	存다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/15: 存 이실 존; 新增類合 1576, 나무위키 신증유합/하권 2823 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 存 이실 존; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/36: 存 이실 존; 類合 1913, 유합.djvu/43: 存 이실 죤
+있다	存다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/15: 存 이실 존; 新增類合 1576, 나무위키 신증유합/하권 2823 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 存 이실 존; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/36: 存 이실 존; 類合 1913, 유합.djvu/43: 存 이실 죤; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 이실
+있다	住다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1592 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 住 이실 듀; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 이실
 자	尺	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/12: 尺 자 쳑; 新增類合 1576, 나무위키 신증유합/상권 880 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 尺 자 쳑; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/29: 尺 자 쳑; 倭語類解 18世紀, 倭語類解.djvu/113: 尺 자 쳑; 類合 1913, 유합.djvu/25: 尺 자 쳑
 자개미	胳	noun		eonhae		primer: 訓蒙字會 1527, 身體 상25B: 胳 쟈개얌 각; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 胳 쟈개얌 각
 자개미	腋	noun		eonhae		primer: 訓蒙字會 1527, 身體 상25B: 腋 쟈개얌 ᄋᆡᆨ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 腋 쟈개얌 ᄋᆡᆨ
@@ -1213,6 +1323,8 @@ lemma	written	pos	class	source	count	note
 잔치	讌	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/38: 讌 잔ᄎᆡ 연
 잘하다	能하다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/24: 能 잘ᄒᆞᆯ 능
 잘하다	善하다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/50: 善 잘ᄒᆞᆯ 션
+잠그다	溺다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/228: 溺 ᄌᆞᄆᆞᆯ 닉
+잠그다	淹다	verb		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/228: 淹 ᄌᆞᄆᆞᆯ 엄
 잠기다	沈다	verb		eonhae		primer: 類合 1913, 유합.djvu/44: 沈 ᄌᆞᆷ길 침
 잠깐	乍	adv		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2860 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 乍 잠ᄭᅡᆫ 사
 잠자리	蜻	noun		eonhae		primer: 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蜻 ᄌᆞᆫ자리 쳐ᇰ; 新增類合 1576, 나무위키 신증유합/상권 471 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蜻 ᄌᆞᆫ자리 쳥; 類合 1913, 유합.djvu/15: 蜻 ᄌᆞᆫ자리 쳥
@@ -1243,7 +1355,9 @@ lemma	written	pos	class	source	count	note
 적삼	衫	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/94: 衫 젹삼 삼
 전나무	檜	noun		eonhae		primer: 訓蒙字會 1527, 樹木 상10A: 檜 젓나모 회; 訓蒙字會 1527, 나무위키 훈몽자회/상권 樹木 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 檜 젓나모 회; 類合 1913, 유합.djvu/10: 檜 전나모 회
 절	刹	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/108: 刹 졀 찰
-젊다	少다	adj		eonhae		primer: 類合 1913, 유합.djvu/44: 少 절믈 쇼
+젊다	少다	adj		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/78: 少 져믈 쇼; 倭語類解 18世紀, 倭語類解.djvu/42: 少 져믈 쇼; 類合 1913, 유합.djvu/44: 少 절믈 쇼
+젊다	幼다	adj		eonhae		primer: 訓蒙字會 1527, 天倫 상32B: 幼 져믈 유; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 幼 져믈 유; 新增類合 1576, 나무위키 신증유합/상권 524 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 幼 져믈 유
+젊다	稚다	adj		eonhae		primer: 訓蒙字會 1527, 天倫 상32B: 稚 져믈 티; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 稚 져믈 티
 젓	醢	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 934 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 醢 젓 ᄒᆡ
 젖다	潤다	verb		eonhae		primer: 類合 1913, 유합.djvu/37: 潤 저ᄌᆞᆯ 윤
 젖다	沾다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2585 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 沾 저즐 텸
@@ -1272,14 +1386,18 @@ lemma	written	pos	class	source	count	note
 좇다	循다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1107 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 循 조ᄎᆞᆯ 슌
 좇다	徇다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1109 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 徇 조ᄎᆞᆯ 슌
 좋다	嘉다	adj		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 948 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 嘉 됴ᄒᆞᆯ 가
+주검	尸	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/107: 尸 죽엄 시; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 죽엄
 주름	襞	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/95: 襞 주룸 벽
 주리다	飢다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/36: 飢 주릴 긔; 新增類合 1576, 나무위키 신증유합/하권 1199 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 飢 주릴 긔; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/78: 飢 주릴 긔; 倭語類解 18世紀, 倭語類解.djvu/102: 飢 주릴 긔; 類合 1913, 유합.djvu/31: 飢 주릴 긔
 주리다	餓다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1539 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 餓 주릴 아
 주리다	餒다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1540 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 餒 주릴 뢰
 주머니	囊	noun		eonhae		primer: 類合 1913, 유합.djvu/27: 囊 쥬머니 낭
 주먹	拳頭	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/70: 拳頭 주머귀
+죽이다	戮다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2046 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 戮 주길 륙
+죽이다	誅다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1449 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 誅 주길 듀
 준치	鰳	noun		eonhae		primer: 訓蒙字會 1527, 鱗介 상20B: 鰳 쥰티 륵; 訓蒙字會 1527, 나무위키 훈몽자회/상권 鱗介 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鰳 쥰티 륵
 줄기	莖	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/165: 莖 줄기 ᄀᆡᇰ; 新增類合 1576, 나무위키 신증유합/상권 244 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 莖 줄기 ᄀᆡᆼ; 類合 1913, 유합.djvu/9: 莖 줄기 경
+줄이다	省다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2025 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 省 조릴 ᄉᆡᆼ
 줍다	拾다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2460 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 拾 주을 습; 倭語類解 18世紀, 倭語類解.djvu/64: 拾 주을 습; 類合 1913, 유합.djvu/40: 拾 주을 습
 줍다	掇다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2459 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 掇 주을 텰
 중	僧	noun		eonhae		primer: 訓蒙字會 1527, 人類 중02B: 僧 쥬ᇰ 스ᇰ; 新增類合 1576, 나무위키 신증유합/상권 563 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 僧 즁 승; 倭語類解 18世紀, 倭語類解.djvu/109: 僧 즁 승; 類合 1913, 유합.djvu/16: 僧 즁 승
@@ -1299,6 +1417,7 @@ lemma	written	pos	class	source	count	note
 지다	負다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2447 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 負 질 부; 類合 1913, 유합.djvu/39: 負 질 부
 지다	背다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/20: 背 질 ᄇᆡ
 지아비	夫	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 605 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 夫 짓아비 부; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/38: 夫 짓아비 부; 倭語類解 18世紀, 倭語類解.pdf/28: 夫 지아비 부; 類合 1913, 유합.djvu/18: 夫 지아비 부
+지저귀다	聒噪다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0002/99: 聒噪 지져귀다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 지져귀다
 지키다	守다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2362 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 守 디킐 슈; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/43: 守 디킐 슈
 진드기	螕	noun		eonhae		primer: 訓蒙字會 1527, 蜫蟲 상23A: 螕 진뒤 비; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蜫蟲 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 螕 진뒤 비
 진실로	苟	noun		eonhae		aligned (10 passages, 5 books): 古文眞寶諺解 英祖代 (고문진보언해 권2/45): 天運苟如此 → 텬운이 진실로 이러ᄐᆞᆺ ᄒᆞ니; 論語諺解 1820本 (論語諺解 권4/86): 苟患失之無所不至 → 진실로失홈을患ᄒᆞ면至티
@@ -1318,11 +1437,12 @@ lemma	written	pos	class	source	count	note
 짓다	營다	verb		eonhae		primer: 石峯千字文 1583, CNTS-00047980571 千字文.pdf/55: 營 지을 영; 類合 1913, 유합.djvu/32: 營 지을 영
 짓다	製다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2239 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 製 지을 제
 징	鉦	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 915 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鉦 ᄌᆡᆼ 졍; 倭語類解 18世紀, 倭語類解.djvu/85: 鉦 ᄌᆡᆼ 졍
-짜다	鹹다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/5: 鹹 ᄧᆞᆯ 함; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/15: 鹹 ᄧᆞᆯ 함
+짜다	鹹다	adj		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/5: 鹹 ᄧᆞᆯ 함; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/15: 鹹 ᄧᆞᆯ 함; 譯語類解 1690, 譯語類解 0001/108: 鹹 ᄧᆞ다
 짝	配	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1729 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 配 ᄧᅡᆨ ᄇᆡ; 倭語類解 18世紀, 倭語類解.djvu/86: 配 ᄶᅡᆨ ᄇᆡ
 짝	偶	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1730 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 偶 ᄧᅡᆨ 우
 쪽	藍	noun		eonhae		primer: 類合 1913, 유합.djvu/9: 藍 ᄶᅩᆨ 남
 쫓다	逐다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1156 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 逐 ᄧᅩᄎᆞᆯ 튝; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/43: 逐 ᄧᅩᄎᆞᆯ 튝; 倭語類解 18世紀, 倭語類解.djvu/62: 逐 ᄶᅩᄎᆞᆯ 츅; 類合 1913, 유합.djvu/30: 逐 ᄧᅩᄎᆞᆯ 츅
+찌다	蒸다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/38: 蒸 ᄠᅵᆯ 증; 新增類合 1576, 나무위키 신증유합/상권 938 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蒸 ᄠᅵᆯ 증; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/82: 蒸 ᄠᅵᆯ 증
 차다	盈다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/3: 盈 ᄎᆞᆯ 영; 新增類合 1576, 나무위키 신증유합/하권 2537 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 盈 ᄎᆞᆯ 영; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/11: 盈 ᄎᆞᆯ 영; 類合 1913, 유합.djvu/41: 盈 ᄎᆞᆯ 령
 차다	冷다	adj		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/161: 冷 ᄎᆞᆯ ᄅᆡᇰ; 新增類合 1576, 나무위키 신증유합/하권 2527 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 冷 ᄎᆞᆯ ᄅᆡᆼ; 倭語類解 18世紀, 倭語類解.pdf/15: 冷 ᄎᆞᆯ ᄅᆡᆼ; 類合 1913, 유합.djvu/41: 冷 ᄎᆞᆯ ᄅᆡᆼ
 차다	滿다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/19: 滿 ᄎᆞᆯ 만; 新增類合 1576, 나무위키 신증유합/하권 2538 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 滿 ᄎᆞᆯ 만; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/43: 滿 ᄎᆞᆯ 만
@@ -1339,6 +1459,7 @@ lemma	written	pos	class	source	count	note
 체	篩	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 858 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 篩 체 ᄉᆞ; 類合 1913, 유합.djvu/24: 篩 체 ᄉᆞ
 초하루	朔	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/21: 朔 초ᄒᆞᄅᆞ 삭; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天文 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 朔 초ᄒᆞᄅᆞ 삭; 新增類合 1576, 나무위키 신증유합/상권 88 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 朔 초ᄒᆞᄅᆞ 삭; 類合 1913, 유합.djvu/5: 朔 초ᄒᆞ로 삭
 춤추다	舞다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/88: 舞 춤출 무; 類合 1913, 유합.djvu/30: 舞 춤출 무
+춥다	天冷다	adj		eonhae		primer: 譯語類解 1690, 譯語類解 0001/12: 天冷 칩다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 칩다
 취	蔬	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 326 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蔬 취 소; 類合 1913, 유합.djvu/11: 蔬 취 소
 치다	育다	verb		eonhae		primer: 訓蒙字會 1527, 天倫 상33B: 育 칠 ᅌᅲᆨ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天倫 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 育 칠 육; 光州千字文 1575, 광주천자문.pdf/7: 育 칠 휵; 新增類合 1576, 나무위키 신증유합/하권 1673 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 育 칠 육; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/19: 育 칠 육
 치다	養다	verb		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/9: 養 칠 양; 新增類合 1576, 나무위키 신증유합/상권 944 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 養 칠 양; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/23: 養 칠 양; 類合 1913, 유합.djvu/26: 養 칠 양
@@ -1357,6 +1478,7 @@ lemma	written	pos	class	source	count	note
 칼	刀	noun		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/83: 刀 칼 도; 類合 1913, 유합.djvu/25: 刀 칼 도
 칼	枷	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/134: 枷 칼
 칼집	鞘	noun		eonhae		primer: 類合 1913, 유합.djvu/27: 鞘 칼집 쵸
+켜다	引다	verb		eonhae		primer: 訓蒙字會 1527, 書式 상35A: 引 혈 인; 訓蒙字會 1527, 나무위키 훈몽자회/상권 書式 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 引 혈 인; 光州千字文 1575, 광주천자문.pdf/43: 引 혈 인; 新增類合 1576, 나무위키 신증유합/하권 2548 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 引 혈 인; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/91: 引 혈 인
 코	鼻子	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/67: 鼻子 코
 코끼리	象	noun		eonhae		primer: 訓蒙字會 1527, 獸畜 상18A: 象 고키리 샤ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 獸畜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 象 고키리 샤ᇰ; 光州千字文 1575, 광주천자문.pdf/37: 象 고키리 샹; 新增類合 1576, 나무위키 신증유합/하권 2604 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 象 고키리 샹; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/80: 象 고키리 샹; 詩經諺解 物名 1820本, 詩經諺解 제1책/19: 象 코끼리 샹
 콧물	涕	noun		eonhae		primer: 訓蒙字會 1527, 身體 상29B: 涕 곳믈 톄; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 涕 곳믈 톄
@@ -1372,6 +1494,7 @@ lemma	written	pos	class	source	count	note
 터	境	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/30: 境 터 겨ᇰ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 地理 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 境 터 겨ᇰ
 터럭	毛	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/163: 毛 터럭 모; 光州千字文 1575, 광주천자문.pdf/41: 毛 터럭 모; 新增類合 1576, 나무위키 신증유합/상권 439 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 毛 터럭 모; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/88: 毛 터럭 모; 類合 1913, 유합.djvu/14: 毛 터럭 모
 터럭	毫	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2833 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 毫 터럭 호
+터지다	坼다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2775 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 坼 ᄩᅥ딜 탁
 턱	頤	noun		eonhae		primer: 訓蒙字會 1527, 身體 상25B: 頤 ᄐᆞᆨ 이; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 頤 ᄐᆞᆨ 이; 新增類合 1576, 나무위키 신증유합/상권 644 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 頤 ᄐᆞᆨ 이
 턱	頦	noun		eonhae		primer: 訓蒙字會 1527, 身體 상25B: 頦 ᄐᆞᆨ ᄒᆡ; 訓蒙字會 1527, 나무위키 훈몽자회/상권 身體 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 頦 ᄐᆞᆨ ᄒᆡ
 턱	下頦	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/69: 下頦 ᄐᆞᆨ
@@ -1396,6 +1519,7 @@ lemma	written	pos	class	source	count	note
 펴다	舒다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2667 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 舒 펼 셔
 펴다	展다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1253 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 展 펼 뎐
 펴다	鋪다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1853 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鋪 펼 포
+펴다	打開다	verb		eonhae		primer: 譯語類解 1690, 譯語類解 0002/98: 打開 펴다; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): 펴다
 펴다	攄다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2009 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 攄 펼 터
 표고	蘑	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상14A: 蘑 표고 마; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蔬菜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 蘑 표고 마
 표고	菇	noun		eonhae		primer: 訓蒙字會 1527, 蔬菜 상14A: 菇 표곳 고; 訓蒙字會 1527, 나무위키 훈몽자회/상권 蔬菜 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 菇 표곳 고
@@ -1430,6 +1554,7 @@ lemma	written	pos	class	source	count	note
 할아버지	祖公	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/113: 祖公 한아비
 할아버지	叟	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 528 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 叟 한아비 수
 핥다	䑛다	verb		eonhae		primer: 倭語類解 18世紀, 倭語類解.djvu/101: 䑛 할틀 뎌
+함께	偕	adv		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1949 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 偕 ᄒᆞᆷᄭᅴ ᄒᆡ; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): ᄒᆞᆷᄭᅴ
 해	年	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/21: 年 ᄒᆡ 년; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天文 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 年 ᄒᆡ 년; 光州千字文 1575, 광주천자문.pdf/42: 年 ᄒᆡ 년; 新增類合 1576, 나무위키 신증유합/상권 126 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 年 ᄒᆡ 년; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/89: 年 ᄒᆡ 년; 倭語類解 18世紀, 倭語類解.pdf/9: 年 ᄒᆡ 년; 類合 1913, 유합.djvu/6: 年 ᄒᆡ 년
 해	歲	noun		eonhae		primer: 訓蒙字會 1527, 訓蒙字會.pdf/21: 歲 ᄒᆡᆺ 셰; 訓蒙字會 1527, 나무위키 훈몽자회/상권 天文 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 歲 ᄒᆡᆺ 셰; 光州千字文 1575, 광주천자문.pdf/3: 歲 ᄒᆡ 셰; 新增類合 1576, 나무위키 신증유합/상권 125 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 歲 ᄒᆡ 셰; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/12: 歲 ᄒᆡᆺ 셰; 類合 1913, 유합.djvu/6: 歲 ᄒᆡ 셰
 해	日頭	noun		eonhae		primer: 譯語類解 1690, 譯語類解 0001/3: 日頭 ᄒᆡ
@@ -1437,6 +1562,9 @@ lemma	written	pos	class	source	count	note
 허물	罪	noun		eonhae		primer: 光州千字文 1575, 광주천자문.pdf/6: 罪 허믈 죄; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/18: 罪 허믈 죄; 倭語類解 18世紀, 倭語類解.djvu/110: 罪 허물 죄
 허물	愆	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2068 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 愆 허믈 건
 허물	咎	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 2096 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 咎 허믈 구
+헤아리다	量다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1404 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 量 혜아릴 량; 石峯千字文 1583, CNTS-00047980571 千字文.pdf/26: 量 혜아릴 량
+헤아리다	度다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/하권 1616 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 度 혜아릴 탁
+헤아리다	料다	verb		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 828 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 料 혜아릴 뇨
 호미	鋤	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 885 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鋤 호ᄆᆡ 서
 호미	鉏	noun		eonhae		primer: 新增類合 1576, 나무위키 신증유합/상권 885 (CC BY-NC-SA 2.0 KR, unproofread wiki text): 鉏 호ᄆᆡ 서
 홀로	獨	adv		eonhae		aligned (36 passages, 3 books): 古文眞寶諺解 英祖代 (고문진보언해 권3/16): 斯人獨顦顇 → 사ᄅᆞᆷ이 홀로 쵸ᄎᆐᄒᆞ도다; 詩經諺解 1820本 (詩經諺解 제5책/120): ᅵ오哀我征夫ㅣ獨爲匪民가 → 征졍夫부ㅣ홀로民민이아니가

@@ -655,6 +655,7 @@ NOT_FOR_THE_DICTIONARY = {
     ("된장", "味噲"),  # 된醬 stays usual; 味噲 is a Japanese word in 배비장전's list
     ("이끌다", "引"),  # 導 stays usual
     ("우습다", "笑"),  # 笑다 is 웃다; 笑습다 stays
+    ("앞", "首前"),  # 首前 is the front of the head, 머리ㅅ앞; 前 stays usual
 }
 
 

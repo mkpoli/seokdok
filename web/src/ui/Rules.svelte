@@ -16,7 +16,7 @@
 
   $effect(() => {
     if (!status.ready) return
-    Promise.all(VARIANTS.map(([k, o]) => engine.convertWith(SAMPLE, { ...DEFAULTS, ...o }))).then(
+    Promise.all(VARIANTS.map(([k, o]) => engine.convertWith(SAMPLE, { ...DEFAULTS, sinoOnly: false, ...o }))).then(
       (rs) => (rows = rs.map((r, i) => [VARIANTS[i][0], r[0]?.text ?? ''])),
     )
   })

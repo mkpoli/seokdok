@@ -22,6 +22,10 @@ import { chars } from './chars.js'
 //   ← → Home End   move the caret; a click places it
 //   Backspace / Delete  delete before / after the caret
 //
+// 韓㐎 專用 (hangulOnly): nothing is converted. Space commits the Hangul and
+// types a space, Enter commits it, punctuation commits it and then types.
+// Tab, ↓ and the convert key do nothing; there are no candidates.
+//
 // Word spacing (띄어쓰기): a conversion started with Space marks a word break,
 // so the next Hangul typed after it is preceded by a space. Enter and
 // punctuation confirm without one. With spaceMode 'space', Space types a
@@ -42,6 +46,8 @@ export class Ime {
   anchor = $state(null)
   /** 'convert': Space converts (Japanese style); 'space': Space types a space. */
   spaceMode = $state('convert')
+  /** 韓㐎 專用: Hangul is typed and committed as it is, never converted. */
+  hangulOnly = $state(false)
   /** Candidate window layout; horizontal lets ← → walk the candidates. */
   layout = $state('vertical')
   /** Hangul being composed. */
@@ -243,7 +249,7 @@ export class Ime {
 
   /** @param {boolean} [spaced] started by Space: confirming implies a word break */
   async convert(spaced = false) {
-    if (!this.pre || !HANGUL.test(this.pre)) return false
+    if (this.hangulOnly || !this.pre || !HANGUL.test(this.pre)) return false
     this.#spaced = spaced
     this.busy = true
     try {
@@ -373,6 +379,13 @@ export class Ime {
     return c.some((x) => x.text === text) ? c : [...c, { text, note: '' }]
   }
 
+  /** Turn 韓㐎 專用 on or off, confirming whatever is being composed. */
+  setHangulOnly(v) {
+    if (v === this.hangulOnly) return
+    if (this.segs || this.pre) this.commit()
+    this.hangulOnly = v
+  }
+
   /** Switch 韓 ↔ A, confirming whatever is being composed. */
   toggleMode() {
     if (this.segs || this.pre) this.commit()
@@ -422,7 +435,10 @@ export class Ime {
     this.#wordBreak = false
     switch (key) {
       case ' ':
-        if (this.pre && (k.shift || this.spaceMode === 'space')) {
+        if (this.pre && this.hangulOnly) {
+          this.commit()
+          this.#insert(' ')
+        } else if (this.pre && (k.shift || this.spaceMode === 'space')) {
           this.composer.pushLiteral(' ')
           this.#sync()
         } else if (this.pre) {
@@ -435,7 +451,7 @@ export class Ime {
       case 'ArrowDown':
       case 'Convert':
         if (!this.pre) return false
-        this.convert(false)
+        if (!this.hangulOnly) this.convert(false)
         return true
       case 'Backspace':
         if (this.pre) {
@@ -503,7 +519,10 @@ export class Ime {
       this.#sync()
       return true
     }
-    if (this.pre) {
+    if (this.pre && this.hangulOnly) {
+      this.commit()
+      this.#insert(key)
+    } else if (this.pre) {
       this.composer.pushLiteral(key)
       this.#sync()
     } else {

@@ -459,3 +459,25 @@ fn the_rest_of_the_demonstrative_family() {
     // 저 still reads as the humble pronoun on its own.
     assert_eq!(e.convert("저는")[0].text, "自는");
 }
+
+#[test]
+fn bundle_is_written_with_dan() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("뭉치")[0].text, "團");
+    assert_eq!(e.convert("말뭉치")[0].text, "言團");
+    assert_eq!(e.read("言團"), "말뭉치");
+    assert_eq!(e.read("團"), "뭉치");
+}
+
+#[test]
+fn yeoreo_has_every_hanja_for_many() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("여러")[0].text, "諸");
+    for want in ["庶", "庶러", "衆", "數", "多"] {
+        assert!(offers(&e, "여러", want), "{want}");
+    }
+    assert!(offers(&e, "여러분", "庶러位"));
+    assert!(offers(&e, "여러분", "諸公"));
+    assert_eq!(e.convert("여러분")[0].text, "諸位");
+    assert_eq!(e.convert("여러번")[0].text, "諸番");
+}

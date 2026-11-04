@@ -305,9 +305,9 @@ impl Composer {
     }
 
     /// Feed a compatibility jamo as a Hangul keyboard sends it: ㅎ, ㅘ, ㄳ, ㆍ,
-    /// ㅸ. Two-letter jamo go in letter by letter, so 가 + ㅘ gives 과 as it would
-    /// typed on the keys, and a letter the keyboard already joined stays joined
-    /// whatever the `old` switch says. Returns false for anything else.
+    /// ㅸ. A joined letter goes in letter by letter, as typed on the keys. An old
+    /// one (ㅸ) stays joined whatever the `old` switch says, since the keyboard
+    /// joined it. Returns false for anything else.
     pub fn input_letter(&mut self, compat: char) -> bool {
         let Some(c) = old_jamo::COMPAT.iter().find(|r| r.1 == compat).map(|r| r.0) else {
             return false;
@@ -315,9 +315,12 @@ impl Composer {
         let Some(seq) = letters(Part::Cho, c).or_else(|| letters(Part::Jung, c)).or_else(|| letters(Part::Jong, c)) else {
             return false;
         };
+        let keep = modern(Part::Jung, seq).is_none() && modern(Part::Jong, seq).is_none();
         let old = self.old;
-        self.old = old || seq.chars().count() > 1;
-        seq.chars().for_each(|j| self.input_jamo(j));
+        for (i, j) in seq.chars().enumerate() {
+            self.old = old || (keep && i > 0);
+            self.input_jamo(j);
+        }
         self.old = old;
         true
     }
@@ -607,6 +610,10 @@ mod tests {
         assert_eq!(send_letters("ㄱㅏㄳㅏ"), "각사");
         assert_eq!(send_letters("ㅸㅏ"), "\u{112B}\u{1161}");
         assert_eq!(send_letters("ㄱㅏㅄ"), "값");
+        // Not onto the syllable before it, where the keys would not join either.
+        assert_eq!(send_letters("ㄱㅏㅘ"), type_keys("rkhk"));
+        assert_eq!(send_letters("ㅇㅡㅢ"), type_keys("dmml"));
+        assert_eq!(send_letters("ㅄㅏ"), type_keys("qtk"));
     }
 
     #[test]

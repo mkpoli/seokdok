@@ -144,6 +144,9 @@ const FINALS: &[Morph] = &[
     // Adverbial -이 (많이, 같이) and -히 is lexical; -이 attaches like K.
     m(Kind::K, "이"), m(Kind::K, "다네요"), m(Kind::K, "다면"), m(Kind::K, "다니까"), m(Kind::K, "기엔"),
     m(Kind::K, "고자"), m(Kind::K, "노니"), m(Kind::K, "느니라"), m(Kind::K, "지마는"), m(Kind::K, "더라도"), m(Kind::K, "자마자"), m(Kind::K, "는데도"), m(Kind::K, "든"), m(Kind::K, "든지"),
+    // Endings the chat runs into the next word without a space (듯, 는거, 고도 …).
+    m(Kind::K, "듯"), m(Kind::K, "는듯"), m(Kind::K, "다란"), m(Kind::K, "는거"), m(Kind::K, "는건"), m(Kind::K, "는것"),
+    m(Kind::K, "고는"), m(Kind::K, "고도"), m(Kind::K, "고만"), m(Kind::K, "냐고"), m(Kind::K, "지마"), m(Kind::K, "지만요"),
     // N
     m(Kind::N, "ㄴ다"), m(Kind::N, "ㄴ다고"), m(Kind::N, "ㄴ다는"), m(Kind::N, "ㄴ대요"), m(Kind::N, "ㄴ다면"),
     // E
@@ -156,6 +159,8 @@ const FINALS: &[Morph] = &[
     m(Kind::E, "ㅁ"), m(Kind::E, "러"), m(Kind::E, "려고"), m(Kind::E, "려면"), m(Kind::E, "려"),
     m(Kind::E, "ㅂ시다"), m(Kind::E, "오"), m(Kind::E, "니라"), m(Kind::E, "리라"), m(Kind::E, "세요"),
     m(Kind::E, "십시오"), m(Kind::E, "소서"), m(Kind::E, "옵소서"), m(Kind::E, "ㄹ지라도"), m(Kind::E, "ㄴ데도"),
+    m(Kind::E, "ㄴ듯"), m(Kind::E, "ㄴ거"), m(Kind::E, "ㄴ건"), m(Kind::E, "ㄴ것"), m(Kind::E, "ㄹ지도"), m(Kind::E, "ㄹ수도"),
+    m(Kind::E, "ㄹ때"), m(Kind::E, "나"), m(Kind::E, "려나"),
     // S
     m(Kind::S, "ㅂ니다"), m(Kind::S, "ㅂ니까"), m(Kind::S, "ㅂ디다"),
     // A

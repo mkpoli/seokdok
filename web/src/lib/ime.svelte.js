@@ -1,4 +1,4 @@
-import { chars, splitsChar, HANGUL } from './chars.js'
+import { chars, splitsChar, HANGUL, WORD } from './chars.js'
 // The in-page input method, modelled on Japanese IMEs (MS-IME, Google 日本語入力).
 //
 // Composing (Hangul in the preedit):
@@ -251,12 +251,12 @@ export class Ime {
 
   /** Segments the cursor can visit: those with a real choice. */
   #stops() {
-    return (this.segs ?? []).map((s, i) => (s.candidates.length > 1 || HANGUL.test(s.reading) ? i : -1)).filter((i) => i >= 0)
+    return (this.segs ?? []).map((s, i) => (s.candidates.length > 1 || WORD.test(s.reading) ? i : -1)).filter((i) => i >= 0)
   }
 
   /** @param {boolean} [spaced] started by Space: confirming implies a word break */
   async convert(spaced = false) {
-    if (this.hangulOnly || !this.pre || !HANGUL.test(this.pre)) return false
+    if (this.hangulOnly || !this.pre || !WORD.test(this.pre)) return false
     this.#spaced = spaced
     this.busy = true
     try {
@@ -305,7 +305,7 @@ export class Ime {
     this.#insert(done.map((s) => s.candidates[s.pick]?.text ?? s.reading).join(''), 'commit')
     this.open = false
     const left = rest.map((s) => s.reading).join('')
-    if (!rest.length || !HANGUL.test(left)) {
+    if (!rest.length || !WORD.test(left)) {
       this.#insert(left)
       this.#wordBreak = this.#spaced
       this.segs = null
@@ -422,7 +422,7 @@ export class Ime {
     if (this.segs) this.commit()
     const brk = this.#wordBreak
     this.#wordBreak = false
-    if (!this.pre && !HANGUL.test(s)) return this.#insert(s)
+    if (!this.pre && !WORD.test(s)) return this.#insert(s)
     if (brk && !this.pre) this.#space()
     this.#pushText(s)
     this.#tidy()

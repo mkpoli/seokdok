@@ -1309,3 +1309,34 @@ test('the textarea never empties, and the caret stays past the mark', () => {
   expect(p.el.value).toBe('\u200B')
   expect(at.at(-1)).toBe(1)
 })
+
+test('text already in Hanja converts like Hangul, pasted or typed', async () => {
+  const hanja = {
+    '天을': ['天을', '乾을', '하늘을'],
+    '良心': ['良心', '兩心', '양심'],
+  }
+  const menu = (w) => (hanja[w] ?? [w]).map((t) => ({ text: t, note: '' }))
+  const m = new Ime(
+    composer(),
+    async (text) => text.split(/( )/).filter(Boolean).map((w) => ({ reading: w, candidates: menu(w) })),
+    async (text) => menu(text),
+  )
+  m.insertText('天을 良心')
+  expect(await m.convert()).toBe(true)
+  expect(m.converted).toBe('天을 良心')
+  expect(m.segs.filter((s) => s.candidates.length > 1)).toHaveLength(2)
+  m.key({ key: ' ' })
+  expect(m.converted).toBe('乾을 良心')
+  m.key({ key: 'Enter' })
+  expect(m.doc).toBe('乾을 良心')
+})
+
+test('pasted Hanja is left as it is in 韓㐎 專用', async () => {
+  const m = ime()
+  m.setHangulOnly(true)
+  m.insertText('天을 良心')
+  expect(await m.convert()).toBe(false)
+  expect(m.segs).toBe(null)
+  m.commit()
+  expect(m.doc).toBe('天을 良心')
+})

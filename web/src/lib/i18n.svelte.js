@@ -68,6 +68,10 @@ const ko = {
     keysHelp: '키 {案內|안내}',
     convert: '{變換|변환}',
     commit: '{確定|확정}',
+    segments: '{變換|변환} {區間|구간}',
+    segPrev: '{前|앞} {區間|구간}',
+    segNext: '{次|다음} {區間|구간}',
+    segList: '{候補|후보}',
   },
   options: {
     title: '{表記|표기} {設定|설정}',
@@ -342,6 +346,10 @@ const en = {
     keysHelp: 'Keys',
     convert: 'Convert',
     commit: 'Commit',
+    segments: 'Segments',
+    segPrev: 'Previous segment',
+    segNext: 'Next segment',
+    segList: 'Choices',
   },
   options: {
     title: 'Spelling options',

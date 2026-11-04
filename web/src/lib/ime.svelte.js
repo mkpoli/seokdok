@@ -358,6 +358,21 @@ export class Ime {
     this.open = false
   }
 
+  /** A tap on segment `i`: focus it, or on the focused one, open its list. */
+  tapSegment(i) {
+    if (!this.segs || !this.#stops().includes(i)) return
+    if (i === this.focus) this.open = !this.open
+    else {
+      this.focus = i
+      this.open = false
+    }
+  }
+
+  /** Whether there is another segment to move to. */
+  get manySegments() {
+    return this.#stops().length > 1
+  }
+
   /** Pick candidate `i` of the focused segment and confirm through it. */
   pick(i) {
     const s = this.current

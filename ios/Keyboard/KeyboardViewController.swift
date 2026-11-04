@@ -273,8 +273,8 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
-    /// What is being composed goes into the document first, as the system's
-    /// trackpad does, with no word break owed afterwards: the caret is leaving.
+    /// What is being composed goes into the document first, with no word break
+    /// owed afterwards: the caret is leaving.
     func beginCursor() {
         session.flush()
         apply()

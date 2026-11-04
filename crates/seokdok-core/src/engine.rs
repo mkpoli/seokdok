@@ -8,7 +8,7 @@ use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify
 use crate::fold::{foldable, has_era_only, has_old, modern_mask, parse, readings, Reading, Syl, ALL, MAX_READINGS_MODERN, MAX_READINGS_OLD, STRONG};
 use crate::old_spelling::{ends_in_hanja, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant};
 use crate::particles::{allowed, particles, Particle};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 mod okurigana;
 
@@ -218,6 +218,7 @@ pub struct Engine {
     pub natives: Vec<Native>,
     sinos: SinoTable,
     hun: HunTable,
+    loans: HashSet<String>,
     pub options: Options,
     stems: Trie<(u32, u16)>,
     nominals: Trie<u32>,
@@ -367,6 +368,8 @@ const EDGE_COST: f32 = 1.0;
 const WHOLE_NOUN_PENALTY: f32 = 2.5;
 /// How close a noun must come to a bound noun with a particle (거+의) to replace it.
 const BOUND_MARGIN: f32 = 0.5;
+/// A loanword kept in Hangul (loanwords.tsv); cheaper than its Hanja homophones.
+const LOAN_COST: f32 = 2.0;
 /// Added to verb forms in the archaic -니라.
 const ARCHAIC_ENDING: f32 = 1.0;
 
@@ -379,6 +382,8 @@ pub struct Builder {
     natives: Vec<Native>,
     sinos: SinoTable,
     hun: Vec<(String, String)>,
+    /// Loanwords (loanwords.tsv), which stay in Hangul.
+    loans: HashSet<String>,
     /// Hash of a (reading, Hanja) pair → its entry; the Sino files overlap
     /// (fusion.tsv and sino.tsv share most words).
     index: HashMap<u64, u32>,
@@ -387,7 +392,7 @@ pub struct Builder {
 
 impl Builder {
     pub fn new() -> Builder {
-        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), index: HashMap::new(), errors: Vec::new() };
+        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), loans: HashSet::new(), index: HashMap::new(), errors: Vec::new() };
         b.native("builtin", BUILTIN);
         b
     }
@@ -412,6 +417,9 @@ impl Builder {
         for (line, f) in tsv_lines(text) {
             match parse_sino(&f) {
                 Ok(e) if f.get(3) == Some(&"hun") => self.hun.push((e.reading.into(), e.hanja.into())),
+                Ok(e) if f.get(3) == Some(&"loanword") => {
+                    self.loans.insert(e.reading.into());
+                }
                 Ok(e) => {
                     let mut h = self.index.hasher().build_hasher();
                     (&*e.reading, &*e.hanja).hash(&mut h);
@@ -435,7 +443,7 @@ impl Builder {
 
     /// The engine and the parse errors (file label, line, message).
     pub fn build(self, options: Options) -> (Engine, Vec<String>) {
-        let Builder { natives, mut sinos, hun, index, errors } = self;
+        let Builder { natives, mut sinos, hun, loans, index, errors } = self;
         drop(index);
         sinos.text.shrink_to_fit();
         sinos.entries.shrink_to_fit();
@@ -443,6 +451,7 @@ impl Builder {
             natives,
             sinos,
             hun: HunTable::new(hun),
+            loans,
             options,
             stems: Trie::new(),
             nominals: Trie::new(),
@@ -480,7 +489,7 @@ impl Engine {
 
     /// Native dictionaries loaded by [`Engine::from_dir`], in order.
     pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
-    pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "editorial-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv", "hun.tsv"];
+    pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "editorial-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv", "loanwords.tsv", "hun.tsv"];
 
     /// Load every known dictionary file present in `dir`.
     /// One file is read at a time and dropped once parsed, which keeps the
@@ -732,8 +741,41 @@ impl Engine {
                 }
             }
         }
+        self.loan_edges(comps, &mut edges);
         self.prefer_whole_noun(comps, &mut edges);
         edges
+    }
+
+    /// A loanword (페이지, 파일, 피자), alone or with a particle or the light
+    /// verb 하다, is kept in Hangul: it has no Hanja, and its syllables are not
+    /// Sino-Korean words.
+    fn loan_edges(&self, comps: &[char], edges: &mut Vec<Edge>) {
+        let n = comps.len();
+        if self.loans.is_empty() || n == 0 || !is_l(comps[0]) {
+            return;
+        }
+        for q in (1..=n).filter(|&q| q == n || is_l(comps[q])) {
+            if crate::jamo::syllable_count(&comps[..q]) < 2 || !self.loans.contains(&compose(&comps[..q])) {
+                continue;
+            }
+            if q == n {
+                edges.push(Edge { start: 0, end: n, cost: LOAN_COST, kind: Kind::Raw });
+                continue;
+            }
+            // 로그인합니다, 빌드하면: the loanword with the light verb 하다 after it.
+            if comps[q] == '\u{1112}' && matches!(comps.get(q + 1), Some('\u{1161}' | '\u{1162}')) {
+                edges.push(Edge { start: 0, end: q, cost: LOAN_COST, kind: Kind::Raw });
+            }
+            for (r, pis) in self.particle_trie.prefixes(comps, q) {
+                let ok = r == n && pis.iter().any(|&pi| {
+                    let p = &self.particles[pi as usize];
+                    allowed(p.cond, comps[q - 1], false) && is_l(p.comps[0])
+                });
+                if ok {
+                    edges.push(Edge { start: 0, end: n, cost: LOAN_COST + 0.2, kind: Kind::Raw });
+                }
+            }
+        }
     }
 
     /// A whole one- or two-syllable token that is a noun of the community,

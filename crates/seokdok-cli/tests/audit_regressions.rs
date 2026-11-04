@@ -83,6 +83,35 @@ fn adnominal_verb_forms_keep_working() {
 }
 
 #[test]
+fn loanwords_stay_in_hangul() {
+    let words = [
+        "페이지", "파일", "메시지", "버전", "에러", "이모지", "바나나", "토큰", "모니터", "피자", "링크", "코드", "사이트",
+        "로그인", "빌드",
+    ];
+    let mut cases: Vec<(String, String)> = Vec::new();
+    for w in words {
+        cases.push((w.to_string(), w.to_string()));
+        for p in ["를", "이", "은", "에서", "와", "입니다"] {
+            // A particle that agrees with the final letter of the word.
+            let vowel = !matches!(w, "파일" | "버전" | "토큰" | "로그인");
+            let ok = match p {
+                "를" | "은" => if vowel { p == "를" } else { p == "은" },
+                "이" => !vowel,
+                "와" => vowel,
+                _ => true,
+            };
+            if ok {
+                cases.push((format!("{w}{p}"), format!("{w}{p}")));
+            }
+        }
+    }
+    cases.push(("로그인합니다".into(), "로그인합니다".into()));
+    cases.push(("빌드하면".into(), "빌드하면".into()));
+    let cases: Vec<(&str, &str)> = cases.iter().map(|(a, b)| (a.as_str(), b.as_str())).collect();
+    first(&cases);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "吾ㄹ")]);
 }

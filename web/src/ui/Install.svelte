@@ -27,6 +27,16 @@
       remove: './install.sh --uninstall',
       where: '~/.config/seokdok/custom.json',
     },
+    {
+      key: 'android',
+      name: 'Android',
+      req: 'Android 8.0+, arm64 · arm32 · x86_64',
+      file: downloads.android.file,
+      size: downloads.android.size,
+      system: null,
+      remove: '設定 › 앱 › 釋讀',
+      where: '釋讀 앱 › 내 낱말 › 가져오기',
+    },
   ]
 </script>
 
@@ -71,10 +81,10 @@
   <h3 class="more" use:reveal={5}>{@html r(t().install.more)}</h3>
   <p class="more-note" use:reveal={5}>{@html r(t().install.moreNote)}</p>
   <div class="cards small">
-    {#each ['ios', 'macos', 'android'] as key, i (key)}
+    {#each ['ios', 'macos'] as key, i (key)}
       <article class="card plat" use:reveal={6 + i}>
         <header>
-          <h3>{{ ios: 'iOS', macos: 'macOS', android: 'Android' }[key]}</h3>
+          <h3>{{ ios: 'iOS', macos: 'macOS' }[key]}</h3>
         </header>
         <ol>
           {#each t().install[key] as step}

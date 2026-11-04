@@ -111,6 +111,7 @@ impl TextService_Impl {
             state.session = Session::new(mode, cfg.input.space_converts);
             let hangul_only = cfg.conversion.script == crate::config::Script::HangulOnly;
             state.session.set_hangul_only(hangul_only);
+            state.mode.set_hangul_only(hangul_only);
             state.mode.show(state.session.mode());
         }
         let shown = self.inner().session.mode();

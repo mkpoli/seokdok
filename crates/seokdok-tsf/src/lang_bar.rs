@@ -38,20 +38,30 @@ const TF_LBMENUF_RADIOCHECKED: u32 = 0x0000_0008;
 pub struct ModeShared {
     shown: Cell<Mode>,
     requested: Cell<Option<Mode>>,
+    /// 韓㐎 專用: the button never shows 釋讀.
+    hangul_only: Cell<bool>,
     sink: RefCell<Option<ITfLangBarItemSink>>,
 }
 
 impl ModeShared {
     pub fn new(mode: Mode) -> Self {
-        ModeShared { shown: Cell::new(mode), requested: Cell::new(None), sink: RefCell::new(None) }
+        ModeShared { shown: Cell::new(mode), requested: Cell::new(None), hangul_only: Cell::new(false), sink: RefCell::new(None) }
     }
 
     pub fn shown(&self) -> Mode {
         self.shown.get()
     }
 
+    /// 韓㐎 專用 on or off; the button repaints at once.
+    pub fn set_hangul_only(&self, v: bool) {
+        if self.hangul_only.replace(v) != v {
+            self.show(self.shown.get());
+        }
+    }
+
     /// Display `mode` (the text service changed it) and repaint the button.
     pub fn show(&self, mode: Mode) {
+        let mode = if self.hangul_only.get() && mode == Mode::Seokdok { Mode::Hangul } else { mode };
         self.shown.set(mode);
         if let Some(sink) = self.sink.borrow().as_ref() {
             // SAFETY: a valid sink advised via AdviseSink.
@@ -134,10 +144,15 @@ impl ITfLangBarItemButton_Impl for ModeButton_Impl {
     fn OnClick(&self, _click: TfLBIClick, _pt: &POINT, _prcarea: *const RECT) -> windows::core::Result<()> {
         // A click toggles between conversion and plain Hangul; Latin is
         // reached from the menu or the Han/Eng key.
-        self.shared.request(match self.shared.shown() {
-            Mode::Seokdok => Mode::Hangul,
-            Mode::Hangul | Mode::Latin => Mode::Seokdok,
-        });
+        // With 韓㐎 專用 on there is no conversion to toggle: it switches
+        // Hangul and Latin.
+        let next = match (self.shared.hangul_only.get(), self.shared.shown()) {
+            (true, Mode::Latin) => Mode::Hangul,
+            (true, _) => Mode::Latin,
+            (false, Mode::Seokdok) => Mode::Hangul,
+            (false, _) => Mode::Seokdok,
+        };
+        self.shared.request(next);
         Ok(())
     }
 
@@ -146,7 +161,9 @@ impl ITfLangBarItemButton_Impl for ModeButton_Impl {
         let flag = |m: Mode| if self.shared.shown() == m { TF_LBMENUF_RADIOCHECKED } else { 0 };
         // SAFETY: `menu` is a valid ITfMenu provided by the framework.
         unsafe {
-            add_menu_item(menu, MENU_SEOKDOK, flag(Mode::Seokdok), "釋讀 Seokdok")?;
+            if !self.shared.hangul_only.get() {
+                add_menu_item(menu, MENU_SEOKDOK, flag(Mode::Seokdok), "釋讀 Seokdok")?;
+            }
             add_menu_item(menu, MENU_HANGUL, flag(Mode::Hangul), "한글 Hangul")?;
             add_menu_item(menu, MENU_LATIN, flag(Mode::Latin), "A Latin")?;
             add_menu_item(menu, 0, TF_LBMENUF_SEPARATOR, "")?;

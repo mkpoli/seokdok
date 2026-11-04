@@ -81,6 +81,7 @@ impl TextService_Impl {
         let (requested, effects) = {
             let mut state = self.inner_mut();
             let hangul_only = cfg.conversion.script == crate::config::Script::HangulOnly;
+            state.mode.set_hangul_only(hangul_only);
             let mut effects = state.session.set_hangul_only(hangul_only);
             state.session.set_space_converts(cfg.input.space_converts);
             state.session.set_horizontal(cfg.input.candidate_layout == crate::config::Layout::Horizontal);

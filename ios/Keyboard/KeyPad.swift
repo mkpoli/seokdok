@@ -401,7 +401,7 @@ final class KeyPopup: UIView {
         shape.shadowRadius = 3
         shape.shadowOffset = CGSize(width: 0, height: 1)
         label.textAlignment = .center
-        label.font = OldHangul.font(ofSize: 32)
+        label.font = OldHangul.font(ofSize: 34)
         addSubview(label)
         isHidden = true
     }
@@ -416,11 +416,15 @@ final class KeyPopup: UIView {
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         frame = outer
-        let grow: CGFloat = 11
-        let bodyHeight = rect.height + 12
-        var body = CGRect(x: rect.minX - grow, y: rect.minY - bodyHeight, width: rect.width + 2 * grow, height: bodyHeight)
+        // Measured from the system keyboard's pop-up on an iOS 18.5 simulator.
+        // Over the top row the keyboard's edge shortens it, since nothing can
+        // be drawn above that edge.
+        let grow: CGFloat = 13
+        let gap: CGFloat = 8
+        let bottom = rect.minY - gap
+        let top = max(bottom - 58, outer.minY)
+        var body = CGRect(x: rect.minX - grow, y: top, width: rect.width + 2 * grow, height: bottom - top)
         body.origin.x = min(max(body.minX, outer.minX + 1), outer.maxX - body.width - 1)
-        body.origin.y = max(body.minY, outer.minY)
         let path = Self.path(body: body, key: rect)
         shape.path = path
         shape.shadowPath = path
@@ -437,24 +441,24 @@ final class KeyPopup: UIView {
 
     /// A rounded body, a neck narrowing to the key, and the key's bottom.
     private static func path(body b: CGRect, key k: CGRect) -> CGPath {
-        let r: CGFloat = 8
+        let r: CGFloat = 10
         let kr = KeyMetrics.corner
-        let neck: CGFloat = 8
+        let neck: CGFloat = 12
         let p = UIBezierPath()
         p.move(to: CGPoint(x: b.minX + r, y: b.minY))
         p.addLine(to: CGPoint(x: b.maxX - r, y: b.minY))
         p.addQuadCurve(to: CGPoint(x: b.maxX, y: b.minY + r), controlPoint: CGPoint(x: b.maxX, y: b.minY))
         p.addLine(to: CGPoint(x: b.maxX, y: b.maxY - neck))
-        p.addCurve(to: CGPoint(x: k.maxX, y: b.maxY + neck),
+        p.addCurve(to: CGPoint(x: k.maxX, y: k.minY + neck),
                    controlPoint1: CGPoint(x: b.maxX, y: b.maxY),
-                   controlPoint2: CGPoint(x: k.maxX, y: b.maxY))
+                   controlPoint2: CGPoint(x: k.maxX, y: k.minY))
         p.addLine(to: CGPoint(x: k.maxX, y: k.maxY - kr))
         p.addQuadCurve(to: CGPoint(x: k.maxX - kr, y: k.maxY), controlPoint: CGPoint(x: k.maxX, y: k.maxY))
         p.addLine(to: CGPoint(x: k.minX + kr, y: k.maxY))
         p.addQuadCurve(to: CGPoint(x: k.minX, y: k.maxY - kr), controlPoint: CGPoint(x: k.minX, y: k.maxY))
-        p.addLine(to: CGPoint(x: k.minX, y: b.maxY + neck))
+        p.addLine(to: CGPoint(x: k.minX, y: k.minY + neck))
         p.addCurve(to: CGPoint(x: b.minX, y: b.maxY - neck),
-                   controlPoint1: CGPoint(x: k.minX, y: b.maxY),
+                   controlPoint1: CGPoint(x: k.minX, y: k.minY),
                    controlPoint2: CGPoint(x: b.minX, y: b.maxY))
         p.addLine(to: CGPoint(x: b.minX, y: b.minY + r))
         p.addQuadCurve(to: CGPoint(x: b.minX + r, y: b.minY), controlPoint: CGPoint(x: b.minX, y: b.minY))

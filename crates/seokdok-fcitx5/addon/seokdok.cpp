@@ -25,10 +25,65 @@ class SeokdokEngine;
 
 struct State : public fcitx::InputContextProperty {
     Ime *ime = seokdok_new(nullptr);
-    // Alt pressed with no other key since: a tap switches modes on release.
-    bool altAlone = false;
+    // The key that just acted through the mode lists: its repeats do nothing.
+    fcitx::KeySym modeKeyHeld = FcitxKey_None;
     ~State() override { seokdok_free(ime); }
 };
+
+// The name of a key in the [input.keys] lists, or null when they cannot name it.
+// AltGr (ISO_Level3_Shift) has no name, so it never counts as Right Alt.
+const char *keyName(fcitx::KeySym sym) {
+    switch (sym) {
+    case FcitxKey_Hangul: return "Hangul";
+    case FcitxKey_Hangul_Hanja: return "Hanja";
+    case FcitxKey_Zenkaku_Hankaku: return "Zenkaku";
+    case FcitxKey_Henkan_Mode: return "Henkan";
+    case FcitxKey_Muhenkan: return "Muhenkan";
+    case FcitxKey_Hiragana_Katakana: return "Kana";
+    case FcitxKey_Eisu_toggle: return "Eisu";
+    case FcitxKey_space: return "Space";
+    case FcitxKey_Return: case FcitxKey_KP_Enter: return "Enter";
+    case FcitxKey_Tab: case FcitxKey_ISO_Left_Tab: return "Tab";
+    case FcitxKey_Escape: return "Esc";
+    case FcitxKey_Control_L: return "LCtrl";
+    case FcitxKey_Control_R: return "RCtrl";
+    case FcitxKey_Shift_L: return "LShift";
+    case FcitxKey_Shift_R: return "RShift";
+    case FcitxKey_Alt_L: case FcitxKey_Meta_L: return "LAlt";
+    case FcitxKey_Alt_R: case FcitxKey_Meta_R: return "RAlt";
+    case FcitxKey_Super_L: return "LSuper";
+    case FcitxKey_Super_R: return "RSuper";
+    default: break;
+    }
+    if (sym >= FcitxKey_F1 && sym <= FcitxKey_F24) {
+        static const char *const names[] = {"F1",  "F2",  "F3",  "F4",  "F5",  "F6",  "F7",  "F8",
+                                            "F9",  "F10", "F11", "F12", "F13", "F14", "F15", "F16",
+                                            "F17", "F18", "F19", "F20", "F21", "F22", "F23", "F24"};
+        return names[sym - FcitxKey_F1];
+    }
+    if (sym >= FcitxKey_A && sym <= FcitxKey_Z) {
+        static const char *const letters[] = {"A", "B", "C", "D", "E", "F", "G", "H", "I", "J", "K", "L", "M",
+                                              "N", "O", "P", "Q", "R", "S", "T", "U", "V", "W", "X", "Y", "Z"};
+        return letters[sym - FcitxKey_A];
+    }
+    if (sym >= FcitxKey_a && sym <= FcitxKey_z) {
+        return keyName(static_cast<fcitx::KeySym>(sym - FcitxKey_a + FcitxKey_A));
+    }
+    if (sym >= FcitxKey_0 && sym <= FcitxKey_9) {
+        static const char *const digits[] = {"0", "1", "2", "3", "4", "5", "6", "7", "8", "9"};
+        return digits[sym - FcitxKey_0];
+    }
+    return nullptr;
+}
+
+uint32_t modFlags(fcitx::KeyStates states) {
+    uint32_t mods = 0;
+    if (states.test(fcitx::KeyState::Ctrl)) mods |= SK_MOD_CTRL;
+    if (states.test(fcitx::KeyState::Shift)) mods |= SK_MOD_SHIFT;
+    if (states.test(fcitx::KeyState::Alt)) mods |= SK_MOD_ALT;
+    if (states.test(fcitx::KeyState::Super)) mods |= SK_MOD_SUPER;
+    return mods;
+}
 
 class Candidate : public fcitx::CandidateWord {
 public:
@@ -82,33 +137,35 @@ public:
         const fcitx::Key key = event.rawKey();
         const fcitx::KeySym sym = key.sym();
         const fcitx::KeyStates states = key.states();
-        const fcitx::KeyStates chord{fcitx::KeyState::Ctrl, fcitx::KeyState::Shift, fcitx::KeyState::Super};
         const fcitx::KeyStates shortcut{fcitx::KeyState::Ctrl, fcitx::KeyState::Alt, fcitx::KeyState::Super};
-        const bool isAlt = sym == FcitxKey_Alt_L || sym == FcitxKey_Alt_R || sym == FcitxKey_Meta_L ||
-                           sym == FcitxKey_Meta_R;
+        const char *name = keyName(sym);
 
         if (event.isRelease()) {
-            if (isAlt && st->altAlone && seokdok_alt_toggles()) {
-                st->altAlone = false;
-                seokdok_key(st->ime, SK_TOGGLE, 0, false);
+            if (sym == st->modeKeyHeld) {
+                st->modeKeyHeld = FcitxKey_None;
+            }
+            if (name && seokdok_mode_key(st->ime, name, 0, SK_KEY_UP)) {
                 apply(ic);
                 event.filterAndAccept();
             }
             return;
         }
-        st->altAlone = isAlt && !(states & chord);
-        if (isAlt) {
+        const int state = sym == st->modeKeyHeld ? SK_KEY_REPEAT : SK_KEY_DOWN;
+        if (seokdok_mode_key(st->ime, name, modFlags(states), state)) {
+            st->modeKeyHeld = sym;
+            apply(ic);
+            event.filterAndAccept();
+            return;
+        }
+        // A modifier alone never reaches the session: it must not end a composition.
+        if (key.isModifier()) {
             return;
         }
 
         int kind = 0;
         uint32_t ch = 0;
         const bool shift = states.test(fcitx::KeyState::Shift);
-        if (sym == FcitxKey_Hangul) {
-            kind = SK_TOGGLE;
-        } else if (sym == FcitxKey_Hangul_Hanja || sym == FcitxKey_F7) {
-            kind = SK_CONVERT;
-        } else if (states & shortcut) {
+        if (states & shortcut) {
             // Shortcuts belong to the application; finish the composition first.
             seokdok_flush(st->ime);
             apply(ic);

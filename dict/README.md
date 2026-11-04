@@ -9,6 +9,7 @@ comments; the header line names the columns.
 | `corpus.tsv` | 訓讀 spellings attested in the 釋讀會 chat | project editors | MIT (this repository) |
 | `editorial.tsv` | 訓讀 entries added by the editors, with reasons | project editors | MIT |
 | `community.tsv` | 標準國語釋讀辭典 | 釋讀會 members | used with the editors' permission |
+| `eonhae.tsv` | 訓讀 attested in historical books: character primers and 諺解 | Korean Wikisource transcriptions, English Wiktionary | CC BY-SA 4.0 |
 | `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested | language model, unreviewed | MIT |
 | `kun-ja.tsv` | 訓讀 found through Japanese 訓読み words with the same English gloss | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `kun-ja-weak.tsv` | weaker Japanese links, kept so no candidate is lost | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
@@ -41,7 +42,7 @@ lemma	written	pos	class	source	count	note
   (명사, 동사 …).
 - `class`: inflection class, guessed when blank: `reg`, `b` (ㅂ), `d` (ㄷ),
   `s` (ㅅ), `h` (ㅎ), `reu` (르), `reo` (러), `ani` (아니다).
-- `source`: `user`, `corpus`, `editorial`, `community`, `gloss`.
+- `source`: `user`, `corpus`, `editorial`, `community`, `eonhae`, `suggested`, `gloss`.
 - `count`: corpus attestations, refreshed by `tools/attest.py`. Attested
   entries rank by count.
 
@@ -59,6 +60,29 @@ with `source` set to `user`. Check a file with
 `cargo run -p seokdok-cli -- check`.
 
 ## Licences and provenance
+
+- **Historical books** (`eonhae.tsv`, `tools/build_eonhae.py`): each row's note
+  says where to check it. `primer:` rows come from books that gloss one
+  character at a time: 訓蒙字會 (崔世珍, 1527; the copy transcribed is the 1613
+  reprint at 奎章閣), 光州千字文 (1575), 石峯千字文 (韓濩, 1583; a later undated
+  printing), 類合 (the 1913 新舊書林 printing), 倭語類解 (洪舜明, 18th century),
+  譯語類解 (1690; Wikisource dates its copy, 奎章閣 古3912-5, to 1775) and the 物名
+  of 詩經諺解 (1820 printing). `aligned:` rows come from books printing the Chinese
+  next to its Korean: 小學諺解 (1587), 孝經諺解 (1590), 論語諺解, 中庸諺解 and 詩經諺解,
+  書傳諺解 (1820 printings), 孟子諺解 (1693 printing), 大學諺解 (1695 printing),
+  周易諺解 (1862 printing), 十九史略諺解 (1772) and 古文眞寶諺解 (英祖 reign); a row
+  needs three passages in two books, and its note quotes the shortest of each. The
+  books are in the public domain; the text is Korean Wikisource's transcription
+  (dump of 2026-11-01), CC BY-SA 4.0, https://ko.wikisource.org/. Most pages are
+  marked unproofread there. An old word becomes a modern lemma through the folds of
+  `crates/seokdok-core/src/fold.rs`, the modern forms Wikisource's editors give
+  beside 訓蒙字會, or the Middle Korean descendants in English Wiktionary (kaikki.org,
+  extract of 2026-10-30, CC BY-SA 4.0). The lemma must be a headword of Wiktionary or
+  FusionIME, and its meaning must agree with the character's: through another
+  dictionary here, or an English sense it shares with Unihan's definition; rows
+  resting on the libhangul gloss alone need a form with one possible reading. Rows
+  with Hanja the word already has by hand are left out. A hand check of 150 random
+  rows found 3 wrong (2.0%), since removed; expect a similar share in the rest.
 
 - **Wiktionary** (`etym.tsv`, `tools/etym_hanja.py`): English Wiktionary's
   Korean entries as extracted by kaikki.org (wiktextract; enwiktionary dump of

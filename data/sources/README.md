@@ -11,6 +11,8 @@ Raw downloads. Nothing here is executed. "MIT/BSD repo" asks whether the file ma
 | kaikki.org Korean JSONL | CC BY-SA 4.0 + GFDL (Wiktionary) | no (share-alike) |
 | 우리말샘 / 표준국어대사전 | CC BY-SA family (unverified); bulk download not confirmed | no |
 | Microsoft IME | proprietary | no |
+| Korean Wikisource dump (old books) | books public domain; site CC BY-SA 4.0 | as a derived list under CC BY-SA, with credit |
+| kaikki.org Middle Korean JSONL | CC BY-SA 4.0 + GFDL (Wiktionary) | no (share-alike) |
 
 ## 1. libhangul — `libhangul/`
 
@@ -78,7 +80,27 @@ Raw downloads. Nothing here is executed. "MIT/BSD repo" asks whether the file ma
     `{"word":"犬","pos":"character","forms":[{"form":"개 견","tags":["eumhun"]}]}`
 - Weakness: only 2,906 eumhun versus 7,757 in libhangul; Korean-word entries with hanja are mostly nouns, with no frequency. This is the English Wiktionary Korean section only, not ko.wiktionary.
 
+## 4a. Korean Wikisource — `wikisource-ko/`
+
+- URL: https://dumps.wikimedia.org/kowikisource/20261101/kowikisource-20261101-pages-articles.xml.bz2 (149,540,223 bytes; last modified 2026-11-01 15:58 GMT). `books.jsonl` is the pages `tools/build_eonhae.py` keeps from it. Both stay out of git.
+- License: Wikisource's text is under CC BY-SA 4.0 (https://ko.wikisource.org/wiki/위키문헌:저작권_정책); the books themselves carry `{{PD-old}}` or `{{PD-old-100}}` on their pages, 類合 (1913) `{{PD-anon-US}}`.
+- Pages: `페이지:<scan>/<n>` hold the transcription of one scan page, with `<pagequality level="1">` where nobody has proofread it (most of them). 훈몽자회/<section> adds folio headings and the editors' modern forms: `: {{크게|{{Wikt|身}}}} 몸〮 신(몸 신)`.
+- Formats read: 訓蒙字會 `{{윗주|芭|파|크게=예}} || 반쵸파`; 千字文 and 類合 `{{더더더크게|天}} 하ᄂᆞᆯ 텬`; 倭語類解 `;江 / :물강 / :고우 / :○예`; 譯語類解 `;文卷 / :운ᄀᆑᆫ / :ᄝᅳᆫᄀᆑᆫ / :○公事글월`; 詩經諺解 物名 `檉{{더 작게|쳥갯버들}}`. Aligned: a line of Hanja with readings, then its Korean (`:` in most scans).
+- The dump also holds 續明義錄諺解 (`續明義錄諺解.djvu`), 諭中外大小臣庶綸音 (`유중외대소신서윤음`, `윤음언해.pdf`) and other 綸音, 正俗諺解, 三綱行實圖, 杜詩諺解 (partial), 才物譜: Korean without a matching Chinese line, or Chinese glossed in Chinese, so they are not parsed yet. 明義錄諺解 is absent.
+
+## 4b. kaikki.org Middle Korean — `kaikki-middle-korean/`
+
+- URL: https://kaikki.org/dictionary/Middle%20Korean/kaikki.org-dictionary-MiddleKorean.jsonl (2,250,185 bytes, 1,033 entries, 647 with `descendants`; last modified 2026-10-30). robots.txt disallows only `/dictionary/search/*`. License as in section 4.
+
 ## 5. Other sources (reported, not downloaded)
+
+- ᄎᆞ자쎠 / Chocassye (https://find.됬.xyz, by ᄎᆞᆷ괴): robots.txt allows everything; the About page states no licence or terms for its text and says the Hangul texts come from 국립국어원 역사 자료 종합 정비, 석독구결 from kohico.kr (sktot), some from 디지털 장서각. The code is MIT (github.com/chom-kwoy/chocassye). The corpus, github.com/chom-kwoy/chocassye-corpus, has 1,502 files by century (`data/16C/1527_훈몽자회_예산문고본.xml`, `1576_신증유합.xml`, `1583_천자문석봉.xml`, `data/18C/1730_유합(송광사판).xml`, …) and no licence file. Used here only to find books; nothing from it is included.
+- 모두의 말뭉치 (https://kli.korean.go.kr/corpus/main/requestMain.do): 국어 역사 자료 말뭉치 2023 v2.0 holds 1,153 Hangul documents from the 15th century to the early 20th; 2024 and 2025 add letters and early 20th-century prints. Needs an account and an application per corpus; approval sends an agreement. The sample application says publishing results needs the institute's approval by official letter. No redistribution terms are visible before approval.
+- 21세기 세종계획 historical corpus: listed there only as a notice board; no download found.
+- 표준국어대사전 (https://stdict.korean.go.kr/join/copyrightPolicy.do) and 우리말샘 (https://opendict.korean.go.kr/service/copyrightPolicy), read 2026-11-04: both state CC BY-SA 2.0 KR for everything not marked otherwise, and that dictionary examples with a cited source belong to their original holders. Neither page mentions bulk download. Open APIs need a key.
+- 한국고전종합DB (https://db.itkc.or.kr): I could not reach its terms page (404) and found no statement of its licence. Not used.
+- anamdong/middle_korean_database_viewer: a viewer whose manifest lists 493 files from a corpus named `eon` and `kawasaki`; no licence. Not used.
+- hse-linguistics/middle-korean-corpus: a few test sentences of 月印釋譜; no licence. Not used.
 
 - 우리말샘 (https://opendict.korean.go.kr): a third-party summary says content is CC BY-SA (2.0 KR or 3.0; sources conflict) and bulk download needs login. I could not load an official terms page (useGuide returned 404), so this is unverified. A Hugging Face derivative (`hac541309/woori_spring_dict`) is 2.77 GB and labelled `cc-by-sa-3.0` in metadata, `cc-by-sa-2.0` in its text; too large and unverified, not downloaded.
 - 표준국어대사전 Open API (https://stdict.korean.go.kr/openapi/openApiInfo.do): needs an API key, paged (max 100 per request, start ≤ 1000); no license text on that page and no bulk download there. FusionIME's file suggests someone obtained the data, but I found no official license statement.

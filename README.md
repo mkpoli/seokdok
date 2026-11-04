@@ -61,7 +61,7 @@ uv run tools/build_dict.py
 uv run tools/attest.py
 ```
 
-These rebuild `community.tsv`, `gloss.tsv` and `sino.tsv` and refresh the usage counts. The chat export stays in `data/private/` and is never committed.
+These rebuild `community.tsv`, `gloss.tsv` and `sino.tsv` and refresh the usage counts. `uv run tools/build_eonhae.py` rebuilds `eonhae.tsv` from the Wikisource dump named in `data/sources/README.md`. The chat export stays in `data/private/` and is never committed.
 
 ## References
 

@@ -2,7 +2,7 @@
 //! `~/Library/Application Support/seokdok/config.toml` on macOS,
 //! `$XDG_CONFIG_HOME/seokdok/config.toml` (default `~/.config/seokdok`) elsewhere.
 //!
-//! The file and the settings dialog edit the same [`Config`]. Every field has
+//! The file and the settings screens edit the same [`Config`]. Every field has
 //! a default, so a partial or malformed file still loads.
 
 use seokdok_core::{Fragment, Itda, Options, Style};
@@ -543,6 +543,22 @@ pub fn refresh() -> bool {
     GLOBAL.write().map(|mut g| g.refresh(path.as_deref())).unwrap_or(false)
 }
 
+static CUSTOM_STAMP: RwLock<Option<Option<FileStamp>>> = RwLock::new(None);
+
+/// Whether custom.json changed since the last look, as [`refresh`] does for
+/// config.toml. The first look only takes note: the engine reads the file as it
+/// loads. Its timestamp and length only, so this can run at every key.
+pub fn custom_changed() -> bool {
+    let stamp = Config::user_dir().and_then(|d| stamp_of(&d.join("custom.json")));
+    if let Ok(g) = CUSTOM_STAMP.read() {
+        if *g == Some(stamp) {
+            return false;
+        }
+    }
+    let Ok(mut g) = CUSTOM_STAMP.write() else { return false };
+    g.replace(stamp).is_some_and(|before| before != stamp)
+}
+
 /// Change the file (see [`Config::update_file`]) and the cache with it.
 pub fn update(change: impl FnOnce(&mut Config)) -> std::io::Result<Config> {
     let Some(path) = Config::path() else {
@@ -724,6 +740,22 @@ mod tests {
         assert!(cache.refresh(p));
         assert_eq!(cache.config.as_ref().unwrap(), &Config::default());
         let _ = std::fs::remove_dir_all(path.parent().unwrap());
+    }
+
+    #[test]
+    fn custom_changed_follows_the_file() {
+        let path = scratch("custom");
+        let dir = path.parent().unwrap().to_path_buf();
+        std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+        assert!(!custom_changed());
+        assert!(!custom_changed());
+        std::fs::write(dir.join("custom.json"), "{}").unwrap();
+        assert!(custom_changed());
+        assert!(!custom_changed());
+        std::fs::remove_file(dir.join("custom.json")).unwrap();
+        assert!(custom_changed());
+        std::env::remove_var("SEOKDOK_CONFIG_DIR");
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]

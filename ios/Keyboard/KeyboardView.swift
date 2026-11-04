@@ -610,6 +610,75 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     }
 }
 
+/// A scroll view of candidates. Touches reach the cells at once so that they
+/// highlight, and a drag starting on a cell still scrolls.
+final class CandidateScroll: UIScrollView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        delaysContentTouches = false
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("not used")
+    }
+
+    override func touchesShouldCancel(in view: UIView) -> Bool {
+        true
+    }
+}
+
+/// One candidate: its text with the reading beside it, smaller, on the same
+/// baseline, so that candidates line up whether they have a reading or not.
+final class CandidateCell: UIControl {
+    private let label = UILabel()
+
+    init(_ item: Session.Candidates.Item) {
+        super.init(frame: .zero)
+        layer.cornerRadius = 6
+        let text = NSMutableAttributedString(string: item.text, attributes: [
+            .font: OldHangul.font(ofSize: 19),
+            .foregroundColor: UIColor.label,
+        ])
+        if !item.reading.isEmpty {
+            text.append(NSAttributedString(string: "\u{2009}" + item.reading, attributes: [
+                .font: OldHangul.font(ofSize: 12),
+                .foregroundColor: UIColor.secondaryLabel,
+            ]))
+        }
+        label.attributedText = text
+        label.isUserInteractionEnabled = false
+        label.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(label)
+        NSLayoutConstraint.activate([
+            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 9),
+            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -9),
+            label.centerYAnchor.constraint(equalTo: centerYAnchor),
+            heightAnchor.constraint(equalToConstant: 36),
+        ])
+        accessibilityTraits = .keyboardKey
+        accessibilityLabel = item.reading.isEmpty ? item.text : item.text + ", " + item.reading
+        isAccessibilityElement = true
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("not used")
+    }
+
+    override var isSelected: Bool {
+        didSet { refill() }
+    }
+
+    override var isHighlighted: Bool {
+        didSet { refill() }
+    }
+
+    private func refill() {
+        backgroundColor = isHighlighted
+            ? UIColor.label.withAlphaComponent(0.14)
+            : isSelected ? UIColor.systemBlue.withAlphaComponent(0.18) : .clear
+    }
+}
+
 /// A key: the main label and an optional corner hint, larger and darker when
 /// the hint is an old letter.
 final class KeyButton: UIButton {

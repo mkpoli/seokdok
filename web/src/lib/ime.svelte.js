@@ -391,9 +391,21 @@ export class Ime {
   /**
    * One key press. Returns true when the key was used (the caller then
    * prevents the default action).
-   * @param {{ key: string, shift?: boolean, ctrl?: boolean, alt?: boolean, meta?: boolean }} k
+   * A held key that just committed goes no further: holding Enter on a
+   * candidate must not go on to break the line.
+   * @param {{ key: string, repeat?: boolean, shift?: boolean, ctrl?: boolean, alt?: boolean, meta?: boolean }} k
    */
   key(k) {
+    if (k.repeat && this.#committedBy === k.key) return true
+    const picks = k.key === 'Enter' ? this.pre || this.segs : this.segs && /^[1-9]$/.test(k.key)
+    const handled = this.#dispatch(k)
+    this.#committedBy = picks ? k.key : null
+    return handled
+  }
+
+  #committedBy = null
+
+  #dispatch(k) {
     if (k.ctrl || k.meta || k.alt) return false
     const key = k.key
     this.lastKey = key

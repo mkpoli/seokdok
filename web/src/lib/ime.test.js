@@ -71,6 +71,20 @@ test('a digit confirms through the focused segment and leaves the rest convertin
   expect(m.doc).toBe('天을 見ㅆ다')
 })
 
+test('holding enter on a candidate does not go on to break the line', async () => {
+  const m = ime()
+  m.insertText('하늘을')
+  await m.convert()
+  m.key({ key: 'Enter' })
+  m.key({ key: 'Enter', repeat: true })
+  m.key({ key: 'Enter', repeat: true })
+  expect(m.doc).toBe('天을')
+  // Released and pressed again, or held with nothing to commit, it breaks the line.
+  m.key({ key: 'Enter' })
+  m.key({ key: 'Enter', repeat: true })
+  expect(m.doc).toBe('天을\n\n')
+})
+
 test('enter confirms everything; esc closes the window, then returns to Hangul', async () => {
   const m = ime()
   m.insertText('하늘')

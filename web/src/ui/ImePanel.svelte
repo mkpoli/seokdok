@@ -182,7 +182,7 @@
       if (e.key === 'x') ime.deleteSelection()
       return
     }
-    if (ime.key({ key: e.key, shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey })) {
+    if (ime.key({ key: e.key, repeat: e.repeat, shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey })) {
       e.preventDefault()
     }
   }

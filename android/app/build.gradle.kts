@@ -31,9 +31,10 @@ android {
         if (keystore != null) {
             create("release") {
                 storeFile = file(keystore)
+                // A PKCS12 keystore has one password, for the store and its key.
                 storePassword = System.getenv("SEOKDOK_KEYSTORE_PASSWORD")
                 keyAlias = System.getenv("SEOKDOK_KEY_ALIAS")
-                keyPassword = System.getenv("SEOKDOK_KEY_PASSWORD")
+                keyPassword = storePassword
             }
         }
     }

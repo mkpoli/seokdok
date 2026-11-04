@@ -44,7 +44,7 @@ cargo ndk --platform 26 -t arm64-v8a -t armeabi-v7a -t x86_64 \
 ## Release APK
 
 `.github/workflows/android.yml` builds a release APK signed with the project
-key when the repository has four secrets, and the debug APK otherwise (always
+key when the repository has three secrets, and the debug APK otherwise (always
 for pull requests):
 
 | Secret | Content |
@@ -52,12 +52,10 @@ for pull requests):
 | `ANDROID_KEYSTORE_BASE64` | the keystore file, base64 |
 | `ANDROID_KEYSTORE_PASSWORD` | keystore password |
 | `ANDROID_KEY_ALIAS` | key alias |
-| `ANDROID_KEY_PASSWORD` | key password |
 
 The signed APK is the artifact `seokdok-release-apk`; `web/scripts/release.sh`
 downloads it into the site's downloads. Locally, `assembleRelease` reads the
 same values from `SEOKDOK_KEYSTORE` (path), `SEOKDOK_KEYSTORE_PASSWORD`,
-`SEOKDOK_KEY_ALIAS` and `SEOKDOK_KEY_PASSWORD`; without `SEOKDOK_KEYSTORE` it
 produces an unsigned APK that cannot be installed. Keep the keystore outside
 the repository and back it up: an update must be signed with the same key as
 the installed version.

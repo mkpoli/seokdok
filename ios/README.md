@@ -195,5 +195,5 @@ License 1.1, stated in the font's name table.
 
 ## Status
 
-CI builds the app for devices and passes the UI test on a simulator. It has not
-run on a physical iPhone yet. Before release the app also needs an icon.
+CI builds the app for devices and passes the UI test on a simulator. It has run
+on a physical iPhone, sideloaded from a CI build.

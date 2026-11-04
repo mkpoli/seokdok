@@ -1194,6 +1194,11 @@ impl Engine {
                 }
             }
         }
+        // Last, so the spellings do not take the place of other words.
+        okurigana::add_i_spellings(&mut whole);
+        for s in &mut segments {
+            okurigana::add_i_spellings(&mut s.candidates);
+        }
         (whole, segments)
     }
 
@@ -1448,10 +1453,6 @@ impl Engine {
             segments = vec![Segment { reading: run.to_string(), candidates: self.with_hun(cands, run, hun.clone()) }];
             whole = self.with_hun(whole, run, hun);
         }
-        for s in &mut segments {
-            okurigana::add_i_spellings(&mut s.candidates);
-        }
-        okurigana::add_i_spellings(&mut whole);
         // The literal input always stays selectable.
         let keep = self.options.max_candidates.max(2);
         if whole.len() > keep {

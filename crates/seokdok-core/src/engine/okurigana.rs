@@ -58,11 +58,13 @@ pub(super) fn i_spelling(text: &str) -> Option<String> {
         }
         changed = true;
         let merged = chars.peek().and_then(|n| match n {
+            'ㄱ' => Some('익'),
             'ㄴ' => Some('인'),
             'ㄹ' => Some('일'),
             'ㅁ' => Some('임'),
             'ㅂ' => Some('입'),
             'ㅅ' => Some('잇'),
+            'ㅆ' => Some('있'),
             _ => None,
         });
         if merged.is_some() {
@@ -166,9 +168,6 @@ impl Engine {
             let edge = Edge { start: 0, end: comps.len(), cost: 0.0, kind };
             let surface = compose(&comps);
             for c in self.okurigana(&comps, &edge, &[], false) {
-                if let Some(t) = i_spelling(&c.text) {
-                    out.push((t, surface.clone()));
-                }
                 out.push((c.text, surface.clone()));
             }
         };

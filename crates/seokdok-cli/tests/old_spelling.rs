@@ -59,3 +59,33 @@ fn the_old_spelling_is_offered_in_kuk_han_mun_too() {
     assert_eq!(segs[1][..2], ["하셨다", &format!("{HA}셨다")]);
     assert_eq!(texts(&e, "규칙을").0[..3], ["規則을", "규칙을", &format!("規則{EUL}")]);
 }
+
+const HAN: &str = "\u{1112}\u{119E}\u{11AB}";
+
+#[test]
+fn old_ha_puts_the_old_spelling_of_ha_first() {
+    let e = engine(Options { old_ha: true, ..Options::default() });
+    // The modern spelling stays right behind it.
+    let (whole, segs) = texts(&e, "하고");
+    assert_eq!(whole[..3], [format!("{HA}고"), "하고".to_string(), "爲고".to_string()]);
+    assert_eq!(segs[0][..2], [format!("{HA}고"), "하고".to_string()]);
+    let (whole, segs) = texts(&e, "추가할까요");
+    assert_eq!(whole[..2], [format!("追加{HAL}까요"), "追加할까요".to_string()]);
+    assert_eq!(segs[0][..2], [format!("追加{HAL}까요"), "追加할까요".to_string()]);
+    assert_eq!(texts(&e, "공부한").0[..2], [format!("工夫{HAN}"), "工夫한".to_string()]);
+    // Only the 하 rows: 는 and 를 stay modern in first place.
+    let (whole, _) = texts(&e, "공부하는");
+    assert_eq!(whole[..2], [format!("工夫{HA}는"), "工夫하는".to_string()]);
+    assert!(whole.contains(&format!("工夫{HA}{NEUN}")));
+    assert_eq!(texts(&e, "字를").0[0], "字를");
+    assert_eq!(texts(&e, "규칙을").0[0], "規則을");
+    // Nothing to swap in a word without 하.
+    assert_eq!(texts(&e, "하늘").0, texts(&engine(Options::default()), "하늘").0);
+}
+
+#[test]
+fn old_ha_off_changes_nothing() {
+    let off = engine(Options::default());
+    assert_eq!(texts(&off, "하고").0[0], "하고");
+    assert_eq!(texts(&off, "공부한").0[0], "工夫한");
+}

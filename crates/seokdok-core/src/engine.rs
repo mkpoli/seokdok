@@ -41,6 +41,10 @@ pub struct Options {
     pub resyllabify: bool,
     /// Prefer 爲 for the light verb 하다 (安寧爲세요 over 安寧하세요).
     pub hada_kun: bool,
+    /// Put the old spelling of 하 (ᄒᆞ ᄒᆞᆫ ᄒᆞᆯ ᄒᆞᆷ ᄒᆞᆸ ᄒᆡ) first where it is
+    /// offered, with the modern spelling right behind it. Without it the old
+    /// spelling comes third.
+    pub old_ha: bool,
     /// 國漢文混用: write only 音讀 words in Hanja and leave native words in
     /// Hangul. Native words still take part in segmentation, so 나라 stays
     /// 나라 instead of splitting into Sino syllables.
@@ -57,6 +61,7 @@ impl Default for Options {
             coda_always: false,
             resyllabify: false,
             hada_kun: false,
+            old_ha: false,
             sino_only: false,
             max_candidates: 12,
         }
@@ -897,17 +902,28 @@ impl Engine {
         // The old spelling of each segment's tail, for the best path.
         let mut old_seg: Vec<Option<String>> = Vec::new();
         let mut old_whole = None;
+        // The same with only the 하 rows, for `old_ha`.
+        let ha = self.options.old_ha;
+        let mut ha_seg: Vec<Option<String>> = Vec::new();
+        let mut ha_whole = None;
         if let Some((_, path)) = paths.first() {
             let mut pieces: Vec<String> = Vec::new();
+            let mut ha_pieces: Vec<String> = Vec::new();
             let mut any = false;
+            let mut ha_any = false;
             for (n, &ei) in path.iter().enumerate() {
                 let e = &edges[ei];
                 let tail = after_hanja && n == 0;
                 let light = matches!(&e.kind, Kind::Verb { entry, .. } if self.natives[*entry as usize].lemma == "하다");
                 let r = self.render(&comps, e);
-                let v = old_variant(r.iter().map(|c| c.text.as_str()), light, tail);
+                let v = old_variant(r.iter().map(|c| c.text.as_str()), light, tail, false);
                 any |= v.is_some();
                 pieces.push(v.unwrap_or_else(|| r[0].text.clone()));
+                if ha {
+                    let h = old_variant(r.iter().map(|c| c.text.as_str()), light, tail, true);
+                    ha_any |= h.is_some();
+                    ha_pieces.push(h.unwrap_or_else(|| r[0].text.clone()));
+                }
                 let mut alts: Vec<(f32, usize)> = edges
                     .iter()
                     .enumerate()
@@ -923,11 +939,17 @@ impl Engine {
                         }
                     }
                 }
-                old_seg.push(old_variant(cands.iter().map(|c| c.text.as_str()), light, tail));
+                old_seg.push(old_variant(cands.iter().map(|c| c.text.as_str()), light, tail, false));
+                if ha {
+                    ha_seg.push(old_variant(cands.iter().map(|c| c.text.as_str()), light, tail, true));
+                }
                 segments.push(Segment { reading: compose(&comps[e.start..e.end]), candidates: cands });
             }
             if any {
                 old_whole = Some(pieces.concat());
+            }
+            if ha_any {
+                ha_whole = Some(ha_pieces.concat());
             }
         }
         // One word still offers the phrase readings: 수없다 is 數없다 or 手無다.
@@ -944,8 +966,12 @@ impl Engine {
                 for (s, v) in segments.iter_mut().zip(old_seg) {
                     offer_old(&mut s.candidates, v);
                 }
+                for (s, v) in segments.iter_mut().zip(ha_seg) {
+                    first_old(&mut s.candidates, v);
+                }
             }
             offer_old(&mut whole, old_whole);
+            first_old(&mut whole, ha_whole);
         } else {
             // A key spans the run, so the run becomes one segment to pick from.
             let cands = match segments.as_mut_slice() {
@@ -1297,7 +1323,7 @@ fn note(n: &Native, ending: Option<usize>) -> String {
 }
 
 /// Put the old spelling of a tail right behind the best candidates: third
-/// place, or last in a shorter list. It never takes first place.
+/// place, or last in a shorter list. It does not take first place.
 fn offer_old(list: &mut Vec<Candidate>, old: Option<String>) {
     let Some(text) = old else { return };
     if list.is_empty() || list.iter().any(|c| c.text == text) {
@@ -1305,6 +1331,17 @@ fn offer_old(list: &mut Vec<Candidate>, old: Option<String>) {
     }
     let at = list.len().min(2);
     list.insert(at, Candidate { text, note: "옛한글".into() });
+}
+
+/// With `old_ha`: the old spelling of 하 in first place, the candidate it
+/// was made from right behind it.
+fn first_old(list: &mut Vec<Candidate>, old: Option<String>) {
+    let Some(text) = old else { return };
+    if list.is_empty() {
+        return;
+    }
+    list.retain(|c| c.text != text);
+    list.insert(0, Candidate { text, note: "옛한글".into() });
 }
 
 /// Split input into runs of Hangul syllables and everything else.

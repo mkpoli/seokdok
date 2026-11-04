@@ -682,3 +682,12 @@ fn more_readings_from_the_chat_of_2026_11_04() {
     }
     assert_eq!(e.convert("내려받았다")[0].text, "下려受았다");
 }
+
+#[test]
+fn the_plural_takes_more_particles() {
+    let e = engine(Options::default());
+    for (input, first, more) in [("사람들한테", "人들한테", "人等한테"), ("학생들보다", "學生들보다", "學生們보다"), ("친구들이랑", "親舊들이랑", "親舊達이랑"), ("선생님들처럼", "先生主들처럼", "")] {
+        assert_eq!(e.convert(input)[0].text, first, "{input}");
+        assert!(more.is_empty() || offers(&e, input, more), "{input} → {more}");
+    }
+}

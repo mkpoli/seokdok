@@ -1,0 +1,94 @@
+name: Release Windows
+
+# Builds the installer on a Windows runner and keeps it as an artifact. When
+# the SignPath secrets exist, the installer is also submitted for signing and
+# the signed copy is kept as a second artifact. Without them the signing job
+# is skipped.
+on:
+  push:
+    tags: ["v*"]
+    branches: ["ci/release*"]
+  workflow_dispatch:
+
+concurrency:
+  group: release-windows-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  installer:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    outputs:
+      artifact-id: ${{ steps.upload.outputs.artifact-id }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: windows-release
+
+      - name: Input method DLL
+        run: cargo build --release --target x86_64-pc-windows-msvc -p seokdok-tsf
+
+      - name: Stage installer files
+        shell: bash
+        run: crates/seokdok-tsf/stage.sh
+
+      - name: Inno Setup
+        shell: pwsh
+        run: choco upgrade innosetup -y --no-progress
+
+      - name: Compile installer
+        shell: bash
+        run: |
+          version=$(sed -n 's/^version = "\(.*\)"/\1/p' Cargo.toml | head -1)
+          iscc="$(cygpath -u "${PROGRAMFILES(X86)}")/Inno Setup 6/ISCC.exe"
+          mkdir -p target/installer
+          "$iscc" /Q "/DMyAppVersion=$version" "/DStage=$PWD/target/stage/windows" \
+            "/O$PWD/target/installer" crates/seokdok-tsf/installer/seokdok.iss
+          ls -l target/installer
+
+      - uses: actions/upload-artifact@v4
+        id: upload
+        with:
+          name: seokdok-windows-installer-unsigned
+          path: target/installer/*.exe
+          if-no-files-found: error
+
+  check-signpath:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          TOKEN: ${{ secrets.SIGNPATH_API_TOKEN }}
+          ORG: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+        run: |
+          if [ -n "$TOKEN" ] && [ -n "$ORG" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::SIGNPATH_API_TOKEN or SIGNPATH_ORGANIZATION_ID is not set; the installer stays unsigned."
+          fi
+
+  sign:
+    needs: [installer, check-signpath]
+    if: needs.check-signpath.outputs.ready == 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: signpath/github-action-submit-signing-request@v3
+        with:
+          api-token: ${{ secrets.SIGNPATH_API_TOKEN }}
+          organization-id: ${{ secrets.SIGNPATH_ORGANIZATION_ID }}
+          project-slug: seokdok
+          signing-policy-slug: release-signing
+          github-artifact-id: ${{ needs.installer.outputs.artifact-id }}
+          wait-for-completion: true
+          output-artifact-directory: signed
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: seokdok-windows-installer-signed
+          path: signed/*.exe
+          if-no-files-found: error

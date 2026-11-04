@@ -1,5 +1,11 @@
-//! Language-bar mode button: 釋讀 conversion, plain Hangul, and Latin
-//! pass-through.
+//! The input-indicator button on the taskbar: its icon shows 釋, 混, 한 or A, a
+//! left click toggles the input mode, and a right click opens the quick menu
+//! ([`crate::quick_menu`]).
+//!
+//! Since Windows 8 only an item whose GUID is `GUID_LBI_INPUTMODE` is shown,
+//! and only the first such item, so there is one button (see
+//! `docs/mode-keys.md`). `InitMenu` is for `TF_LBI_STYLE_BTN_MENU` items; this
+//! is a plain button that draws its own popup on a right click, as Mozc does.
 //!
 //! One COM object implements the langbar interfaces (`ITfLangBarItemButton`,
 //! its base `ITfLangBarItem`, and `ITfSource` for the shell's update sink).
@@ -11,57 +17,64 @@
 use std::cell::{Cell, RefCell};
 use std::rc::Rc;
 
-use windows::core::{implement, IUnknown, Interface, Ref, BSTR, GUID, PCWSTR};
-use windows::Win32::Foundation::{E_INVALIDARG, E_NOINTERFACE, HINSTANCE, POINT, RECT};
-use windows::Win32::Graphics::Gdi::HBITMAP;
+use windows::core::{implement, w, IUnknown, Interface, Ref, BSTR, GUID, PCWSTR, PWSTR};
+use windows::Win32::Foundation::{E_INVALIDARG, E_NOINTERFACE, HINSTANCE, HWND, POINT, RECT};
+use windows::Win32::Graphics::Gdi::{GetMonitorInfoW, MonitorFromPoint, MONITORINFO, MONITOR_DEFAULTTONEAREST};
+use windows::Win32::UI::Input::KeyboardAndMouse::GetFocus;
 use windows::Win32::UI::TextServices::{
     ITfLangBarItem, ITfLangBarItemButton, ITfLangBarItemButton_Impl, ITfLangBarItemSink,
-    ITfLangBarItem_Impl, ITfMenu, ITfSource, ITfSource_Impl, TfLBIClick, TF_LANGBARITEMINFO,
-    TF_LBI_ICON, TF_LBI_STYLE_BTN_MENU, TF_LBI_TEXT, TF_LBI_TOOLTIP,
+    ITfLangBarItem_Impl, ITfMenu, ITfSource, ITfSource_Impl, TfLBIClick, GUID_LBI_INPUTMODE,
+    TF_LANGBARITEMINFO, TF_LBI_CLK_RIGHT, TF_LBI_ICON, TF_LBI_STYLE_BTN_BUTTON,
+    TF_LBI_STYLE_SHOWNINTRAY, TF_LBI_TEXT, TF_LBI_TOOLTIP,
 };
-use windows::Win32::UI::WindowsAndMessaging::{LoadIconW, HICON};
+use windows::Win32::UI::WindowsAndMessaging::{
+    CreatePopupMenu, CreateWindowExW, DestroyMenu, DestroyWindow, GetSystemMetrics, InsertMenuItemW,
+    LoadImageW, TrackPopupMenu, HICON, HMENU, IMAGE_ICON, LR_CREATEDIBSECTION, MENUITEMINFOW,
+    MENU_ITEM_STATE, MENU_ITEM_TYPE, MFS_CHECKED, MFS_DISABLED, MFT_RADIOCHECK, MFT_SEPARATOR, MFT_STRING,
+    MIIM_FTYPE, MIIM_ID, MIIM_STATE, MIIM_STRING, SM_CYSMICON, TPM_LEFTALIGN, TPM_NONOTIFY, TPM_RETURNCMD,
+    TPM_RIGHTBUTTON, TPM_TOPALIGN, WS_POPUP,
+};
 
+use crate::config::Script;
 use crate::dll_instance;
 use crate::guids::{
-    GUID_LANGBAR_ITEM, GUID_TEXT_SERVICE, IDI_MODE_HANGUL, IDI_MODE_LATN, IDI_MODE_SEOKDOK,
+    GUID_TEXT_SERVICE, IDI_MODE_HANGUL, IDI_MODE_LATN, IDI_MODE_SEOKDOK, IDI_MODE_SINO,
 };
+use crate::quick_menu::{self, Action, Check, Entry, Indicator};
 use crate::session::Mode;
-
-const MENU_SEOKDOK: u32 = 1;
-const MENU_HANGUL: u32 = 2;
-const MENU_LATIN: u32 = 3;
-const MENU_SETTINGS: u32 = 100;
-const TF_LBMENUF_SEPARATOR: u32 = 0x0000_0004;
-const TF_LBMENUF_RADIOCHECKED: u32 = 0x0000_0008;
 
 /// Mode state shared by the button and the text service.
 pub struct ModeShared {
     shown: Cell<Mode>,
     requested: Cell<Option<Mode>>,
-    /// 韓㐎 專用: the button never shows 釋讀.
-    hangul_only: Cell<bool>,
+    script: Cell<Script>,
     sink: RefCell<Option<ITfLangBarItemSink>>,
 }
 
 impl ModeShared {
     pub fn new(mode: Mode) -> Self {
-        ModeShared { shown: Cell::new(mode), requested: Cell::new(None), hangul_only: Cell::new(false), sink: RefCell::new(None) }
+        ModeShared { shown: Cell::new(mode), requested: Cell::new(None), script: Cell::new(Script::default()), sink: RefCell::new(None) }
     }
 
     pub fn shown(&self) -> Mode {
         self.shown.get()
     }
 
-    /// 韓㐎 專用 on or off; the button repaints at once.
-    pub fn set_hangul_only(&self, v: bool) {
-        if self.hangul_only.replace(v) != v {
+    fn indicator(&self) -> Indicator {
+        Indicator::of(self.shown.get(), self.script.get())
+    }
+
+    /// `conversion.script`; the button repaints at once.
+    pub fn set_script(&self, script: Script) {
+        if self.script.replace(script) != script {
             self.show(self.shown.get());
         }
     }
 
     /// Display `mode` (the text service changed it) and repaint the button.
     pub fn show(&self, mode: Mode) {
-        let mode = if self.hangul_only.get() && mode == Mode::Seokdok { Mode::Hangul } else { mode };
+        // 韓㐎 專用 has no 釋讀; the session reports it the same way.
+        let mode = if self.script.get() == Script::HangulOnly && mode == Mode::Seokdok { Mode::Hangul } else { mode };
         self.shown.set(mode);
         if let Some(sink) = self.sink.borrow().as_ref() {
             // SAFETY: a valid sink advised via AdviseSink.
@@ -77,17 +90,103 @@ impl ModeShared {
         self.show(mode);
     }
 
+    pub fn has_request(&self) -> bool {
+        self.requested.get().is_some()
+    }
+
     /// Take a pending request from the button.
     pub fn take_request(&self) -> Option<Mode> {
         self.requested.take()
     }
+
+    /// Do what a menu entry says. A setting goes to the file at once, where
+    /// other applications find it; the session here takes it at the next key.
+    fn choose(&self, action: Action) {
+        if action == Action::Settings {
+            crate::settings_dialog::show(HWND::default());
+            self.set_script(crate::config::current().conversion.script);
+            return;
+        }
+        match crate::config::update(|c| action.change(c)) {
+            Ok(config) => {
+                self.set_script(config.conversion.script);
+                crate::dll::apply_engine_options();
+                if let Some(mode) = action.mode() {
+                    self.request(mode);
+                }
+            }
+            Err(e) => crate::debug_log::log(|| format!("menu: config.toml left as it is: {e}")),
+        }
+    }
 }
 
+/// Put `entries` in a popup menu.
+///
 /// # Safety
-/// `menu` must be a valid `ITfMenu` (supplied by the framework in `InitMenu`).
-unsafe fn add_menu_item(menu: &ITfMenu, id: u32, flags: u32, text: &str) -> windows::core::Result<()> {
-    let wide: Vec<u16> = text.encode_utf16().collect();
-    menu.AddMenuItem(id, flags, HBITMAP::default(), HBITMAP::default(), &wide, std::ptr::null_mut())
+/// `menu` must be a valid popup menu.
+unsafe fn fill_menu(menu: HMENU, entries: &[Entry]) -> windows::core::Result<()> {
+    for (at, entry) in entries.iter().enumerate() {
+        let mut info = MENUITEMINFOW { cbSize: std::mem::size_of::<MENUITEMINFOW>() as u32, fMask: MIIM_FTYPE, ..Default::default() };
+        let mut text = Vec::new();
+        let mut set_text = |info: &mut MENUITEMINFOW, label: &str, ftype: MENU_ITEM_TYPE, state: MENU_ITEM_STATE| {
+            text = label.encode_utf16().chain([0]).collect();
+            info.fMask |= MIIM_STRING | MIIM_STATE;
+            info.fType = ftype;
+            info.fState = state;
+            info.dwTypeData = PWSTR(text.as_mut_ptr());
+        };
+        match *entry {
+            Entry::Separator => info.fType = MFT_SEPARATOR,
+            Entry::Heading(label) => set_text(&mut info, label, MFT_STRING, MFS_DISABLED),
+            Entry::Choice { action, label, check } => {
+                let (ftype, state) = match check {
+                    Check::Radio(on) => (MFT_STRING | MFT_RADIOCHECK, if on { MFS_CHECKED } else { MENU_ITEM_STATE(0) }),
+                    Check::Box(on) => (MFT_STRING, if on { MFS_CHECKED } else { MENU_ITEM_STATE(0) }),
+                    Check::Plain => (MFT_STRING, MENU_ITEM_STATE(0)),
+                };
+                set_text(&mut info, label, ftype, state);
+                info.fMask |= MIIM_ID;
+                info.wID = action.id();
+            }
+        }
+        InsertMenuItemW(menu, at as u32, true, &info)?;
+    }
+    Ok(())
+}
+
+/// Show the menu at `point` until the user chooses or dismisses it.
+fn pick(entries: &[Entry], point: POINT) -> Option<Action> {
+    // SAFETY: the menu and the window are created and destroyed here.
+    unsafe {
+        let menu = CreatePopupMenu().ok()?;
+        let filled = fill_menu(menu, entries);
+        // The owner must belong to this thread. With nothing focused here,
+        // a hidden window stands in for the time of the menu.
+        let focused = GetFocus();
+        let stand_in = if focused.is_invalid() {
+            CreateWindowExW(Default::default(), w!("STATIC"), PCWSTR::null(), WS_POPUP, 0, 0, 0, 0, None, None, Some(dll_instance().into()), None).ok()
+        } else {
+            None
+        };
+        // Keep the menu's left edge inside the work area.
+        let mut x = point.x;
+        let mut monitor = MONITORINFO { cbSize: std::mem::size_of::<MONITORINFO>() as u32, ..Default::default() };
+        if GetMonitorInfoW(MonitorFromPoint(point, MONITOR_DEFAULTTONEAREST), &mut monitor).as_bool() {
+            x = x.clamp(monitor.rcWork.left, monitor.rcWork.right);
+        }
+        // TPM_NONOTIFY keeps the owner, an application's window, out of it.
+        let flags = TPM_NONOTIFY | TPM_RETURNCMD | TPM_LEFTALIGN | TPM_TOPALIGN | TPM_RIGHTBUTTON;
+        let id = if filled.is_ok() {
+            TrackPopupMenu(menu, flags, x, point.y, None, stand_in.unwrap_or(focused), None).0 as u32
+        } else {
+            0
+        };
+        let _ = DestroyMenu(menu);
+        if let Some(hwnd) = stand_in {
+            let _ = DestroyWindow(hwnd);
+        }
+        Action::from_id(id)
+    }
 }
 
 #[implement(ITfLangBarItemButton, ITfLangBarItem, ITfSource)]
@@ -114,8 +213,8 @@ impl ITfLangBarItem_Impl for ModeButton_Impl {
         unsafe {
             *pinfo = TF_LANGBARITEMINFO {
                 clsidService: GUID_TEXT_SERVICE,
-                guidItem: GUID_LANGBAR_ITEM,
-                dwStyle: TF_LBI_STYLE_BTN_MENU,
+                guidItem: GUID_LBI_INPUTMODE,
+                dwStyle: TF_LBI_STYLE_BTN_BUTTON | TF_LBI_STYLE_SHOWNINTRAY,
                 ulSort: 0,
                 szDescription: desc,
             };
@@ -132,74 +231,50 @@ impl ITfLangBarItem_Impl for ModeButton_Impl {
     }
 
     fn GetTooltipString(&self) -> windows::core::Result<BSTR> {
-        Ok(BSTR::from(match self.shared.shown() {
-            Mode::Seokdok => "釋讀 (seokdok): 釋讀 conversion",
-            Mode::Hangul => "釋讀 (seokdok): 한글 Hangul",
-            Mode::Latin => "釋讀 (seokdok): A Latin",
-        }))
+        Ok(BSTR::from(self.shared.indicator().tooltip()))
     }
 }
 
 impl ITfLangBarItemButton_Impl for ModeButton_Impl {
-    fn OnClick(&self, _click: TfLBIClick, _pt: &POINT, _prcarea: *const RECT) -> windows::core::Result<()> {
-        // A click toggles between conversion and plain Hangul; Latin is
-        // reached from the menu or the Han/Eng key.
-        // With 韓㐎 專用 on there is no conversion to toggle: it switches
-        // Hangul and Latin.
-        let next = match (self.shared.hangul_only.get(), self.shared.shown()) {
-            (true, Mode::Latin) => Mode::Hangul,
-            (true, _) => Mode::Latin,
-            (false, Mode::Seokdok) => Mode::Hangul,
-            (false, _) => Mode::Seokdok,
-        };
-        self.shared.request(next);
-        Ok(())
-    }
-
-    fn InitMenu(&self, pmenu: Ref<'_, ITfMenu>) -> windows::core::Result<()> {
-        let menu = pmenu.ok()?;
-        let flag = |m: Mode| if self.shared.shown() == m { TF_LBMENUF_RADIOCHECKED } else { 0 };
-        // SAFETY: `menu` is a valid ITfMenu provided by the framework.
-        unsafe {
-            if !self.shared.hangul_only.get() {
-                add_menu_item(menu, MENU_SEOKDOK, flag(Mode::Seokdok), "釋讀 Seokdok")?;
+    fn OnClick(&self, click: TfLBIClick, pt: &POINT, _prcarea: *const RECT) -> windows::core::Result<()> {
+        if click == TF_LBI_CLK_RIGHT {
+            let entries = quick_menu::entries(&crate::config::current(), self.shared.shown());
+            if let Some(action) = pick(&entries, *pt) {
+                self.shared.choose(action);
             }
-            add_menu_item(menu, MENU_HANGUL, flag(Mode::Hangul), "한글 Hangul")?;
-            add_menu_item(menu, MENU_LATIN, flag(Mode::Latin), "A Latin")?;
-            add_menu_item(menu, 0, TF_LBMENUF_SEPARATOR, "")?;
-            add_menu_item(menu, MENU_SETTINGS, 0, "設定 / 설정 / Settings…")?;
+        } else {
+            self.shared.request(quick_menu::click_target(self.shared.shown(), self.shared.script.get()));
         }
         Ok(())
     }
 
-    fn OnMenuSelect(&self, wid: u32) -> windows::core::Result<()> {
-        match wid {
-            MENU_SEOKDOK => self.shared.request(Mode::Seokdok),
-            MENU_HANGUL => self.shared.request(Mode::Hangul),
-            MENU_LATIN => self.shared.request(Mode::Latin),
-            MENU_SETTINGS => crate::settings_dialog::show(windows::Win32::Foundation::HWND::default()),
-            _ => {}
-        }
+    fn InitMenu(&self, _pmenu: Ref<'_, ITfMenu>) -> windows::core::Result<()> {
+        Ok(())
+    }
+
+    fn OnMenuSelect(&self, _wid: u32) -> windows::core::Result<()> {
         Ok(())
     }
 
     fn GetIcon(&self) -> windows::core::Result<HICON> {
-        let id = match self.shared.shown() {
-            Mode::Seokdok => IDI_MODE_SEOKDOK,
-            Mode::Hangul => IDI_MODE_HANGUL,
-            Mode::Latin => IDI_MODE_LATN,
+        let id = match self.shared.indicator() {
+            Indicator::Seokdok => IDI_MODE_SEOKDOK,
+            Indicator::Mixed => IDI_MODE_SINO,
+            Indicator::Hangul => IDI_MODE_HANGUL,
+            Indicator::Latin => IDI_MODE_LATN,
         };
         let hinst = HINSTANCE(dll_instance().0);
         // SAFETY: hinst is this DLL's module; the id is a valid icon resource.
-        unsafe { LoadIconW(Some(hinst), PCWSTR(id as usize as *const u16)) }
+        // Not LR_SHARED: the caller destroys the icon.
+        unsafe {
+            let size = GetSystemMetrics(SM_CYSMICON);
+            let icon = LoadImageW(Some(hinst), PCWSTR(id as usize as *const u16), IMAGE_ICON, size, size, LR_CREATEDIBSECTION)?;
+            Ok(HICON(icon.0))
+        }
     }
 
     fn GetText(&self) -> windows::core::Result<BSTR> {
-        Ok(BSTR::from(match self.shared.shown() {
-            Mode::Seokdok => "釋",
-            Mode::Hangul => "한",
-            Mode::Latin => "A",
-        }))
+        Ok(BSTR::from(self.shared.indicator().glyph()))
     }
 }
 

@@ -1,4 +1,5 @@
-//! `ITfThreadMgrEventSink`: a focus change ends what is being composed.
+//! `ITfThreadMgrEventSink`: a focus change ends what is being composed and
+//! brings in settings changed elsewhere.
 
 use windows::core::{Interface, Ref};
 use windows::Win32::UI::TextServices::{ITfContext, ITfDocumentMgr, ITfThreadMgrEventSink_Impl};
@@ -21,6 +22,9 @@ impl ITfThreadMgrEventSink_Impl for TextService_Impl {
     ) -> windows::core::Result<()> {
         if pdimfocus.as_ref().map(Interface::as_raw) != pdimprevfocus.as_ref().map(Interface::as_raw) {
             self.end_at_boundary("the focus moved");
+        }
+        if pdimfocus.is_some() {
+            self.follow_settings();
         }
         Ok(())
     }

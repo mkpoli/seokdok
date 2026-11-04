@@ -78,9 +78,30 @@ impl TextService_Impl {
         }
     }
 
+    /// Take in settings written elsewhere: by the menu or the settings dialog
+    /// in another application, or by hand. The icon follows even when there is
+    /// nothing to type in; a composition in progress waits for `sync`.
+    pub(crate) fn follow_settings(&self) {
+        crate::config::refresh();
+        let cfg = crate::config::current();
+        crate::dll::apply_engine_options();
+        {
+            let mut state = self.inner_mut();
+            state.mode.set_script(cfg.conversion.script);
+            if !state.session.is_composing() {
+                state.session.set_hangul_only(cfg.conversion.script == crate::config::Script::HangulOnly);
+            }
+        }
+        // A choice on the button is on show already; the next key applies it.
+        if !self.inner().mode.has_request() {
+            self.show_mode();
+        }
+    }
+
     /// Bring the session up to date with the document and the settings. What a
     /// bound key means depends on the mode, so this comes before reading one.
     fn settle(&self, context: Option<&ITfContext>) {
+        self.follow_settings();
         if let Some(context) = context {
             self.note_typing_context(context);
             self.sync(context);
@@ -127,7 +148,7 @@ impl TextService_Impl {
         let (requested, effects) = {
             let mut state = self.inner_mut();
             let hangul_only = cfg.conversion.script == crate::config::Script::HangulOnly;
-            state.mode.set_hangul_only(hangul_only);
+            state.mode.set_script(cfg.conversion.script);
             let mut effects = state.session.set_hangul_only(hangul_only);
             state.session.set_space_converts(cfg.input.space_converts);
             state.session.set_horizontal(cfg.input.candidate_layout == crate::config::Layout::Horizontal);
@@ -139,12 +160,22 @@ impl TextService_Impl {
         if requested.is_some() || !effects.is_empty() {
             let _ = self.apply(context, effects);
         }
+        if requested.is_some() {
+            let state = self.inner();
+            if let Some(tm) = state.thread_mgr.as_ref() {
+                crate::compartment::publish(tm, state.client_id, state.session.mode());
+            }
+        }
+        self.show_mode();
     }
 }
 
 impl ITfKeyEventSink_Impl for TextService_Impl {
-    fn OnSetFocus(&self, _fforeground: BOOL) -> windows::core::Result<()> {
+    fn OnSetFocus(&self, fforeground: BOOL) -> windows::core::Result<()> {
         mode_key_events::reset();
+        if fforeground.as_bool() {
+            self.follow_settings();
+        }
         Ok(())
     }
 

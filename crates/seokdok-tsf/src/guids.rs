@@ -17,13 +17,11 @@ pub const GUID_DA_CONVERTED: GUID = GUID::from_u128(0xA824E0C2_E97A_449C_855B_2F
 /// Display attribute of the focused converted segment.
 pub const GUID_DA_FOCUS: GUID = GUID::from_u128(0xA63357BA_AF96_4DB0_82B6_86778F0E8A24);
 
-/// Language-bar mode item: {D840F24E-DD08-4BD2-89F0-EEAA83ABDE79}
-pub const GUID_LANGBAR_ITEM: GUID = GUID::from_u128(0xD840F24E_DD08_4BD2_89F0_EEAA83ABDE79);
-
 /// Icon resource ids (see `resources.rc`); the profile icon is id 101.
 pub const IDI_MODE_SEOKDOK: u16 = 102;
 pub const IDI_MODE_HANGUL: u16 = 103;
 pub const IDI_MODE_LATN: u16 = 104;
+pub const IDI_MODE_SINO: u16 = 105;
 
 pub const SERVICE_NAME: PCWSTR = w!("seokdokTextService");
 

@@ -2,7 +2,7 @@
 
 Usage: uv run tools/merge_suggested.py data/private/assign/out-*.tsv
 
-Each row is checked with the engine's own parser (`seokdok check`); invalid
+tools/chat_gaps.tsv is always read after the files named. Each row is checked with the engine's own parser (`seokdok check`); invalid
 rows, rows whose lemma/written pair is already in a hand-made dictionary, and
 duplicates are dropped. Source is forced to "suggested".
 """
@@ -31,10 +31,10 @@ def existing():
 def main():
     have = existing()
     rows, seen = [], set()
-    for p in sys.argv[1:]:
+    for p in [*sys.argv[1:], ROOT / "tools" / "chat_gaps.tsv"]:
         for line in Path(p).open(encoding="utf-8"):
             c = [x.strip() for x in line.rstrip("\n").split("\t")]
-            if len(c) < 3 or c[0] == "lemma" or c[2] not in POS:
+            if len(c) < 3 or c[0] == "lemma" or c[0].startswith("#") or c[2] not in POS:
                 continue
             lemma, written, pos = c[0], c[1], c[2]
             note = c[6] if len(c) > 6 else ""
@@ -57,6 +57,7 @@ def main():
         f.write("# 訓讀 suggestions for native words with no hand-made entry, proposed by a language model\n")
         f.write("# from Wiktionary senses and libhangul 訓音 glosses (2026-11-03). Unreviewed: this tier ranks\n")
         f.write("# below the chat corpus, editorial and community entries. Validated by the engine's parser only.\n")
+        f.write("# The rows at the end come from tools/chat_gaps.tsv, read by hand; each note names its source.\n")
         f.write("lemma\twritten\tpos\tclass\tsource\tcount\tnote\n")
         for r in good:
             f.write("\t".join(r) + "\n")

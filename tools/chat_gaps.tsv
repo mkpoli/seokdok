@@ -1,0 +1,56 @@
+# Native words the 釋讀會 chat types most that lacked a usable first candidate, with where each spelling comes from.
+# Merged into dict/suggested.tsv by tools/merge_suggested.py. Words only: no chat text.
+lemma	written	pos	class	source	count	note
+아뇨	否	interj		suggested		contraction of 아니요 (Wiktionary); 아니요 否 in this file
+얘기	話	noun		suggested		contraction of 이야기 (Wiktionary); 이야기 화 話 (libhangul)
+맘	心	noun		suggested		contraction of 마음 (Wiktionary); 마음 心 in community.tsv
+맘대로	心대로	adv		suggested		contraction of 마음대로 (Wiktionary); 마음 心 in community.tsv
+머리칼	髮	noun		suggested		short for 머리카락 (Wiktionary); 머리카락 髮 in community.tsv
+이쁘다	美다	adj		suggested		alternative form of 예쁘다 (Wiktionary); 예쁘다 美다 in kun-attested.tsv
+나뉘다	分다	verb		suggested		contraction of 나누이다 (Wiktionary); 나누이다 分이다 in this file
+놔두다	置두다	verb		suggested		contraction of 놓아두다 (Wiktionary); 놓아두다 置두다 in this file
+어케	何케	adv		suggested		contraction of 어떻게 (Wiktionary); 어떻게 何떻게 in corpus.tsv
+전혀	全혀	adv		suggested		hanja form 全혀 (Wiktionary)
+특히	特히	adv		suggested		hanja form 特히 (Wiktionary)
+능히	能히	adv		suggested		hanja form 能히 (Wiktionary)
+가히	可히	adv		suggested		hanja form 可히 (Wiktionary)
+가짜	假짜	noun		suggested		hanja form 假짜 (Wiktionary)
+그대	汝	pron		suggested		汝 “you; thou” (JMdict) = “you, thou” (Wiktionary)
+그대	君	pron		suggested		君 “you” (JMdict) = “you, thou” (Wiktionary)
+마땅히	當히	adv		suggested		마땅하다 當하다 in this file; 마땅할 당 當 (libhangul)
+우리말	我等言	noun		suggested		“the Korean language” (Wiktionary); 우리 我等 in community.tsv, 말 言 in corpus.tsv
+어서오다	速來다	verb		suggested		어서 with 오다 (Wiktionary); 어서 速 in this file, 오다 來 in community.tsv
+그러게요	然게요	interj		suggested		그러하다 然하다 in community.tsv
+몇몇	幾幾	det		suggested		“some, a few” (Wiktionary); 몇 幾 in community.tsv
+스물	二十	num		suggested		“twenty” (Wiktionary)
+스물	廿	num		suggested		eumhun 스물 입 (Wiktionary); 스물 입 廿 (libhangul)
+서른	三十	num		suggested		“thirty” (Wiktionary)
+마흔	四十	num		suggested		“forty” (Wiktionary)
+마흔	卌	num		suggested		eumhun 마흔 십 (Wiktionary)
+쉰	五十	num		suggested		“fifty” (Wiktionary)
+예순	六十	num		suggested		“sixty” (Wiktionary)
+일흔	七十	num		suggested		“seventy” (Wiktionary)
+여든	八十	num		suggested		“eighty” (Wiktionary)
+아흔	九十	num		suggested		“ninety” (Wiktionary)
+나흘	四日	noun		suggested		“four days” (Wiktionary)
+엿새	六日	noun		suggested		“six days” (Wiktionary)
+여드레	八日	noun		suggested		“eight days” (Wiktionary)
+아흐레	九日	noun		suggested		“nine days” (Wiktionary)
+열흘	十日	noun		suggested		“ten days” (Wiktionary)
+첫째	初째	num		suggested		“first” (Wiktionary); 첫 初ㅅ in corpus.tsv
+둘째	二째	num		suggested		“second” (Wiktionary); 둘 二 in kun-attested.tsv
+셋째	三째	num		suggested		“third” (Wiktionary); 석 삼 三 (libhangul)
+셋	三	num		suggested		“three” (Wiktionary); 석 삼 三 (libhangul)
+넷째	四째	num		suggested		“fourth” (Wiktionary); 넷 사 四 (libhangul)
+다섯째	五째	num		suggested		“fifth” (Wiktionary); 다섯 五 in eonhae.tsv
+바회	巖	noun		suggested		Middle Korean 바회 → 바위 (Wiktionary); 바위 巖 in community.tsv
+가개	店	noun		suggested		Middle Korean 가개 → 가게 (Wiktionary); 가게 店 in community.tsv
+오얒	李	noun		suggested		Middle Korean 오얒 → 오얏 (Wiktionary); 오얏 李 in eonhae.tsv
+일훔	名	noun		suggested		Middle Korean 일훔 → 이름 (Wiktionary); 이름 名 in corpus.tsv
+놀애	歌	noun		suggested		Middle Korean 놀애 → 노래 (Wiktionary); 노래 歌 in community.tsv
+바닿	海	noun		suggested		Middle Korean 바닿 → 바다 (Wiktionary); 바다 海 in community.tsv
+어듸	何處	pron		suggested		Middle Korean 어듸 → 어디 (Wiktionary); 어디 何處 in corpus.tsv
+울에	雷	noun		suggested		Middle Korean 울에 → 우레 (Wiktionary); 우레 雷 in community.tsv
+셜흔	三十	num		suggested		Middle Korean 셜흔 → 서른 (Wiktionary); “thirty”
+노로	獐	noun		suggested		Middle Korean 노로 → 노루 (Wiktionary); 노루 獐 in community.tsv
+업시	無	adv		suggested		Middle Korean 업시 → 없이 (Wiktionary); 없이 無 in this file

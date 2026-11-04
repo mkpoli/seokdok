@@ -165,7 +165,7 @@
 
   function onkeydown(e) {
     if (e.key === 'Alt') {
-      altAlone = !e.repeat
+      altAlone = !e.repeat && !e.isComposing
       e.preventDefault()
       return
     }

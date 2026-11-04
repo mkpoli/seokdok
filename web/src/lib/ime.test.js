@@ -1272,6 +1272,21 @@ test('backspace during a conversion keeps the mark, so the next press still fire
   expect(p.ime.pre).toBe('안녕')
 })
 
+test('a composition confirmed from outside while still open is not doubled', () => {
+  const p = page()
+  p.play([['compositionstart'], ...update('하')])
+  p.ime.toggleMode()
+  expect(p.ime.doc).toBe('하')
+  p.play(update('한'))
+  expect(p.ime.doc).toBe('하')
+  expect(p.ime.pre).toBe('')
+  p.play(update('한ㄱ'))
+  expect(p.ime.pre).toBe('ㄱ')
+  p.play(ends.chrome('한ㄱ'))
+  expect(p.ime.pre).toBe('ㄱ')
+  expect(p.el.value).toBe('​ㄱ')
+})
+
 test('the textarea never empties, and the caret stays past the mark', () => {
   const p = page()
   const at = []

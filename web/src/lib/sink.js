@@ -151,7 +151,12 @@ export class Sink {
     // Something else moved the preedit on (a button, the on-screen keyboard).
     const spent = !ime.busy && (ime.segs !== null || ime.pre !== this.#shown)
     if (spent) this.#units = []
-    if (spent && composing) this.#stale += at
+    if (spent && composing) {
+      // The textarea cannot be written now. Text before the composition is left
+      // behind, and a composition that was itself confirmed counts as gone.
+      this.#stale += removed ? next.length : at
+      if (removed) added = []
+    }
 
     // Deleting past what the keyboard holds, or text it no longer owns.
     if (!composing && !added.length && ((spent && removed > 0) || (!prev.length && !value.includes(MARK)))) {

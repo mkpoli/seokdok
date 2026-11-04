@@ -3,7 +3,8 @@ import UIKit
 /// The 釋讀 keyboard: 두벌식 keys feed the Rust session; the text being
 /// composed is the document's marked text (as azooKey does), confirmed text
 /// is inserted, and the focused segment's candidates show in the bar above
-/// the keys.
+/// the keys. The document's marked text is the only copy of the composition on
+/// screen.
 final class KeyboardViewController: UIInputViewController {
     private var session: Session!
     private var keys: KeyboardView!
@@ -20,7 +21,7 @@ final class KeyboardViewController: UIInputViewController {
     private var checkGeneration = 0
     /// What the focused field asks for; only `.standard` converts.
     private var layout = Layout.standard
-    /// A long press on the mode key opened the strip's controls for what was
+    /// A long press on the mode key opened the bar's controls for what was
     /// learned. Without Full Access the app cannot reach this keyboard's files.
     private var learnMenu = false
 
@@ -45,7 +46,8 @@ final class KeyboardViewController: UIInputViewController {
         keys.delegate = self
         keys.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(keys)
-        let height = keys.heightAnchor.constraint(equalToConstant: 284)
+        // As tall as the system keyboard with its suggestion bar.
+        let height = keys.heightAnchor.constraint(equalToConstant: 261)
         // Below required, so it gives way to the system's own height while
         // the keyboard is being set up.
         height.priority = UILayoutPriority(999)
@@ -89,6 +91,7 @@ final class KeyboardViewController: UIInputViewController {
         super.viewWillAppear(animated)
         Session.setConfigDir(configDir())
         session.sync()
+        keys.feedback.hapticsAllowed = hasFullAccess
         updateLayout()
         refresh()
         waitForDictionaries()
@@ -204,7 +207,7 @@ final class KeyboardViewController: UIInputViewController {
         return true
     }
 
-    /// Until the dictionaries load, the strip says so; refresh once they have.
+    /// Until the dictionaries load, the bar says so; refresh once they have.
     private func waitForDictionaries() {
         guard !Session.ready, loadTimer == nil else { return }
         loadTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] t in
@@ -223,11 +226,6 @@ final class KeyboardViewController: UIInputViewController {
             // Replaces the marked text, if any.
             proxy.insertText(commit)
             marked = nil
-        }
-        // Keep the focused segment's candidates in the bar while converting.
-        if session.candidates() == nil, session.preedit().contains(where: { $0.attr == 2 }) {
-            session.key(Session.Key.down)
-            session.key(Session.Key.up)
         }
         let text = session.preedit().map(\.text).joined()
         if !text.isEmpty {
@@ -254,6 +252,12 @@ final class KeyboardViewController: UIInputViewController {
         s.runs = runs
         s.candidates = session.candidates()
         s.loading = !Session.ready
+        switch textDocumentProxy.returnKeyType ?? .default {
+        case .go, .google, .join, .route, .search, .send, .yahoo, .done, .emergencyCall, .continue:
+            s.returnIsAction = true
+        default:
+            s.returnIsAction = false
+        }
         s.learnMenu = learnMenu
         s.learnOn = hasFullAccess && AppGroup.containerURL != nil ? nil : Session.learn
         keys.render(s)
@@ -293,9 +297,9 @@ extension KeyboardViewController: KeyboardViewDelegate {
             insert(String(ch))
             return
         }
-        // Digits pick candidates while the list is open; close it first so a
-        // digit confirms the conversion and is typed after it.
-        if session.candidates() != nil, ch.isNumber {
+        // Digits pick candidates after Space has walked the list; close it
+        // first so a digit confirms the conversion and is typed after it.
+        if session.digitsPick, ch.isNumber {
             session.key(Session.Key.esc)
         }
         if !session.key(Session.Key.printable, ch) {
@@ -338,6 +342,31 @@ extension KeyboardViewController: KeyboardViewDelegate {
             textDocumentProxy.deleteBackward()
         }
         apply()
+    }
+
+    /// What is being composed goes into the document first, with no word break
+    /// owed afterwards: the caret is leaving.
+    func beginCursor() {
+        session.flush()
+        apply()
+        session.reset()
+        refresh()
+    }
+
+    /// Step over whole characters, so the caret never lands inside an old
+    /// Hangul cluster or a surrogate pair. `adjustTextPosition` counts UTF-16
+    /// units. The context can be empty where the proxy cannot see the text;
+    /// the steps are then single units.
+    func moveCursor(by steps: Int) {
+        let proxy = textDocumentProxy
+        let context = (steps < 0 ? proxy.documentContextBeforeInput : proxy.documentContextAfterInput) ?? ""
+        guard !context.isEmpty else {
+            proxy.adjustTextPosition(byCharacterOffset: steps)
+            return
+        }
+        let span = steps < 0 ? context.suffix(-steps) : context.prefix(steps)
+        let units = span.utf16.count
+        proxy.adjustTextPosition(byCharacterOffset: steps < 0 ? -units : units)
     }
 
     /// Tap: Shift for one letter; double tap: locked until tapped again.
@@ -386,20 +415,13 @@ extension KeyboardViewController: KeyboardViewDelegate {
         refresh()
     }
 
-    /// Candidate `index` on the shown page, picked as its digit key.
     func pick(_ index: Int) {
-        guard (0..<9).contains(index) else { return }
-        session.key(Session.Key.printable, Character(String(index + 1)))
+        session.pick(index)
         apply()
     }
 
     func convert() {
         session.key(Session.Key.convert)
-        apply()
-    }
-
-    func page(_ step: Int) {
-        session.key(step < 0 ? Session.Key.pageUp : Session.Key.pageDown)
         apply()
     }
 

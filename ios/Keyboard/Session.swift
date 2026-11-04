@@ -13,13 +13,17 @@ final class Session {
         let attr: Int32
     }
 
-    struct Candidates {
-        let items: [(text: String, note: String)]
-        /// Index of the selected candidate within `items`.
+    struct Candidates: Equatable {
+        struct Item: Equatable {
+            let text: String
+            /// What to show beside the candidate; may be empty.
+            let reading: String
+        }
+        /// Every candidate of the focused segment.
+        let items: [Item]
         let selected: Int
-        /// 1-based position of the selected candidate among `total`.
-        let position: Int
-        let total: Int
+        let canShorten: Bool
+        let canLengthen: Bool
     }
 
     /// Input modes, as numbered by `seokdok_mode`.
@@ -39,8 +43,6 @@ final class Session {
         static let right = Int32(SK_RIGHT)
         static let up = Int32(SK_UP)
         static let down = Int32(SK_DOWN)
-        static let pageUp = Int32(SK_PAGEUP)
-        static let pageDown = Int32(SK_PAGEDOWN)
         static let convert = Int32(SK_CONVERT)
     }
 
@@ -124,21 +126,31 @@ final class Session {
         }
     }
 
-    /// The candidate page, or nil when the list is closed.
+    /// The focused segment's candidates, or nil while nothing is converted.
     func candidates() -> Candidates? {
-        let n = seokdok_popup_len(ime)
+        let n = seokdok_list_len(ime)
         guard n > 0 else { return nil }
-        var items: [(text: String, note: String)] = []
+        var items: [Candidates.Item] = []
+        items.reserveCapacity(n)
         for i in 0..<n {
-            var note: UnsafePointer<CChar>?
-            guard let p = seokdok_popup_item(ime, i, &note) else { continue }
+            var reading: UnsafePointer<CChar>?
+            guard let p = seokdok_list_item(ime, i, &reading) else { continue }
             let text = String(cString: p)
-            items.append((text, note.map { String(cString: $0) } ?? ""))
+            items.append(.init(text: text, reading: reading.map { String(cString: $0) } ?? ""))
         }
-        var selected = 0, position = 0, total = 0
-        var horizontal = false
-        seokdok_popup_info(ime, &selected, &position, &total, &horizontal)
-        return Candidates(items: items, selected: selected, position: position, total: total)
+        var shorten = false, lengthen = false
+        seokdok_list_can_resize(ime, &shorten, &lengthen)
+        return Candidates(items: items, selected: seokdok_list_selected(ime), canShorten: shorten, canLengthen: lengthen)
+    }
+
+    /// Choose candidate `index` and confirm through the focused segment.
+    func pick(_ index: Int) {
+        seokdok_list_pick(ime, index)
+    }
+
+    /// Whether digits would pick a candidate (Space has walked the list).
+    var digitsPick: Bool {
+        seokdok_popup_len(ime) > 0
     }
 
     var mode: Mode {

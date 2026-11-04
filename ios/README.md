@@ -87,11 +87,19 @@ after changing `project.yml`.
   old letters (ㆍ ㅿ ㆁ ㆆ and the sibilants ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ). Shift types one
   letter; a double tap locks it.
 - 變換 (Space) converts the composition and shows the focused segment's
-  candidates, with their notes, in the bar; Space again moves to the next
-  one. Tap a candidate to confirm through that segment, ‹ › to page.
-- The strip above the bar shows the composition. Tap the Hangul to convert
-  it (also when Space only types a space); tap a segment to focus it; − and
-  + shorten or lengthen the focused segment.
+  candidates in the bar; Space again moves to the next one. The bar scrolls
+  through the whole list, and the chevron opens all of it as a grid over the
+  keys. Tap a candidate to confirm through that segment.
+- Beside a candidate, in smaller text, is only what tells it from the others:
+  a dictionary word that differs from what was typed (行ㄹ 가다, 磨ㄹ 갈다 for 갈),
+  or 音 and 訓 when the list holds both.
+- While typing, the bar holds the Hangul; tap it to convert (also when Space
+  only types a space).
+- The drawer's top row holds the composition's segments. Tap one to focus it;
+  − and + shorten or lengthen the focused one. The drawer stays open meanwhile.
+- Hold Space for 0.6 s to turn the keyboard into a trackpad, then slide
+  to move the caret. What is being composed is committed first. The caret moves
+  along the line only: `adjustTextPosition` has no up and down.
 - 確定 (Return) confirms everything. Backspace undoes the conversion, then
   deletes letters; hold it to repeat.
 - The mode key cycles 釋 (釋讀) → 混 (國漢文混用) → 한 (韓㐎 專用) → A (Latin), writing
@@ -120,7 +128,7 @@ The keyboard keeps the candidates a person picks in `learned.tsv`
 ([docs/learning.md](../docs/learning.md)): in the App Group container with Full
 Access, where the app's button clears it, and in its own container without it.
 There the app cannot reach the file, so holding the 釋 key shows the controls in
-the strip above the keys.
+the candidate bar.
 
 A keyboard reaches the shared container only with Full Access (Apple's App
 Extension Programming Guide, Custom Keyboard, Table 8-1: without it "No
@@ -133,14 +141,34 @@ access"; requesting it for the shared settings is allowed under that rule.
 The CI run executes the UI test a second time with `RequestsOpenAccess`
 turned off.
 
+## Sound and haptics
+
+Each press clicks with `UIDevice.playInputClick()` and taps with a light
+`UIImpactFeedbackGenerator`, as the finger lands. Apple's guide lists "Ability to
+play audio, including keyboard clicks using the playInputClick method" among what
+Full Access grants
+([App Extension Programming Guide, Custom Keyboard](https://developer.apple.com/library/archive/documentation/General/Conceptual/ExtensibilityPG/CustomKeyboard.html),
+read 2026-11-05), and the click follows the keyboard clicks setting
+([`playInputClick`](https://developer.apple.com/documentation/uikit/uidevice/playinputclick()),
+read 2026-11-05). The app says so beside its Open in Settings link. Apple says
+nothing on haptics in keyboard extensions, and a custom keyboard cannot read the
+system's Keyboard Feedback → Haptic setting, so they are on whenever Full Access
+is, as in azooKey and Hamster.
+
 ## Layout
 
 - `Keyboard/Session.swift`: the Swift face of the C interface.
 - `Keyboard/KeyboardViewController.swift`: keys → session → marked text,
-  commits, the strip and the candidate bar; drops the composition when the
+  commits and the candidate bar; drops the composition when the
   text changes outside the keyboard.
-- `Keyboard/KeyboardView.swift`: the strip, the candidate bar, the 두벌식
-  and symbol layers.
+- `Keyboard/KeyboardView.swift`: the candidate bar, the 두벌식 and symbol layers.
+- `Keyboard/KeyFeedback.swift`: the click and the haptics.
+- `Keyboard/KeyPad.swift`: the key caps, the touch tracking of all keys (a touch
+  belongs to the nearest key, a slide moves along the letters, a new touch types
+  the letter still held) and the pop-up preview. The key height and fills are
+  measured from the system keyboard on an iOS 18.5 simulator.
+- `Keyboard/CandidateDrawer.swift`: the candidate cells and the grid that opens
+  over the keys.
 - `App/SeokdokApp.swift`: how to add the keyboard, a field to try it, and the
   settings, laid out as in Settings with labels in the system's language. The
   wording follows the Windows settings app.
@@ -185,5 +213,5 @@ License 1.1, stated in the font's name table.
 
 ## Status
 
-CI builds the app for devices and passes the UI test on a simulator. It has not
-run on a physical iPhone yet. Before release the app also needs an icon.
+CI builds the app for devices and passes the UI test on a simulator. It has run
+on a physical iPhone, sideloaded from a CI build.

@@ -1733,18 +1733,18 @@ impl Engine {
         Around { alone: hangul == 1, bound_next }
     }
 
-    /// Whole-input candidates, best first. Non-Hangul text passes through.
-    /// Number of Sino-Korean (reading, Hanja) pairs loaded.
     /// The file label and line that native entry `i` came from.
     pub fn origin(&self, i: usize) -> (&str, usize) {
         let (label, line) = self.natives[i].origin;
         (&self.labels[label as usize], line as usize)
     }
 
+    /// Number of Sino-Korean (reading, Hanja) pairs loaded.
     pub fn sino_count(&self) -> usize {
         self.sinos.len()
     }
 
+    /// Whole-input candidates, best first. Non-Hangul text passes through.
     pub fn convert(&self, input: &str) -> Vec<Candidate> {
         self.mixed_convert(input).unwrap_or_else(|| self.convert_unmixed(input))
     }

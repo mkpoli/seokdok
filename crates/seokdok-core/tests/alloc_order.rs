@@ -36,7 +36,7 @@ static RECORDING: Recording = Recording;
 
 fn load() -> u64 {
     let native = "읽다\t讀다\tverb\t\teditorial\t\n하늘\t天\tnoun\t\teditorial\t\n";
-    let sino = "학교\t學校\t3\t\n학교\t學校\t2\t\n산\t山\t1\t\n";
+    let sino = "학교\t學校\t3\t\n학교\t學校\t2\t\n산\t山\t1\t\n뫼산\t山\t\thun\n버스\t버스\t\tloanword\n택시\t택시\t\tloanword\n";
     let start = DIGEST.with(Cell::get);
     DIGEST.with(|d| d.set(0));
     let (engine, errors) = seokdok_core::engine::Engine::new(&[("n", native)], &[("s", sino)], Default::default());

@@ -224,11 +224,6 @@ final class KeyboardViewController: UIInputViewController {
             proxy.insertText(commit)
             marked = nil
         }
-        // Keep the focused segment's candidates in the bar while converting.
-        if session.candidates() == nil, session.preedit().contains(where: { $0.attr == 2 }) {
-            session.key(Session.Key.down)
-            session.key(Session.Key.up)
-        }
         let text = session.preedit().map(\.text).joined()
         if !text.isEmpty {
             if marked == nil { composingDocument = documentIdentifier }
@@ -293,9 +288,9 @@ extension KeyboardViewController: KeyboardViewDelegate {
             insert(String(ch))
             return
         }
-        // Digits pick candidates while the list is open; close it first so a
-        // digit confirms the conversion and is typed after it.
-        if session.candidates() != nil, ch.isNumber {
+        // Digits pick candidates after Space has walked the list; close it
+        // first so a digit confirms the conversion and is typed after it.
+        if session.digitsPick, ch.isNumber {
             session.key(Session.Key.esc)
         }
         if !session.key(Session.Key.printable, ch) {
@@ -386,20 +381,13 @@ extension KeyboardViewController: KeyboardViewDelegate {
         refresh()
     }
 
-    /// Candidate `index` on the shown page, picked as its digit key.
     func pick(_ index: Int) {
-        guard (0..<9).contains(index) else { return }
-        session.key(Session.Key.printable, Character(String(index + 1)))
+        session.pick(index)
         apply()
     }
 
     func convert() {
         session.key(Session.Key.convert)
-        apply()
-    }
-
-    func page(_ step: Int) {
-        session.key(step < 0 ? Session.Key.pageUp : Session.Key.pageDown)
         apply()
     }
 

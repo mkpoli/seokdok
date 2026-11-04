@@ -11,6 +11,8 @@ final class KeyboardUITests: XCTestCase {
         static let k = CGVector(dx: 738.0 / 920, dy: 0.771) // ㅏ
         static let s = CGVector(dx: 180.0 / 920, dy: 0.771) // ㄴ
         static let u = CGVector(dx: 598.0 / 920, dy: 0.7115) // ㅕ
+        static let f = CGVector(dx: 367.0 / 920, dy: 0.771) // ㄹ
+        static let r = CGVector(dx: 321.0 / 920, dy: 0.7115) // ㄱ
         static let space = CGVector(dx: 474.0 / 920, dy: 0.8855)
         static let enter = CGVector(dx: 816.0 / 920, dy: 0.8855)
     }
@@ -53,6 +55,14 @@ final class KeyboardUITests: XCTestCase {
 
         let value = field.value as? String ?? ""
         XCTAssertTrue(value.contains("安寧"), "field holds \(value)")
+
+        // 갈 has candidates told apart by their dictionary words.
+        for key in [Key.r, Key.k, Key.f, Key.space] {
+            tap(key)
+        }
+        sleep(1)
+        shot("readings")
+        tap(Key.enter)
     }
 
     // MARK: Keyboard types

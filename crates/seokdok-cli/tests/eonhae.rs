@@ -101,6 +101,34 @@ fn every_row_says_where_to_check_it() {
 }
 
 #[test]
+fn a_gloss_from_namu_wiki_cites_its_page_and_licence() {
+    let rows = rows();
+    let row = |lemma: &str, written: &str| rows.iter().find(|r| r[0] == lemma && r[1] == written).unwrap_or_else(|| panic!("{lemma} {written}"));
+    assert!(row("가", "際")[6].contains("新增類合 1576, 나무위키 신증유합/하권 2558 "));
+    // 訓蒙字會's own 樹木 page writes {{크게|枳}}, with no {{Wikt}} inside; both transcriptions are cited on one row.
+    assert!(row("탱자", "枳")[6].contains("訓蒙字會 1527, 樹木 상10A: "));
+    assert!(row("탱자", "枳")[6].contains("나무위키 훈몽자회/상권 樹木 "));
+    let mut cited = 0;
+    for r in &rows {
+        for citation in r[6].split("; ").filter(|c| c.contains("나무위키")) {
+            cited += 1;
+            assert!(citation.contains("CC BY-NC-SA 2.0 KR"), "{r:?}");
+        }
+    }
+    assert!(cited > 1000);
+}
+
+#[test]
+fn a_rare_primer_character_leaves_the_usual_one_first() {
+    let e = engine();
+    // 新增類合 adds 毫 and 筐; the modern 訓音 are 터럭 발, 바구니 람.
+    assert_eq!(candidates(&e, "터럭")[0], "髮");
+    assert_eq!(candidates(&e, "머리터럭")[0], "頭髮");
+    assert_eq!(candidates(&e, "바구니")[0], "籃");
+    assert!(candidates(&e, "바구니").iter().any(|c| c == "筐"));
+}
+
+#[test]
 fn no_row_repeats_a_hand_made_pair() {
     let mut hand = std::collections::HashSet::new();
     for f in ["corpus.tsv", "editorial.tsv", "community.tsv"] {

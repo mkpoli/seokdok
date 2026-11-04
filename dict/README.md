@@ -9,7 +9,7 @@ comments; the header line names the columns.
 | `corpus.tsv` | 訓讀 spellings attested in the 釋讀會 chat | project editors | MIT (this repository) |
 | `editorial.tsv` | 訓讀 entries added by the editors, with reasons | project editors | MIT |
 | `community.tsv` | 標準國語釋讀辭典 | 釋讀會 members | used with the editors' permission |
-| `eonhae.tsv` | 訓讀 attested in historical books: character primers and 諺解 | Korean Wikisource transcriptions, English Wiktionary | CC BY-SA 4.0 |
+| `eonhae.tsv` | 訓讀 attested in historical books: character primers and 諺解 | Korean Wikisource and 나무위키 transcriptions, English Wiktionary | CC BY-SA 4.0; citations of 나무위키 CC BY-NC-SA 2.0 KR |
 | `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested | language model, unreviewed | MIT |
 | `kun-ja.tsv` | 訓讀 found through Japanese 訓読み words with the same English gloss | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `kun-ja-weak.tsv` | weaker Japanese links, kept so no candidate is lost | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
@@ -64,7 +64,7 @@ with `source` set to `user`. Check a file with
 - **Historical books** (`eonhae.tsv`, `tools/build_eonhae.py`): each row's note
   says where to check it. `primer:` rows come from books that gloss one
   character at a time: 訓蒙字會 (崔世珍, 1527; the copy transcribed is the 1613
-  reprint at 奎章閣), 光州千字文 (1575), 石峯千字文 (韓濩, 1583; a later undated
+  reprint at 奎章閣), 光州千字文 (1575), 新增類合 (柳希春, 1576), 石峯千字文 (韓濩, 1583; a later undated
   printing), 類合 (the 1913 新舊書林 printing), 倭語類解 (洪舜明, 18th century),
   譯語類解 (1690; Wikisource dates its copy, 奎章閣 古3912-5, to 1775) and the 物名
   of 詩經諺解 (1820 printing). `aligned:` rows come from books printing the Chinese
@@ -82,7 +82,23 @@ with `source` set to `user`. Check a file with
   dictionary here, or an English sense it shares with Unihan's definition; rows
   resting on the libhangul gloss alone need a form with one possible reading. Rows
   with Hanja the word already has by hand are left out. A hand check of 150 random
-  rows found 3 wrong (2.0%), since removed; expect a similar share in the rest.
+  rows from Wikisource found 3 wrong (2.0%), since removed; expect a similar share in
+  the rest.
+
+  新增類合 (3,000 characters) and 訓蒙字會's first volume also come from 나무위키:
+  https://namu.wiki/w/신증유합/상권, https://namu.wiki/w/신증유합/하권 and
+  https://namu.wiki/w/훈몽자회/상권, saved 2026-11-04, CC BY-NC-SA 2.0 KR. Each citation
+  gives the page with the entry number (新增類合) or section (訓蒙字會) and repeats the
+  licence. This source is weaker than Wikisource: anyone can edit it, the pages name no
+  copy of the book or scan, and 新增類合's entries have no folio. Its 訓蒙字會 spells 82 of
+  841 glosses that both sites have differently from Wikisource (티ᇰᄌᆞ, ᄐᆡᆼᄌᆞ), so
+  when both have an entry the row cites both. The books are in the public domain;
+  whether a gloss copied from these pages carries the wiki's licence is uncertain, so a
+  commercial redistributor should drop the rows that cite only 나무위키. A hand check of
+  120 random rows new from these pages and the newly read Wikisource sections found 12
+  wrong (10.0%), mostly Sino-Korean glosses (복 祉, 창 牖) or a wrong modern word for
+  the old form (ᄀᆞᄅᆞᆷ 代 as 가름); every new row was then read and the wrong ones
+  excluded in the tool.
 
 - **Wiktionary** (`etym.tsv`, `tools/etym_hanja.py`): English Wiktionary's
   Korean entries as extracted by kaikki.org (wiktextract; enwiktionary dump of

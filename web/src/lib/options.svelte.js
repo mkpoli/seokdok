@@ -8,6 +8,7 @@ function load() {
   try {
     stored = JSON.parse(localStorage.getItem('seokdok:options') ?? '{}')
   } catch {}
+  if (!stored || typeof stored !== 'object' || Array.isArray(stored)) stored = {}
   const o = { ...DEFAULTS }
   for (const k of Object.keys(DEFAULTS)) if (k in stored) o[k] = stored[k]
   if (!['seokdok', 'sino', 'hangul'].includes(o.script)) o.script = DEFAULTS.script

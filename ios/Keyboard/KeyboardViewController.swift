@@ -106,17 +106,21 @@ final class KeyboardViewController: UIInputViewController {
         }
     }
 
+    /// `textDocumentProxy.documentIdentifier`, or nil while the system has
+    /// none to give. The property is declared non-optional, and reading it
+    /// as a UUID traps when the system returns nil (seen in the simulator
+    /// during a field change), so it is read through key-value coding.
+    private var documentIdentifier: UUID? {
+        (textDocumentProxy as? NSObject)?.value(forKey: "documentIdentifier") as? UUID
+    }
+
     /// A composition typed into another document is left there. Called when
     /// the text changes and before each key, so a key tapped right after a
     /// field switch starts a new composition in the new field.
     @discardableResult
     private func dropForeignComposition() -> Bool {
-        guard let m = marked, let doc = composingDocument,
-              doc != textDocumentProxy.documentIdentifier else { return false }
-        // The identifier can lag behind a field change, as the context can,
-        // so it only counts together with a context that lacks our text.
-        let before = textDocumentProxy.documentContextBeforeInput ?? ""
-        if before.hasSuffix(m) { return false }
+        guard marked != nil, let doc = composingDocument, let now = documentIdentifier,
+              doc != now else { return false }
         abandonComposition()
         return true
     }
@@ -192,7 +196,7 @@ final class KeyboardViewController: UIInputViewController {
         }
         let text = session.preedit().map(\.text).joined()
         if !text.isEmpty {
-            if marked == nil { composingDocument = proxy.documentIdentifier }
+            if marked == nil { composingDocument = documentIdentifier }
             proxy.setMarkedText(text, selectedRange: NSRange(location: (text as NSString).length, length: 0))
             marked = text
         } else if marked != nil {

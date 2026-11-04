@@ -5,6 +5,7 @@
 use crate::conj::{ending_label, ending_surfaces, morph_ending, Ctx};
 use crate::dict::{parse_native, parse_sino, tsv_lines, Native, Pos, Source, Tail};
 use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify};
+use crate::old_spelling::{ends_in_hanja, old_variant};
 use crate::particles::{allowed, particles, Particle};
 use std::collections::HashMap;
 
@@ -859,7 +860,7 @@ impl Engine {
         Some(format!("{}{}", n.hanja, compose(&rest)))
     }
 
-    fn convert_run(&self, run: &str) -> (Vec<Candidate>, Vec<Segment>) {
+    fn convert_run(&self, run: &str, after_hanja: bool) -> (Vec<Candidate>, Vec<Segment>) {
         let comps = decompose(run);
         let edges = self.edges(&comps);
         let paths = self.kbest(&comps, &edges, self.options.max_candidates.max(4));
@@ -893,9 +894,20 @@ impl Engine {
         push(Candidate { text: run.to_string(), note: "한글".into() }, &mut whole);
 
         let mut segments = Vec::new();
+        // The old spelling of each segment's tail, for the best path.
+        let mut old_seg: Vec<Option<String>> = Vec::new();
+        let mut old_whole = None;
         if let Some((_, path)) = paths.first() {
-            for &ei in path {
+            let mut pieces: Vec<String> = Vec::new();
+            let mut any = false;
+            for (n, &ei) in path.iter().enumerate() {
                 let e = &edges[ei];
+                let tail = after_hanja && n == 0;
+                let light = matches!(&e.kind, Kind::Verb { entry, .. } if self.natives[*entry as usize].lemma == "하다");
+                let r = self.render(&comps, e);
+                let v = old_variant(r.iter().map(|c| c.text.as_str()), light, tail);
+                any |= v.is_some();
+                pieces.push(v.unwrap_or_else(|| r[0].text.clone()));
                 let mut alts: Vec<(f32, usize)> = edges
                     .iter()
                     .enumerate()
@@ -911,7 +923,11 @@ impl Engine {
                         }
                     }
                 }
+                old_seg.push(old_variant(cands.iter().map(|c| c.text.as_str()), light, tail));
                 segments.push(Segment { reading: compose(&comps[e.start..e.end]), candidates: cands });
+            }
+            if any {
+                old_whole = Some(pieces.concat());
             }
         }
         // One word still offers the phrase readings: 수없다 is 數없다 or 手無다.
@@ -923,7 +939,14 @@ impl Engine {
             }
         }
         let hun = self.hun_candidates(run);
-        if !hun.is_empty() {
+        if hun.is_empty() {
+            if segments.len() == old_seg.len() {
+                for (s, v) in segments.iter_mut().zip(old_seg) {
+                    offer_old(&mut s.candidates, v);
+                }
+            }
+            offer_old(&mut whole, old_whole);
+        } else {
             // A key spans the run, so the run becomes one segment to pick from.
             let cands = match segments.as_mut_slice() {
                 [one] => std::mem::take(&mut one.candidates),
@@ -987,10 +1010,12 @@ impl Engine {
 
     pub fn convert(&self, input: &str) -> Vec<Candidate> {
         let mut per_run: Vec<Vec<Candidate>> = Vec::new();
+        let mut after_hanja = false;
         for (is_h, run) in runs(input) {
             if is_h {
-                per_run.push(self.convert_run(&run).0);
+                per_run.push(self.convert_run(&run, after_hanja).0);
             } else {
+                after_hanja = ends_in_hanja(&run);
                 per_run.push(vec![Candidate { text: run, note: String::new() }]);
             }
         }
@@ -1023,15 +1048,17 @@ impl Engine {
             return vec![Segment { reading: input.to_string(), candidates: self.convert(input) }];
         }
         let mut out = Vec::new();
+        let mut after_hanja = false;
         for (is_h, run) in runs(input) {
             if is_h {
-                out.extend(self.convert_run(&run).1.into_iter().map(|mut s| {
+                out.extend(self.convert_run(&run, after_hanja).1.into_iter().map(|mut s| {
                     for c in &mut s.candidates {
                         c.note = whole_note(&c.text, std::slice::from_ref(&c.note));
                     }
                     s
                 }));
             } else {
+                after_hanja = ends_in_hanja(&run);
                 out.push(Segment { reading: run.clone(), candidates: vec![Candidate { text: run, note: String::new() }] });
             }
         }
@@ -1267,6 +1294,17 @@ fn note(n: &Native, ending: Option<usize>) -> String {
         Some(e) => format!("{} {} +{} · 訓讀", n.hanja, n.lemma, ending_label(e)),
         None => format!("{} {} · 訓讀", n.hanja, n.lemma),
     }
+}
+
+/// Put the old spelling of a tail right behind the best candidates: third
+/// place, or last in a shorter list. It never takes first place.
+fn offer_old(list: &mut Vec<Candidate>, old: Option<String>) {
+    let Some(text) = old else { return };
+    if list.is_empty() || list.iter().any(|c| c.text == text) {
+        return;
+    }
+    let at = list.len().min(2);
+    list.insert(at, Candidate { text, note: "옛한글".into() });
 }
 
 /// Split input into runs of Hangul syllables and everything else.

@@ -52,10 +52,15 @@ public sealed partial class MainWindow : Window
         {
             if (e.SelectedItem is NavigationViewItem item) Go((string)item.Tag);
         };
+        Closed += (_, _) =>
+        {
+            page?.Leave();
+            Engine.Shared.Finish();
+        };
         Activated += (_, e) =>
         {
             // Another application or an editor may have changed the file meanwhile.
-            if (!Nav.IsEnabled && page is null) return;
+            if (noLibrary) return;
             if (e.WindowActivationState != WindowActivationState.Deactivated && Page.Writing == 0 && Settings.Reload() && page is { FollowsFile: true }) Rebuild();
             ShowFileProblem();
         };
@@ -64,15 +69,20 @@ public sealed partial class MainWindow : Window
         {
             Settings.Reload();
             Nav.SelectedItem = Nav.MenuItems[0];
-            WatchFile();
+            try { WatchFile(); }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException) { App.Log(e.ToString()); }
         }
         catch (Exception e) when (e is DllNotFoundException or EntryPointNotFoundException)
         {
             Show(Ui.L("seokdok_ffi.dll을 찾지 못했습니다. 釋讀을 다시 設置해 주세요.", "seokdok_ffi.dll was not found. Please reinstall Seokdok."));
             Nav.IsEnabled = false;
+            noLibrary = true;
+            return;
         }
         ShowFileProblem();
     }
+
+    bool noLibrary;
 
     /// <summary>
     /// The taskbar menu and the rotation key write config.toml from other
@@ -127,7 +137,9 @@ public sealed partial class MainWindow : Window
 
     void Go(string id)
     {
+        page?.Leave();
         page = pages.First(p => p.Id == id);
+        page.Enter();
         Rebuild();
     }
 

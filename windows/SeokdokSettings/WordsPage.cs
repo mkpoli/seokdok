@@ -25,23 +25,50 @@ internal sealed class WordsPage : Page
     public override bool FollowsFile => false;
 
     static string tab = "phrases";
-    JsonObject doc = new();
+    JsonObject? doc;
+    bool dirty;
 
-    static JsonObject Load()
+    /// <summary>The file as a document, or null when it holds something this page must not overwrite.</summary>
+    static JsonObject? Load()
     {
-        JsonObject? read = null;
-        try { read = JsonNode.Parse(Native.CustomJson() ?? "{}") as JsonObject; }
-        catch (JsonException) { }
-        read ??= new JsonObject();
+        var text = Native.CustomJson();
+        var dir = Native.ConfigDir();
+        // There, but not text.
+        if (text is null && dir is not null && File.Exists(Path.Combine(dir, "custom.json"))) return null;
+        JsonObject? read;
+        try { read = JsonNode.Parse(text ?? "{}") as JsonObject; }
+        catch (JsonException) { return null; }
+        if (read is null) return null;
         read["format"] = "seokdok-custom";
         read["version"] ??= 1;
-        foreach (var list in new[] { "phrases", "words", "rules" }) read[list] ??= new JsonArray();
+        foreach (var list in new[] { "phrases", "words", "rules" })
+        {
+            read[list] ??= new JsonArray();
+            if (read[list] is not JsonArray entries || entries.Any(e => e is not JsonObject)) return null;
+        }
         return read;
+    }
+
+    /// <summary>The document stays as edited across rebuilds of the page, and is read when the page opens.</summary>
+    public override void Enter() => doc = Load();
+
+    public override void Leave()
+    {
+        if (!dirty) return;
+        dirty = false;
+        Save();
     }
 
     protected override void Build()
     {
-        doc = Load();
+        if (doc is null)
+        {
+            Add(Caption(L("custom.json을 讀지 못해 고칠 수 없습니다. 文書를 고친 뒤 이 쪽을 다시 여세요.", "custom.json cannot be read, so it cannot be edited here. Fix the file, then open this page again.")));
+            var folder = new Button { Content = L("폴더 열기", "Open folder") };
+            folder.Click += (_, _) => Program.OpenFolder();
+            Add(folder);
+            return;
+        }
         var bar = new SelectorBar();
         foreach (var (id, label) in new[] { ("phrases", L("自作 個言", "Phrases")), ("words", L("訓讀 個言", "Words that inflect")), ("rules", L("規則", "Rules")), ("share", L("共有", "Share")) })
         {
@@ -52,6 +79,7 @@ internal sealed class WordsPage : Page
         bar.SelectionChanged += (_, _) =>
         {
             tab = (string)bar.SelectedItem.Tag;
+            Leave();
             Rebuild?.Invoke();
         };
         Add(bar);
@@ -66,25 +94,34 @@ internal sealed class WordsPage : Page
 
     void Save()
     {
-        var problem = Native.SaveCustom(doc.ToJsonString(new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
+        dirty = false;
+        var problem = Native.SaveCustom(Text());
         if (problem is not null) Report?.Invoke(problem);
         else Engine.Shared.ReloadCustom();
     }
 
-    JsonArray List(string name) => (JsonArray)doc[name]!;
+    string Text() => doc!.ToJsonString(new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping });
 
-    /// <summary>A text field bound to a field of an entry, saved when focus leaves it.</summary>
+    JsonArray List(string name) => (JsonArray)doc![name]!;
+
+    /// <summary>A text field of an entry; anything else in a hand-written file reads as empty.</summary>
+    static string Str(JsonObject entry, string key) =>
+        entry[key] is JsonValue v && v.TryGetValue<string>(out var s) ? s : "";
+
+    static bool Flag(JsonObject entry, string key, bool otherwise) =>
+        entry[key] is JsonValue v && v.TryGetValue<bool>(out var b) ? b : otherwise;
+
+    /// <summary>A text field bound to a field of an entry, saved when focus leaves it or the page goes.</summary>
     TextBox Field(JsonObject entry, string key, string header, double width = 200)
     {
-        var box = new TextBox { Header = header, Text = entry[key]?.GetValue<string>() ?? "", MinWidth = width };
-        box.LostFocus += (_, _) =>
+        var box = new TextBox { Header = header, Text = Str(entry, key), MinWidth = width };
+        box.TextChanged += (_, _) =>
         {
-            if ((entry[key]?.GetValue<string>() ?? "") != box.Text)
-            {
-                entry[key] = box.Text;
-                Save();
-            }
+            if (Str(entry, key) == box.Text) return;
+            entry[key] = box.Text;
+            dirty = true;
         };
+        box.LostFocus += (_, _) => Leave();
         return box;
     }
 
@@ -93,7 +130,7 @@ internal sealed class WordsPage : Page
     {
         var row = new WrapPanel();
         foreach (var f in fields) row.Children.Add(f);
-        var on = Toggle(entry["on"]?.GetValue<bool>() ?? true, v =>
+        var on = Toggle(Flag(entry, "on", true), v =>
         {
             entry["on"] = v;
             Save();
@@ -147,7 +184,7 @@ internal sealed class WordsPage : Page
         string[] partNames = { L("名詞", "noun"), L("代名詞", "pronoun"), L("副詞", "adverb"), L("冠形詞", "determiner"), L("動詞", "verb"), L("形容詞", "adjective") };
         foreach (var w in Entries(List("words")))
         {
-            var part = Choice(partNames, Math.Max(0, Array.IndexOf(parts, w["pos"]?.GetValue<string>() ?? "noun")), i =>
+            var part = Choice(partNames, Math.Max(0, Array.IndexOf(parts, Str(w, "pos"))), i =>
             {
                 w["pos"] = parts[i];
                 Save();
@@ -164,19 +201,19 @@ internal sealed class WordsPage : Page
         Add(Caption(L("글자를 바꾸는 規則입니다. 위에서부터 차례로 適用합니다. 入力 規則은 變換 前의 韓㐎을, 出力 規則은 候補마다 바꿉니다.", "Rules that rewrite text, run top to bottom. Input rules rewrite the Hangul before conversion; output rules rewrite every candidate.")));
         foreach (var r in Entries(List("rules")))
         {
-            var stage = Choice(new[] { L("入力 (變換 前)", "Input (before converting)"), L("出力 (候補)", "Output (candidates)") }, r["stage"]?.GetValue<string>() == "input" ? 0 : 1, i =>
+            var stage = Choice(new[] { L("入力 (變換 前)", "Input (before converting)"), L("出力 (候補)", "Output (candidates)") }, Str(r, "stage") == "input" ? 0 : 1, i =>
             {
                 r["stage"] = i == 0 ? "input" : "output";
                 Save();
             });
             stage.Header = L("段階", "Stage");
-            var mode = Choice(new[] { L("바꾸기", "Replace"), L("더하기 (原來 候補도 남김)", "Add (keeps the original)") }, r["mode"]?.GetValue<string>() == "derive" ? 1 : 0, i =>
+            var mode = Choice(new[] { L("바꾸기", "Replace"), L("더하기 (原來 候補도 남김)", "Add (keeps the original)") }, Str(r, "mode") == "derive" ? 1 : 0, i =>
             {
                 r["mode"] = i == 1 ? "derive" : "xform";
                 Save();
             });
             mode.Header = L("方式", "Mode");
-            var regex = new CheckBox { Content = L("正規式", "Regular expression"), IsChecked = r["regex"]?.GetValue<bool>() ?? false, VerticalAlignment = VerticalAlignment.Bottom };
+            var regex = new CheckBox { Content = L("正規式", "Regular expression"), IsChecked = Flag(r, "regex", false), VerticalAlignment = VerticalAlignment.Bottom };
             regex.Click += (_, _) =>
             {
                 r["regex"] = regex.IsChecked == true;
@@ -197,13 +234,17 @@ internal sealed class WordsPage : Page
             picker.FileTypeFilter.Add(".json");
             var file = await picker.PickSingleFileAsync();
             if (file is null) return;
-            var problem = Native.SaveCustom(File.ReadAllText(file.Path));
-            if (problem is not null) Report?.Invoke(problem);
-            else
+            string? problem;
+            try { problem = Native.SaveCustom(File.ReadAllText(file.Path)); }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException) { problem = e.Message; }
+            if (problem is not null)
             {
-                Engine.Shared.ReloadCustom();
-                Rebuild?.Invoke();
+                Report?.Invoke(problem);
+                return;
             }
+            Enter();
+            Engine.Shared.ReloadCustom();
+            Rebuild?.Invoke();
         };
         Add(Card(L("JSON 들여오기", "Import JSON"), L("들여오면 只今의 設定을 代身합니다.", "Importing replaces what is here now."), "seokdok.mkpo.li", import));
         var export = new Button { Content = L("文書로 貯藏", "Save as a file") };
@@ -213,7 +254,9 @@ internal sealed class WordsPage : Page
             WinRT.Interop.InitializeWithWindow.Initialize(picker, Program.WindowHandle);
             picker.FileTypeChoices.Add("JSON", new List<string> { ".json" });
             var file = await picker.PickSaveFileAsync();
-            if (file is not null) File.WriteAllText(file.Path, doc.ToJsonString(new JsonSerializerOptions { WriteIndented = true, Encoder = System.Text.Encodings.Web.JavaScriptEncoder.UnsafeRelaxedJsonEscaping }));
+            if (file is null) return;
+            try { File.WriteAllText(file.Path, Text()); }
+            catch (Exception e) when (e is IOException or UnauthorizedAccessException) { Report?.Invoke(e.Message); }
         };
         Add(Card(L("JSON 내보내기", "Export JSON"), L("規則과 個言을 共有합니다.", "Share your rules and words."), null, export));
     }

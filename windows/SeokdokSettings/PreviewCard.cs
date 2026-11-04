@@ -51,6 +51,7 @@ internal sealed class PreviewCard
         {
             after?.Invoke(outcome.Problem);
             if (ticket != shown) return;
+            if (outcome.Problem is not null) return;
             if (outcome.After is null)
             {
                 result.Text = Ui.L("辭典을 讀는 中", "Loading the dictionaries");

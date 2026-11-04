@@ -46,6 +46,12 @@ internal abstract class Page
 
     protected abstract void Build();
 
+    /// <summary>The page is about to be shown.</summary>
+    public virtual void Enter() { }
+
+    /// <summary>The page is going away: nothing typed may stay unsaved.</summary>
+    public virtual void Leave() { }
+
     public FrameworkElement Render()
     {
         var offset = scroller?.VerticalOffset ?? 0;
@@ -84,7 +90,7 @@ internal abstract class Page
             if (problem is not null) Report?.Invoke(problem);
             Settings.Reload();
             Refresh();
-            if (rebuild) Rebuild?.Invoke();
+            if (rebuild || problem is not null) Rebuild?.Invoke();
         }
         if (Preview is not null && sample is not null) Preview.Apply(heading, sample, patch, After);
         else Engine.Shared.Change(patch, null, o => Program.Queue?.TryEnqueue(() => After(o.Problem)));
@@ -304,7 +310,8 @@ internal sealed class TypingPage : Page
         var add = new Button { Content = L("앱 追加", "Add app") };
         add.Click += (_, _) =>
         {
-            var app = input.Text.Trim();
+            // The table is by executable name: a pasted path comes down to that.
+            var app = System.IO.Path.GetFileName(input.Text.Trim().Trim('"'));
             if (app.Length == 0) return;
             Change("", null, Settings.PatchEntry("composition", app, "floating"), rebuild: true);
         };
@@ -386,14 +393,20 @@ internal sealed class KeysPage : Page
                 BorderThickness = new Thickness(0),
             };
             ToolTipService.SetToolTip(remove, L("削除", "Remove") + ": " + Keyboard.Readable(key));
-            remove.Click += (_, _) => Save(keys.Where(k => k != key).ToList());
+            remove.Click += (_, _) =>
+            {
+                keys.Remove(key);
+                Save(keys);
+            };
             chip.Children.Add(remove);
             chips.Children.Add(new Border { Style = Theme("KeyChip"), Child = chip });
         }
         var add = new Button { Content = L("키 追加", "Add key") };
         add.Flyout = Keyboard.Picker(k =>
         {
-            if (!keys.Contains(k)) Save(keys.Append(k).ToList());
+            if (keys.Contains(k)) return;
+            keys.Add(k);
+            Save(keys);
         });
         chips.Children.Add(add);
 
@@ -480,8 +493,12 @@ internal sealed class MenuPage : Page
     public override string Title => L("作業 표시줄 메뉴", "Taskbar menu");
     public override string Glyph => "\uE700";
 
+    /// <summary>What the toggles say, ahead of writes on their way to the file.</summary>
+    List<string> chosen = new();
+
     protected override void Build()
     {
+        chosen = Settings.List("windows.menu_items");
         Add(Caption(L("作業 표시줄의 釋 아이콘을 右클릭하면 나오는 메뉴에 보일 것을 고릅니다. 값은 메뉴에서 바로 바꿉니다.", "Choose what appears when you right-click the 釋 icon on the taskbar. Each entry changes its setting right there.")));
         Add(Section(L("자주 쓰는 것", "Common")));
         foreach (var (key, label, where) in Items.Take(4)) Add(Item(key, label, where));
@@ -506,11 +523,11 @@ internal sealed class MenuPage : Page
 
     Border Item(string key, string label, string where)
     {
-        var chosen = Settings.List("windows.menu_items");
         return Card(label, L("設定 자리: ", "Setting: ") + where, null, Toggle(chosen.Contains(key), on =>
         {
-            var now = Settings.List("windows.menu_items");
-            var next = Items.Select(i => i.Key).Where(k => k == key ? on : now.Contains(k));
+            if (on) chosen.Add(key);
+            else chosen.Remove(key);
+            var next = Items.Select(i => i.Key).Where(chosen.Contains);
             Change("", null, Settings.Patch("windows.menu_items", Settings.Array(next)));
         }));
     }

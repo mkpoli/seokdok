@@ -140,6 +140,14 @@ internal sealed class Engine
     static int StartMode() =>
         ModeOf(System.Text.Json.Nodes.JsonNode.Parse(Native.ConfigJson())?["input"]?["default_mode"]?.GetValue<string>() ?? "");
 
+    /// <summary>The window is closing: writes on their way reach the file first.</summary>
+    public void Finish()
+    {
+        using var done = new ManualResetEventSlim();
+        work.Add(() => done.Set());
+        done.Wait(TimeSpan.FromSeconds(5));
+    }
+
     /// <summary>Read custom.json again after it was saved.</summary>
     public void ReloadCustom() => work.Add(() =>
     {

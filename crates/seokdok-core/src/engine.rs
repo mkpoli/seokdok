@@ -370,6 +370,10 @@ const WHOLE_NOUN_PENALTY: f32 = 2.5;
 const BOUND_MARGIN: f32 = 0.5;
 /// A loanword kept in Hangul (loanwords.tsv); cheaper than its Hanja homophones.
 const LOAN_COST: f32 = 2.0;
+/// A particle typed alone, kept in Hangul.
+const ALONE_COST: f32 = 0.5;
+/// Particles that are also words (이 this, 나 I, 보다 to see, 들 field, 같이, 대로, 만큼, 들은 heard) and 이에요, which the editors write 乃요: typed alone they convert as words.
+const HOMOGRAPH_PARTICLES: &[&str] = &["이", "나", "보다", "들", "같이", "대로", "만큼", "들은", "들을", "보다는", "이에요"];
 /// Added to verb forms in the archaic -니라.
 const ARCHAIC_ENDING: f32 = 1.0;
 
@@ -741,9 +745,23 @@ impl Engine {
                 }
             }
         }
+        self.alone_edges(comps, &mut edges);
         self.loan_edges(comps, &mut edges);
         self.prefer_whole_noun(comps, &mut edges);
         edges
+    }
+
+    /// A particle or copula form typed on its own (에서, 까지, 는, 입니다) stays
+    /// Hangul, except the particles that are also words of their own.
+    fn alone_edges(&self, comps: &[char], edges: &mut Vec<Edge>) {
+        let n = comps.len();
+        if n == 0 || !is_l(comps[0]) {
+            return;
+        }
+        let alone = self.particle_trie.prefixes(comps, 0).into_iter().any(|(r, pis)| r == n && pis.iter().any(|&pi| is_l(self.particles[pi as usize].comps[0])));
+        if alone && !HOMOGRAPH_PARTICLES.contains(&compose(comps).as_str()) {
+            edges.push(Edge { start: 0, end: n, cost: ALONE_COST, kind: Kind::Raw });
+        }
     }
 
     /// A loanword (페이지, 파일, 피자), alone or with a particle or the light

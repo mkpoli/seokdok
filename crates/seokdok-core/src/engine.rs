@@ -81,34 +81,59 @@ const NIM: [char; 3] = ['\u{1102}', '\u{1175}', '\u{11B7}'];
 /// A prefix trie over jamo, flat from the start: each node is its key and
 /// two links (first child, next sibling), with no allocation of its own; the
 /// dictionaries hold hundreds of thousands of nodes. `freeze` gathers each
-/// node's items into one contiguous slice.
+/// node's items into one contiguous slice. Most nodes have no items, so the
+/// slices are found through a bitmap of the nodes that do.
 struct Trie<T> {
-    key: Vec<char>,
+    /// The jamo as an offset into the Hangul Jamo block; see [`jamo_key`].
+    key: Vec<u8>,
     first_child: Vec<u32>,
     next_sibling: Vec<u32>,
-    /// While building: (node, item). After `freeze`: sorted by node.
+    /// While building: (node, item).
     pending: Vec<(u32, T)>,
-    /// Node n's items are items[item_start[n]..item_start[n + 1]].
+    /// One bit per node, set if it has items.
+    has_items: Vec<u64>,
+    /// How many nodes before each word of `has_items` have items.
+    rank: Vec<u32>,
+    /// The r-th node with items has items[item_start[r]..item_start[r + 1]].
     item_start: Vec<u32>,
     items: Vec<T>,
+}
+
+/// A jamo's position in U+1100..U+11FF. Keys come from `decompose` of Hangul
+/// syllables and from the ending and particle tables, so all lie there; other
+/// input characters match nothing.
+fn jamo_key(c: char) -> Option<u8> {
+    (c as u32).checked_sub(0x1100).and_then(|k| u8::try_from(k).ok())
 }
 
 impl<T> Trie<T> {
     fn new() -> Self {
         Trie {
-            key: vec!['\0'],
+            key: vec![0],
             first_child: vec![NONE],
             next_sibling: vec![NONE],
             pending: Vec::new(),
+            has_items: Vec::new(),
+            rank: Vec::new(),
             item_start: Vec::new(),
             items: Vec::new(),
         }
     }
 
+    /// Room for a known number of nodes and items, so that the longest arrays
+    /// are not copied while they grow.
+    fn reserve(&mut self, nodes: usize, items: usize) {
+        self.key.reserve(nodes);
+        self.first_child.reserve(nodes);
+        self.next_sibling.reserve(nodes);
+        self.pending.reserve(items);
+    }
+
     fn child(&self, n: usize, c: char) -> Option<usize> {
+        let k = jamo_key(c)?;
         let mut i = self.first_child[n];
         while i != NONE {
-            if self.key[i as usize] == c {
+            if self.key[i as usize] == k {
                 return Some(i as usize);
             }
             i = self.next_sibling[i as usize];
@@ -117,14 +142,16 @@ impl<T> Trie<T> {
     }
 
     fn insert(&mut self, key: &[char], item: T) {
-        debug_assert!(self.item_start.is_empty(), "insert after freeze");
+        debug_assert!(self.has_items.is_empty(), "insert after freeze");
+        debug_assert!(key.iter().all(|&c| jamo_key(c).is_some()), "{key:?}");
         let mut n = 0usize;
         for &c in key {
             n = match self.child(n, c) {
                 Some(i) => i,
                 None => {
+                    let Some(k) = jamo_key(c) else { return };
                     let i = self.key.len();
-                    self.key.push(c);
+                    self.key.push(k);
                     self.first_child.push(NONE);
                     self.next_sibling.push(self.first_child[n]);
                     self.first_child[n] = i as u32;
@@ -139,24 +166,43 @@ impl<T> Trie<T> {
         let mut pending = std::mem::take(&mut self.pending);
         // Stable: items of a node keep their insertion order.
         pending.sort_by_key(|(n, _)| *n);
-        let nodes = self.key.len();
-        self.item_start = Vec::with_capacity(nodes + 1);
+        let with_items = pending.chunk_by(|a, b| a.0 == b.0).count();
+        self.has_items = vec![0; self.key.len() / 64 + 1];
+        self.item_start = Vec::with_capacity(with_items + 1);
         self.items = Vec::with_capacity(pending.len());
-        let mut it = pending.into_iter().peekable();
-        for n in 0..nodes as u32 {
-            self.item_start.push(self.items.len() as u32);
-            while let Some((_, item)) = it.next_if(|(m, _)| *m == n) {
-                self.items.push(item);
+        let mut last = None;
+        for (n, item) in pending {
+            if last != Some(n) {
+                last = Some(n);
+                self.has_items[n as usize / 64] |= 1 << (n % 64);
+                self.item_start.push(self.items.len() as u32);
             }
+            self.items.push(item);
         }
         self.item_start.push(self.items.len() as u32);
+        let mut seen = 0;
+        self.rank = self
+            .has_items
+            .iter()
+            .map(|word| {
+                let before = seen;
+                seen += word.count_ones();
+                before
+            })
+            .collect();
         self.key.shrink_to_fit();
         self.first_child.shrink_to_fit();
         self.next_sibling.shrink_to_fit();
     }
 
     fn node_items(&self, n: usize) -> &[T] {
-        &self.items[self.item_start[n] as usize..self.item_start[n + 1] as usize]
+        let (word, bit) = (n / 64, n % 64);
+        let bits = self.has_items[word];
+        if bits >> bit & 1 == 0 {
+            return &[];
+        }
+        let r = self.rank[word] as usize + (bits & ((1 << bit) - 1)).count_ones() as usize;
+        &self.items[self.item_start[r] as usize..self.item_start[r + 1] as usize]
     }
 
     /// Every (end position, items) for keys that are prefixes of `input[from..]`.
@@ -652,6 +698,8 @@ impl Engine {
                 self.nominals.insert(&n.stem, i as u32);
             }
         }
+        // The readings take about 2.7 nodes each, since they share their starts.
+        self.sino.reserve(self.sinos.len() * 3, self.sinos.len());
         for i in 0..self.sinos.len() {
             self.sino.insert(&decompose(self.sinos.reading(i)), i as u32);
         }

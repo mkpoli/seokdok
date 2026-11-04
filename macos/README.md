@@ -54,19 +54,49 @@ and macOS starts the new one when the input method is next used.
 |---|---|
 | letters | 두벌식, by key position |
 | Space | convert; again for the next candidate |
-| Option-Return, F7, Tab | convert (Tab pages through candidates) |
+| Option-Return, F7, Tab | convert (Tab pages through candidates); the first two can be changed, see below |
 | ↓ / ↑, Shift-Space | next / previous candidate |
 | 1–9, click | choose a candidate |
 | ← → | move between segments; Shift-← → resize the segment |
 | Return | commit as shown |
 | Esc | close the candidates, then back to the Hangul; while typing, discard it |
-| Option alone | 釋讀 ↔ Latin (setting “Tap Option to switch”) |
-| 英数 / かな (JIS) | Latin / back to Hangul |
+| Option alone | Korean ↔ Latin |
+| Left Control + left Option, tapped | 釋讀 ↔ 한글 |
+| 英数 / かな (JIS) | Latin / back to Korean |
 
 The three modes are input sources of their own: 釋讀 converts, 한글 types
 Hangul without conversion, A passes keys through. Pick one in the input menu
 or from the input method's own menu. On macOS the selected input source
 decides the mode, so `default_mode` in config.toml has no effect here.
+
+### Switching modes
+
+macOS keeps Control-Space, Control-Option-Space and the Globe or Fn key for
+itself and switches input sources with them, so an input method never sees
+them. Pressing them moves between 釋讀, 釋讀 한글, 釋讀 A and your other sources.
+With “Use the Caps Lock key to switch to and from …” on (System Settings ›
+Keyboard › Input Sources › Edit…), Caps Lock moves between 釋讀 and your Latin
+source. See
+[Write in another language on Mac](https://support.apple.com/guide/mac-help/mchlp1406/mac).
+
+Inside the input method the keys come from `[input.keys]` in config.toml, and
+the three main lists are also in the settings window:
+
+| List | Default | |
+|---|---|---|
+| `toggle` | `Alt` | Korean ↔ Latin, back to whichever of 釋讀 and 한글 was last used |
+| `latin` | `Eisu` | to Latin |
+| `korean` | `Kana` | from Latin back to Korean |
+| `seokdok_hangul` | `LCtrl+LAlt` | 釋讀 ↔ 한글 |
+| `seokdok`, `hangul` | empty | straight to that mode |
+| `convert` | `Alt+Enter`, `F7` | convert |
+
+A modifier written alone means tapping it with no other key. Left Control and
+left Option tapped together is not a shortcut in any application, because
+shortcuts need a key besides the modifiers. A Korean PC keyboard sends 한/영
+and 한자 with the codes of かな and 英数 (Apple documents this for the USB
+LANG1 and LANG2 keys), so on such a keyboard `toggle = ["Alt", "Kana"]`,
+`korean = []` and `latin = []` give 한/영 its usual meaning.
 
 **設定 / Settings…** in the input menu opens the settings. They are saved
 as `~/Library/Application Support/seokdok/config.toml`, the same file the

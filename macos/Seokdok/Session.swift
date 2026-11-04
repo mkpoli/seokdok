@@ -48,6 +48,13 @@ final class Session {
         seokdok_key(ime, kind, ch, shift)
     }
 
+    /// Offer a key to the `[input.keys]` lists; true when it was used. `name`
+    /// is nil for a key they cannot name.
+    func modeKey(_ name: String?, mods: UInt32, state: Int32) -> Bool {
+        guard let name else { return seokdok_mode_key(ime, nil, mods, state) }
+        return name.withCString { seokdok_mode_key(ime, $0, mods, state) }
+    }
+
     /// Commit whatever is being composed.
     func flush() {
         seokdok_flush(ime)
@@ -88,10 +95,6 @@ final class Session {
     var mode: Mode {
         get { Mode(rawValue: seokdok_mode(ime)) ?? .seokdok }
         set { seokdok_set_mode(ime, newValue.rawValue) }
-    }
-
-    static var altToggles: Bool {
-        seokdok_alt_toggles()
     }
 
     /// 韓㐎 專用 is on: the session reports Hangul for the 釋讀 mode.
@@ -141,9 +144,20 @@ struct Config: Codable, Equatable {
     struct Input: Codable, Equatable {
         var defaultMode = "seokdok"
         var spaceConverts = true
-        var altToggles = true
         var candidateLayout = "vertical"
         var oldClusters = false
+        var keys = Keys()
+    }
+
+    /// `[input.keys]`, with the macOS defaults of the Rust side.
+    struct Keys: Codable, Equatable {
+        var toggle = ["Alt"]
+        var latin = ["Eisu"]
+        var korean = ["Kana"]
+        var seokdokHangul = ["LCtrl+LAlt"]
+        var seokdok: [String] = []
+        var hangul: [String] = []
+        var convert = ["Alt+Enter", "F7"]
     }
 
     struct Conversion: Codable, Equatable {

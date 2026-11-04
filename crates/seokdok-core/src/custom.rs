@@ -251,7 +251,7 @@ mod tests {
     #[test]
     fn rules_match_the_web_page() {
         // The web page's own export: JavaScript replacement syntax ($1ㅏㅆ).
-        let json = r#"{"format":"seokdok-custom","version":1,"phrases":[{"reading":"석독회","text":"釋讀會"}],
+        let json = r#"{"format":"seokdok-custom","version":1,"phrases":[{"reading":"풀어읽기모임","text":"釋讀會"}],
           "words":[{"lemma":"짓다","written":"作다","pos":"verb"}],
           "rules":[
             {"on":true,"stage":"output","mode":"xform","regex":false,"pattern":"爲","replace":"為"},
@@ -265,7 +265,7 @@ mod tests {
         assert_eq!(k.rewrite_input("있읍니다"), "있습니다");
         let (n, s) = k.user_tsv();
         assert!(n.starts_with("짓다\t作다\tverb"));
-        assert!(s.starts_with("석독회\t釋讀會"));
+        assert!(s.starts_with("풀어읽기모임\t釋讀會"));
     }
 
     #[test]

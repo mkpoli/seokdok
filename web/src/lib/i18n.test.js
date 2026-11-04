@@ -23,3 +23,37 @@ test('國漢文混用 mode shows 訓讀 marks in Hangul', () => {
   options.sinoOnly = false
   expect(r('{古|예}ㅅ{韓㐎|한글}')).toBe('<span><ruby>古<rt>예</rt></ruby>ㅅ<ruby>韓㐎<rt>한글</rt></ruby></span>')
 })
+
+test('page texts have well-formed marks and both languages have the same sections', async () => {
+  const pages = (await import('./pages.js')).default
+  const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [])
+  for (const s of strings(pages.ko)) {
+    expect(s.replace(/\{[^|}]+\|[^}]+\}/g, '')).not.toMatch(/[{}|]/)
+  }
+  for (const page of ['privacy', 'support']) {
+    expect(pages.ko[page].sections.map((s) => s.id)).toEqual(pages.en[page].sections.map((s) => s.id))
+  }
+})
+
+test('page marks hold Hanja over a Hangul reading and leave nothing unmatched in either mode', async () => {
+  const pages = (await import('./pages.js')).default
+  const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [])
+  const hanja = /^[㐀-䶿一-鿿豈-﫿]+$/
+  const hangul = /^[가-힣]+$/
+  for (const s of strings(pages.ko)) {
+    for (const [, h, k] of s.matchAll(/\{([^|}]*)\|([^}]*)\}/g)) {
+      expect(h).toMatch(hanja)
+      expect(k).toMatch(hangul)
+    }
+    for (const sinoOnly of [false, true]) {
+      options.sinoOnly = sinoOnly
+      expect(plain(s)).not.toMatch(/[{}|]/)
+    }
+  }
+  options.sinoOnly = false
+})
+
+test('手 for the bound noun 수 is Hanja only in 釋讀', () => {
+  expect(isSino('手', '수')).toBe(false)
+  expect(isSino('手', '손')).toBe(false)
+})

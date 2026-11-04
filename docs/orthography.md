@@ -217,7 +217,9 @@ form that is also a dictionary form of another word is read as that word:
 
 있다 has three common spellings, 有다, 在다 and 在ㅆ다, listed in that order.
 The `itda` option puts 在다 or 在ㅆ다 first, and the others stay listed. Under
-`在` the past is 在었다, with 在ㅆ다 right behind it. All three read back as 있다.
+`在` the past is 在었다, with 在ㅆ다 right behind it, and under `在ㅆ` it is
+在ㅆ었다. `coda_always` still writes the consonant, so `在` then gives 在ㅆ다. All
+three read back as 있다.
 
 ## 7. Options summary
 

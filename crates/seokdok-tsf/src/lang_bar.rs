@@ -29,7 +29,7 @@ use windows::Win32::UI::TextServices::{
 };
 use windows::Win32::UI::WindowsAndMessaging::{
     CreatePopupMenu, CreateWindowExW, DestroyMenu, DestroyWindow, GetSystemMetrics, InsertMenuItemW,
-    LoadImageW, TrackPopupMenu, HICON, HMENU, IMAGE_ICON, LR_CREATEDIBSECTION, MENUITEMINFOW,
+    LoadImageW, SetForegroundWindow, TrackPopupMenu, HICON, HMENU, IMAGE_ICON, LR_CREATEDIBSECTION, MENUITEMINFOW,
     MENU_ITEM_STATE, MENU_ITEM_TYPE, MFS_CHECKED, MFS_DISABLED, MFT_RADIOCHECK, MFT_SEPARATOR, MFT_STRING,
     MIIM_FTYPE, MIIM_ID, MIIM_STATE, MIIM_STRING, SM_CYSMICON, TPM_LEFTALIGN, TPM_NONOTIFY, TPM_RETURNCMD,
     TPM_RIGHTBUTTON, TPM_TOPALIGN, WS_POPUP,
@@ -161,13 +161,17 @@ fn pick(entries: &[Entry], point: POINT) -> Option<Action> {
         let menu = CreatePopupMenu().ok()?;
         let filled = fill_menu(menu, entries);
         // The owner must belong to this thread. With nothing focused here,
-        // a hidden window stands in for the time of the menu.
+        // a hidden window stands in for the time of the menu. It has to be the
+        // foreground window, or a click elsewhere does not close the menu.
         let focused = GetFocus();
         let stand_in = if focused.is_invalid() {
             CreateWindowExW(Default::default(), w!("STATIC"), PCWSTR::null(), WS_POPUP, 0, 0, 0, 0, None, None, Some(dll_instance().into()), None).ok()
         } else {
             None
         };
+        if let Some(hwnd) = stand_in {
+            let _ = SetForegroundWindow(hwnd);
+        }
         // Keep the menu's left edge inside the work area.
         let mut x = point.x;
         let mut monitor = MONITORINFO { cbSize: std::mem::size_of::<MONITORINFO>() as u32, ..Default::default() };
@@ -238,6 +242,9 @@ impl ITfLangBarItem_Impl for ModeButton_Impl {
 impl ITfLangBarItemButton_Impl for ModeButton_Impl {
     fn OnClick(&self, click: TfLBIClick, pt: &POINT, _prcarea: *const RECT) -> windows::core::Result<()> {
         if click == TF_LBI_CLK_RIGHT {
+            // A check mark must show what the file says now: choosing an entry
+            // flips the value in the file.
+            crate::config::refresh();
             let entries = quick_menu::entries(&crate::config::current(), self.shared.shown());
             if let Some(action) = pick(&entries, *pt) {
                 self.shared.choose(action);

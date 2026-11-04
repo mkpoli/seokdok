@@ -81,8 +81,8 @@ after changing `project.yml`.
 
 ## Using it
 
-- Type 두벌식. Each key shows its Shift letter in the corner; old letters
-  (ㆍ ㅿ ㆁ ㆆ and the sibilants ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ) are tinted. Shift types one
+- Type 두벌식. Each key shows its Shift letter in the corner, including the
+  old letters (ㆍ ㅿ ㆁ ㆆ and the sibilants ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ). Shift types one
   letter; a double tap locks it.
 - 變換 (Space) converts the composition and shows the focused segment's
   candidates, with their notes, in the bar; Space again moves to the next

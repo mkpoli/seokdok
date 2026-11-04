@@ -31,7 +31,7 @@ struct KeyboardState {
 /// The keyboard: a strip with the text being composed (tap the Hangul to
 /// convert it, a converted segment to focus it),
 /// the candidate bar, and 두벌식 keys with the Shift layer in each key's
-/// corner (old letters tinted). A symbols layer replaces the letters.
+/// corner. A symbols layer replaces the letters.
 final class KeyboardView: UIView, UIInputViewAudioFeedback {
     weak var delegate: KeyboardViewDelegate?
     /// The input-mode switch key, when the system asks for one.
@@ -196,7 +196,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private func labelSymbols() {
         let chars = Self.symbolRows[symbolPage].flatMap { Array($0) }
         for (k, ch) in zip(symbolKeys, chars) {
-            k.set(main: String(ch), hint: nil, old: false)
+            k.set(main: String(ch), hint: nil)
         }
         symbolPageKey.setTitle(symbolPage == 0 ? "#+=" : "123", for: .normal)
     }
@@ -308,13 +308,13 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         for (ch, key) in letterKeys {
             let up = Character(ch.uppercased())
             if latin {
-                key.set(main: String(shifted ? up : ch), hint: nil, old: false)
+                key.set(main: String(shifted ? up : ch), hint: nil)
                 continue
             }
             let main = Session.jamo(shifted ? up : ch) ?? String(ch)
             let other = Session.jamo(shifted ? ch : up)
             let hint = other == main ? nil : other
-            key.set(main: shown(main), hint: hint.map(shown), old: isOld(main) || isOld(hint ?? ""))
+            key.set(main: shown(main), hint: hint.map(shown))
         }
         shiftKey.isSelected = shifted
         shiftKey.setImage(UIImage(systemName: s.shift == .locked ? "capslock.fill" : "shift.fill"), for: .selected)
@@ -406,14 +406,9 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         guard let v = j.unicodeScalars.first?.value, (0x1100...0x115F).contains(v) else { return j }
         return j + "\u{1160}"
     }
-
-    private func isOld(_ j: String) -> Bool {
-        guard let v = j.unicodeScalars.first?.value else { return false }
-        return "ㆍㅿㆁㆆ".unicodeScalars.contains { $0.value == v } || (0x1100...0x115F).contains(v)
-    }
 }
 
-/// A key: the main label, an optional corner hint, an old-letter tint.
+/// A key: the main label and an optional corner hint.
 final class KeyButton: UIButton {
     private let hint = UILabel()
     private let accent: Bool
@@ -451,13 +446,8 @@ final class KeyButton: UIButton {
         fatalError("not used")
     }
 
-    func set(main: String, hint text: String?, old: Bool) {
+    func set(main: String, hint text: String?) {
         setTitle(main, for: .normal)
         hint.text = text
-        let tint: UIColor = old ? .systemIndigo : .label
-        setTitleColor(accent ? .white : tint, for: .normal)
-        hint.textColor = old ? .systemIndigo : .secondaryLabel
-        layer.borderWidth = old ? 1 : 0
-        layer.borderColor = UIColor.systemIndigo.cgColor
     }
 }

@@ -302,6 +302,8 @@ final class KeyboardUITests: XCTestCase {
         XCTAssertFalse(value.isEmpty)
         XCTAssertNotEqual(value, "安寧", "the first candidate came out, not the tapped one")
         XCTAssertNotEqual(value, "안녕")
+    }
+
     /// Two default fields: Hangul pending in the first must stay there, and
     /// the keys tapped right after focusing the second compose in it with
     /// nothing lost.

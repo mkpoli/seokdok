@@ -809,7 +809,7 @@ impl Engine {
                 Kind::Verb { ending, .. } => {
                     ending != BARE
                         && noun_cost < e.cost + WHOLE_NOUN_PENALTY
-                        && matches!(ending_label(ending as usize), "(으)ㄴ" | "(으)ㄹ" | "(으)ㅁ" | "아/어라" | "기" | "진" | "(으)니라")
+                        && matches!(ending_label(ending as usize), "(으)ㄴ" | "(으)ㄹ" | "(으)ㅁ" | "아/어라" | "기" | "진" | "소" | "(으)니라")
                 }
                 // A bound noun never opens a phrase on its own (거+의, 수+ㄹ):
                 // 거의 is the adverb 殆, 술 is 酒.

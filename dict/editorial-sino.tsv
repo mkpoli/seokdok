@@ -3,3 +3,6 @@
 reading	hanja	count	source
 두벌식	두벌式	1	editorial
 세벌식	세벌式	0	editorial
+# 여러 가지: typed as one word, written as two; the chat writes 여러 가지 once and keeps 가지 in Hangul
+# after a Hanja numeral (三 가지, 一二가지, 幾가지).
+여러가지	여러 가지	1	editorial

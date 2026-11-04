@@ -21,7 +21,7 @@
     <string name="section_keys">物理 키보드 鍵 · Hardware keyboard keys</string>
     <string name="keys_help">쉼표로 구분합니다: Hangul, Shift+Space, F7. 시스템이 쓰는 Ctrl+Space 와 언어 키는 여기 오지 않습니다.\nComma-separated: Hangul, Shift+Space, F7. The system keeps Ctrl+Space and the language key.</string>
     <string name="keys_toggle">韓 ↔ A · Korean ↔ Latin</string>
-    <string name="keys_flip">釋讀 ↔ 한글</string>
+    <string name="keys_script_cycle">釋讀 → 國漢文混用 → 韓㐎 專用</string>
     <string name="keys_convert">變換 · Convert</string>
 
     <string name="section_conversion">變換 · Conversion</string>

@@ -32,7 +32,7 @@ const CLASS_NAME: PCWSTR = w!("SeokdokSettingsDialog");
 const ID_MODE: i32 = 1001; // input.default_mode (3-way)
 const ID_SPACE: i32 = 1002; // input.space_converts
 const ID_KEYS_TOGGLE: i32 = 1003; // input.keys.toggle (edit, comma-separated)
-const ID_KEYS_FLIP: i32 = 1006; // input.keys.seokdok_hangul (edit)
+const ID_KEYS_CYCLE: i32 = 1006; // input.keys.script_cycle (edit)
 const ID_KEYS_CONVERT: i32 = 1007; // input.keys.convert (edit)
 const ID_LAYOUT: i32 = 1004; // input.candidate_layout (2-way)
 const ID_OLD: i32 = 1005; // input.old_clusters
@@ -282,7 +282,7 @@ unsafe fn build_controls(hwnd: HWND) {
     // The other lists of [input.keys] are in config.toml.
     for (id, text, row, keys) in [
         (ID_KEYS_TOGGLE, w!("韓 ↔ A 鍵 / Korean ↔ Latin keys:"), 146, &cfg.input.keys.toggle),
-        (ID_KEYS_FLIP, w!("釋讀 ↔ 한글 鍵 / keys:"), 178, &cfg.input.keys.seokdok_hangul),
+        (ID_KEYS_CYCLE, w!("文字 循環 鍵 / Script rotation keys:"), 178, &cfg.input.keys.script_cycle),
         (ID_KEYS_CONVERT, w!("變換 鍵 / Convert keys:"), 210, &cfg.input.keys.convert),
     ] {
         label(text, gx, y + row + 4, 190);
@@ -381,7 +381,7 @@ unsafe fn apply(hwnd: HWND) {
     }
     cfg.input.space_converts = checked(ID_SPACE);
     cfg.input.keys.toggle = read_list(hwnd, ID_KEYS_TOGGLE);
-    cfg.input.keys.seokdok_hangul = read_list(hwnd, ID_KEYS_FLIP);
+    cfg.input.keys.script_cycle = read_list(hwnd, ID_KEYS_CYCLE);
     cfg.input.keys.convert = read_list(hwnd, ID_KEYS_CONVERT);
     cfg.input.old_clusters = checked(ID_OLD);
     if let Some((_, v)) = selected(hwnd, ID_LAYOUT).and_then(|i| LAYOUT_ITEMS.get(i)) {

@@ -70,8 +70,9 @@ pub enum Key {
     ToLatin,
     /// From Latin back to Korean; quiet when already Korean.
     ToKorean,
-    /// 釋讀 ↔ 한글. From Latin, back to whichever was last in use.
-    FlipHangul,
+    /// To 釋讀 mode at the next script: 釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀.
+    /// [`crate::script_cycle`] writes the setting and hands this to the session.
+    CycleScript,
     /// To 釋讀.
     ToSeokdok,
     /// To 한글.
@@ -83,7 +84,7 @@ pub enum Key {
 impl Key {
     /// Does this key switch modes?
     pub fn switches_mode(self) -> bool {
-        matches!(self, Key::HangulToggle | Key::ToLatin | Key::ToKorean | Key::FlipHangul | Key::ToSeokdok | Key::ToHangul)
+        matches!(self, Key::HangulToggle | Key::ToLatin | Key::ToKorean | Key::CycleScript | Key::ToSeokdok | Key::ToHangul)
     }
 
     /// The character that selects a jamo in the 두벌식 layout.

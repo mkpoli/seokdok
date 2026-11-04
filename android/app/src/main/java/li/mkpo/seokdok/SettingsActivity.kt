@@ -63,7 +63,7 @@ class SettingsActivity : Activity() {
         column.addView(header(R.string.section_keys))
         column.addView(body(getString(R.string.keys_help)))
         column.addView(keyList(R.string.keys_toggle, "input.keys.toggle"))
-        column.addView(keyList(R.string.keys_flip, "input.keys.seokdok_hangul"))
+        column.addView(keyList(R.string.keys_script_cycle, "input.keys.script_cycle"))
         column.addView(keyList(R.string.keys_convert, "input.keys.convert"))
 
         column.addView(header(R.string.section_conversion))

@@ -227,8 +227,8 @@ pub struct ModeKeys {
     pub latin: Vec<String>,
     /// From Latin back to Korean.
     pub korean: Vec<String>,
-    /// 釋讀 ↔ 한글.
-    pub seokdok_hangul: Vec<String>,
+    /// To 釋讀 mode at the next script: 釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀.
+    pub script_cycle: Vec<String>,
     /// To 釋讀.
     pub seokdok: Vec<String>,
     /// To 한글.
@@ -253,7 +253,7 @@ impl ModeKeys {
                 toggle: list(&["Hangul", "Zenkaku", "RAlt"]),
                 latin: list(&["Muhenkan", "ImeOff"]),
                 korean: list(&["Henkan", "ImeOn"]),
-                seokdok_hangul: list(&["LCtrl+LAlt", "Shift+Hangul"]),
+                script_cycle: list(&["LCtrl+LAlt", "Shift+Hangul"]),
                 seokdok: empty.clone(),
                 hangul: empty,
                 convert: list(&["Hanja", "RCtrl", "F7", "Henkan"]),
@@ -262,7 +262,7 @@ impl ModeKeys {
                 toggle: list(&["Alt"]),
                 latin: list(&["Eisu"]),
                 korean: list(&["Kana"]),
-                seokdok_hangul: list(&["LCtrl+LAlt"]),
+                script_cycle: list(&["LCtrl+LAlt"]),
                 seokdok: empty.clone(),
                 hangul: empty,
                 convert: list(&["Alt+Enter", "F7"]),
@@ -271,7 +271,7 @@ impl ModeKeys {
                 toggle: list(&["Hangul", "Zenkaku", "Shift+Space", "RAlt"]),
                 latin: list(&["Muhenkan"]),
                 korean: list(&["Henkan"]),
-                seokdok_hangul: list(&["LCtrl+LAlt", "Shift+Hangul"]),
+                script_cycle: list(&["LCtrl+LAlt", "Shift+Hangul"]),
                 seokdok: empty.clone(),
                 hangul: empty,
                 convert: list(&["Hanja", "F9", "F7", "Henkan"]),
@@ -280,7 +280,7 @@ impl ModeKeys {
                 toggle: list(&["Hangul", "Zenkaku", "Shift+Space"]),
                 latin: list(&["Muhenkan"]),
                 korean: list(&["Henkan"]),
-                seokdok_hangul: list(&["LCtrl+LAlt", "Shift+Hangul"]),
+                script_cycle: list(&["LCtrl+LAlt", "Shift+Hangul"]),
                 seokdok: empty.clone(),
                 hangul: empty,
                 convert: list(&["Hanja", "F7", "Henkan"]),
@@ -289,7 +289,7 @@ impl ModeKeys {
                 toggle: empty.clone(),
                 latin: empty.clone(),
                 korean: empty.clone(),
-                seokdok_hangul: empty.clone(),
+                script_cycle: empty.clone(),
                 seokdok: empty.clone(),
                 hangul: empty.clone(),
                 convert: empty,
@@ -308,7 +308,7 @@ impl Default for ModeKeys {
 enum Action {
     Toggle,
     Latin,
-    SeokdokHangul,
+    ScriptCycle,
     Seokdok,
     Hangul,
     Korean,
@@ -344,7 +344,7 @@ impl ModeKeyboard {
         let groups: [(Action, &[String]); 7] = [
             (Action::Toggle, &keys.toggle),
             (Action::Latin, &keys.latin),
-            (Action::SeokdokHangul, &keys.seokdok_hangul),
+            (Action::ScriptCycle, &keys.script_cycle),
             (Action::Seokdok, &keys.seokdok),
             (Action::Hangul, &keys.hangul),
             (Action::Korean, &keys.korean),
@@ -428,8 +428,8 @@ impl ModeKeyboard {
         if bound(Action::Latin) {
             return Some(Key::ToLatin);
         }
-        if bound(Action::SeokdokHangul) {
-            return Some(Key::FlipHangul);
+        if bound(Action::ScriptCycle) {
+            return Some(Key::CycleScript);
         }
         if bound(Action::Seokdok) {
             return Some(Key::ToSeokdok);
@@ -523,7 +523,7 @@ mod tests {
     fn every_default_entry_parses() {
         for p in [Platform::Windows, Platform::Mac, Platform::Linux, Platform::Android, Platform::Ios] {
             let d = ModeKeys::for_platform(p);
-            for e in [&d.toggle, &d.latin, &d.korean, &d.seokdok_hangul, &d.seokdok, &d.hangul, &d.convert].into_iter().flatten() {
+            for e in [&d.toggle, &d.latin, &d.korean, &d.script_cycle, &d.seokdok, &d.hangul, &d.convert].into_iter().flatten() {
                 assert!(Chord::parse(e).is_some(), "{p:?} {e}");
             }
         }
@@ -547,7 +547,7 @@ mod tests {
         assert_eq!(press(&mut win, &s, "F7"), Some(Key::Convert));
         assert_eq!(press(&mut win, &s, "Muhenkan"), Some(Key::ToLatin));
         assert_eq!(press(&mut win, &s, "ImeOff"), Some(Key::ToLatin));
-        assert_eq!(press(&mut win, &s, "Shift+Hangul"), Some(Key::FlipHangul));
+        assert_eq!(press(&mut win, &s, "Shift+Hangul"), Some(Key::CycleScript));
         // Windows leaves Shift+Space to the session and the type 3 keyboard driver.
         assert_eq!(press(&mut win, &s, "Shift+Space"), None);
         assert_eq!(tap(&mut win, &s, &[RCtrl]), [Some(Key::Convert)]);
@@ -604,7 +604,7 @@ mod tests {
         // Shift held too is another chord.
         assert_eq!(tap(&mut k, &s, &[RShift, RAlt]), [None, None]);
         // A chord fires once, on the first release.
-        assert_eq!(tap(&mut k, &s, &[LCtrl, LAlt]), [Some(Key::FlipHangul), None]);
+        assert_eq!(tap(&mut k, &s, &[LCtrl, LAlt]), [Some(Key::CycleScript), None]);
         // Key repeat of the modifier changes nothing.
         k.press(Some(M(RAlt)), MOD_ALT, &s);
         k.press(Some(M(RAlt)), MOD_ALT, &s);

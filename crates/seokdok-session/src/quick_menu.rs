@@ -192,7 +192,8 @@ pub enum Entry {
     /// A line that cannot be chosen: a group's title, or with `hint` a key that
     /// has no entry of its own (변환).
     Heading { label: &'static str, hint: String },
-    /// `hint` names the keys that do the same, empty when none is bound.
+    /// `hint` names the keys that do the same or, on a script, rotate through
+    /// it; empty when none is bound.
     Choice { action: Action, label: &'static str, check: Check, hint: String },
 }
 
@@ -225,8 +226,8 @@ const MODES: [(Mode, &str); 3] =
 pub fn entries(config: &Config, shown: Mode, jis: bool) -> Vec<Entry> {
     let keys = &config.input.keys;
     let mode_hint = |m: Mode| match m {
-        Mode::Seokdok => hint(&[&keys.seokdok, &keys.seokdok_hangul], jis),
-        Mode::Hangul => hint(&[&keys.hangul, &keys.seokdok_hangul], jis),
+        Mode::Seokdok => hint(&[&keys.seokdok], jis),
+        Mode::Hangul => hint(&[&keys.hangul], jis),
         Mode::Latin => hint(&[&keys.latin, &keys.toggle], jis),
     };
     let heading = |label| Entry::Heading { label, hint: String::new() };
@@ -248,7 +249,7 @@ pub fn entries(config: &Config, shown: Mode, jis: bool) -> Vec<Entry> {
             action: Action::Script(s),
             label,
             check: Check::Radio(s == script),
-            hint: String::new(),
+            hint: hint(&[&keys.script_cycle], jis),
         }));
         group(&g);
     }
@@ -552,7 +553,12 @@ mod tests {
         };
         let e = entries(&c, Mode::Seokdok, false);
         assert_eq!(hint_of(&e, Action::Mode(Mode::Latin)).unwrap(), "한/영, RAlt");
-        assert_eq!(hint_of(&e, Action::Mode(Mode::Hangul)).unwrap(), "LCtrl+LAlt, Shift+한/영");
+        for s in [Script::Seokdok, Script::SinoOnly, Script::HangulOnly] {
+            assert_eq!(hint_of(&e, Action::Script(s)).unwrap(), "LCtrl+LAlt, Shift+한/영");
+        }
+        // The chord rotates the script, so the modes no longer name it.
+        assert_eq!(hint_of(&e, Action::Mode(Mode::Seokdok)).unwrap(), "");
+        assert_eq!(hint_of(&e, Action::Mode(Mode::Hangul)).unwrap(), "");
         assert_eq!(hint_of(&e, Action::Settings).unwrap(), "");
         assert!(e.contains(&Entry::Heading { label: "變換 / Convert", hint: "한자, RCtrl".into() }));
         // A Japanese keyboard has its own keys, and a key the user bound shows.

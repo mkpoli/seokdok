@@ -154,7 +154,7 @@ struct Config: Codable, Equatable {
         var toggle = ["Alt"]
         var latin = ["Eisu"]
         var korean = ["Kana"]
-        var seokdokHangul = ["LCtrl+LAlt"]
+        var scriptCycle = ["LCtrl+LAlt"]
         var seokdok: [String] = []
         var hangul: [String] = []
         var convert = ["Alt+Enter", "F7"]

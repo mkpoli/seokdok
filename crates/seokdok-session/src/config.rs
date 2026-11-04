@@ -49,6 +49,17 @@ pub enum Script {
     HangulOnly,
 }
 
+impl Script {
+    /// The script `input.keys.script_cycle` goes to from this one.
+    pub fn next(self) -> Script {
+        match self {
+            Script::Seokdok => Script::SinoOnly,
+            Script::SinoOnly => Script::HangulOnly,
+            Script::HangulOnly => Script::Seokdok,
+        }
+    }
+}
+
 /// The spelling of 있다 listed first. The values are the file's own.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 pub enum ItdaOpt {
@@ -342,8 +353,9 @@ toggle = {k_toggle}
 latin = {k_latin}
 # From Latin back to Korean.
 korean = {k_korean}
-# 釋讀 ↔ 한글.  From Latin, back to whichever was last in use.
-seokdok_hangul = {k_flip}
+# To 釋讀 mode at the next conversion.script, in every application:
+# 釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀.
+script_cycle = {k_cycle}
 # To 釋讀.
 seokdok = {k_seokdok}
 # To 한글.
@@ -418,7 +430,7 @@ menu_items = {menu_items}
             k_toggle = toml_list(&self.input.keys.toggle),
             k_latin = toml_list(&self.input.keys.latin),
             k_korean = toml_list(&self.input.keys.korean),
-            k_flip = toml_list(&self.input.keys.seokdok_hangul),
+            k_cycle = toml_list(&self.input.keys.script_cycle),
             k_seokdok = toml_list(&self.input.keys.seokdok),
             k_hangul = toml_list(&self.input.keys.hangul),
             k_convert = toml_list(&self.input.keys.convert),
@@ -586,7 +598,7 @@ mod tests {
                     toggle: vec!["F12".into(), "Shift+Hangul".into()],
                     latin: vec![],
                     korean: vec!["Henkan".into()],
-                    seokdok_hangul: vec!["LCtrl+LAlt".into()],
+                    script_cycle: vec!["LCtrl+LAlt".into()],
                     seokdok: vec!["Ctrl+1".into()],
                     hangul: vec!["Ctrl+2".into()],
                     convert: vec!["Hanja".into()],

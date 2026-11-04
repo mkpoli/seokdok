@@ -216,8 +216,9 @@ pub unsafe extern "C" fn seokdok_mode_key(ime: *mut Ime, name: *const c_char, mo
     let bound = match state {
         SK_KEY_DOWN => ime.keyboard.press(key, mods, &ime.session),
         SK_KEY_UP => key.and_then(|k| ime.keyboard.release(k, &ime.session)),
-        // A held key acts once; its repeats go no further.
-        _ => return ime.keyboard.peek_press(key, mods, &ime.session).is_some_and(|k| ime.session.eats(k)),
+        // A held key acts once; its repeats go no further. They still count as
+        // a key pressed while a modifier is being tapped.
+        _ => return ime.keyboard.press(key, mods, &ime.session).is_some_and(|k| ime.session.eats(k)),
     };
     let Some(bound) = bound else { return false };
     let out = ime.session.handle(bound, &HOST);
@@ -522,6 +523,13 @@ mod tests {
             assert!(!down("LCtrl", 0));
             assert!(!down("C", SK_MOD_CTRL));
             assert!(!up("LCtrl"));
+            assert_eq!(seokdok_mode(ime), 1);
+            // Nor does one when another key held since before repeats.
+            assert!(!down("LCtrl", 0));
+            assert!(!down("LAlt", 0));
+            assert!(!seokdok_mode_key(ime, name("G").as_ptr(), SK_MOD_CTRL, SK_KEY_REPEAT));
+            assert!(!up("LCtrl"));
+            assert!(!up("LAlt"));
             assert_eq!(seokdok_mode(ime), 1);
             seokdok_set_mode(ime, 0);
             seokdok_free(ime);

@@ -499,10 +499,12 @@ impl Session {
         }
     }
 
-    /// Forget the composition without effects (the document ended it).
+    /// Forget the composition without effects (the document ended it, or the
+    /// focus moved); what comes next is unrelated, so no word break is owed.
     pub fn reset(&mut self) {
         self.composer.clear();
         self.conv = None;
+        self.pending_break = false;
     }
 
     /// The text that committing now would insert.
@@ -1138,6 +1140,17 @@ mod tests {
         assert_eq!(s.mode(), Mode::Latin);
         s.handle(Key::HangulToggle, &Stub(3));
         assert_eq!(s.mode(), Mode::Hangul);
+    }
+
+    #[test]
+    fn a_reset_owes_no_word_break() {
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        s.handle(Key::Space { shift: false }, &Stub(3));
+        assert_eq!(s.flush()[0], Effect::Commit("한1".into()));
+        s.reset();
+        let o = s.handle(letter('r'), &Stub(3));
+        assert!(!o.effects.iter().any(|e| matches!(e, Effect::Commit(_))));
     }
 
     #[test]

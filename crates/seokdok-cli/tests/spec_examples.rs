@@ -763,3 +763,13 @@ fn place_words_with_their_particle() {
     }
     assert!(offers(&e, "전에", "전에"));
 }
+
+#[test]
+fn the_common_word_leads_its_homophones() {
+    let e = engine(Options::default());
+    for (input, want) in [("음성", "音聲"), ("음성으로", "音聲으로"), ("고령", "高齡"), ("의자", "椅子"), ("영화", "映畵")] {
+        assert_eq!(e.convert(input)[0].text, want, "{input}");
+    }
+    assert!(offers(&e, "음성", "陰城"));
+    assert!(offers(&e, "고령", "高靈"));
+}

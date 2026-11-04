@@ -6,3 +6,21 @@ reading	hanja	count	source
 # 여러 가지: typed as one word, written as two; the chat writes 여러 가지 once and keeps 가지 in Hangul
 # after a Hanja numeral (三 가지, 一二가지, 幾가지).
 여러가지	여러 가지	1	editorial
+# The common word, where FusionIME's frequencies favour a place name or a rarer homophone.
+음성	音聲		editorial
+고령	高齡		editorial
+구사	驅使		editorial
+의자	椅子		editorial
+여권	旅券		editorial
+실수	失手		editorial
+모자	帽子		editorial
+세수	洗手		editorial
+수면	睡眠		editorial
+연습	練習		editorial
+영화	映畵		editorial
+남아	男兒		editorial
+인상	印象		editorial
+일종	一種		editorial
+장면	場面		editorial
+상위	上位		editorial
+이성	理性		editorial

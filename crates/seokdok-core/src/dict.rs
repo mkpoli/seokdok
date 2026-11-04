@@ -183,6 +183,8 @@ fn sino_cost(reading: &str, source: Source, count: u32) -> f32 {
     let n = reading.chars().count();
     let base = match (source, n) {
         (Source::User, _) => 1.0,
+        // A word the editors put ahead of its homophones (음성 音聲, not 陰城).
+        (Source::Editorial, _) => 1.5,
         (_, 1) => 7.0,
         _ => 4.5,
     };

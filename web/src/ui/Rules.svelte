@@ -38,6 +38,7 @@
       </article>
     {/each}
   </div>
+  <p class="lede small" use:reveal>{@html r(t().rules.okuriNote)}</p>
   <h3 class="h3">{@html r(t().rules.variants)}</h3>
   <p class="lede small">{@html r(t().rules.variantsLede)}</p>
   <div class="variants card" use:reveal>

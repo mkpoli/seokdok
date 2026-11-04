@@ -284,7 +284,7 @@ unsafe fn build_controls(hwnd: HWND) {
     label(w!("文字 / Script:"), gx, cy + 4, 150);
     combo(hwnd, ID_SCRIPT, (gx + 160, cy, 220, 200), &SCRIPT_ITEMS, cfg.conversion.script);
     cy += 34;
-    label(w!("送韓字 / Style:"), gx, cy + 4, 150);
+    label(w!("末音添記 / Style:"), gx, cy + 4, 150);
     combo(hwnd, ID_STYLE, (gx + 160, cy, 220, 200), &STYLE_ITEMS, cfg.conversion.style);
     cy += 34;
     label(w!("남는 母音 / Leftover vowel:"), gx, cy + 4, 150);

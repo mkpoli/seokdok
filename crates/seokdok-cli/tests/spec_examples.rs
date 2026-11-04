@@ -546,3 +546,25 @@ fn i_after_hanja_is_also_written_as_a_syllable() {
     assert_eq!(e.read("址이니"), "터이니");
 }
 
+#[test]
+fn the_plural_is_also_written_with_hanja() {
+    let e = engine(Options::default());
+    for (input, first, more) in [
+        ("사람들", "人들", ["人等", "人們"]),
+        ("사람들은", "人들은", ["人等은", "人們은"]),
+        ("학생들", "學生들", ["學生等", "學生們"]),
+        ("친구들이", "親舊들이", ["親舊等이", "親舊們이"]),
+    ] {
+        assert_eq!(e.convert(input)[0].text, first, "{input}");
+        for want in more {
+            assert!(offers(&e, input, want), "{input} → {want}");
+            assert!(e.segments(input).iter().any(|s| s.candidates.iter().any(|c| c.text == want)), "{input} → {want}");
+        }
+    }
+    // A word that is already plural comes first without a second one.
+    assert_eq!(e.convert("우리들")[0].text, "我等");
+    assert_eq!(e.convert("너희들")[0].text, "汝等");
+    assert!(offers(&e, "우리들", "我等들"));
+    // 들 of the verb 들다 is left alone.
+    assert!(!offers(&e, "손들어", "手等어"));
+}

@@ -1450,8 +1450,10 @@ impl Engine {
         }
         for s in &mut segments {
             okurigana::add_i_spellings(&mut s.candidates);
+            self.add_plural_spellings(&mut s.candidates);
         }
         okurigana::add_i_spellings(&mut whole);
+        self.add_plural_spellings(&mut whole);
         // The literal input always stays selectable.
         let keep = self.options.max_candidates.max(2);
         if whole.len() > keep {

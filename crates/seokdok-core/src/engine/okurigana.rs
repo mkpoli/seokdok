@@ -15,6 +15,9 @@
 //!
 //! A ㅣ standing after Hanja is also written as a syllable (基ㅣ니 as 基이니,
 //! 基ㅣㄴ데 as 基인데, 我ㅣ as 我이).
+//!
+//! The plural 들 is also written 等 or 們 (人들 as 人等, 人們). After a word that
+//! already ends in one of them (我等 우리), the form without 들 comes first.
 
 use super::{Candidate, Edge, Engine, Kind};
 use crate::conj::ending_surfaces;
@@ -91,6 +94,42 @@ pub(super) fn add_i_spellings(list: &mut Vec<Candidate>) {
 }
 
 impl Engine {
+    /// Where `text` is Hanja, then 들 and at most a particle up to its end,
+    /// the Hanja and that particle.
+    fn plural_parts<'a>(&self, text: &'a str) -> Option<(&'a str, &'a str)> {
+        let (at, _) = text.char_indices().rev().find(|&(i, c)| c == '들' && text[..i].chars().next_back().is_some_and(is_han))?;
+        let (head, rest) = (&text[..at], &text[at + '들'.len_utf8()..]);
+        let known = rest.is_empty() || self.particles.iter().any(|p| compose(&p.comps).strip_prefix('들') == Some(rest));
+        known.then_some((head, rest))
+    }
+
+    /// Follow each candidate with the plural 들 by its 等 and 們 spellings, and
+    /// put the form without 들 before one whose word is already plural.
+    pub(super) fn add_plural_spellings(&self, list: &mut Vec<Candidate>) {
+        if self.options.sino_only || !list.iter().any(|c| c.text.contains('들')) {
+            return;
+        }
+        let mut out: Vec<Candidate> = Vec::with_capacity(list.len() + 2);
+        for c in list.drain(..) {
+            let Some((head, rest)) = self.plural_parts(&c.text) else {
+                out.push(c);
+                continue;
+            };
+            if head.ends_with(['等', '們']) {
+                out.push(Candidate { text: format!("{head}{rest}"), note: c.note.clone() });
+                out.push(c);
+            } else {
+                let spell = |m: char| Candidate { text: format!("{head}{m}{rest}"), note: c.note.clone() };
+                let more = [spell('等'), spell('們')];
+                out.push(c);
+                out.extend(more);
+            }
+        }
+        let mut seen = std::collections::HashSet::new();
+        out.retain(|c| seen.insert(c.text.clone()));
+        *list = out;
+    }
+
     /// The 末音添記 variants of an edge whose dictionary forms are `dict`, new
     /// texts only, in the order of the module docs. `comps` is the whole
     /// input the edge lies in. `hanja_only` adds the form with the Hanja

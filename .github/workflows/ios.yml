@@ -104,6 +104,14 @@ jobs:
           xcrun simctl launch "$UDID" li.mkpo.seokdok -focusTrial YES -trialKind number
           sleep 8
           xcrun simctl io "$UDID" screenshot shots/number-pad-dark.png
+          xcrun simctl terminate "$UDID" li.mkpo.seokdok
+          # XCUIDevice.appearance does not reach the simulator's look, so the
+          # tests that shoot screens run again under this one.
+          mkdir -p shots/dark
+          TEST_RUNNER_SHOTS="$PWD/shots/dark" xcodebuild -quiet test -project Seokdok.xcodeproj -scheme Seokdok \
+            -destination "id=$UDID" -derivedDataPath build \
+            -only-testing:SeokdokUITests/KeyboardUITests/testDarkScreens \
+            -only-testing:SeokdokUITests/KeyboardUITests/testSettingsScreens
 
       # App Store rule 4.4.1: the keyboard must remain functional without
       # Full Access. Rebuild the extension with the key off and run the same

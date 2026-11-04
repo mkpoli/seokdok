@@ -720,3 +720,10 @@ fn humble_we_lists_the_owner_order() {
     assert_eq!(e.convert("어쩌다")[0].text, "何쩌다");
     assert_eq!(e.convert("저희는")[0].text, "吾等는");
 }
+
+#[test]
+fn to_recite_is_not_to_tell() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("읊고")[0].text, "吟고");
+    assert!(offers(&e, "읊다", "詠다"));
+}

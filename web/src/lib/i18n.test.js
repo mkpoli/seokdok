@@ -34,3 +34,26 @@ test('page texts have well-formed marks and both languages have the same section
     expect(pages.ko[page].sections.map((s) => s.id)).toEqual(pages.en[page].sections.map((s) => s.id))
   }
 })
+
+test('page marks hold Hanja over a Hangul reading and leave nothing unmatched in either mode', async () => {
+  const pages = (await import('./pages.js')).default
+  const strings = (v) => (typeof v === 'string' ? [v] : v && typeof v === 'object' ? Object.values(v).flatMap(strings) : [])
+  const hanja = /^[㐀-䶿一-鿿豈-﫿]+$/
+  const hangul = /^[가-힣]+$/
+  for (const s of strings(pages.ko)) {
+    for (const [, h, k] of s.matchAll(/\{([^|}]*)\|([^}]*)\}/g)) {
+      expect(h).toMatch(hanja)
+      expect(k).toMatch(hangul)
+    }
+    for (const sinoOnly of [false, true]) {
+      options.sinoOnly = sinoOnly
+      expect(plain(s)).not.toMatch(/[{}|]/)
+    }
+  }
+  options.sinoOnly = false
+})
+
+test('手 for the bound noun 수 is Hanja only in 釋讀', () => {
+  expect(isSino('手', '수')).toBe(false)
+  expect(isSino('手', '손')).toBe(false)
+})

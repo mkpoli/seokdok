@@ -14,6 +14,7 @@ use seokdok_session::config::{self, Config, InputMode, Layout, Script};
 use seokdok_session::engine_host::HOST;
 use seokdok_session::keys::Key;
 use seokdok_session::mode_keys::{KeyName, ModeKeyboard};
+use seokdok_session::script_cycle;
 use seokdok_session::session::{Attr, Effect, Mode, Popup, Run, Session};
 
 /// Key kinds passed from C (see `seokdok.h`).
@@ -51,10 +52,10 @@ pub struct Ime {
     dict_dir: PathBuf,
 }
 
-/// The dictionary folder and options the shared engine was last loaded with.
-/// Sessions share one engine, so a new session (a new text field, a new
-/// application) reloads only when these change.
-static LOADED: Mutex<Option<(PathBuf, String)>> = Mutex::new(None);
+/// The dictionary folder the shared engine was last loaded from. Sessions share
+/// one engine, so a new session (a new text field, a new application) reloads
+/// only when this changes.
+static LOADED: Mutex<Option<PathBuf>> = Mutex::new(None);
 
 fn mode_of(m: InputMode) -> Mode {
     match m {
@@ -93,7 +94,7 @@ impl Ime {
         ime
     }
 
-    /// Re-read the settings; reload the engine when its options changed.
+    /// Re-read the settings; the engine takes changed options as it stands.
     fn sync(&mut self) {
         let cfg: Config = config::reload();
         self.session.set_space_converts(cfg.input.space_converts);
@@ -103,11 +104,29 @@ impl Ime {
         self.keyboard.reset();
         let fx = self.session.set_hangul_only(cfg.conversion.script == Script::HangulOnly);
         self.apply(fx);
-        let key = (self.dict_dir.clone(), format!("{:?}", cfg.conversion));
         let mut loaded = LOADED.lock().unwrap_or_else(|e| e.into_inner());
-        if loaded.as_ref() != Some(&key) || !HOST.started() {
-            *loaded = Some(key);
+        if loaded.as_ref() != Some(&self.dict_dir) || !HOST.started() {
+            *loaded = Some(self.dict_dir.clone());
             HOST.start_load(self.dict_dir.clone(), Config::user_dir(), cfg.engine_options());
+        } else {
+            self.give_engine_options(&cfg);
+        }
+    }
+
+    /// Give the engine these options, reading the dictionaries again only if
+    /// another thread holds it.
+    fn give_engine_options(&self, cfg: &Config) {
+        let options = cfg.engine_options();
+        if !HOST.apply_options(&options) {
+            HOST.start_load(self.dict_dir.clone(), Config::user_dir(), options);
+        }
+    }
+
+    /// `input.keys.script_cycle`; a config.toml that does not parse changes nothing.
+    fn rotate_script(&mut self) {
+        if let Ok(r) = script_cycle::rotate(&mut self.session, &HOST) {
+            self.give_engine_options(&r.config);
+            self.apply(r.effects);
         }
     }
 
@@ -221,6 +240,10 @@ pub unsafe extern "C" fn seokdok_mode_key(ime: *mut Ime, name: *const c_char, mo
         _ => return ime.keyboard.press(key, mods, &ime.session).is_some_and(|k| ime.session.eats(k)),
     };
     let Some(bound) = bound else { return false };
+    if bound == Key::CycleScript {
+        ime.rotate_script();
+        return true;
+    }
     let out = ime.session.handle(bound, &HOST);
     ime.apply(out.effects);
     out.eaten
@@ -365,6 +388,22 @@ pub unsafe extern "C" fn seokdok_set_mode(ime: *mut Ime, mode: i32) {
     ime.apply(fx);
 }
 
+/// The on-screen mode key: 釋 → 混 → 한 → A → 釋. The script is written to
+/// config.toml; with no file to write, the key still moves between Korean and
+/// Latin. What was being composed is committed (see [`seokdok_take_commit`]).
+///
+/// # Safety
+/// `ime` is a live session.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_mode_control(ime: *mut Ime) {
+    let ime = &mut *ime;
+    let stepped = script_cycle::step_on_screen(&mut ime.session, &HOST);
+    if let Some(cfg) = &stepped.config {
+        ime.give_engine_options(cfg);
+    }
+    ime.apply(stepped.effects);
+}
+
 /// The jamo a 두벌식 key types (`key` is a Latin letter, upper case for the
 /// Shift layer), or 0. For labelling on-screen keys.
 #[no_mangle]
@@ -385,6 +424,16 @@ pub extern "C" fn seokdok_ready() -> bool {
 #[no_mangle]
 pub extern "C" fn seokdok_hangul_only() -> bool {
     config::current().conversion.script == Script::HangulOnly
+}
+
+/// `conversion.script`: 0 釋讀, 1 國漢文混用, 2 韓㐎 專用.
+#[no_mangle]
+pub extern "C" fn seokdok_script() -> i32 {
+    match config::current().conversion.script {
+        Script::Seokdok => 0,
+        Script::SinoOnly => 1,
+        Script::HangulOnly => 2,
+    }
 }
 
 /// Whether Space converts (from the settings); when false, only the convert
@@ -496,6 +545,10 @@ mod tests {
         let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
         let c = CString::new(dict.to_str().unwrap()).unwrap();
         let name = |s: &str| CString::new(s).unwrap();
+        // The chord writes the script to config.toml.
+        let dir = std::env::temp_dir().join(format!("seokdok-ffi-keys-{}", std::process::id()));
+        std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+        config::reload();
         unsafe {
             let ime = seokdok_new(c.as_ptr());
             let down = |n: &str, mods: u32| seokdok_mode_key(ime, name(n).as_ptr(), mods, SK_KEY_DOWN);
@@ -518,22 +571,25 @@ mod tests {
             assert!(!down("LCtrl", 0));
             assert!(!down("LAlt", 0));
             assert!(up("LCtrl"));
-            assert_eq!(seokdok_mode(ime), 1);
+            assert_eq!(seokdok_script(), 1);
+            assert_eq!(seokdok_mode(ime), 0);
             assert!(!up("LAlt"));
             assert!(!down("LCtrl", 0));
             assert!(!down("C", SK_MOD_CTRL));
             assert!(!up("LCtrl"));
-            assert_eq!(seokdok_mode(ime), 1);
+            assert_eq!(seokdok_script(), 1);
             // Nor does one when another key held since before repeats.
             assert!(!down("LCtrl", 0));
             assert!(!down("LAlt", 0));
             assert!(!seokdok_mode_key(ime, name("G").as_ptr(), SK_MOD_CTRL, SK_KEY_REPEAT));
             assert!(!up("LCtrl"));
             assert!(!up("LAlt"));
-            assert_eq!(seokdok_mode(ime), 1);
-            seokdok_set_mode(ime, 0);
+            assert_eq!(seokdok_script(), 1);
             seokdok_free(ime);
         }
+        std::env::remove_var("SEOKDOK_CONFIG_DIR");
+        config::reload();
+        let _ = std::fs::remove_dir_all(&dir);
     }
 
     #[test]
@@ -598,6 +654,98 @@ mod tests {
             assert!(!seokdok_key(ime, SK_LEFT, 0, false));
             let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
             assert_eq!(c, "한");
+            seokdok_free(ime);
+        }
+        std::env::remove_var("SEOKDOK_CONFIG_DIR");
+        config::reload();
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    /// Type `keys`, convert with Space and confirm with Enter.
+    unsafe fn converted(ime: *mut Ime, keys: &str) -> String {
+        for k in keys.chars() {
+            assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
+        }
+        assert!(seokdok_key(ime, SK_SPACE, 0, false));
+        assert!(seokdok_key(ime, SK_ENTER, 0, false));
+        CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().trim_start().to_string()
+    }
+
+    #[test]
+    fn the_chord_rotates_the_script_once_per_press() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let dir = std::env::temp_dir().join(format!("seokdok-ffi-cycle-{}", std::process::id()));
+        std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+        let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+        let c = CString::new(dict.to_str().unwrap()).unwrap();
+        let chord = CString::new("Hangul").unwrap();
+        let shift = seokdok_session::mode_keys::MOD_SHIFT as u32;
+        let script_in_file = || Config::load_from(&dir.join("config.toml")).conversion.script;
+        unsafe {
+            let json = CString::new(r#"{"input":{"keys":{"script_cycle":["Shift+Hangul"]}}}"#).unwrap();
+            assert!(seokdok_config_save_json(json.as_ptr()));
+            let ime = seokdok_new(c.as_ptr());
+            while !seokdok_ready() {
+                std::thread::sleep(std::time::Duration::from_millis(10));
+            }
+            let plain = converted(ime, "gksmf");
+            assert_eq!(seokdok_script(), 0);
+
+            // Into 國漢文混用; a held key goes no further, and the composition commits.
+            for k in "gks".chars() {
+                assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
+            }
+            assert!(seokdok_mode_key(ime, chord.as_ptr(), shift, SK_KEY_DOWN));
+            // The word break owed by the Space conversion comes first.
+            assert_eq!(CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap(), " 한");
+            assert!(seokdok_mode_key(ime, chord.as_ptr(), shift, SK_KEY_REPEAT));
+            assert!(seokdok_mode_key(ime, chord.as_ptr(), shift, SK_KEY_REPEAT));
+            assert_eq!(script_in_file(), Script::SinoOnly);
+            assert_eq!(seokdok_script(), 1);
+            assert_eq!(seokdok_mode(ime), 0);
+            assert_eq!(converted(ime, "gksmf"), "하늘");
+
+            // 韓㐎 專用, and from Latin back to 釋讀 with the first spelling again.
+            assert!(seokdok_mode_key(ime, chord.as_ptr(), shift, SK_KEY_DOWN));
+            assert_eq!(seokdok_mode(ime), 1);
+            seokdok_set_mode(ime, 2);
+            assert!(seokdok_mode_key(ime, chord.as_ptr(), shift, SK_KEY_DOWN));
+            assert_eq!(script_in_file(), Script::Seokdok);
+            assert_eq!(seokdok_mode(ime), 0);
+            assert_eq!(converted(ime, "gksmf"), plain);
+
+            // A file that does not parse stops it, and the composition stays.
+            std::fs::write(dir.join("config.toml"), "[conversion\n").unwrap();
+            for k in "gks".chars() {
+                assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
+            }
+            seokdok_take_commit(ime);
+            assert!(seokdok_mode_key(ime, chord.as_ptr(), shift, SK_KEY_DOWN));
+            assert_eq!(seokdok_preedit_len(ime), 1);
+            assert!(seokdok_take_commit(ime).is_null());
+            seokdok_free(ime);
+        }
+        std::env::remove_var("SEOKDOK_CONFIG_DIR");
+        config::reload();
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+
+    #[test]
+    fn the_mode_control_steps_through_the_scripts_and_latin() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let dir = std::env::temp_dir().join(format!("seokdok-ffi-control-{}", std::process::id()));
+        std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+        let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+        let c = CString::new(dict.to_str().unwrap()).unwrap();
+        unsafe {
+            assert!(seokdok_config_save_json(CString::new("{}").unwrap().as_ptr()));
+            let ime = seokdok_new(c.as_ptr());
+            let mut seen = Vec::new();
+            for _ in 0..4 {
+                seokdok_mode_control(ime);
+                seen.push((seokdok_script(), seokdok_mode(ime)));
+            }
+            assert_eq!(seen, [(1, 0), (2, 1), (2, 2), (0, 0)]);
             seokdok_free(ime);
         }
         std::env::remove_var("SEOKDOK_CONFIG_DIR");

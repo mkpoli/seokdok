@@ -22,7 +22,7 @@ use crate::config::Surface;
 use crate::edit_session::run_sync;
 use crate::engine_host::HOST;
 use crate::session::{Attr, Effect, Run};
-use crate::surface::{choose, classify_end, undelivered, End, Facts};
+use crate::surface::{at_boundary, choose, classify_end, undelivered, AtBoundary, End, Facts};
 use crate::text_service::TextService_Impl;
 
 /// This process refused a composition, so it gets the floating preedit.
@@ -208,21 +208,33 @@ impl TextService_Impl {
     }
 
     /// Focus or the context moved: what is being composed belongs to the
-    /// document it was typed in. It is committed there, and whatever happens to
-    /// that nothing of it stays in the session to continue in the next field.
+    /// document it was typed in. It is committed there where that can be done
+    /// safely, and whatever happens to it nothing stays in the session to
+    /// continue in the next field.
     pub(crate) fn end_at_boundary(&self, why: &str) {
-        let (effects, typed_in) = {
+        let (effects, typed_in, action) = {
             let mut state = self.inner_mut();
-            (state.session.flush(), state.typing_context.take())
+            let typed_in = state.typing_context.take();
+            let through_imm32 = typed_in.as_ref().is_some_and(|c| state.imm32_context == Some(c.as_raw() as usize));
+            let action = at_boundary(state.composition.is_some(), through_imm32);
+            (state.session.flush(), typed_in, action)
         };
         if !effects.is_empty() {
-            let delivered = match &typed_in {
-                Some(context) => self.apply(context, effects),
-                None => Err(E_FAIL.into()),
-            };
-            match delivered {
-                Ok(()) => crate::debug_log::log(|| format!("boundary: {why}: committed where it was typed")),
-                Err(e) => crate::debug_log::log(|| format!("boundary: {why}: could not commit, dropped: {e:?}")),
+            match action {
+                AtBoundary::Drop => {
+                    let units: usize = effects.iter().map(|e| if let Effect::Commit(t) = e { t.encode_utf16().count() } else { 0 }).sum();
+                    crate::debug_log::log(|| format!("boundary: {why}: {units} UTF-16 units of floating text dropped, not written: this store may already address the next field"));
+                }
+                AtBoundary::Commit => {
+                    let delivered = match &typed_in {
+                        Some(context) => self.apply(context, effects),
+                        None => Err(E_FAIL.into()),
+                    };
+                    match delivered {
+                        Ok(()) => crate::debug_log::log(|| format!("boundary: {why}: committed where it was typed")),
+                        Err(e) => crate::debug_log::log(|| format!("boundary: {why}: could not commit, dropped: {e:?}")),
+                    }
+                }
             }
         }
         {

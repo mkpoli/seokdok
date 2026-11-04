@@ -79,6 +79,27 @@ pub fn undelivered<'a>(delivered: &str, text: &'a str) -> &'a str {
     text.strip_prefix(delivered).unwrap_or("")
 }
 
+/// What happens to the composition at a focus or context change.
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+pub enum AtBoundary {
+    Commit,
+    /// Do not write: the text is not in the document, and a text store that
+    /// serves several fields may already address the next one. Chromium assigns
+    /// the new field before it notifies of the focus change.
+    Drop,
+}
+
+/// An open composition is a place in the old field, and the IMM32 path commits
+/// through the bridge as it always has. Floating text in any other store has no
+/// safe place to go.
+pub fn at_boundary(composition_open: bool, through_imm32: bool) -> AtBoundary {
+    if composition_open || through_imm32 {
+        AtBoundary::Commit
+    } else {
+        AtBoundary::Drop
+    }
+}
+
 /// Decides when refusals are enough to float this process from now on. A web
 /// page can cancel a composition right after a key too, so one refusal after
 /// the edit session only floats that composition.
@@ -152,6 +173,13 @@ mod tests {
         assert_eq!(undelivered("대충", "대충"), "");
         assert_eq!(undelivered("대충", "대충 "), " ");
         assert_eq!(undelivered("대충", "大忠"), "");
+    }
+
+    #[test]
+    fn floating_text_outside_imm32_is_not_written_at_a_boundary() {
+        assert_eq!(at_boundary(false, false), AtBoundary::Drop);
+        assert_eq!(at_boundary(false, true), AtBoundary::Commit);
+        assert_eq!(at_boundary(true, false), AtBoundary::Commit);
     }
 
     #[test]

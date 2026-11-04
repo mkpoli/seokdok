@@ -349,11 +349,19 @@ impl TextService_Impl {
     }
 
     /// Replace the composition by final text and end it. With no composition
-    /// the text is inserted at the selection.
+    /// the text is inserted at the selection: through a composition that starts
+    /// and ends here on the IMM32 path, whose bridge delivers text that way;
+    /// plainly in a transitory text store, because a composition started while
+    /// handling a key makes Chromium fire that key's keydown ahead of the text
+    /// and outside any composition, and a page taking it for a real Enter then
+    /// breaks the line before the text arrives.
     fn commit(&self, context: &ITfContext, text: &str) -> windows::core::Result<()> {
-        if self.inner().composition.is_none() && text.is_empty() {
+        let open = self.inner().composition.is_some();
+        if !open && text.is_empty() {
             return Ok(());
         }
+        let plain = !open && is_transitory(context) && self.inner().imm32_context != Some(context.as_raw() as usize);
+        crate::debug_log::log(|| format!("commit: {}", if open { "into the composition" } else if plain { "plain insert" } else { "one-shot composition" }));
         let composer = self.composer(context)?;
         let wide: Vec<u16> = text.encode_utf16().collect();
         let cid = self.inner().client_id;
@@ -363,6 +371,11 @@ impl TextService_Impl {
         let result = run_sync(cid, context, move |ec| {
             // SAFETY: ec valid; comp/ctx/range valid.
             unsafe {
+                if plain {
+                    let range = composer.insert.InsertTextAtSelection(ec, Default::default(), &wide)?;
+                    range.Collapse(ec, TF_ANCHOR_END)?;
+                    return set_single_selection(&ctx, ec, &range);
+                }
                 let comp = composer.get(ec)?;
                 let range = comp.GetRange()?;
                 range.SetText(ec, 0, &wide)?;

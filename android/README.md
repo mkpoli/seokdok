@@ -70,7 +70,7 @@ pick it with 入力 方法 고르기 (or hold the space bar while typing).
 - 두벌식 letters; each key shows the jamo it types and, in its corner, the
   one on the Shift layer. Shift (double-tap to lock) gives the tense
   consonants, ㅒ ㅖ, and the old letters (ㆍ ㅿ ㆁ ㆆ ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ).
-- 韓 / A switches 釋讀 and Latin. 123 opens digits and punctuation.
+- The mode key goes 釋 → 混 → 한 → A → 釋: the script, written to the settings, then Latin. 123 opens digits and punctuation.
 - Space (變換) converts; again walks the candidates. Tap a candidate to take
   it; ‹ › turn the page. 確定 (Enter) commits.
 - With a phrase in several segments, ◂ ▸ move between them; hold them to
@@ -86,7 +86,7 @@ config.toml; the first three can be edited in the app:
 | List | Default | |
 |---|---|---|
 | `toggle` | 한/영, 半角/全角, Shift+Space | Korean ↔ Latin, back to whichever of 釋讀 and 한글 was last used |
-| `seokdok_hangul` | left Ctrl + left Alt tapped, Shift+한/영 | 釋讀 ↔ 한글 |
+| `script_cycle` | left Ctrl + left Alt tapped, Shift+한/영 | 釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀, landing in 釋讀 mode |
 | `convert` | 한자, 変換, F7 | convert |
 | `latin` | 無変換 | to Latin |
 | `korean` | 変換 | from Latin back to Korean |

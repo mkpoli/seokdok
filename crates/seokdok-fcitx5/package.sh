@@ -34,8 +34,8 @@ Keys: type 두벌식 Hangul; Space converts, Space again opens the candidates;
 1-9 pick, Tab/PgDn page, ←→ move between words, Shift+←→ resize a word,
 Enter confirms, Esc closes / reverts. Hangul key, Shift+Space or a tap of
 Right Alt: Korean ↔ Latin. A tap of left Ctrl + left Alt, or Shift+Hangul:
-釋讀 ↔ 한글. Hanja key, F9 or F7 converts. While 釋讀 is composing, Shift+Space
-is a word break. With more than one input method in the fcitx5 group, fcitx5
+釋讀 → 國漢文混用 → 韓㐎 專用, in 釋讀 mode. Hanja key, F9 or F7 converts. While
+釋讀 is composing, Shift+Space is a word break. With more than one input method in the fcitx5 group, fcitx5
 itself takes Ctrl+Space, Hangul and 半角/全角 to switch to and from the first one.
 [input.keys] in ~/.config/seokdok/config.toml holds these lists.
 

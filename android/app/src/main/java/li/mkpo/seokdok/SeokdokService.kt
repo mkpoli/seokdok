@@ -144,10 +144,11 @@ class SeokdokService : InputMethodService(), KeyboardListener {
         val ic = currentInputEditorInfo
         if (passthrough || ic == null || ic.inputType == InputType.TYPE_NULL) return super.onKeyDown(keyCode, event)
         val before = session.mode
+        val scriptBefore = session.script
         val state = if (event.repeatCount > 0) Native.KEY_REPEAT else Native.KEY_DOWN
         if (session.modeKey(HardwareKeys.name(keyCode), HardwareKeys.mods(event), state)) {
             eatenKeys.add(keyCode)
-            hardwareRender(before)
+            hardwareRender(before, scriptBefore)
             return true
         }
         if (HardwareKeys.isModifier(keyCode)) return super.onKeyDown(keyCode, event)
@@ -178,7 +179,7 @@ class SeokdokService : InputMethodService(), KeyboardListener {
                 feed(Native.PRINTABLE, c.toChar(), event.isShiftPressed)
             }
         }
-        hardwareRender(before)
+        hardwareRender(before, scriptBefore)
         if (!eaten) return super.onKeyDown(keyCode, event)
         eatenKeys.add(keyCode)
         return true
@@ -186,16 +187,19 @@ class SeokdokService : InputMethodService(), KeyboardListener {
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         val before = session.mode
+        val scriptBefore = session.script
         if (HardwareKeys.isModifier(keyCode) && !passthrough && session.modeKey(HardwareKeys.name(keyCode), 0, Native.KEY_UP)) {
-            hardwareRender(before)
+            hardwareRender(before, scriptBefore)
             return true
         }
         return eatenKeys.remove(keyCode) || super.onKeyUp(keyCode, event)
     }
 
-    /** Draw after a hardware key: open the window for candidates, and name a new mode when it is hidden. */
-    private fun hardwareRender(modeBefore: Int) {
+    /** Draw after a hardware key: open the window for candidates, and name a new mode or script when it is hidden. */
+    private fun hardwareRender(modeBefore: Int, scriptBefore: Int) {
         render()
+        val script = session.script
+        val rotated = script != scriptBefore
         val open = session.candidates() != null
         if (open && !isInputViewShown) {
             candidatesForced = true
@@ -209,8 +213,10 @@ class SeokdokService : InputMethodService(), KeyboardListener {
             candidatesForced = false
             requestHideSelf(0)
         }
-        if (session.mode != modeBefore && !isInputViewShown) {
-            Toast.makeText(this, resources.getStringArray(R.array.mode_labels)[session.mode], Toast.LENGTH_SHORT).show()
+        if ((rotated || session.mode != modeBefore) && !isInputViewShown) {
+            val label = if (rotated) resources.getStringArray(R.array.script_labels)[script]
+            else resources.getStringArray(R.array.mode_labels)[session.mode]
+            Toast.makeText(this, label, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -248,7 +254,7 @@ class SeokdokService : InputMethodService(), KeyboardListener {
     private fun refresh(runs: List<Session.Run>? = null) {
         val kb = keyboard ?: return
         val preedit = runs ?: session.preedit()
-        state = state.copy(mode = if (passthrough) Session.LATIN else session.mode, composing = preedit.isNotEmpty())
+        state = state.copy(mode = if (passthrough) Session.LATIN else session.mode, script = session.script, composing = preedit.isNotEmpty())
         kb.update(state)
         kb.show(session.candidates(), preedit, loading = !loaded && !passthrough)
     }
@@ -326,9 +332,9 @@ class SeokdokService : InputMethodService(), KeyboardListener {
         refresh()
     }
 
-    override fun toggleMode() {
+    override fun cycleMode() {
         if (passthrough) return
-        session.key(Native.TOGGLE)
+        session.modeControl()
         render()
     }
 

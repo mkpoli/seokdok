@@ -29,7 +29,12 @@ final class SettingsModel: ObservableObject {
     @Published var config = ConfigFile.load() {
         didSet {
             if config != oldValue {
-                ConfigFile.save(config)
+                // Unless chosen here, the script stays what the chord left in the file.
+                var saved = config
+                if saved.conversion.script == oldValue.conversion.script {
+                    saved.conversion.script = ConfigFile.load().conversion.script
+                }
+                ConfigFile.save(saved)
             }
         }
     }
@@ -54,7 +59,7 @@ struct SettingsView: View {
             }
             Section("鍵 / Keys") {
                 KeyListField(label: "韓 ↔ A / Korean ↔ Latin", keys: $model.config.input.keys.toggle)
-                KeyListField(label: "釋讀 ↔ 한글", keys: $model.config.input.keys.seokdokHangul)
+                KeyListField(label: "釋讀 → 國漢文混用 → 韓㐎 專用", keys: $model.config.input.keys.scriptCycle)
                 KeyListField(label: "變換 / Convert", keys: $model.config.input.keys.convert)
                 Text("Comma-separated, such as Alt, F7, Alt+Enter. A modifier alone means tapping it. Other lists are in config.toml. Control-Space, Globe and Caps Lock are set in System Settings › Keyboard.")
                     .foregroundStyle(.secondary)

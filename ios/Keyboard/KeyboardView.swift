@@ -40,6 +40,7 @@ struct KeyboardState {
     var layout = Layout.standard
     var shift: Shift = .off
     var mode: Session.Mode = .seokdok
+    var script: Int32 = 0
     var composing = false
     var spaceConverts = true
     var runs: [Session.Run] = []
@@ -373,7 +374,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         }
         shiftKey.isSelected = shifted
         shiftKey.setImage(UIImage(systemName: s.shift == .locked ? "capslock.fill" : "shift.fill"), for: .selected)
-        modeKey.setTitle(["釋", "한", "A"][Int(s.mode.rawValue)], for: .normal)
+        modeKey.setTitle(s.mode == .seokdok && s.script == 1 ? "混" : ["釋", "한", "A"][Int(s.mode.rawValue)], for: .normal)
         let converts = s.composing && s.mode == .seokdok && (s.spaceConverts || s.candidates != nil)
         spaceKey.setTitle(converts ? "變換" : "띄어쓰기", for: .normal)
         enterKey.setTitle(s.composing ? "確定" : "改行", for: .normal)

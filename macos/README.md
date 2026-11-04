@@ -61,13 +61,15 @@ and macOS starts the new one when the input method is next used.
 | Return | commit as shown |
 | Esc | close the candidates, then back to the Hangul; while typing, discard it |
 | Option alone | Korean ↔ Latin |
-| Left Control + left Option, tapped | 釋讀 ↔ 한글 |
+| Left Control + left Option, tapped | 釋讀 → 國漢文混用 → 韓㐎 專用 |
 | 英数 / かな (JIS) | Latin / back to Korean |
 
 The three modes are input sources of their own: 釋讀 converts, 한글 types
 Hangul without conversion, A passes keys through. Pick one in the input menu
 or from the input method's own menu. On macOS the selected input source
-decides the mode, so `default_mode` in config.toml has no effect here.
+decides the mode, so `default_mode` in config.toml has no effect here. The
+script chord writes `conversion.script` and lands in 釋讀 mode; the input
+method's own menu names the script.
 
 ### Switching modes
 
@@ -87,7 +89,7 @@ the three main lists are also in the settings window:
 | `toggle` | `Alt` | Korean ↔ Latin, back to whichever of 釋讀 and 한글 was last used |
 | `latin` | `Eisu` | to Latin |
 | `korean` | `Kana` | from Latin back to Korean |
-| `seokdok_hangul` | `LCtrl+LAlt` | 釋讀 ↔ 한글 |
+| `script_cycle` | `LCtrl+LAlt` | 釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀 |
 | `seokdok`, `hangul` | empty | straight to that mode |
 | `convert` | `Alt+Enter`, `F7` | convert |
 

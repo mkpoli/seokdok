@@ -28,12 +28,30 @@ what 釋讀 binds by default. Sources were read on 2026-11-04. The lists are
 
 ## Decisions
 
-**釋讀 ↔ 한글.** No other tool has this. It is left Ctrl and left Alt tapped
+**The script chord.** `script_cycle` rotates `conversion.script`:
+釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀. No other tool has this. It is left Ctrl and left Alt tapped
 together, on every platform with a hardware keyboard: a chord of two modifiers
 and no other key cannot be an application shortcut, because a shortcut needs a
 key besides its modifiers. It produces no text on any layout, and it differs
 from AltGr, which Windows reports as left Ctrl with right Alt. Where a 한/영 key
 exists, Shift+한/영 does the same.
+
+The rotation goes through `Config::update_file` and the session follows only
+after the file is written, so a config.toml that does not parse changes nothing.
+Every application follows the file, and the spelling changes on the running
+engine with no dictionary load. The chord always lands in 釋讀 mode, committing
+any composition first: from Latin or plain 한글 it goes to the next script, so
+the icon shows the change. A held key rotates once. The logic is
+`crates/seokdok-session/src/script_cycle.rs`.
+
+Plain 한글 is reached by the menu on Windows, the input source on macOS, or a
+key added to `hangul`. Latin has no other on-screen key on Android and iOS, so
+their mode key has a fourth stop: 釋 → 混 → 한 → A → 釋. A keyboard that cannot
+write its settings, such as iOS without Full Access and a writable folder,
+moves between Korean and Latin instead.
+
+macOS has no icon for the script, because its three input sources are the
+modes. The input method's menu names the script.
 
 **Shift+Space.** It already means 띄어쓰기 while composing and previous
 candidate in a conversion. While 釋讀 is composing or converting it keeps those
@@ -52,8 +70,8 @@ nothing else, so either side still toggles.
 
 **Mid-composition.** A switch commits as `Session::set_mode` does. A switch to
 the current mode does nothing and leaves the composition alone. 韓㐎 專用 has
-no 釋讀 to tell from 한글, so `seokdok_hangul`, `seokdok` and `hangul` leave
-Latin and do nothing else.
+no 釋讀 to tell from 한글, so `seokdok` and `hangul` leave Latin and do nothing
+else. `script_cycle` commits even when the mode stays, because the script changes.
 
 **変換.** It sits in both `korean` and `convert`: out of Latin first, then
 convert. Idle in Korean it stays the application's key.
@@ -71,6 +89,8 @@ The input indicator on the taskbar shows the icon of one button: 釋 converts to
 A left click toggles conversion and plain Hangul, or Hangul and Latin under
 韓㐎 專用. A right click opens the menu:
 the script, the input mode, `candidate_layout` and `old_ha`, then Settings….
+The script entries name the `script_cycle` keys, and 釋讀 and 한글 name their own
+lists, which are empty by default.
 `windows.menu_items` in config.toml, or the settings dialog, adds the other
 settings or takes these away. Choosing a script also leaves plain Hangul and
 Latin, so the icon always shows the choice.

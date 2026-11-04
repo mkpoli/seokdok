@@ -192,6 +192,18 @@ pub extern "system" fn Java_li_mkpo_seokdok_Native_mode(_: JNIEnv, _: JClass, h:
 }
 
 /// The jamo a 두벌식 key types (upper case for the Shift layer), or 0.
+/// The on-screen mode key (see `seokdok_mode_control`).
+#[no_mangle]
+pub extern "system" fn Java_li_mkpo_seokdok_Native_modeControl(_: JNIEnv, _: JClass, h: jlong) {
+    unsafe { ffi::seokdok_mode_control(ime(h)) }
+}
+
+/// `conversion.script`: 0 釋讀, 1 國漢文混用, 2 韓㐎 專用.
+#[no_mangle]
+pub extern "system" fn Java_li_mkpo_seokdok_Native_script(_: JNIEnv, _: JClass) -> jint {
+    ffi::seokdok_script()
+}
+
 #[no_mangle]
 pub extern "system" fn Java_li_mkpo_seokdok_Native_keyJamo(_: JNIEnv, _: JClass, key: jint) -> jint {
     ffi::seokdok_key_jamo(key as u32) as jint

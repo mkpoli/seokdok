@@ -187,6 +187,7 @@ final class KeyboardViewController: UIInputViewController {
         s.layout = layout
         s.shift = shift
         s.mode = session.mode
+        s.script = Session.script
         s.composing = !runs.isEmpty
         s.spaceConverts = Session.spaceConverts
         s.runs = runs
@@ -283,12 +284,12 @@ extension KeyboardViewController: KeyboardViewDelegate {
         refresh()
     }
 
-    /// 釋讀 → Hangul → Latin → 釋讀; what is being composed is committed.
+    /// 釋 → 混 → 한 → A → 釋. The app's settings screen follows the script,
+    /// so it does not write the old one back.
     func cycleMode() {
-        switch session.mode {
-        case .seokdok: session.mode = .hangul
-        case .hangul: session.mode = .latin
-        case .latin: session.mode = .seokdok
+        session.modeControl()
+        if hasFullAccess {
+            AppGroup.defaults?.set(["seokdok", "sino_only", "hangul_only"][Int(Session.script)], forKey: "script")
         }
         apply()
     }

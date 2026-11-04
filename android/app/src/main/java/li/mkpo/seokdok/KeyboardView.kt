@@ -20,7 +20,7 @@ interface KeyboardListener {
     fun enter()
     fun backspace()
     fun shift()
-    fun toggleMode()
+    fun cycleMode()
     fun toggleSymbols()
     fun pick(index: Int)
     fun page(forward: Boolean)
@@ -41,6 +41,7 @@ class KeyboardView(context: Context, private val listener: KeyboardListener) : L
         val shift: Boolean = false,
         val capsLock: Boolean = false,
         val mode: Int = Session.SEOKDOK,
+        val script: Int = 0,
         val symbols: Boolean = false,
         val composing: Boolean = false,
         val enterLabel: String = "↵",
@@ -106,12 +107,13 @@ class KeyboardView(context: Context, private val listener: KeyboardListener) : L
         modeKey?.main = when (s.mode) {
             Session.LATIN -> "A"
             Session.HANGUL -> "한"
-            else -> "韓"
+            else -> if (s.script == 1) "混" else "釋"
         }
         spaceKey?.main = when {
             s.composing && s.mode == Session.SEOKDOK -> "變換"
             s.mode == Session.LATIN -> "Latin"
             s.mode == Session.HANGUL -> "한글"
+            s.script == 1 -> "國漢文"
             else -> "釋讀"
         }
         enterKey?.main = if (s.composing) "確定" else s.enterLabel
@@ -176,7 +178,7 @@ class KeyboardView(context: Context, private val listener: KeyboardListener) : L
             } to 1f
         }
         bottom += KeyView(context, KeyView.Style.FUNCTION).apply {
-            onTap = listener::toggleMode
+            onTap = listener::cycleMode
             modeKey = this
         } to 1.25f
         bottom += KeyView(context).apply {

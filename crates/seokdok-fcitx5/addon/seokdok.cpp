@@ -125,7 +125,7 @@ public:
 
     std::string subModeLabelImpl(const fcitx::InputMethodEntry &, fcitx::InputContext &ic) override {
         switch (seokdok_mode(state(&ic)->ime)) {
-        case 0: return "釋";
+        case 0: return seokdok_script() == 1 ? "混" : "釋";
         case 1: return "한";
         default: return "A";
         }

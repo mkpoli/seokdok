@@ -176,3 +176,17 @@ fn characters_found_by_their_gloss() {
     assert_eq!(sino.convert("집가")[0].text, "집가");
     assert!(offers(&sino, "집가", "家"));
 }
+
+#[test]
+fn the_bound_noun_su_is_written_with_hand() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("수")[0].text, "手");
+    assert_eq!(e.convert("수도")[0].text, "手도");
+    assert!(e.convert("할 수 있다")[0].text.contains('手'));
+    // Whole words keep their own reading.
+    assert_eq!(e.convert("옥수수")[0].text, "荳");
+    assert_eq!(e.convert("수학")[0].text, "數學");
+    assert_eq!(e.convert("선수")[0].text, "選手");
+    // 手 on its own still reads 손 unless the bound noun fits.
+    assert_eq!(e.read("手을"), "손을");
+}

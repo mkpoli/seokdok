@@ -58,11 +58,13 @@ jobs:
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Fallback to GDI
+        if: always()
         run: |
           target/release/examples/candidate_preview.exe fallback target/candidate-preview
           if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
 
       - name: Memory and timing
+        if: always()
         run: |
           target/release/examples/candidate_preview.exe memory gdi
           target/release/examples/candidate_preview.exe memory fluent

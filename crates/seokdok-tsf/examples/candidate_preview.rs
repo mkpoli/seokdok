@@ -339,12 +339,18 @@ mod app {
                 let _ = GetWindowRect(window.hwnd(), &mut rc);
                 (GetWindowLongPtrW(window.hwnd(), GWL_EXSTYLE), IsWindowVisible(window.hwnd()).as_bool())
             };
+            let shown = focus_state();
             // A click on the popup must not activate it either.
             click(rc.left + 20, rc.top + 20);
             pump(Duration::from_millis(200));
             let after = focus_state();
-            let ok = after == before && visible && ex & WS_EX_NOACTIVATE.0 as isize != 0 && window.is_fluent();
-            println!("{label}/{}: {:?} visible={visible} focus kept={} fluent={}", sample.name, rc, after == before, window.is_fluent());
+            let ok = shown == before && after == before && visible && ex & WS_EX_NOACTIVATE.0 as isize != 0 && window.is_fluent();
+            println!(
+                "{label}/{}: {rc:?} visible={visible} fluent={} popup={:?} after show {shown:?} after click {after:?}",
+                sample.name,
+                window.is_fluent(),
+                window.hwnd(),
+            );
             if !ok {
                 failures += 1;
             }
@@ -370,8 +376,17 @@ mod app {
         let check = |name: &str, window: &CandidateWindow| {
             pump(Duration::from_millis(400));
             capture(window.hwnd(), &out.join(format!("real-fallback-{name}.png")));
-            let ok = !window.is_fluent() && focus_state() == before;
-            println!("fallback/{name}: gdi={} focus kept={}", !window.is_fluent(), focus_state() == before);
+            let shown = focus_state();
+            let mut rc = RECT::default();
+            // SAFETY: valid output.
+            unsafe {
+                let _ = GetWindowRect(window.hwnd(), &mut rc);
+            }
+            click(rc.left + 20, rc.top + 20);
+            pump(Duration::from_millis(200));
+            let after = focus_state();
+            let ok = !window.is_fluent() && shown == before && after == before;
+            println!("fallback/{name}: gdi={} before {before:?} after show {shown:?} after click {after:?}", !window.is_fluent());
             if !ok {
                 std::process::exit(1);
             }

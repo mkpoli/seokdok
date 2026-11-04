@@ -177,16 +177,8 @@ impl Renderer {
         }
     }
 
-    /// Lay out the preedit line and the candidates for `dpi`. `edge` draws the
-    /// window's outline for systems whose compositor does not.
-    pub fn layout(
-        &self,
-        preedit: Option<&[Run]>,
-        popup: Option<&Popup>,
-        palette: &Palette,
-        dpi: f32,
-        edge: bool,
-    ) -> Result<Scene> {
+    /// Lay out the preedit line and the candidates for `dpi`.
+    pub fn layout(&self, preedit: Option<&[Run]>, popup: Option<&Popup>, palette: &Palette, dpi: f32) -> Result<Scene> {
         let scale = dpi / 96.0;
         let snap = |v: f32| (v * scale).round() / scale;
         // A stroke of 1, at least one device pixel.
@@ -254,7 +246,8 @@ impl Renderer {
                 color: palette.accent,
             });
         };
-        let ink = |is_selected: bool, color: Color| if is_selected { palette.selected_text } else { color };
+        let ink = |is_selected: bool| if is_selected { palette.selected_text } else { palette.text };
+        let dim = |is_selected: bool| if is_selected { palette.selected_secondary } else { palette.secondary };
 
         let mut y = INSET;
         if let Some(labels) = preedit_labels {
@@ -268,7 +261,7 @@ impl Renderer {
                 let under = snap(top + LINE - 1.0);
                 let (thickness, color) = if focus { (stroke * 2.0, palette.accent) } else { (stroke, palette.secondary) };
                 ops.push(Op::Fill { rect: rect(x, under, right, under + thickness), radius: 0.0, color });
-                ops.push(Op::Text { x, y: top, layout: label.layout, color: ink(focus, palette.text) });
+                ops.push(Op::Text { x, y: top, layout: label.layout, color: ink(focus) });
                 x = right;
             }
             y += ROW;
@@ -290,8 +283,8 @@ impl Renderer {
                 }
                 let number_x = x + MARGIN / 2.0 + INDICATOR_WIDTH;
                 let text_x = number_x + item.number.width + NUMBER_GAP;
-                ops.push(Op::Text { x: number_x, y: top, layout: item.number.layout, color: ink(is_selected, palette.secondary) });
-                ops.push(Op::Text { x: text_x, y: top, layout: item.text.layout, color: ink(is_selected, palette.text) });
+                ops.push(Op::Text { x: number_x, y: top, layout: item.number.layout, color: dim(is_selected) });
+                ops.push(Op::Text { x: text_x, y: top, layout: item.text.layout, color: ink(is_selected) });
                 x += cell + CELL_GAP;
             }
             y += ROW;
@@ -303,11 +296,11 @@ impl Renderer {
                     selection(&mut ops, INSET, width - INSET, y);
                 }
                 let top = centered(y, ROW);
-                ops.push(Op::Text { x: MARGIN, y: top, layout: item.number.layout, color: ink(is_selected, palette.secondary) });
-                ops.push(Op::Text { x: text_x, y: top, layout: item.text.layout, color: ink(is_selected, palette.text) });
+                ops.push(Op::Text { x: MARGIN, y: top, layout: item.number.layout, color: dim(is_selected) });
+                ops.push(Op::Text { x: text_x, y: top, layout: item.text.layout, color: ink(is_selected) });
                 if let Some(note) = item.note {
                     let x = width - MARGIN - note.width;
-                    ops.push(Op::Text { x, y: top, layout: note.layout, color: ink(is_selected, palette.secondary) });
+                    ops.push(Op::Text { x, y: top, layout: note.layout, color: dim(is_selected) });
                 }
                 y += ROW;
             }
@@ -326,11 +319,12 @@ impl Renderer {
         }
         let height = y + INSET;
 
-        if edge {
-            let (w, h, c) = (width, height, palette.outline);
-            for r in [rect(0.0, 0.0, w, stroke), rect(0.0, h - stroke, w, h), rect(0.0, 0.0, stroke, h), rect(w - stroke, 0.0, w, h)] {
-                ops.push(Op::Fill { rect: r, radius: 0.0, color: c });
-            }
+        // The flyout's own stroke, which WinUI draws too. It is all the outline
+        // the popup has where the compositor adds none: Windows 10, a virtual
+        // machine, a remote session.
+        let (w, h) = (width, height);
+        for r in [rect(0.0, 0.0, w, stroke), rect(0.0, h - stroke, w, h), rect(0.0, 0.0, stroke, h), rect(w - stroke, 0.0, w, h)] {
+            ops.push(Op::Fill { rect: r, radius: 0.0, color: palette.outline });
         }
 
         Ok(Scene { ops, panel: palette.panel, width, height, dpi })
@@ -472,7 +466,7 @@ mod tests {
 
     #[test]
     fn rows_are_32_tall_inside_a_4_inset() {
-        let s = renderer().layout(None, Some(&popup(3, false, 3)), &Palette::default_light(), 96.0, false).unwrap();
+        let s = renderer().layout(None, Some(&popup(3, false, 3)), &Palette::default_light(), 96.0).unwrap();
         assert_eq!(s.height, INSET + 3.0 * ROW + INSET);
     }
 
@@ -480,8 +474,8 @@ mod tests {
     fn a_footer_appears_only_when_there_are_more_pages() {
         let r = renderer();
         let palette = Palette::default_light();
-        let one = r.layout(None, Some(&popup(3, false, 3)), &palette, 96.0, false).unwrap();
-        let more = r.layout(None, Some(&popup(3, false, 12)), &palette, 96.0, false).unwrap();
+        let one = r.layout(None, Some(&popup(3, false, 3)), &palette, 96.0).unwrap();
+        let more = r.layout(None, Some(&popup(3, false, 12)), &palette, 96.0).unwrap();
         assert_eq!(more.height - one.height, FOOTER);
     }
 
@@ -490,8 +484,8 @@ mod tests {
         let r = renderer();
         let palette = Palette::default_dark();
         let p = popup(5, false, 20);
-        let a = r.layout(None, Some(&p), &palette, 96.0, false).unwrap().pixel_size();
-        let b = r.layout(None, Some(&p), &palette, 192.0, false).unwrap().pixel_size();
+        let a = r.layout(None, Some(&p), &palette, 96.0).unwrap().pixel_size();
+        let b = r.layout(None, Some(&p), &palette, 192.0).unwrap().pixel_size();
         assert_eq!((a.0 * 2, a.1 * 2), b);
     }
 
@@ -507,7 +501,7 @@ mod tests {
         let r = renderer();
         let palette = Palette::default_light();
         for p in [popup(9, false, 40), popup(9, true, 40)] {
-            let s = r.layout(None, Some(&p), &palette, 96.0, true).unwrap();
+            let s = r.layout(None, Some(&p), &palette, 96.0).unwrap();
             for op in &s.ops {
                 if let Op::Fill { rect, .. } = op {
                     assert!(

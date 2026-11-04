@@ -75,9 +75,6 @@ enum Backend {
     Unstarted(&'static fluent::Libraries),
     Fluent {
         renderer: Box<fluent::Renderer>,
-        /// The compositor refused to round the window (Windows 10), so the
-        /// outline is ours to draw.
-        edge: bool,
         /// The theme the frame was last told about.
         dark: Option<bool>,
     },
@@ -214,13 +211,13 @@ fn present(hwnd: HWND, cell: &RefCell<Inner>) {
         let preedit = content.preedit.as_deref();
         let popup = content.popup.as_ref();
         let anchor = content.anchor.unwrap_or_else(caret_screen_pos);
-        if let Backend::Fluent { renderer, edge, dark } = &mut inner.backend {
+        if let Backend::Fluent { renderer, dark } = &mut inner.backend {
             let palette = Palette::current();
             if *dark != Some(palette.dark) {
                 *dark = Some(palette.dark);
                 tell_frame_theme(hwnd, palette.dark);
             }
-            match layout_fluent(renderer, preedit, popup, &palette, anchor, *edge) {
+            match layout_fluent(renderer, preedit, popup, &palette, anchor) {
                 Ok((scene, placed)) => {
                     inner.paint = Some(Paint::Fluent(scene));
                     Some(placed)
@@ -269,15 +266,14 @@ fn layout_fluent(
     popup: Option<&Popup>,
     palette: &Palette,
     anchor: (i32, i32),
-    edge: bool,
 ) -> windows::core::Result<(fluent::Scene, (i32, i32, i32, i32))> {
     let mut dpi = dpi_at(anchor);
-    let mut scene = renderer.layout(preedit, popup, palette, dpi as f32, edge)?;
+    let mut scene = renderer.layout(preedit, popup, palette, dpi as f32)?;
     let mut placed = place_scene(&scene, anchor, dpi);
     let landed = dpi_at((placed.0, placed.1));
     if landed != dpi {
         dpi = landed;
-        scene = renderer.layout(preedit, popup, palette, dpi as f32, edge)?;
+        scene = renderer.layout(preedit, popup, palette, dpi as f32)?;
         placed = place_scene(&scene, anchor, dpi);
     }
     Ok((scene, placed))
@@ -340,8 +336,8 @@ fn start_backend(hwnd: HWND, cell: &RefCell<Inner>) {
     }
     inner.backend = match fluent::Renderer::start(libraries) {
         Ok(renderer) => {
-            let rounded = set_frame(hwnd, false, DWMWCP_ROUND);
-            Backend::Fluent { renderer: Box::new(renderer), edge: !rounded, dark: None }
+            set_frame(hwnd, false, DWMWCP_ROUND);
+            Backend::Fluent { renderer: Box::new(renderer), dark: None }
         }
         Err(error) => {
             crate::debug_log::log(|| format!("Direct2D did not start, drawing with GDI: {error}"));
@@ -358,9 +354,9 @@ fn gdi_requested() -> bool {
 
 /// Switch between the two looks. The Fluent frame has no border of its own: on
 /// Windows 11 the compositor rounds the window and adds its edge, and the class
-/// shadow follows the rounded shape. Returns whether the compositor took the
-/// corner preference, which Windows 10 refuses.
-fn set_frame(hwnd: HWND, border: bool, corners: DWM_WINDOW_CORNER_PREFERENCE) -> bool {
+/// shadow follows the rounded shape. Windows 10 refuses the corner preference
+/// and keeps the corners square.
+fn set_frame(hwnd: HWND, border: bool, corners: DWM_WINDOW_CORNER_PREFERENCE) {
     // SAFETY: hwnd is valid. Only frame bits change, and the flags keep
     // activation, position and z-order as they are.
     unsafe {
@@ -370,7 +366,7 @@ fn set_frame(hwnd: HWND, border: bool, corners: DWM_WINDOW_CORNER_PREFERENCE) ->
         let class = GetClassLongPtrW(hwnd, GCL_STYLE);
         let shadow = CS_DROPSHADOW.0 as usize;
         SetClassLongPtrW(hwnd, GCL_STYLE, (if border { class & !shadow } else { class | shadow }) as isize);
-        let result = DwmSetWindowAttribute(
+        let _ = DwmSetWindowAttribute(
             hwnd,
             DWMWA_WINDOW_CORNER_PREFERENCE,
             &corners as *const _ as *const _,
@@ -385,7 +381,6 @@ fn set_frame(hwnd: HWND, border: bool, corners: DWM_WINDOW_CORNER_PREFERENCE) ->
             0,
             SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED,
         );
-        result.is_ok()
     }
 }
 
@@ -521,7 +516,7 @@ pub mod preview {
         dpi: u32,
     ) -> windows::core::Result<Image> {
         let mut renderer = fluent::Renderer::start(&fluent::SYSTEM_LIBRARIES)?;
-        let scene = renderer.layout(preedit, popup, palette, dpi as f32, false)?;
+        let scene = renderer.layout(preedit, popup, palette, dpi as f32)?;
         let (width, height) = scene.pixel_size();
         render(width, height, |dc, rc| renderer.paint(dc, rc, &scene))
     }

@@ -55,8 +55,8 @@ for pull requests):
 
 The signed APK is the artifact `seokdok-release-apk`; `web/scripts/release.sh`
 downloads it into the site's downloads. Locally, `assembleRelease` reads the
-same values from `SEOKDOK_KEYSTORE` (path), `SEOKDOK_KEYSTORE_PASSWORD`,
-produces an unsigned APK that cannot be installed. Keep the keystore outside
+same values from `SEOKDOK_KEYSTORE` (path), `SEOKDOK_KEYSTORE_PASSWORD` and
+`SEOKDOK_KEY_ALIAS`; without `SEOKDOK_KEYSTORE` it produces an unsigned APK that cannot be installed. Keep the keystore outside
 the repository and back it up: an update must be signed with the same key as
 the installed version.
 

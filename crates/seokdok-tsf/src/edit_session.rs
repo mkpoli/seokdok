@@ -1,6 +1,6 @@
 //! Synchronous edit-session wrapper. `run_sync` boxes a callback into a
 //! non-generic `ITfEditSession`, requests a synchronous read-write session, and
-//! returns the callback's result.
+//! returns the callback's result. `run_sync_read` asks to read only.
 //!
 //! The session object itself is non-generic (the `#[implement]` macro does not
 //! support generic structs cleanly); the typed result is threaded out through a
@@ -12,7 +12,7 @@ use std::rc::Rc;
 use windows::core::implement;
 use windows::Win32::Foundation::E_FAIL;
 use windows::Win32::UI::TextServices::{
-    ITfContext, ITfEditSession, ITfEditSession_Impl, TF_ES_READWRITE, TF_ES_SYNC,
+    ITfContext, ITfEditSession, ITfEditSession_Impl, TF_CONTEXT_EDIT_CONTEXT_FLAGS, TF_ES_READ, TF_ES_READWRITE, TF_ES_SYNC,
 };
 
 /// A type-erased edit-session callback. It captures whatever typed result cell
@@ -40,6 +40,24 @@ pub fn run_sync<T: 'static>(
     context: &ITfContext,
     cb: impl FnOnce(u32) -> windows::core::Result<T> + 'static,
 ) -> windows::core::Result<T> {
+    run_with(client_id, context, TF_ES_SYNC | TF_ES_READWRITE, cb)
+}
+
+/// Runs `cb` inside a synchronous, read-only TSF edit session on `context`.
+pub fn run_sync_read<T: 'static>(
+    client_id: u32,
+    context: &ITfContext,
+    cb: impl FnOnce(u32) -> windows::core::Result<T> + 'static,
+) -> windows::core::Result<T> {
+    run_with(client_id, context, TF_ES_SYNC | TF_ES_READ, cb)
+}
+
+fn run_with<T: 'static>(
+    client_id: u32,
+    context: &ITfContext,
+    flags: TF_CONTEXT_EDIT_CONTEXT_FLAGS,
+    cb: impl FnOnce(u32) -> windows::core::Result<T> + 'static,
+) -> windows::core::Result<T> {
     let slot: Rc<RefCell<Option<windows::core::Result<T>>>> = Rc::new(RefCell::new(None));
     let slot_inner = Rc::clone(&slot);
 
@@ -57,7 +75,7 @@ pub fn run_sync<T: 'static>(
     // RequestEditSession returns the inner session HRESULT, which `?` surfaces.
     unsafe {
         context
-            .RequestEditSession(client_id, &session, TF_ES_SYNC | TF_ES_READWRITE)?
+            .RequestEditSession(client_id, &session, flags)?
             .ok()?;
     }
 

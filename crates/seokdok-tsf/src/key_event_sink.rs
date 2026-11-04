@@ -174,6 +174,7 @@ impl TextService_Impl {
             state.session.set_space_converts(cfg.input.space_converts);
             state.session.set_horizontal(cfg.input.candidate_layout == crate::config::Layout::Horizontal);
             state.session.set_old_clusters(cfg.input.old_clusters);
+            state.session.set_learned(crate::learned::shared(cfg.input.learn));
             let requested = state.mode.take_request();
             effects.extend(requested.map(|m| state.session.set_mode(m)).unwrap_or_default());
             (requested, effects)
@@ -263,6 +264,13 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             }
             return Ok(switched.into());
         };
+        // A new composition may be in another field of the same context, as in
+        // a browser. The borrow ends first: TSF calls back during edit sessions.
+        if matches!(key, Key::Letter { .. }) && !self.inner().session.is_composing() {
+            let client_id = self.inner().client_id;
+            let private = crate::field_privacy::is_private(client_id, context);
+            self.inner_mut().session.set_private_field(private);
+        }
         // Release the borrow before touching the document: TSF calls back
         // into this object during edit sessions.
         self.inner_mut().current_key = Some(key);

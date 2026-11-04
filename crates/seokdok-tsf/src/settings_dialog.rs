@@ -16,7 +16,7 @@ use windows::Win32::UI::Input::KeyboardAndMouse::EnableWindow;
 use windows::Win32::UI::WindowsAndMessaging::{
     CreateWindowExW, DefWindowProcW, DestroyWindow, DispatchMessageW, GetDlgItem, GetMessageW,
     GetSystemMetrics, GetWindowTextW, IsDialogMessageW, IsWindow, LoadCursorW, RegisterClassExW,
-    SendMessageW, SetForegroundWindow, SetWindowPos, ShowWindow, TranslateMessage, BM_GETCHECK,
+    SendMessageW, SetForegroundWindow, SetWindowPos, SetWindowTextW, ShowWindow, TranslateMessage, BM_GETCHECK,
     BM_SETCHECK, BS_AUTOCHECKBOX, BS_DEFPUSHBUTTON, BS_GROUPBOX, BS_PUSHBUTTON, CBS_DROPDOWNLIST,
     CB_ADDSTRING, CB_GETCURSEL, CB_SETCURSEL, ES_AUTOHSCROLL, ES_NUMBER, HMENU, IDCANCEL, IDC_ARROW, IDOK, MSG,
     SM_CXSCREEN, SM_CYSCREEN, SWP_NOSIZE, SW_SHOW, WINDOW_STYLE, WM_CLOSE, WM_COMMAND, WM_CREATE,
@@ -36,6 +36,8 @@ const ID_KEYS_CYCLE: i32 = 1006; // input.keys.script_cycle (edit)
 const ID_KEYS_CONVERT: i32 = 1007; // input.keys.convert (edit)
 const ID_LAYOUT: i32 = 1004; // input.candidate_layout (2-way)
 const ID_OLD: i32 = 1005; // input.old_clusters
+const ID_LEARN: i32 = 1008; // input.learn
+const ID_FORGET: i32 = 1009; // forget what was picked (button)
 const ID_STYLE: i32 = 1010; // conversion.style (2-way)
 const ID_FRAGMENT: i32 = 1011; // conversion.fragment (2-way)
 const ID_CODA: i32 = 1012; // conversion.coda_always
@@ -83,7 +85,7 @@ pub fn show(parent: HWND) {
         .encode_utf16()
         .collect();
 
-    let (w, h) = (780, 656);
+    let (w, h) = (780, 712);
     // SAFETY: GetSystemMetrics is always safe.
     let (sx, sy) = unsafe { (GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)) };
     let (x, y) = ((sx - w).max(0) / 2, (sy - h).max(0) / 2);
@@ -205,6 +207,7 @@ extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM)
                     id if id == IDCANCEL.0 => {
                         let _ = DestroyWindow(hwnd);
                     }
+                    ID_FORGET => forget_picks(hwnd),
                     _ => {}
                 }
                 LRESULT(0)
@@ -267,7 +270,7 @@ unsafe fn build_controls(hwnd: HWND) {
     let mut y = 8;
 
     // --- Input ---
-    group(w!("入力 / Input"), y, 250);
+    group(w!("入力 / Input"), y, 306);
     label(w!("始作 模式 / Start in:"), gx, y + 28, 150);
     combo(hwnd, ID_MODE, (gx + 160, y + 24, 220, 200), &MODE_ITEMS, cfg.input.default_mode);
     label(w!("候補 窓 / Candidates:"), gx, y + 62, 150);
@@ -296,7 +299,16 @@ unsafe fn build_controls(hwnd: HWND) {
             id,
         );
     }
-    y += 262;
+    check(ID_LEARN, w!("자주 고른 候補 먼저 (두 번 고르면) / Put candidates you keep picking first"), y + 240, cfg.input.learn);
+    child(
+        hwnd,
+        w!("BUTTON"),
+        w!("고른 것 잊기 / Forget what I picked"),
+        WINDOW_STYLE(BS_PUSHBUTTON as u32) | WS_TABSTOP,
+        (gx, y + 268, 260, 26),
+        ID_FORGET,
+    );
+    y += 318;
 
     // --- Conversion ---
     group(w!("表記 / Spelling"), y, 270);
@@ -384,6 +396,7 @@ unsafe fn apply(hwnd: HWND) {
     cfg.input.keys.script_cycle = read_list(hwnd, ID_KEYS_CYCLE);
     cfg.input.keys.convert = read_list(hwnd, ID_KEYS_CONVERT);
     cfg.input.old_clusters = checked(ID_OLD);
+    cfg.input.learn = checked(ID_LEARN);
     if let Some((_, v)) = selected(hwnd, ID_LAYOUT).and_then(|i| LAYOUT_ITEMS.get(i)) {
         cfg.input.candidate_layout = *v;
     }
@@ -416,6 +429,15 @@ unsafe fn apply(hwnd: HWND) {
     let _ = cfg.save();
     crate::config::reload();
     crate::dll::load_engine();
+}
+
+/// Delete learned.tsv now, whatever OK or Cancel does later; the button says
+/// how it went.
+unsafe fn forget_picks(hwnd: HWND) {
+    let done = Config::user_dir().is_none_or(|dir| crate::learned::forget(&dir).is_ok());
+    if let Ok(button) = GetDlgItem(Some(hwnd), ID_FORGET) {
+        let _ = SetWindowTextW(button, if done { w!("지웠습니다 / Forgotten") } else { w!("지우지 못했습니다 / Could not delete") });
+    }
 }
 
 /// Read an EDIT control's comma-separated keys.

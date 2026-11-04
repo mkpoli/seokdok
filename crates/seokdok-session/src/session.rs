@@ -142,6 +142,8 @@ pub struct Session {
     /// Mode to return to from Latin.
     hangul_mode: Mode,
     space_converts: bool,
+    /// 韓㐎 專用: nothing is converted, so the converting mode does not exist.
+    hangul_only: bool,
     /// Candidate window in a row; ← → then walk the candidates.
     horizontal: bool,
     composer: Composer,
@@ -157,6 +159,7 @@ impl Session {
             mode,
             hangul_mode,
             space_converts,
+            hangul_only: false,
             horizontal: false,
             composer: Composer::new(),
             conv: None,
@@ -170,6 +173,18 @@ impl Session {
 
     pub fn set_space_converts(&mut self, v: bool) {
         self.space_converts = v;
+    }
+
+    /// 韓㐎 專用: type Hangul and never convert. Space inserts a space and
+    /// Enter commits; the 釋讀 mode becomes the plain Hangul mode.
+    pub fn set_hangul_only(&mut self, v: bool) {
+        self.hangul_only = v;
+        self.mode = self.allowed(self.mode);
+        self.hangul_mode = self.allowed(self.hangul_mode);
+    }
+
+    fn allowed(&self, mode: Mode) -> Mode {
+        if self.hangul_only && mode == Mode::Seokdok { Mode::Hangul } else { mode }
     }
 
     pub fn set_horizontal(&mut self, v: bool) {
@@ -455,6 +470,7 @@ impl Session {
 
     /// Switch mode, committing any composition as it stands.
     pub fn set_mode(&mut self, mode: Mode) -> Vec<Effect> {
+        let mode = self.allowed(mode);
         let mut fx = Vec::new();
         if self.is_composing() {
             fx.push(Effect::Commit(self.take_text()));
@@ -945,6 +961,64 @@ mod tests {
         let o = s.handle(Key::Enter, &Stub(3));
         assert_eq!(commit_of(&o).unwrap(), "가");
         assert!(!s.eats(Key::Enter));
+    }
+
+    fn hangul_only() -> Session {
+        let mut s = Session::new(Mode::Seokdok, true);
+        s.set_hangul_only(true);
+        s
+    }
+
+    #[test]
+    fn hangul_only_has_no_converting_mode() {
+        let mut s = hangul_only();
+        assert_eq!(s.mode(), Mode::Hangul);
+        assert!(s.set_mode(Mode::Seokdok).is_empty());
+        assert_eq!(s.mode(), Mode::Hangul);
+        s.handle(Key::HangulToggle, &Stub(3));
+        assert_eq!(s.mode(), Mode::Latin);
+        s.handle(Key::HangulToggle, &Stub(3));
+        assert_eq!(s.mode(), Mode::Hangul);
+        s.set_hangul_only(false);
+        assert_eq!(s.set_mode(Mode::Seokdok).len(), 0);
+        assert_eq!(s.mode(), Mode::Seokdok);
+    }
+
+    #[test]
+    fn hangul_only_types_old_hangul_and_commits_on_space_and_enter() {
+        let mut s = hangul_only();
+        s.set_old_clusters(true);
+        type_str(&mut s, "dkssud");
+        let o = s.handle(Key::Space { shift: false }, &Stub(3));
+        assert_eq!(commit_of(&o).unwrap(), "안녕 ");
+        assert!(!matches!(popup_of(&o), Some(Some(_))));
+        assert!(!s.is_composing());
+        type_str(&mut s, "rk");
+        for k in [Key::Convert, Key::Tab { shift: false }, Key::Down] {
+            let o = s.handle(k, &Stub(3));
+            assert!(o.eaten && o.effects.is_empty(), "{k:?}");
+        }
+        let o = s.handle(Key::Space { shift: true }, &Stub(3));
+        assert_eq!(commit_of(&o).unwrap(), "가 ");
+        type_str(&mut s, "rk");
+        let o = s.handle(Key::Enter, &Stub(3));
+        assert_eq!(commit_of(&o).unwrap(), "가");
+        assert!(!s.eats(Key::Space { shift: false }));
+        assert!(!s.eats(Key::Enter));
+        // Old letters stay available: Shift+D is ㆁ.
+        let o = s.handle(Key::Letter { ch: 'd', shift: true }, &Stub(3));
+        assert_eq!(preedit_of(&o).unwrap()[0].text, "ㆁ");
+    }
+
+    #[test]
+    fn hangul_only_ignores_space_converts() {
+        for space_converts in [true, false] {
+            let mut s = Session::new(Mode::Seokdok, space_converts);
+            s.set_hangul_only(true);
+            type_str(&mut s, "gks");
+            let o = s.handle(Key::Space { shift: false }, &Stub(3));
+            assert_eq!(commit_of(&o).unwrap(), "한 ");
+        }
     }
 
     #[test]

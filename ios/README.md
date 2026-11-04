@@ -105,7 +105,13 @@ time it appears.
 A keyboard reaches the shared container only with Full Access (Apple's App
 Extension Programming Guide, Custom Keyboard, Table 8-1: without it "No
 shared container with containing app"). Without Full Access the keyboard
-still works fully, on the default settings; it never uses the network.
+still works fully, on the default settings: conversion and the dictionaries
+come from the extension's own bundle, and the keyboard contains no network
+code. App Store Review Guideline 4.4.1 requires keyboard extensions to
+"remain functional without full network access and without requiring full
+access"; requesting it for the shared settings is allowed under that rule.
+The CI run executes the UI test a second time with `RequestsOpenAccess`
+turned off.
 
 ## Layout
 

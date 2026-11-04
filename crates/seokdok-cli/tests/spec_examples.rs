@@ -225,3 +225,237 @@ fn demonstratives_take_every_spelling_of_geot() {
         assert_eq!(e.read(&format!("{han}物을")), format!("{ko}것을"));
     }
 }
+
+/// The texts of a segment's candidates.
+fn candidates(e: &Engine, input: &str) -> Vec<String> {
+    e.segments(input)[0].candidates.iter().map(|c| c.text.clone()).collect()
+}
+
+/// Whether `want` appears in `list` in this order (other items may lie between).
+fn in_order(list: &[String], want: &[&str]) -> bool {
+    let mut at = 0;
+    for w in want {
+        match list[at..].iter().position(|c| c == w) {
+            Some(i) => at += i + 1,
+            None => return false,
+        }
+    }
+    true
+}
+
+#[test]
+fn other_okurigana_follow_the_dictionary_form() {
+    let e = engine(Options::default());
+    for (input, want) in [
+        ("너무", &["超무", "超ㅜ", "超"][..]),
+        ("처음", &["初음", "初ㅁ", "初"]),
+        ("어떻게", &["何떻게", "何게", "何ㅔ", "何"]),
+        ("말씀", &["言씀", "言ㅁ", "言"]),
+        ("오히려", &["尙려", "尙히려", "尙ㅕ", "尙"]),
+        // The particle follows the chosen form.
+        ("너무도", &["超무도", "超ㅜ도", "超도"]),
+        ("처음에", &["初음에", "初ㅁ에", "初에"]),
+        ("말씀을", &["言씀을", "言ㅁ을", "言을"]),
+        // An inflected stem keeps its ending; the rest of the stem comes back.
+        ("가까웠다", &["近웠다", "近까웠다"]),
+        ("가깝고", &["近고", "近깝고"]),
+    ] {
+        let got = candidates(&e, input);
+        // Another entry may already write a form in the dictionary, which puts
+        // it earlier, so presence is what holds here.
+        assert!(want.iter().all(|w| got.iter().any(|c| c == w)), "{input}: {want:?} not all in {got:?}");
+        // The dictionary form stays first and nothing is listed twice.
+        assert_eq!(got[0], want[0], "{input}");
+        let mut seen = std::collections::HashSet::new();
+        assert!(got.iter().all(|c| seen.insert(c)), "{input}: duplicates in {got:?}");
+        assert_eq!(e.convert(input)[0].text, want[0], "{input}");
+    }
+    // 過무 can be typed for 너무.
+    assert!(candidates(&e, "너무").iter().any(|c| c == "過무"));
+    assert!(candidates(&e, "너무도").iter().any(|c| c == "過무도"));
+    // The dictionary forms of a word come before its other forms.
+    let got = candidates(&e, "오히려");
+    assert!(got.iter().position(|c| c == "尙려") < got.iter().position(|c| c == "尙히려"));
+    // Attested spellings of every reading come before constructed ones.
+    let got = candidates(&e, "이것");
+    assert!(got.iter().position(|c| c == "此物") < got.iter().position(|c| c == "此ㅅ"), "{got:?}");
+}
+
+#[test]
+fn one_syllable_words_have_the_letter_and_the_character() {
+    let e = engine(Options::default());
+    let got = candidates(&e, "나");
+    assert!(in_order(&got, &["我", "我ㅏ"]), "{got:?}");
+    let got = candidates(&e, "달");
+    assert!(in_order(&got, &["月", "月ㄹ"]), "{got:?}");
+    // The form that exists already is not offered twice.
+    let got = candidates(&e, "좀");
+    assert_eq!(got.iter().filter(|c| *c == "少ㅁ").count(), 1, "{got:?}");
+}
+
+#[test]
+fn forms_of_lists_dictionary_forms_only() {
+    let e = engine(Options::default());
+    let find = |lemma: &str, hanja: &str| e.natives.iter().position(|n| n.lemma == lemma && n.hanja == hanja).unwrap_or_else(|| panic!("{lemma} {hanja}"));
+    let neomu = e.forms_of(find("너무", "超"));
+    assert!(!neomu.is_empty() && neomu.iter().all(|(w, _)| w.starts_with("超무")), "{neomu:?}");
+    let chaeum = e.forms_of(find("처음", "初"));
+    assert!(chaeum.iter().all(|(w, _)| w.starts_with("初음")), "{chaeum:?}");
+    let gakkapda = e.forms_of(find("가깝다", "近"));
+    assert!(gakkapda.iter().all(|(w, _)| !w.starts_with("近까") && !w.starts_with("近깝")), "{gakkapda:?}");
+    // Nothing the strategies add is a dictionary form of these entries.
+    for (forms, extra) in [(&neomu, ["超ㅜ", "超"]), (&chaeum, ["初ㅁ", "初"])] {
+        assert!(forms.iter().all(|(w, _)| !extra.contains(&w.as_str())), "{forms:?}");
+    }
+}
+
+#[test]
+fn okurigana_variants_read_back() {
+    let e = engine(Options::default());
+    for (written, read) in [
+        ("超ㅜ", "너무"), ("過무", "너무"), ("超무", "너무"), ("初ㅁ에", "처음에"),
+        ("尙히려", "오히려"), ("近까웠다", "가까웠다"), ("近깝고", "가깝고"), ("言씀을", "말씀을"),
+        ("何ㅔ", "어떻게"),
+    ] {
+        assert_eq!(e.read(written), read, "{written}");
+    }
+    // The Hanja alone is read by sound, as before.
+    assert_eq!(e.read("超"), "초");
+    assert_eq!(e.read("初에"), "초에");
+}
+
+#[test]
+fn demonstratives_of_place_side_and_time() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("여기")[0].text, "此處");
+    assert_eq!(e.convert("거기")[0].text, "其處");
+    assert_eq!(e.convert("저기")[0].text, "彼處");
+    assert_eq!(e.convert("여기서")[0].text, "此處서");
+    assert_eq!(e.convert("어디서")[0].text, "何處서");
+    assert_eq!(e.convert("여기서도")[0].text, "此處서도");
+    assert_eq!(e.convert("서")[0].text, "立");
+    // The chat writes 此番 twelve times to 今番 once.
+    assert_eq!(e.convert("이번")[0].text, "此番");
+    assert!(offers(&e, "이번", "今番"));
+    // Words ending in 서 keep their own reading.
+    assert_eq!(e.convert("나서")[0].text, "出서");
+    assert_eq!(e.convert("이어서")[0].text, "續어서");
+    assert_eq!(e.convert("이쪽")[0].text, "此쪽");
+    assert!(offers(&e, "저번", "這番"));
+    assert_eq!(e.convert("거기에")[0].text, "其處에");
+    for (input, want) in [
+        ("여기", "此所"), ("여기", "此기"), ("거기", "其기"), ("저기", "彼所"), ("저기", "那"),
+        ("이곳", "此處"), ("이곳", "此곳"), ("저곳", "彼處"), ("이쪽", "此側"), ("저쪽", "彼方"),
+        ("그쪽", "其쪽"), ("저때", "彼時"), ("이날", "此日"), ("이날", "是日"), ("이번", "此番"),
+        ("저번", "彼番"), ("이리", "此리"), ("저리", "彼리"),
+    ] {
+        assert!(offers(&e, input, want), "{input} → {want}");
+    }
+    // 여기다 and its forms are the verb.
+    assert!(offers(&e, "여기다", "思다"));
+}
+
+#[test]
+fn verb_variants_keep_the_syllables_of_the_word() {
+    let e = engine(Options::default());
+    // The syllables from the second on, joined as typed.
+    for (input, want) in [("마신", "飮신"), ("마셔라", "飮셔라"), ("바빠", "忙빠"), ("바빴다", "忙빴다")] {
+        let got = candidates(&e, input);
+        assert!(got.iter().any(|c| c == want), "{input} → {want} in {got:?}");
+    }
+    // Nothing is made of a composed stem and a rendered ending.
+    for bad in ["飮시ㄴ", "飮시라", "近깝ㅂ고", "近까았다"] {
+        assert!(!candidates(&e, "마신").contains(&bad.to_string()) && !candidates(&e, "마셔라").contains(&bad.to_string()), "{bad}");
+    }
+    // The style options leave the variants as they are.
+    for o in [
+        Options { coda_always: true, ..Options::default() },
+        Options { style: Style::Morpheme, ..Options::default() },
+        Options { fragment: Fragment::Letter, ..Options::default() },
+        Options { resyllabify: true, ..Options::default() },
+    ] {
+        let e = engine(o);
+        for (input, want) in [("가깝고", "近깝고"), ("가까웠다", "近까웠다"), ("마셔라", "飮셔라"), ("바빠", "忙빠")] {
+            let got = candidates(&e, input);
+            assert!(got.iter().any(|c| c == want), "{input} → {want} in {got:?}");
+        }
+        for (input, bad) in [("가깝고", "近깝ㅂ고"), ("가까웠다", "近까았다")] {
+            assert!(!candidates(&e, input).iter().any(|c| c == bad), "{input} → {bad}");
+        }
+    }
+}
+
+#[test]
+fn reading_variants_does_not_depend_on_the_options() {
+    for o in [
+        Options::default(),
+        Options { coda_always: true, ..Options::default() },
+        Options { style: Style::Morpheme, ..Options::default() },
+        Options { fragment: Fragment::Letter, ..Options::default() },
+        Options { resyllabify: true, ..Options::default() },
+    ] {
+        let e = engine(o.clone());
+        for (written, read) in [("近깝고", "가깝고"), ("近까웠다", "가까웠다"), ("忙빠", "바빠"), ("忙빴다", "바빴다")] {
+            assert_eq!(e.read(written), read, "{written} with {o:?}");
+        }
+    }
+}
+
+fn the_group_reads_as_its_own_name() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("풀어읽기모임")[0].text, "釋讀會");
+    assert_eq!(e.read("釋讀會"), "풀어읽기모임");
+    assert_eq!(e.read("釋讀會의"), "풀어읽기모임의");
+    assert_eq!(e.convert("석독회")[0].text, "釋讀會");
+    assert_eq!(e.read("釋讀"), "석독");
+}
+
+#[test]
+fn compound_verbs_take_the_meaning_of_each_part() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("내려받기")[0].text, "下려受기");
+    assert_eq!(e.convert("내보내거나")[0].text, "出보내거나");
+}
+
+#[test]
+fn interrogatives_in_hanja() {
+    let e = engine(Options::default());
+    for (input, first) in [
+        ("왜", "何故"), ("누구", "誰"), ("누가", "誰가"), ("언제", "何時"), ("어디", "何處"), ("어디서", "何處서"),
+        ("무엇", "何엇"), ("뭐", "何ㅓ"), ("어떻게", "何떻게"), ("어떤", "何떤"), ("어느", "何느"), ("무슨", "何슨"),
+        ("어찌", "何찌"), ("얼마", "幾何"), ("얼마나", "幾何나"), ("어쩌죠", "何쩌죠"), ("어떡하죠", "何떡하죠"), ("뭐야", "何ㅓ야"), ("몇", "幾"),
+    ] {
+        assert_eq!(e.convert(input)[0].text, first, "{input}");
+    }
+    for (input, other) in [
+        ("왜", "何以"), ("왜", "胡"), ("어디", "何所"), ("어떻게", "如何"), ("어찌", "奈何"), ("얼마나", "何마나"), ("얼마나", "幾나"),
+        ("어째서", "何故"), ("어째서", "何째서"), ("누구", "孰"), ("언제", "何日"), ("무엇", "何物"),
+    ] {
+        assert!(offers(&e, input, other), "{input} → {other}");
+    }
+    assert_eq!(e.convert("왜요")[0].text, "何故요");
+    assert_eq!(e.convert("언제쯤")[0].text, "何時쯤");
+    assert_eq!(e.convert("누굴")[0].text, "誰ㄹ");
+    assert_eq!(e.convert("이에요")[0].text, "乃요");
+    assert_eq!(e.read("何故"), "왜");
+}
+
+#[test]
+fn the_rest_of_the_demonstrative_family() {
+    let e = engine(Options::default());
+    for (input, first) in [
+        ("그분", "其分"), ("이편", "此便"), ("저편", "彼便"), ("어느쪽", "何느쪽"),
+        ("그이", "其人"), ("이이", "此人"), ("이달", "今月"), ("다음주", "來週"), ("이번주", "今週"),
+        ("너희", "汝等"), ("이러다", "此러다"),
+    ] {
+        assert_eq!(e.convert(input)[0].text, first, "{input}");
+    }
+    for (input, other) in [("이분", "此分"), ("저들", "彼等"), ("저만큼", "彼만큼"), ("저대로", "彼대로"), ("저처럼", "彼처럼"), ("저희", "吾等"), ("저희", "僕等")] {
+        assert!(offers(&e, input, other), "{input} → {other}");
+    }
+    // Words that merely contain 그이 or 저이 stay as they are.
+    assert_eq!(e.convert("로그인")[0].text, "로그인");
+    assert_eq!(e.convert("먼저일")[0].text, "먼저일");
+    // 저 still reads as the humble pronoun on its own.
+    assert_eq!(e.convert("저는")[0].text, "自는");
+}

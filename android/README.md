@@ -86,7 +86,9 @@ pick it with 入力 方法 고르기 (or hold the space bar while typing).
   - `SeokdokService.kt`: keys → session → composing text, commits, strip.
   - `KeyboardView.kt`, `KeyView.kt`: the candidate strip and the keys.
   - `Files.kt`: copies the dictionaries from the assets to
-    `filesDir/dict` on first run and after each update; settings live in
+    `filesDir/dict` on first run and after each update, on a background
+    thread (the strip shows 辭典 讀는 中… and keys wait until it is done);
+    settings live in
     `filesDir/config`.
   - `SettingsActivity.kt`, `ConfigText.kt`: the settings, written as
     `config.toml` through the session's own writer
@@ -103,4 +105,8 @@ for `aarch64-linux-android`, `armv7-linux-androideabi` and
 the candidate page, picking, committing, Latin mode, and reading and writing
 config.toml. The APK builds on GitHub Actions
 (`.github/workflows/android.yml`, artifacts `seokdok-debug-apk` and
-`seokdok-release-apk`). It has not been run on a device or emulator yet.
+`seokdok-release-apk`). The debug APK was installed on a BlueStacks instance (Android 9, x86_64) and driven
+through the soft keyboard with `adb shell input tap`: 안녕 + Space gives 安寧,
+수있다 gives 手有다 with candidate lists for each segment, the Shift layer types
+ㅿ ㆁ ㆆ ㆍ, and 韓㐎 專用 leaves Hangul unconverted. It has not run on a phone, on
+arm64, or in a release build.

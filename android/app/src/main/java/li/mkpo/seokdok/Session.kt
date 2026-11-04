@@ -1,8 +1,20 @@
 package li.mkpo.seokdok
 
 /** The Kotlin face of the Rust session. */
-class Session(dictDir: String, configDir: String) {
-    private var handle = Native.create(dictDir, configDir)
+class Session {
+    /** 0 until [attach] has run (the dictionaries are still being copied) and after [close]. */
+    @Volatile
+    private var handle = 0L
+    private var closed = false
+
+    /** Create the native session once the dictionaries are on disk; any thread. */
+    @Synchronized
+    fun attach(dictDir: String, configDir: String) {
+        if (!closed && handle == 0L) handle = Native.create(dictDir, configDir)
+    }
+
+    /** The native session exists; keys are used only after this. */
+    val attached: Boolean get() = handle != 0L
 
     /** A preedit run; [attr] is 0 input, 1 converted, 2 focused segment. */
     data class Run(val text: String, val attr: Int)
@@ -12,27 +24,36 @@ class Session(dictDir: String, configDir: String) {
     data class Candidates(val items: List<Candidate>, val selected: Int, val position: Int, val total: Int)
 
     /** Re-read the settings. */
-    fun sync() = Native.sync(handle)
+    fun sync() {
+        if (handle != 0L) Native.sync(handle)
+    }
 
     /** Feed a key; true when the session used it. */
     fun key(kind: Int, ch: Char? = null, shift: Boolean = false): Boolean =
-        Native.key(handle, kind, ch?.code ?: 0, shift)
+        // Before attach the key is swallowed rather than typed as a raw letter.
+        handle == 0L || Native.key(handle, kind, ch?.code ?: 0, shift)
 
     /** Commit whatever is being composed. */
-    fun flush() = Native.flush(handle)
+    fun flush() {
+        if (handle != 0L) Native.flush(handle)
+    }
 
     /** Forget the composition (the text changed under it). */
-    fun reset() = Native.reset(handle)
+    fun reset() {
+        if (handle != 0L) Native.reset(handle)
+    }
 
-    fun takeCommit(): String? = Native.takeCommit(handle)
+    fun takeCommit(): String? = if (handle == 0L) null else Native.takeCommit(handle)
 
     fun preedit(): List<Run> {
+        if (handle == 0L) return emptyList()
         val texts = Native.preeditTexts(handle)
         val attrs = Native.preeditAttrs(handle)
         return texts.indices.map { Run(texts[it], attrs.getOrElse(it) { 0 }) }
     }
 
     fun candidates(): Candidates? {
+        if (handle == 0L) return null
         val flat = Native.candidates(handle)
         if (flat.isEmpty()) return null
         val items = (0 until flat.size / 2).map { Candidate(flat[2 * it], flat[2 * it + 1]) }
@@ -41,9 +62,11 @@ class Session(dictDir: String, configDir: String) {
     }
 
     /** 0 釋讀, 1 Hangul, 2 Latin. */
-    val mode: Int get() = Native.mode(handle)
+    val mode: Int get() = if (handle == 0L) HANGUL else Native.mode(handle)
 
+    @Synchronized
     fun close() {
+        closed = true
         if (handle != 0L) {
             Native.free(handle)
             handle = 0L

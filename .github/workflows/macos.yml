@@ -1,0 +1,74 @@
+name: macOS
+
+on:
+  push:
+    branches: [main, "ci/macos*"]
+    paths: ["macos/**", "crates/**", "dict/**", "Cargo.toml", "Cargo.lock", ".github/workflows/macos.yml"]
+  pull_request:
+    paths: ["macos/**", "crates/**", "dict/**", "Cargo.toml", "Cargo.lock", ".github/workflows/macos.yml"]
+  workflow_dispatch:
+
+concurrency:
+  group: macos-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust targets
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: macos
+
+      - name: Rust library (universal libseokdok_ffi.a)
+        run: macos/build-rust.sh
+
+      - name: Xcode project
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen
+          cd macos && xcodegen
+
+      - name: Build
+        working-directory: macos
+        run: |
+          xcodebuild -quiet build -project Seokdok.xcodeproj -scheme Seokdok \
+            -configuration Release -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Bundle contents
+        working-directory: macos
+        run: |
+          app=build/DerivedData/Build/Products/Release/Seokdok.app
+          lipo -info "$app/Contents/MacOS/Seokdok"
+          plutil -lint "$app/Contents/Info.plist"
+          ls "$app/Contents/Resources/dict"
+          du -sh "$app"
+
+      # Links the same static library against the dictionaries in the built
+      # bundle and converts 안녕 through the C interface.
+      - name: Smoke test
+        working-directory: macos
+        run: |
+          app=build/DerivedData/Build/Products/Release/Seokdok.app
+          clang -Ibuild/include smoke/smoke.c build/lib/libseokdok_ffi.a -o build/smoke
+          build/smoke "$app"
+
+      - name: Package unsigned app
+        working-directory: macos
+        run: |
+          app=build/DerivedData/Build/Products/Release/Seokdok.app
+          codesign --force --deep --sign - "$app"
+          ditto -c -k --sequesterRsrc --keepParent "$app" Seokdok-unsigned.zip
+          ls -l Seokdok-unsigned.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Seokdok-unsigned-app
+          path: macos/Seokdok-unsigned.zip
+          if-no-files-found: error

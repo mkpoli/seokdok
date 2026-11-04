@@ -34,6 +34,10 @@ enum Written {
     NotStarted,
     /// The composition is open but its text is gone; it has been ended.
     Vanished,
+    /// The first write failed midway and the composition was ended. `undone`:
+    /// a fresh range over it was emptied and checked, inside the edit session
+    /// that wrote it, so the document never saw the text.
+    FirstWriteFailed { undone: bool },
 }
 
 /// See [`TextService_Impl::composer`].
@@ -250,12 +254,12 @@ impl TextService_Impl {
                     Err(_) if transitory && started => return Ok(Written::NotStarted),
                     Err(e) => return Err(e),
                 };
-                let range = comp.GetRange()?;
-                if transitory && holds_text && range.IsEmpty(ec)?.as_bool() {
+                if transitory && holds_text && comp.GetRange()?.IsEmpty(ec)?.as_bool() {
                     comp.EndComposition(ec)?;
                     return Ok(Written::Vanished);
                 }
                 let write = || -> windows::core::Result<Option<(i32, i32)>> {
+                    let range = comp.GetRange()?;
                     range.SetText(ec, 0, &text)?;
 
                     let prop = ctx.GetProperty(&GUID_PROP_ATTRIBUTE)?;
@@ -288,12 +292,15 @@ impl TextService_Impl {
                 };
                 match write() {
                     Ok(anchor) => Ok(Written::Shown(comp, anchor)),
-                    // Whatever reached the document goes again, so the text
-                    // cannot end up both there and in the popup.
                     Err(e) if started => {
-                        let _ = range.SetText(ec, 0, &[]);
+                        crate::debug_log::log(|| format!("first write failed: {e:?}"));
+                        // `write` may have collapsed its range; ask again.
+                        let undone = comp.GetRange().and_then(|range| {
+                            range.SetText(ec, 0, &[])?;
+                            range.IsEmpty(ec)
+                        });
                         let _ = comp.EndComposition(ec);
-                        Err(e)
+                        Ok(Written::FirstWriteFailed { undone: undone.is_ok_and(|e| e.as_bool()) })
                     }
                     Err(e) => Err(e),
                 }
@@ -343,6 +350,18 @@ impl TextService_Impl {
                 self.inner_mut().composition = None;
                 self.remember_floating("the composition's text vanished");
                 self.float_preedit(context, runs);
+            }
+            Written::FirstWriteFailed { undone: true } => {
+                crate::debug_log::log(|| "  undone before the document saw it, floating this composition".to_string());
+                self.float_preedit(context, runs);
+            }
+            Written::FirstWriteFailed { undone: false } => {
+                crate::debug_log::log(|| "  could not be undone: the document keeps it as finished, session reset".to_string());
+                let mut state = self.inner_mut();
+                state.drawn.clear();
+                state.session.reset();
+                drop(state);
+                self.hide_popup();
             }
         }
         Ok(())

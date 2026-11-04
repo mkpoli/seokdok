@@ -66,6 +66,11 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private let barScroll = UIScrollView()
     private let barEnd = UIStackView()
     private var shownCandidates: Session.Candidates?
+    private let more = BarButton(symbol: "chevron.down", label: "More candidates")
+    private let drawer = CandidateDrawer()
+    private var drawerOpen = false
+    /// Everything the drawer covers.
+    private let column = UIStackView()
     private let keysArea = UIStackView()
     private let letters = UIStackView()
     private let symbols = UIStackView()
@@ -100,7 +105,6 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         super.init(frame: .zero)
         backgroundColor = .clear
 
-        let column = UIStackView()
         column.axis = .vertical
         column.spacing = 6
         column.translatesAutoresizingMaskIntoConstraints = false
@@ -140,8 +144,53 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         pad.spacing = 7
         pad.isHidden = true
         column.addArrangedSubview(pad)
+        barEnd.addArrangedSubview(more)
+        more.isHidden = true
+        more.addAction(UIAction { [weak self] _ in
+            UIDevice.current.playInputClick()
+            self?.setDrawer(open: true)
+        }, for: .touchUpInside)
+        drawer.onPick = { [weak self] i in
+            self?.setDrawer(open: false)
+            self?.tap { $0.pick(i) }
+        }
+        drawer.close.addAction(UIAction { [weak self] _ in
+            UIDevice.current.playInputClick()
+            self?.setDrawer(open: false)
+        }, for: .touchUpInside)
+        drawer.isHidden = true
+        drawer.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(drawer)
+        NSLayoutConstraint.activate([
+            drawer.leadingAnchor.constraint(equalTo: leadingAnchor),
+            drawer.trailingAnchor.constraint(equalTo: trailingAnchor),
+            drawer.topAnchor.constraint(equalTo: topAnchor),
+            drawer.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
         render(KeyboardState())
     }
+
+    /// Open or close the drawer over the keys, on the curve the system uses
+    /// for its keyboard's own drawer.
+    private func setDrawer(open: Bool) {
+        guard open != drawerOpen else { return }
+        drawerOpen = open
+        if open, let c = shownCandidates {
+            drawer.isHidden = false
+            drawer.alpha = 0
+            drawer.show(c)
+        }
+        UIView.animate(withDuration: Self.drawerDuration, delay: 0, options: [.curveEaseInOut, .beginFromCurrentState]) {
+            self.drawer.alpha = open ? 1 : 0
+            self.column.alpha = open ? 0 : 1
+        } completion: { _ in
+            guard !self.drawerOpen else { return }
+            self.drawer.isHidden = true
+            self.drawer.clear()
+        }
+    }
+
+    private static let drawerDuration: TimeInterval = 0.25
 
     required init?(coder: NSCoder) {
         fatalError("not used")
@@ -498,7 +547,13 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         shownCandidates = s.candidates
         guard let c = s.candidates else {
             bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
+            more.isHidden = true
+            setDrawer(open: false)
             return
+        }
+        more.isHidden = false
+        if drawerOpen {
+            drawer.show(c)
         }
         if old?.items != c.items {
             bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
@@ -523,58 +578,6 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private func shown(_ j: String) -> String {
         guard let v = j.unicodeScalars.first?.value, (0x1100...0x115F).contains(v) else { return j }
         return j + "\u{1160}"
-    }
-}
-
-/// One candidate: its text with the reading beside it, smaller, on the same
-/// baseline, so that candidates line up whether they have a reading or not.
-final class CandidateCell: UIControl {
-    private let label = UILabel()
-
-    init(_ item: Session.Candidates.Item) {
-        super.init(frame: .zero)
-        layer.cornerRadius = 6
-        let text = NSMutableAttributedString(string: item.text, attributes: [
-            .font: OldHangul.font(ofSize: 19),
-            .foregroundColor: UIColor.label,
-        ])
-        if !item.reading.isEmpty {
-            text.append(NSAttributedString(string: "\u{2009}" + item.reading, attributes: [
-                .font: OldHangul.font(ofSize: 12),
-                .foregroundColor: UIColor.secondaryLabel,
-            ]))
-        }
-        label.attributedText = text
-        label.isUserInteractionEnabled = false
-        label.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(label)
-        NSLayoutConstraint.activate([
-            label.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 9),
-            label.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -9),
-            label.centerYAnchor.constraint(equalTo: centerYAnchor),
-            heightAnchor.constraint(equalToConstant: 36),
-        ])
-        accessibilityTraits = .keyboardKey
-        accessibilityLabel = item.text
-        isAccessibilityElement = true
-    }
-
-    required init?(coder: NSCoder) {
-        fatalError("not used")
-    }
-
-    override var isSelected: Bool {
-        didSet { refill() }
-    }
-
-    override var isHighlighted: Bool {
-        didSet { refill() }
-    }
-
-    private func refill() {
-        backgroundColor = isHighlighted
-            ? UIColor.label.withAlphaComponent(0.14)
-            : isSelected ? UIColor.systemBlue.withAlphaComponent(0.18) : .clear
     }
 }
 

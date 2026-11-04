@@ -83,6 +83,9 @@ final class KeyboardUITests: XCTestCase {
             usleep(400_000)
         }
 
+        /// The vertical centre of the candidate bar.
+        var barCenter: CGFloat { 56 }
+
         /// Pad key in column `c` (0-2) of row `r` (0-3 the grid, 4 the bottom row).
         func pad(_ r: Int, _ c: Int) {
             let w = (width - 6 - 12) / 3

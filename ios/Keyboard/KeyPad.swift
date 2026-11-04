@@ -20,6 +20,8 @@ final class Key: UIView {
     /// Space: held, it turns the keyboard into a trackpad.
     var holdsForCursor = false
     var action: (() -> Void)?
+    /// Instead of `action`, once held for half a second (the 釋 key).
+    var onHold: (() -> Void)?
 
     private let label = UILabel()
     private let icon = UIImageView()
@@ -329,6 +331,14 @@ final class KeyPad: UIView {
                     guard let self, let touch, self.tracks[id]?.inside == true else { return }
                     self.beginCursor(id, at: touch.location(in: self).x)
                 }
+            } else if k.onHold != nil {
+                holdTimer?.invalidate()
+                holdTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
+                    guard let self, self.tracks[id]?.inside == true else { return }
+                    self.tracks[id]?.inside = false
+                    k.isPressed = false
+                    k.onHold?()
+                }
             }
         }
     }
@@ -446,7 +456,7 @@ final class KeyPad: UIView {
         // Another finger may still hold the same key.
         if tracks.values.contains(where: { $0.key === k }) { return }
         k.isPressed = false
-        if k.holdsForCursor {
+        if k.holdsForCursor || k.onHold != nil {
             holdTimer?.invalidate()
             holdTimer = nil
         }

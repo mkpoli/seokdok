@@ -69,6 +69,14 @@ pub fn classify_end(transitory: bool, in_edit: bool, since_first_write: Option<D
     }
 }
 
+/// What `text` adds to what the document already took: an empty composition
+/// range cannot show that the application gave its text back, so what was
+/// shown counts as delivered. Text that is not an extension of it, a conversion
+/// say, cannot be put right and adds nothing.
+pub fn undelivered<'a>(delivered: &str, text: &'a str) -> &'a str {
+    text.strip_prefix(delivered).unwrap_or("")
+}
+
 /// Decides when refusals are enough to float this process from now on. A web
 /// page can cancel a composition right after a key too, so one refusal after
 /// the edit session only floats that composition.
@@ -128,6 +136,13 @@ mod tests {
         assert_eq!(classify_end(true, false, later), End::Ordinary);
         assert_eq!(classify_end(true, false, None), End::Ordinary);
         assert_eq!(classify_end(false, true, soon), End::Ordinary);
+    }
+
+    #[test]
+    fn only_what_extends_the_delivered_text_is_still_owed() {
+        assert_eq!(undelivered("대충", "대충"), "");
+        assert_eq!(undelivered("대충", "대충 "), " ");
+        assert_eq!(undelivered("대충", "大忠"), "");
     }
 
     #[test]

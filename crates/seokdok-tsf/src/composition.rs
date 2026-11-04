@@ -20,8 +20,9 @@ use windows::Win32::UI::TextServices::{
 
 use crate::config::Surface;
 use crate::edit_session::run_sync;
+use crate::engine_host::HOST;
 use crate::session::{Attr, Effect, Run};
-use crate::surface::{choose, classify_end, End, Facts};
+use crate::surface::{choose, classify_end, undelivered, End, Facts};
 use crate::text_service::TextService_Impl;
 
 /// This process refused a composition, so it gets the floating preedit.
@@ -347,9 +348,17 @@ impl TextService_Impl {
                 self.float_preedit(context, runs);
             }
             Written::Vanished => {
-                self.inner_mut().composition = None;
                 self.remember_floating("the composition's text vanished");
-                self.float_preedit(context, runs);
+                crate::debug_log::log(|| "  the text so far counts as delivered; replaying this key".to_string());
+                let effects = {
+                    let mut state = self.inner_mut();
+                    state.composition = None;
+                    state.drawn.clear();
+                    state.session.reset();
+                    let key = state.current_key.take();
+                    key.map(|k| state.session.handle(k, &HOST).effects).unwrap_or_default()
+                };
+                return self.apply(context, effects);
             }
             Written::FirstWriteFailed { undone: true } => {
                 crate::debug_log::log(|| "  undone before the document saw it, floating this composition".to_string());
@@ -379,7 +388,10 @@ impl TextService_Impl {
         if !open && text.is_empty() {
             return Ok(());
         }
-        let plain = !open && is_transitory(context) && self.inner().imm32_context != Some(context.as_raw() as usize);
+        let transitory = is_transitory(context);
+        let plain = !open && transitory && self.inner().imm32_context != Some(context.as_raw() as usize);
+        let delivered: String = self.inner().drawn.iter().map(|r| r.text.as_str()).collect();
+        let owed: Vec<u16> = undelivered(&delivered, text).encode_utf16().collect();
         crate::debug_log::log(|| format!("commit: {}", if open { "into the composition" } else if plain { "plain insert" } else { "one-shot composition" }));
         let composer = self.composer(context)?;
         let wide: Vec<u16> = text.encode_utf16().collect();
@@ -397,6 +409,13 @@ impl TextService_Impl {
                 }
                 let comp = composer.get(ec)?;
                 let range = comp.GetRange()?;
+                if open && transitory && !delivered.is_empty() && range.IsEmpty(ec)?.as_bool() {
+                    crate::debug_log::log(|| format!("commit: the composition's text vanished; counts as delivered, {} still owed", owed.len()));
+                    range.SetText(ec, 0, &owed)?;
+                    range.Collapse(ec, TF_ANCHOR_END)?;
+                    set_single_selection(&ctx, ec, &range)?;
+                    return comp.EndComposition(ec);
+                }
                 range.SetText(ec, 0, &wide)?;
                 ctx.GetProperty(&GUID_PROP_ATTRIBUTE)?.Clear(ec, &range)?;
                 range.Collapse(ec, TF_ANCHOR_END)?;
@@ -506,41 +525,11 @@ unsafe fn text_position(ctx: &ITfContext, ec: u32, range: &ITfRange) -> Option<(
     Some((rect.left, rect.bottom))
 }
 
-impl TextService_Impl {
-    /// The document ended the composition right after it was written. Take the
-    /// text back and let it go on composing in the popup. Returns false when
-    /// the text could not be taken back: then the document has it.
-    fn take_back(&self, ecwrite: u32, composition: Option<&ITfComposition>) -> bool {
-        let Some(composition) = composition else {
-            return false;
-        };
-        // SAFETY: ecwrite is the write cookie TSF passed to the sink;
-        // composition is the valid composition it names.
-        let erased = unsafe {
-            composition.GetRange().and_then(|range| {
-                range.SetText(ecwrite, 0, &[])?;
-                range.IsEmpty(ecwrite)
-            })
-        };
-        crate::debug_log::log(|| format!("  taking the text back: {erased:?}"));
-        if !erased.is_ok_and(|e| e.as_bool()) {
-            return false;
-        }
-        let mut state = self.inner_mut();
-        let drawn = std::mem::take(&mut state.drawn);
-        state.floating = (!drawn.is_empty()).then_some(drawn);
-        state.composition = None;
-        drop(state);
-        self.redraw();
-        true
-    }
-}
-
 impl ITfCompositionSink_Impl for TextService_Impl {
     fn OnCompositionTerminated(
         &self,
-        ecwrite: u32,
-        pcomposition: Ref<'_, ITfComposition>,
+        _ecwrite: u32,
+        _pcomposition: Ref<'_, ITfComposition>,
     ) -> windows::core::Result<()> {
         let end = {
             let mut state = self.inner_mut();
@@ -558,13 +547,12 @@ impl ITfCompositionSink_Impl for TextService_Impl {
             if self.inner_mut().refusals.refused(in_edit) {
                 self.remember_floating("the document ended a composition just written");
             }
-            if self.take_back(ecwrite, pcomposition.as_ref()) {
-                return Ok(());
-            }
-            crate::debug_log::log(|| "  the document keeps the text as finished".to_string());
         }
-        // The document ended the composition (focus change, app reset) and
-        // keeps its text.
+        // The document ended the composition (a refusal, focus change, app
+        // reset) and has its text. Erasing it here could not show that the
+        // application gave it back, so it counts as finished and the session
+        // holds nothing of it.
+        crate::debug_log::log(|| "  the document keeps the text as finished, session reset".to_string());
         {
             let mut state = self.inner_mut();
             state.composition = None;

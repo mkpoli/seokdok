@@ -166,7 +166,11 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         self.sync(context);
         // Release the borrow before touching the document: TSF calls back
         // into this object during edit sessions.
-        let output = self.inner_mut().session.handle(key, &HOST);
+        let output = {
+            let mut state = self.inner_mut();
+            state.current_key = Some(key);
+            state.session.handle(key, &HOST)
+        };
         crate::debug_log::log(|| format!("OnKeyDown vk={:#x} lparam={:#x} eaten={} effects={:?} ctx={:?}", wparam.0, lparam.0, output.eaten, output.effects, windows::core::Interface::as_raw(context)));
         if matches!(key, Key::Enter | Key::Printable('1'..='9')) && output.effects.iter().any(|e| matches!(e, Effect::Commit(_))) {
             COMMITTED_BY.with(|c| c.set(Some((wparam.0 & 0xFFFF) as u16)));

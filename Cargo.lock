@@ -380,6 +380,7 @@ name = "seokdok-wasm"
 version = "0.1.0"
 dependencies = [
  "seokdok-core",
+ "seokdok-session",
  "serde_json",
  "wasm-bindgen",
 ]

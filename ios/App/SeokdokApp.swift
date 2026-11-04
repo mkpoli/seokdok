@@ -16,6 +16,7 @@ struct ContentView: View {
     @AppStorage("defaultMode", store: Settings.store) private var defaultMode = "seokdok"
     @AppStorage("spaceConverts", store: Settings.store) private var spaceConverts = true
     @AppStorage("oldClusters", store: Settings.store) private var oldClusters = false
+    @AppStorage("learn", store: Settings.store) private var learn = true
     @AppStorage("style", store: Settings.store) private var style = "surface"
     @AppStorage("fragment", store: Settings.store) private var fragment = "absorb"
     @AppStorage("codaAlways", store: Settings.store) private var codaAlways = false
@@ -85,6 +86,11 @@ struct ContentView: View {
                         Text("옛한글 겹자모 · Old Hangul clusters (ㅅㄱ→ᄭ\u{1160})")
                             .font(Font(OldHangul.font(ofSize: 17)))
                     }
+                    Toggle("자주 고른 候補 먼저 · Put candidates you keep picking first", isOn: $learn)
+                    Button("고른 것 잊기 · Forget what I picked") { Settings.forgetPicks() }
+                    Text("전체 접근 없이 쓸 때는 키보드의 釋 키를 길게 눌러 지웁니다. · Without Full Access, hold the keyboard's 釋 key to clear them.")
+                        .font(.footnote)
+                        .foregroundStyle(.secondary)
                 }
                 Section {
                     Picker("文字 · Script", selection: $script) {
@@ -122,6 +128,7 @@ struct ContentView: View {
             .onChange(of: defaultMode) { _ in Settings.write() }
             .onChange(of: spaceConverts) { _ in Settings.write() }
             .onChange(of: oldClusters) { _ in Settings.write() }
+            .onChange(of: learn) { _ in Settings.write() }
             .onChange(of: style) { _ in Settings.write() }
             .onChange(of: fragment) { _ in Settings.write() }
             .onChange(of: codaAlways) { _ in Settings.write() }
@@ -145,6 +152,17 @@ enum Settings {
     /// their state when the signature grants no App Group.
     static let store = AppGroup.defaults ?? .standard
 
+    /// Delete learned.tsv from the shared folder, with any temporary file a
+    /// crash left. The keyboard notices at its next conversion.
+    static func forgetPicks() {
+        guard let dir = AppGroup.containerURL else { return }
+        let manager = FileManager.default
+        for name in (try? manager.contentsOfDirectory(atPath: dir.path)) ?? []
+        where name == "learned.tsv" || (name.hasPrefix("learned.tsv.") && name.hasSuffix(".tmp")) {
+            try? manager.removeItem(at: dir.appendingPathComponent(name))
+        }
+    }
+
     /// Write config.toml where the keyboard's session reads it. `[input.keys]`
     /// is left out: a keyboard extension receives no hardware keys. The
     /// candidate bar is a row of its own, so the layout stays vertical and
@@ -160,6 +178,7 @@ enum Settings {
         space_converts = \(bool("spaceConverts", true))
         candidate_layout = "vertical"
         old_clusters = \(bool("oldClusters", false))
+        learn = \(bool("learn", true))
 
         [conversion]
         style = "\(text("style", "surface"))"

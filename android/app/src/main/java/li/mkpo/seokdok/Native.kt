@@ -38,6 +38,10 @@ object Native {
     @JvmStatic external fun create(dictDir: String, configDir: String): Long
     @JvmStatic external fun free(handle: Long)
     @JvmStatic external fun sync(handle: Long)
+    /** The field asks not to be learned from: picks are neither used nor added. */
+    @JvmStatic external fun setPrivateField(handle: Long, privateField: Boolean)
+    /** Delete learned.tsv in [dir] and empty the table in memory; false when that failed. */
+    @JvmStatic external fun forgetLearned(dir: String): Boolean
     @JvmStatic external fun key(handle: Long, kind: Int, ch: Int, shift: Boolean): Boolean
     /** Offer a key to the `[input.keys]` lists; [name] is null for a key they cannot name. */
     @JvmStatic external fun modeKey(handle: Long, name: String?, mods: Int, state: Int): Boolean

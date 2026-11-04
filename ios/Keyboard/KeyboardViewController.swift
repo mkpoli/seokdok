@@ -12,6 +12,22 @@ final class KeyboardViewController: UIInputViewController {
     /// The marked text this keyboard last wrote into the document, if any.
     private var marked: String?
     private var loadTimer: Timer?
+    /// Bumped whenever a composition ends or its field changes, so a delayed
+    /// check for an earlier text change does nothing.
+    private var checkGeneration = 0
+    /// What the focused field asks for; only `.standard` converts.
+    private var layout = Layout.standard
+
+    /// The simulator shows the system's own globe, so the keyboard asks for
+    /// none of its own. A Debug build can be made to show one for the UI
+    /// tests: `defaults write li.mkpo.seokdok.keyboard forceGlobe -bool YES`.
+    private static var forcedGlobe: Bool {
+        #if DEBUG
+        return UserDefaults.standard.bool(forKey: "forceGlobe")
+        #else
+        return false
+        #endif
+    }
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -19,7 +35,7 @@ final class KeyboardViewController: UIInputViewController {
         Session.setConfigDir(configDir())
         session = Session(dictDir: dict)
 
-        keys = KeyboardView(globe: needsInputModeSwitchKey)
+        keys = KeyboardView(globe: needsInputModeSwitchKey || Self.forcedGlobe)
         keys.delegate = self
         keys.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(keys)
@@ -51,6 +67,7 @@ final class KeyboardViewController: UIInputViewController {
         super.viewWillAppear(animated)
         Session.setConfigDir(configDir())
         session.sync()
+        updateLayout()
         refresh()
         waitForDictionaries()
     }
@@ -67,19 +84,65 @@ final class KeyboardViewController: UIInputViewController {
     /// text, so drop the composition instead of writing it again. The proxy's
     /// context can lag behind our own setMarkedText, so a mismatch counts
     /// only when it persists a moment later; judging at once dropped the
-    /// first jamo of a word on a slow device.
+    /// first jamo of a word on a slow device. A change of field is told apart
+    /// by its layout and cancels any check still waiting.
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
+        if updateLayout() { return }
         guard marked != nil else { return }
+        checkGeneration += 1
+        let generation = checkGeneration
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
-            guard let self, let m = self.marked else { return }
+            guard let self, generation == self.checkGeneration, let m = self.marked else { return }
             let before = self.textDocumentProxy.documentContextBeforeInput ?? ""
             if !before.hasSuffix(m) {
-                self.session.reset()
-                self.marked = nil
-                self.refresh()
+                self.abandonComposition()
             }
         }
+    }
+
+    /// Forget the composition without writing it: the document it was typed
+    /// into already holds it as plain text, and the document now in focus
+    /// does not own it.
+    private func abandonComposition() {
+        checkGeneration += 1
+        session.reset()
+        marked = nil
+        refresh()
+    }
+
+    /// The layout the field in focus asks for. Number pads and the like
+    /// type digits as they are; email, URL, ASCII and secure fields type
+    /// Latin letters. Neither converts. (The system swaps in its own keyboard
+    /// for secure and phone fields, but a field can still reach this one.)
+    private func fieldLayout() -> Layout {
+        let proxy = textDocumentProxy
+        if proxy.isSecureTextEntry == true { return .ascii }
+        switch proxy.keyboardType ?? .default {
+        case .numberPad, .asciiCapableNumberPad: return .number
+        case .decimalPad: return .decimal
+        case .phonePad: return .phone
+        case .emailAddress: return .email
+        case .URL: return .url
+        case .asciiCapable, .namePhonePad: return .ascii
+        default: return .standard
+        }
+    }
+
+    /// Follow the field in focus. A field that wants another layout is
+    /// another field, so what was being composed stays behind in the old one
+    /// (the system keeps its marked text as plain text) instead of being
+    /// inserted into the new one. Returns whether the layout changed.
+    @discardableResult
+    private func updateLayout() -> Bool {
+        let next = fieldLayout()
+        guard next != layout else { return false }
+        if marked != nil || !session.preedit().isEmpty {
+            abandonComposition()
+        }
+        layout = next
+        refresh()
+        return true
     }
 
     /// Until the dictionaries load, the strip says so; refresh once they have.
@@ -121,6 +184,7 @@ final class KeyboardViewController: UIInputViewController {
     private func refresh() {
         let runs = session.preedit()
         var s = KeyboardState()
+        s.layout = layout
         s.shift = shift
         s.mode = session.mode
         s.composing = !runs.isEmpty
@@ -140,6 +204,12 @@ final class KeyboardViewController: UIInputViewController {
 extension KeyboardViewController: KeyboardViewDelegate {
     func letter(_ key: Character) {
         let shifted = shift != .off
+        guard layout.converts else {
+            insert(String(shifted ? Character(key.uppercased()) : key))
+            if shift == .once { shift = .off }
+            refresh()
+            return
+        }
         if !session.key(Session.Key.letter, key, shift: shifted) {
             insert(String(shifted ? Character(key.uppercased()) : key))
         }
@@ -150,6 +220,10 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func symbol(_ ch: Character) {
+        guard layout.converts else {
+            insert(String(ch))
+            return
+        }
         // Digits pick candidates while the list is open; close it first so a
         // digit confirms the conversion and is typed after it.
         if session.candidates() != nil, ch.isNumber {
@@ -162,6 +236,10 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func space() {
+        guard layout.converts else {
+            insert(" ")
+            return
+        }
         if !session.key(Session.Key.space) {
             insert(" ")
         }
@@ -169,6 +247,10 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func enter() {
+        guard layout.converts else {
+            insert("\n")
+            return
+        }
         if !session.key(Session.Key.enter) {
             insert("\n")
         }
@@ -176,6 +258,10 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func backspace() {
+        guard layout.converts else {
+            textDocumentProxy.deleteBackward()
+            return
+        }
         if !session.key(Session.Key.backspace) {
             textDocumentProxy.deleteBackward()
         }

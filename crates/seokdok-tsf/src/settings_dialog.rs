@@ -40,6 +40,7 @@ const ID_RESYL: i32 = 1013; // conversion.resyllabify
 const ID_HADA: i32 = 1014; // conversion.hada_kun
 const ID_MAXCAND: i32 = 1015; // conversion.max_candidates (edit)
 const ID_SCRIPT: i32 = 1016; // conversion.script (3-way)
+const ID_OLDHA: i32 = 1017; // conversion.old_ha
 
 const MODE_ITEMS: [(PCWSTR, InputMode); 3] = [
     (w!("釋讀 / Seokdok"), InputMode::Seokdok),
@@ -78,7 +79,7 @@ pub fn show(parent: HWND) {
         .encode_utf16()
         .collect();
 
-    let (w, h) = (470, 552);
+    let (w, h) = (470, 578);
     // SAFETY: GetSystemMetrics is always safe.
     let (sx, sy) = unsafe { (GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)) };
     let (x, y) = ((sx - w).max(0) / 2, (sy - h).max(0) / 2);
@@ -278,7 +279,7 @@ unsafe fn build_controls(hwnd: HWND) {
     y += 184;
 
     // --- Conversion ---
-    group(w!("表記 / Spelling"), y, 244);
+    group(w!("表記 / Spelling"), y, 270);
     let mut cy = y + 24;
     label(w!("文字 / Script:"), gx, cy + 4, 150);
     combo(hwnd, ID_SCRIPT, (gx + 160, cy, 220, 200), &SCRIPT_ITEMS, cfg.conversion.script);
@@ -293,6 +294,7 @@ unsafe fn build_controls(hwnd: HWND) {
         (ID_CODA, w!("末音添記 늘 / Always write the final consonant  (有ㅆ다)"), cfg.conversion.coda_always),
         (ID_RESYL, w!("받침 넘기기 / Resyllabify  (在쓰면)"), cfg.conversion.resyllabify),
         (ID_HADA, w!("하다를 爲로 / Prefer 爲 for 하다"), cfg.conversion.hada_kun),
+        (ID_OLDHA, w!("하 → ᄒᆞ 優先 / Old spelling of 하 first (하고 → ᄒᆞ고)"), cfg.conversion.old_ha),
     ] {
         check(id, text, cy, on);
         cy += 26;
@@ -307,7 +309,7 @@ unsafe fn build_controls(hwnd: HWND) {
         (gx + 200, cy + 2, 56, 22),
         ID_MAXCAND,
     );
-    y += 256;
+    y += 282;
 
     // --- Buttons ---
     child(
@@ -361,6 +363,7 @@ unsafe fn apply(hwnd: HWND) {
     cfg.conversion.coda_always = checked(ID_CODA);
     cfg.conversion.resyllabify = checked(ID_RESYL);
     cfg.conversion.hada_kun = checked(ID_HADA);
+    cfg.conversion.old_ha = checked(ID_OLDHA);
     if let Some((_, v)) = selected(hwnd, ID_SCRIPT).and_then(|i| SCRIPT_ITEMS.get(i)) {
         cfg.conversion.script = *v;
     }

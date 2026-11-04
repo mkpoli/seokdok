@@ -23,12 +23,26 @@ android {
         versionName = "0.1.0"
     }
 
+    // The release key comes from the environment (set by the CI workflow from
+    // repository secrets). Without SEOKDOK_KEYSTORE, `assembleRelease` yields an
+    // unsigned APK, which cannot be installed.
+    val keystore: String? = System.getenv("SEOKDOK_KEYSTORE")
+    signingConfigs {
+        if (keystore != null) {
+            create("release") {
+                storeFile = file(keystore)
+                // A PKCS12 keystore has one password, for the store and its key.
+                storePassword = System.getenv("SEOKDOK_KEYSTORE_PASSWORD")
+                keyAlias = System.getenv("SEOKDOK_KEY_ALIAS")
+                keyPassword = storePassword
+            }
+        }
+    }
+
     buildTypes {
         release {
             isMinifyEnabled = false
-            // Signed with the debug key so `assembleRelease` installs as is;
-            // use your own signingConfig before distributing.
-            signingConfig = signingConfigs.getByName("debug")
+            if (keystore != null) signingConfig = signingConfigs.getByName("release")
         }
     }
 

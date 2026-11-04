@@ -1,7 +1,7 @@
 // Spelling options, remembered per browser.
 // script: 'seokdok' (釋讀), 'sino' (國漢文混用: Hanja for 音讀 words only) or
 // 'hangul' (韓㐎 專用: nothing is converted).
-const DEFAULTS = { spaceMode: 'convert', layout: 'vertical', oldClusters: false, style: 'surface', fragment: 'absorb', codaAlways: false, resyllabify: false, hadaKun: false, script: 'seokdok' }
+const DEFAULTS = { spaceMode: 'convert', layout: 'vertical', oldClusters: false, style: 'surface', fragment: 'absorb', codaAlways: false, resyllabify: false, hadaKun: false, oldHa: false, script: 'seokdok' }
 
 function load() {
   let stored = {}

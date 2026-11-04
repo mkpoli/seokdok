@@ -5,6 +5,8 @@
 use crate::conj::{ending_label, ending_surfaces, morph_ending, Ctx};
 use crate::dict::{parse_native, parse_sino, tsv_lines, Native, Pos, Source, Tail};
 use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify};
+use crate::fold::{foldable, has_era_only, has_old, modern_mask, parse, readings, Reading, Syl, ALL, MAX_READINGS_MODERN, MAX_READINGS_OLD, STRONG};
+use crate::old_spelling::{ends_in_hanja, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant};
 use crate::particles::{allowed, particles, Particle};
 use std::collections::HashMap;
 
@@ -42,6 +44,10 @@ pub struct Options {
     pub resyllabify: bool,
     /// Prefer 爲 for the light verb 하다 (安寧爲세요 over 安寧하세요).
     pub hada_kun: bool,
+    /// Put the old spelling of 하 (ᄒᆞ ᄒᆞᆫ ᄒᆞᆯ ᄒᆞᆷ ᄒᆞᆸ ᄒᆡ) first where it is
+    /// offered, with the modern spelling right behind it. Without it the old
+    /// spelling comes third.
+    pub old_ha: bool,
     /// 國漢文混用: write only 音讀 words in Hanja and leave native words in
     /// Hangul. Native words still take part in segmentation, so 나라 stays
     /// 나라 instead of splitting into Sino syllables.
@@ -58,6 +64,7 @@ impl Default for Options {
             coda_always: false,
             resyllabify: false,
             hada_kun: false,
+            old_ha: false,
             sino_only: false,
             max_candidates: 12,
         }
@@ -321,6 +328,33 @@ struct Reverse {
     /// …): 釋讀하면 reads 석독 + 하면.
     light: std::collections::HashSet<String>,
 }
+
+/// What a run converts to: the whole-run candidates, the segments, and the
+/// cost of the best path when it uses a dictionary word.
+struct Converted {
+    whole: Vec<Candidate>,
+    segments: Vec<Segment>,
+    cost: Option<f32>,
+    /// No raw Hangul is left in the best path.
+    covered: bool,
+    /// Every word of the best path is an entry with a count of at least `ATTESTED`.
+    attested: bool,
+    /// The old spelling of the best reading, and with `old_ha` the one that
+    /// writes only the 하 rows that way (built when `full`).
+    old: Option<String>,
+    ha: Option<String>,
+}
+
+/// A modern reading of old input is kept when its best path costs at most
+/// this much more than the best reading's.
+const READING_MARGIN: f32 = 4.0;
+
+/// The count an entry needs for its reading to go first for an era-only syllable
+/// (the counts are the chat's, or FusionIME's frequencies where the chat has none).
+const ATTESTED: u32 = 3;
+
+/// How many era readings are added behind the candidates of a run.
+const ERA_EXTRA: usize = 8;
 
 const RAW_COST: f32 = 4.5;
 /// The ending index of a bare stem (않 → 不ㅎ), typed alone to be continued
@@ -872,7 +906,166 @@ impl Engine {
         Some(format!("{}{}", n.hanja, compose(&rest)))
     }
 
-    fn convert_run(&self, run: &str) -> (Vec<Candidate>, Vec<Segment>) {
+    /// Whole-run candidates and segments of one run of Hangul. A run with old
+    /// letters is looked up by its modern readings; one that conversion left
+    /// as it was may be an era spelling.
+    fn convert_run(&self, run: &str, after_hanja: bool) -> (Vec<Candidate>, Vec<Segment>) {
+        if has_old(run) {
+            return self.convert_old(run);
+        }
+        let Converted { mut whole, mut segments, .. } = self.convert_plain(run, after_hanja, true);
+        // Spellings of the era: the strong classes whenever the run shows
+        // one, the others when it was left as typed.
+        let unconverted = whole.first().is_some_and(|c| c.text == run);
+        let mask = modern_mask(run, unconverted);
+        if mask != 0 {
+            if let Some(syls) = parse(run) {
+                let found = self.read_as(&syls, mask, true, MAX_READINGS_MODERN);
+                // One candidate of each reading in turn, so that the likely
+                // readings all show before the long tail of one. They add to
+                // the list: every modern candidate stays.
+                let mut era: Vec<Candidate> = Vec::new();
+                for k in 0..found.iter().map(|f| f.2.len()).max().unwrap_or(0) {
+                    for (_, reading, cands, _) in &found {
+                        if let Some(c) = cands.get(k) {
+                            if c.text != *reading && !era.iter().any(|x| x.text == c.text) && !whole.iter().any(|x| x.text == c.text) {
+                                era.push(c.clone());
+                            }
+                        }
+                    }
+                }
+                era.truncate(ERA_EXTRA);
+                if !era.is_empty() {
+                    // A syllable that modern words do not use puts the best
+                    // reading first, then what was typed: when the reading is
+                    // two syllables or more and made of whole entries the
+                    // chat uses. Otherwise the readings come behind it.
+                    let first = has_era_only(run)
+                        && found.first().is_some_and(|(_, r, c, attested)| *attested && r.chars().count() >= 2 && c.first().is_some_and(|c| c.text == era[0].text && c.text.chars().any(crate::dict::is_han)));
+                    let lead = if first { Some(era.remove(0)) } else { None };
+                    let place = |list: &mut Vec<Candidate>| {
+                        list.splice(1.min(list.len())..1.min(list.len()), era.clone());
+                        if let Some(l) = &lead {
+                            list.insert(0, l.clone());
+                        }
+                    };
+                    place(&mut whole);
+                    match segments.as_mut_slice() {
+                        [one] => place(&mut one.candidates),
+                        _ => {
+                            segments = vec![Segment { reading: run.to_string(), candidates: whole.clone() }];
+                        }
+                    }
+                }
+            }
+        }
+        (whole, segments)
+    }
+
+    /// A run with old letters: what its modern readings convert to, with the
+    /// tail as typed when it is made of function syllables, and the run itself
+    /// kept as a choice.
+    fn convert_old(&self, run: &str) -> (Vec<Candidate>, Vec<Segment>) {
+        let syls = parse(run).unwrap_or_default();
+        let found = self.read_as(&syls, ALL, false, MAX_READINGS_OLD);
+        // The old spelling of the best reading, as for modern input.
+        let (old, ha) = match found.first() {
+            Some((_, reading, _, _)) => {
+                let c = self.convert_plain(reading, false, true);
+                (c.old, c.ha)
+            }
+            None => (None, None),
+        };
+        let restored = |reading: &str, cands: Vec<Candidate>| -> Vec<Candidate> {
+            cands
+                .into_iter()
+                .map(|c| Candidate { text: keep_typed_tail(&c.text, reading, &syls).unwrap_or(c.text), note: c.note })
+                .collect()
+        };
+        let mut list: Vec<Candidate> = Vec::new();
+        for (_, reading, cands, _) in found {
+            for c in restored(&reading, cands) {
+                if !list.iter().any(|x| x.text == c.text) {
+                    list.push(c);
+                }
+            }
+        }
+        // Old letters that are all function syllables stay as typed: the
+        // candidates that keep them come first.
+        let old_syls: Vec<&str> = syls.iter().map(|s| s.typed.as_str()).filter(|t| !t.chars().all(is_syllable)).collect();
+        let mut at = list.len().min(1);
+        // A syllable that modern words do not use puts its reading first.
+        if !old_syls.is_empty() && old_syls.iter().all(|o| is_function_old(o)) && !has_era_only(run) {
+            let (kept, rest): (Vec<Candidate>, Vec<Candidate>) = list.into_iter().partition(|c| old_syls.iter().any(|o| c.text.contains(o)));
+            at = kept.len().min(1);
+            list = kept;
+            list.extend(rest);
+        }
+        let typed = Candidate { text: run.to_string(), note: "한글".into() };
+        if !list.iter().any(|c| c.text == run) {
+            list.insert(at, typed.clone());
+        }
+        offer_old(&mut list, old);
+        first_old(&mut list, ha);
+        let keep = self.options.max_candidates.max(2);
+        if list.len() > keep {
+            let had = list[..keep].iter().any(|c| c.text == run);
+            list.truncate(keep);
+            if !had {
+                list[keep - 1] = typed;
+            }
+        }
+        let segments = vec![Segment { reading: run.to_string(), candidates: list.clone() }];
+        (list, segments)
+    }
+
+    /// The conversions of the modern readings of a run, best path first, only
+    /// those that use a dictionary word and cost little more than the best.
+    fn read_as(&self, syls: &[Syl], mask: u16, strict: bool, cap: usize) -> Vec<(f32, String, Vec<Candidate>, bool)> {
+        let mut found: Vec<(f32, String, Vec<Candidate>, bool)> = Vec::new();
+        for r in readings(syls, mask, strict, cap) {
+            if strict && !self.worth_converting(syls, &r) {
+                continue;
+            }
+            let c = self.convert_plain(&r.text, false, false);
+            // A guess has to be confirmed by words that cover all of it.
+            if let Some(cost) = c.cost.filter(|_| c.covered || !r.optional) {
+                found.push((cost + r.penalty, r.text, c.whole, c.attested));
+            }
+        }
+        found.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+        if let Some(best) = found.first().map(|f| f.0) {
+            found.retain(|f| f.0 <= best + READING_MARGIN);
+        }
+        found
+    }
+
+    /// A reading that guesses with a weak class is converted only if some
+    /// dictionary word covers the first syllable it changed (a stem, a noun or
+    /// a Sino-Korean word; what follows may be an ending or a particle). This
+    /// keeps the lookups of unconverted words cheap.
+    fn worth_converting(&self, syls: &[Syl], r: &Reading) -> bool {
+        if r.classes & !STRONG == 0 {
+            return true;
+        }
+        let Some(first) = r.text.chars().zip(syls).position(|(c, s)| s.typed.chars().next() != Some(c)) else { return true };
+        let comps = decompose(&r.text);
+        let mut starts = vec![0usize];
+        for c in r.text.chars() {
+            starts.push(starts.last().unwrap() + decompose(&c.to_string()).len());
+        }
+        let end = starts[first + 1];
+        (0..=first).any(|s| {
+            let from = starts[s];
+            self.nominals.prefixes(&comps, from).iter().any(|(q, _)| *q >= end)
+                || self.sino.prefixes(&comps, from).iter().any(|(q, _)| *q >= end)
+                || self.stems.prefixes(&comps, from).iter().any(|(q, _)| *q >= end)
+        })
+    }
+
+    /// `full`: also build the segments and the old spellings, which the
+    /// readings tried for another run do not need.
+    fn convert_plain(&self, run: &str, after_hanja: bool, full: bool) -> Converted {
         let comps = decompose(run);
         let edges = self.edges(&comps);
         let paths = self.kbest(&comps, &edges, self.options.max_candidates.max(4));
@@ -882,11 +1075,19 @@ impl Engine {
                 whole.push(c);
             }
         };
-        for (_, path) in &paths {
+        // The best path's renderings are used three times.
+        let best: Vec<Vec<Candidate>> = paths.first().map(|(_, path)| path.iter().map(|&ei| self.render(&comps, &edges[ei])).collect()).unwrap_or_default();
+        for (n, (_, path)) in paths.iter().enumerate() {
             let mut text = String::new();
             let mut notes = Vec::new();
-            for &ei in path {
-                let r = self.render(&comps, &edges[ei]);
+            for (k, &ei) in path.iter().enumerate() {
+                let rendered;
+                let r = if n == 0 {
+                    &best[k]
+                } else {
+                    rendered = self.render(&comps, &edges[ei]);
+                    &rendered
+                };
                 text.push_str(&r[0].text);
                 if !r[0].note.is_empty() {
                     notes.push(r[0].note.clone());
@@ -895,20 +1096,41 @@ impl Engine {
             push(Candidate { text, note: notes.join(" / ") }, &mut whole);
         }
         // Second rendering of the best path (other 送韓字 variant).
-        if let Some((_, path)) = paths.first() {
+        if !best.is_empty() {
             let mut text = String::new();
-            for &ei in path {
-                let r = self.render(&comps, &edges[ei]);
+            for r in &best {
                 text.push_str(&r.get(1).unwrap_or(&r[0]).text);
             }
             push(Candidate { text, note: "variant".into() }, &mut whole);
         }
         push(Candidate { text: run.to_string(), note: "한글".into() }, &mut whole);
 
+        let cost = paths.first().filter(|(_, path)| path.iter().any(|&ei| !matches!(edges[ei].kind, Kind::Raw))).map(|(c, _)| *c);
+        let covered = paths.first().is_some_and(|(_, path)| path.iter().all(|&ei| !matches!(edges[ei].kind, Kind::Raw)));
+        let attested = paths.first().is_some_and(|(_, path)| {
+            path.iter().all(|&ei| match &edges[ei].kind {
+                Kind::Raw => false,
+                Kind::Sino { entry, .. } => self.sinos.entries[*entry as usize].count >= ATTESTED,
+                Kind::Nominal { entry, .. } | Kind::Verb { entry, .. } => self.natives[*entry as usize].count >= ATTESTED,
+            })
+        });
         let mut segments = Vec::new();
-        if let Some((_, path)) = paths.first() {
-            for &ei in path {
+        // The old spelling of each segment's tail, for the best path.
+        let mut old_seg: Vec<Option<String>> = Vec::new();
+        let mut old_whole = None;
+        // The same with only the 하 rows, for `old_ha`.
+        let ha = self.options.old_ha;
+        let mut ha_seg: Vec<Option<String>> = Vec::new();
+        let mut ha_whole = None;
+        if let Some((_, path)) = paths.first().filter(|_| full) {
+            let mut pieces: Vec<String> = Vec::new();
+            let mut ha_pieces: Vec<String> = Vec::new();
+            let mut any = false;
+            let mut ha_any = false;
+            for (n, &ei) in path.iter().enumerate() {
                 let e = &edges[ei];
+                let tail = after_hanja && n == 0;
+                let light = matches!(&e.kind, Kind::Verb { entry, .. } if self.natives[*entry as usize].lemma == "하다");
                 let mut alts: Vec<(f32, usize)> = edges
                     .iter()
                     .enumerate()
@@ -932,7 +1154,26 @@ impl Engine {
                         }
                     }
                 }
+                // The same alternatives serve the segment and the phrase, so
+                // `convert` and `segments` offer the same spelling: under
+                // `hada_kun` the Hangul 하고 behind 爲고 still gives ᄒᆞ고.
+                let v = old_variant(cands.iter().map(|c| c.text.as_str()), light, tail, false);
+                any |= v.is_some();
+                pieces.push(v.clone().unwrap_or_else(|| best[n][0].text.clone()));
+                old_seg.push(v);
+                if ha {
+                    let h = old_variant(cands.iter().map(|c| c.text.as_str()), light, tail, true);
+                    ha_any |= h.is_some();
+                    ha_pieces.push(h.clone().unwrap_or_else(|| best[n][0].text.clone()));
+                    ha_seg.push(h);
+                }
                 segments.push(Segment { reading: compose(&comps[e.start..e.end]), candidates: cands });
+            }
+            if any {
+                old_whole = Some(pieces.concat());
+            }
+            if ha_any {
+                ha_whole = Some(ha_pieces.concat());
             }
         }
         // One word still offers the phrase readings: 수없다 is 數없다 or 手無다.
@@ -944,7 +1185,20 @@ impl Engine {
             }
         }
         let hun = self.hun_candidates(run);
-        if !hun.is_empty() {
+        if hun.is_empty() {
+            if full {
+                if segments.len() == old_seg.len() {
+                    for (s, v) in segments.iter_mut().zip(old_seg) {
+                        offer_old(&mut s.candidates, v);
+                    }
+                    for (s, v) in segments.iter_mut().zip(ha_seg) {
+                        first_old(&mut s.candidates, v);
+                    }
+                }
+                offer_old(&mut whole, old_whole.clone());
+                first_old(&mut whole, ha_whole.clone());
+            }
+        } else {
             // A key spans the run, so the run becomes one segment to pick from.
             let cands = match segments.as_mut_slice() {
                 [one] => std::mem::take(&mut one.candidates),
@@ -953,8 +1207,16 @@ impl Engine {
             segments = vec![Segment { reading: run.to_string(), candidates: self.with_hun(cands, run, hun.clone()) }];
             whole = self.with_hun(whole, run, hun);
         }
-        whole.truncate(self.options.max_candidates.max(2));
-        (whole, segments)
+        // The literal input always stays selectable.
+        let keep = self.options.max_candidates.max(2);
+        if whole.len() > keep {
+            let typed = whole.iter().find(|c| c.text == run).cloned();
+            whole.truncate(keep);
+            if let Some(t) = typed.filter(|t| !whole.iter().any(|c| c.text == t.text)) {
+                whole[keep - 1] = t;
+            }
+        }
+        Converted { whole, segments, cost, covered, attested, old: old_whole, ha: ha_whole }
     }
 
     /// Characters whose gloss is `word`, in either order: 살찔비 or 비살찔 → 肥.
@@ -1008,10 +1270,12 @@ impl Engine {
 
     pub fn convert(&self, input: &str) -> Vec<Candidate> {
         let mut per_run: Vec<Vec<Candidate>> = Vec::new();
+        let mut after_hanja = false;
         for (is_h, run) in runs(input) {
             if is_h {
-                per_run.push(self.convert_run(&run).0);
+                per_run.push(self.convert_run(&run, after_hanja).0);
             } else {
+                after_hanja = ends_in_hanja(&run);
                 per_run.push(vec![Candidate { text: run, note: String::new() }]);
             }
         }
@@ -1032,6 +1296,11 @@ impl Engine {
                 out.push(Candidate { text, note });
             }
         }
+        // Old letters the engine cannot read split the input into runs: the
+        // input as typed stays one choice for the whole phrase.
+        if input.chars().any(is_jamo) && !out.iter().any(|c| c.text == input) {
+            out.push(Candidate { text: input.to_string(), note: String::new() });
+        }
         match self.spaced_hun(input) {
             Some(hun) => self.with_hun(out, input, hun),
             None => out,
@@ -1044,15 +1313,17 @@ impl Engine {
             return vec![Segment { reading: input.to_string(), candidates: self.convert(input) }];
         }
         let mut out = Vec::new();
+        let mut after_hanja = false;
         for (is_h, run) in runs(input) {
             if is_h {
-                out.extend(self.convert_run(&run).1.into_iter().map(|mut s| {
+                out.extend(self.convert_run(&run, after_hanja).1.into_iter().map(|mut s| {
                     for c in &mut s.candidates {
                         c.note = whole_note(&c.text, std::slice::from_ref(&c.note));
                     }
                     s
                 }));
             } else {
+                after_hanja = ends_in_hanja(&run);
                 out.push(Segment { reading: run.clone(), candidates: vec![Candidate { text: run, note: String::new() }] });
             }
         }
@@ -1117,8 +1388,10 @@ fn is_hanja(c: char) -> bool {
     crate::dict::is_han(c)
 }
 
+/// A letter of the Hangul tail after Hanja: a syllable, a compatibility jamo
+/// or any jamo of an old syllable (which then stays whole in its token).
 fn is_hangulish(c: char) -> bool {
-    is_syllable(c) || ('\u{3131}'..='\u{318E}').contains(&c)
+    is_syllable(c) || ('\u{3131}'..='\u{318E}').contains(&c) || is_jamo(c)
 }
 
 impl Engine {
@@ -1258,7 +1531,7 @@ impl Engine {
     /// are read by sound, 訓讀 words through the dictionary entries that
     /// produce them; anything unknown is left as written.
     pub fn read(&self, text: &str) -> String {
-        let cs: Vec<char> = crate::dict::unify(text).chars().collect();
+        let cs: Vec<char> = crate::dict::unify(&modernize_function(text)).chars().collect();
         let mut out = String::new();
         let mut i = 0;
         while i < cs.len() {
@@ -1316,15 +1589,53 @@ fn note(n: &Native, ending: Option<usize>) -> String {
     }
 }
 
-/// Split input into runs of Hangul syllables and everything else.
+/// Put the old spelling of a tail right behind the best candidates: third
+/// place, or last in a shorter list. It does not take first place.
+fn offer_old(list: &mut Vec<Candidate>, old: Option<String>) {
+    let Some(text) = old else { return };
+    if list.is_empty() || list.iter().any(|c| c.text == text) {
+        return;
+    }
+    let at = list.len().min(2);
+    list.insert(at, Candidate { text, note: "옛한글".into() });
+}
+
+/// With `old_ha`: the old spelling of 하 in first place, the candidate it
+/// was made from right behind it.
+fn first_old(list: &mut Vec<Candidate>, old: Option<String>) {
+    let Some(text) = old else { return };
+    if list.is_empty() {
+        return;
+    }
+    list.retain(|c| c.text != text);
+    list.insert(0, Candidate { text, note: "옛한글".into() });
+}
+
+/// Split input into runs of Hangul (syllables and conjoining jamo) and
+/// everything else.
 fn runs(input: &str) -> Vec<(bool, String)> {
     let mut out: Vec<(bool, String)> = Vec::new();
-    for c in input.chars() {
-        let h = is_syllable(c);
-        match out.last_mut() {
-            Some((k, s)) if *k == h => s.push(c),
-            _ => out.push((h, c.to_string())),
+    let mut push = |h: bool, piece: &str| match out.last_mut() {
+        Some((k, s)) if *k == h => s.push_str(piece),
+        _ => out.push((h, piece.to_string())),
+    };
+    if !input.chars().any(is_jamo) {
+        for c in input.chars() {
+            push(is_syllable(c), c.encode_utf8(&mut [0; 4]));
         }
+        return out;
+    }
+    // Old letters: a unit the engine can read joins the run; one it cannot
+    // (a stray jamo, an initial with no vowel, a letter with no modern
+    // counterpart) stays as it is, and the text around it is converted.
+    for unit in crate::jamo::units(input) {
+        let mut cs = unit.chars();
+        let h = match (cs.next(), cs.next()) {
+            (Some(c), None) if is_syllable(c) => true,
+            (Some(c), _) if is_jamo(c) => foldable(unit),
+            _ => false,
+        };
+        push(h, unit);
     }
     out
 }

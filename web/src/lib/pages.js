@@ -4,7 +4,7 @@
 // (`ol: 'windows'` takes the steps of the install section). `code` is
 // monospace.
 
-const MAIL = 'mkpoli@mkpo.li'
+const MAIL = 'seokdok@mkpo.li'
 const ISSUES = 'https://github.com/mkpoli/seokdok/issues'
 const TELEGRAM = 'https://t.me/pimsdh'
 

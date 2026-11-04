@@ -109,6 +109,7 @@ pub struct Conversion {
     pub coda_always: bool,
     pub resyllabify: bool,
     pub hada_kun: bool,
+    pub old_ha: bool,
     pub script: Script,
     pub max_candidates: usize,
 }
@@ -122,6 +123,7 @@ impl Default for Conversion {
             coda_always: o.coda_always,
             resyllabify: o.resyllabify,
             hada_kun: o.hada_kun,
+            old_ha: o.old_ha,
             script: if o.sino_only { Script::SinoOnly } else { Script::Seokdok },
             max_candidates: o.max_candidates,
         }
@@ -179,6 +181,7 @@ impl Config {
             coda_always: c.coda_always,
             resyllabify: c.resyllabify,
             hada_kun: c.hada_kun,
+            old_ha: c.old_ha,
             sino_only: c.script == Script::SinoOnly,
             max_candidates: c.max_candidates.max(1),
         }
@@ -281,6 +284,11 @@ coda_always = {coda}
 resyllabify = {resyl}
 # Prefer 爲 for the light verb 하다.  (true | false)
 hada_kun = {hada}
+# Put the old spelling of 하 first and the modern one behind it: 하고 gives
+# ᄒᆞ고 then 하고, 追加할까요 gives 追加ᄒᆞᆯ까요 first.  Only 하 한 할 함 합 해
+# change (ᄒᆞ ᄒᆞᆫ ᄒᆞᆯ ᄒᆞᆷ ᄒᆞᆸ ᄒᆡ).  (true | false)
+# Without it the old spelling is the third candidate.
+old_ha = {old_ha}
 # What is written.
 #   seokdok     = 釋讀: Hanja for 音讀 and 訓讀 words
 #   sino_only   = 國漢文混用: Hanja for 音讀 words only, native words stay in Hangul
@@ -310,6 +318,7 @@ max_candidates = {max}
             coda = c.coda_always,
             resyl = c.resyllabify,
             hada = c.hada_kun,
+            old_ha = c.old_ha,
             script = script,
             max = c.max_candidates,
             composition = composition,
@@ -372,7 +381,7 @@ mod tests {
         // What ios/App/SeokdokApp.swift writes; missing keys keep defaults.
         let c = Config::parse(
             "[input]\ndefault_mode = \"latin\"\nspace_converts = false\ncandidate_layout = \"vertical\"\nold_clusters = true\n\n\
-             [conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = false\nhada_kun = true\nscript = \"sino_only\"\nmax_candidates = 20\n",
+             [conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = false\nhada_kun = true\nold_ha = true\nscript = \"sino_only\"\nmax_candidates = 20\n",
         );
         assert_eq!(c.input.default_mode, InputMode::Latin);
         assert!(!c.input.space_converts);
@@ -381,6 +390,7 @@ mod tests {
         assert_eq!(c.conversion.style, StyleOpt::Morpheme);
         assert_eq!(c.conversion.fragment, FragmentOpt::Letter);
         assert!(c.conversion.coda_always && c.conversion.hada_kun && !c.conversion.resyllabify);
+        assert!(c.conversion.old_ha);
         assert_eq!(c.conversion.script, Script::SinoOnly);
         assert_eq!(c.conversion.max_candidates, 20);
     }
@@ -400,6 +410,7 @@ mod tests {
                 coda_always: true,
                 resyllabify: true,
                 hada_kun: true,
+                old_ha: true,
                 script: Script::HangulOnly,
                 max_candidates: 5,
             },
@@ -432,7 +443,7 @@ mod tests {
         let o = non_default().engine_options();
         assert_eq!(o.style, Style::Morpheme);
         assert_eq!(o.fragment, Fragment::Letter);
-        assert!(o.coda_always && o.resyllabify && o.hada_kun && !o.sino_only);
+        assert!(o.coda_always && o.resyllabify && o.hada_kun && o.old_ha && !o.sino_only);
         assert_eq!(o.max_candidates, 5);
         let mut sino = non_default();
         sino.conversion.script = Script::SinoOnly;
@@ -440,6 +451,7 @@ mod tests {
         let d = Config::default().engine_options();
         assert_eq!(d.style, Style::Surface);
         assert_eq!(d.max_candidates, Options::default().max_candidates);
+        assert!(!d.old_ha);
     }
 
     #[test]

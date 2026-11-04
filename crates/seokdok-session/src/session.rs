@@ -6,6 +6,7 @@
 //! converted (the buffer shown as 釋讀 segments, one of them focused).
 
 use seokdok_core::dubeolsik::Composer;
+use seokdok_core::jamo::{is_hangul, units};
 use seokdok_core::{Candidate, Segment};
 
 use crate::keys::Key;
@@ -128,7 +129,7 @@ enum Act {
     Pick(usize),
     /// Next / previous page of candidates.
     Page(isize),
-    /// Shrink (-1) or extend (+1) the focused segment by one syllable.
+    /// Shrink (-1) or extend (+1) the focused segment by one syllable unit.
     Resize(isize),
     /// Close the candidate window, keeping the conversion.
     CloseWindow,
@@ -450,35 +451,20 @@ impl Session {
     fn resize(&mut self, conv: &dyn Converter, d: isize, fx: &mut Vec<Effect>) {
         let Some(c) = &mut self.conv else { return };
         let i = c.focus;
-        let cur: Vec<char> = c.segs[i].reading.chars().collect();
-        let next: Vec<char> = c.segs.get(i + 1).map(|s| s.reading.chars().collect()).unwrap_or_default();
+        let cur = units(&c.segs[i].reading);
+        let next = c.segs.get(i + 1).map(|s| units(&s.reading)).unwrap_or_default();
         if (d < 0 && cur.len() <= 1) || (d > 0 && next.is_empty()) {
             return;
         }
-        let (a, b): (String, String) = if d < 0 {
-            (cur[..cur.len() - 1].iter().collect(), std::iter::once(cur[cur.len() - 1]).chain(next.iter().copied()).collect())
+        let (a, b) = if d < 0 {
+            let (last, kept) = cur.split_last().unwrap();
+            (kept.concat(), [*last, &next.concat()].concat())
         } else {
-            (cur.iter().copied().chain(std::iter::once(next[0])).collect(), next[1..].iter().collect())
+            ([&cur.concat(), next[0]].concat(), next[1..].concat())
         };
-        let span = |t: &str| {
-            // Whole-phrase readings first; a single word also brings its
-            // full candidate list, which the phrase list cuts short.
-            let mut v = conv.whole(t);
-            if let [seg] = conv.segments(t).as_slice() {
-                for k in &seg.candidates {
-                    if !v.iter().any(|x| x.text == k.text) {
-                        v.push(k.clone());
-                    }
-                }
-            }
-            if !v.iter().any(|k| k.text == t) {
-                v.push(Candidate { text: t.to_string(), note: String::new() });
-            }
-            Seg { reading: t.to_string(), cands: v, sel: 0 }
-        };
-        let mut fresh = vec![span(&a)];
+        let mut fresh = vec![span(conv, &a)];
         if !b.is_empty() {
-            fresh.push(span(&b));
+            fresh.push(span(conv, &b));
         }
         let end = (i + 2).min(c.segs.len());
         c.segs.splice(i..end, fresh);
@@ -542,12 +528,19 @@ impl Session {
     }
 
     fn convert(&mut self, conv: &dyn Converter, spaced: bool, fx: &mut Vec<Effect>) {
-        let segs: Vec<Seg> = conv
-            .segments(self.composer.text())
-            .into_iter()
-            .filter(|s| !s.candidates.is_empty())
-            .map(|s| Seg { reading: s.reading, cands: s.candidates, sel: 0 })
-            .collect();
+        let mut segs: Vec<Seg> = Vec::new();
+        for s in conv.segments(self.composer.text()) {
+            let seg = match segs.last() {
+                // A syllable unit never spans two segments.
+                Some(last) if splits_unit(&last.reading, &s.reading) => {
+                    let joined = segs.pop().unwrap().reading + &s.reading;
+                    span(conv, &joined)
+                }
+                _ if s.candidates.is_empty() => span(conv, &s.reading),
+                _ => Seg { reading: s.reading, cands: s.candidates, sel: 0 },
+            };
+            segs.push(seg);
+        }
         if segs.is_empty() {
             return;
         }
@@ -586,8 +579,27 @@ impl Session {
     }
 }
 
-fn is_hangul(c: char) -> bool {
-    ('\u{AC00}'..='\u{D7A3}').contains(&c)
+/// A segment for exactly this span of the input.
+fn span(conv: &dyn Converter, t: &str) -> Seg {
+    // Whole-phrase readings first; a single word also brings its full
+    // candidate list, which the phrase list cuts short.
+    let mut v = conv.whole(t);
+    if let [seg] = conv.segments(t).as_slice() {
+        for k in &seg.candidates {
+            if !v.iter().any(|x| x.text == k.text) {
+                v.push(k.clone());
+            }
+        }
+    }
+    if !v.iter().any(|k| k.text == t) {
+        v.push(Candidate { text: t.to_string(), note: String::new() });
+    }
+    Seg { reading: t.to_string(), cands: v, sel: 0 }
+}
+
+/// Would a boundary between these two readings fall inside a syllable unit?
+fn splits_unit(a: &str, b: &str) -> bool {
+    units(&[a, b].concat()).len() < units(a).len() + units(b).len()
 }
 
 /// Segments the focus can visit: a real choice, or Hangul to resize.
@@ -1219,5 +1231,489 @@ mod tests {
         assert!(!converted.is_empty());
         let o = s.handle(Key::Enter, &c);
         assert_eq!(commit_of(&o).unwrap(), converted);
+    }
+
+    // Old Hangul in escapes, so that no editor can normalise it.
+    const HOLL: &str = "\u{1112}\u{119E}\u{11AF}"; // ᄒᆞᆯ
+    const SA: &str = "\u{1109}\u{119E}"; // ᄉᆞ
+    const SSAM: &str = "\u{110A}\u{119E}\u{11B7}"; // ᄊᆞᆷ
+    const STTO: &str = "\u{112F}\u{1169}"; // ᄯᅩ
+
+    /// Words split at spaces; the reading comes back as the text of two
+    /// candidates (a space has one), so that the window opens and committing
+    /// returns the input.
+    struct Echo;
+
+    impl Converter for Echo {
+        fn segments(&self, input: &str) -> Vec<Segment> {
+            let candidates = |w: &str| vec![Candidate { text: w.into(), note: String::new() }; if w == " " { 1 } else { 2 }];
+            input
+                .split_inclusive(' ')
+                .flat_map(|w| match w.strip_suffix(' ') {
+                    Some(word) => vec![word, " "],
+                    None => vec![w],
+                })
+                .filter(|w| !w.is_empty())
+                .map(|w| Segment { reading: w.into(), candidates: candidates(w) })
+                .collect()
+        }
+        fn whole(&self, input: &str) -> Vec<Candidate> {
+            vec![Candidate { text: input.into(), note: String::new() }]
+        }
+    }
+
+    /// A careless converter: one segment for every char, conjoining jamo too.
+    struct Chop;
+
+    impl Converter for Chop {
+        fn segments(&self, input: &str) -> Vec<Segment> {
+            input
+                .chars()
+                .map(|c| Segment { reading: c.into(), candidates: vec![Candidate { text: c.into(), note: String::new() }] })
+                .collect()
+        }
+        fn whole(&self, input: &str) -> Vec<Candidate> {
+            vec![Candidate { text: input.into(), note: String::new() }]
+        }
+    }
+
+    fn real_engine() -> impl Converter {
+        struct E(seokdok_core::Engine);
+        impl Converter for E {
+            fn segments(&self, input: &str) -> Vec<Segment> {
+                self.0.segments(input)
+            }
+            fn whole(&self, input: &str) -> Vec<Candidate> {
+                self.0.convert(input)
+            }
+        }
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+        E(crate::engine_host::load_engine(&dir, None, seokdok_core::Options::default()).0)
+    }
+
+    fn readings(s: &Session) -> Vec<String> {
+        s.conv.as_ref().unwrap().segs.iter().map(|g| g.reading.clone()).collect()
+    }
+
+    /// The segments add up to `text` and every boundary is a unit boundary.
+    fn assert_whole_units(s: &Session, text: &str) {
+        let segs = readings(s);
+        assert_eq!(segs.concat(), text, "{segs:?}");
+        let mut starts = vec![0];
+        for u in units(text) {
+            starts.push(starts.last().unwrap() + u.len());
+        }
+        let mut at = 0;
+        for g in &segs {
+            at += g.len();
+            assert!(starts.contains(&at), "cut at byte {at} of {text:?}: {segs:?}");
+        }
+        for k in &s.conv.as_ref().unwrap().segs {
+            assert!(!k.cands.is_empty());
+        }
+    }
+
+    /// Convert `text`, then step the focused segment through every width: out
+    /// to the end, in to one unit, and out again.
+    fn walk_widths(text: &str, c: &dyn Converter) -> Session {
+        let mut s = seokdok();
+        s.composer.set_text(text);
+        s.handle(Key::Space { shift: false }, c);
+        assert_whole_units(&s, text);
+        let focus = s.conv.as_ref().unwrap().focus;
+        let head = readings(&s)[..focus].concat();
+        let span = units(&text[head.len()..]);
+        let n = span.len();
+        let width = |s: &Session| readings(s)[focus].clone();
+        let mut guard = n + 1;
+        while readings(&s).len() > focus + 1 {
+            s.handle(Key::Right { shift: true }, c);
+            assert_whole_units(&s, text);
+            guard -= 1;
+            assert!(guard > 0, "extending does not end: {:?}", readings(&s));
+        }
+        assert_eq!(width(&s), span.concat());
+        let no_move = s.handle(Key::Right { shift: true }, c);
+        assert!(no_move.effects.is_empty());
+        for w in (1..n).rev() {
+            s.handle(Key::Left { shift: true }, c);
+            assert_whole_units(&s, text);
+            assert_eq!(width(&s), span[..w].concat());
+        }
+        let no_move = s.handle(Key::Left { shift: true }, c);
+        assert!(no_move.effects.is_empty());
+        for w in 2..=n {
+            s.handle(Key::Right { shift: true }, c);
+            assert_whole_units(&s, text);
+            assert_eq!(width(&s), span[..w].concat());
+        }
+        s
+    }
+
+    fn mixed_texts() -> Vec<String> {
+        vec![
+            format!("追加{HOLL}까요"),
+            "나랏말\u{110A}\u{119E}미".to_string(),
+            HOLL.to_string(),
+            format!("{HOLL}{SA}{SSAM}{STTO}"),
+            format!("{STTO} {HOLL}까요, {SSAM}"),
+            format!("\u{A960}\u{D7B0}\u{D7CB}\u{115F}\u{119E}\u{1100}\u{1160}{SA}"),
+            // One syllable of two medials (the engine reads ᄒᆞᅵ as 해), of two
+            // initials, and of a medial and final each in two jamo.
+            "\u{1112}\u{119E}\u{1175}요 \u{1109}\u{1100}\u{1169}\u{1161}\u{11AF}\u{11A8}까요".to_string(),
+        ]
+    }
+
+    #[test]
+    fn units_survive_every_width_and_commit_back() {
+        for text in mixed_texts() {
+            for c in [&Echo as &dyn Converter, &Chop] {
+                let mut s = walk_widths(&text, c);
+                let o = s.handle(Key::Enter, c);
+                assert_eq!(commit_of(&o).unwrap(), text);
+                assert!(!s.is_composing());
+            }
+        }
+    }
+
+    #[test]
+    fn units_survive_every_width_with_the_real_engine() {
+        let c = real_engine();
+        for text in mixed_texts() {
+            let mut s = walk_widths(&text, &c);
+            // Back to Hangul: the text as typed comes back whole.
+            s.handle(Key::Backspace, &c);
+            assert_eq!(s.buffer(), text);
+            let o = s.handle(Key::Enter, &c);
+            assert_eq!(commit_of(&o).unwrap(), text);
+        }
+    }
+
+    #[test]
+    fn a_shrunk_old_syllable_moves_as_one() {
+        let text = format!("추{HOLL}");
+        let mut s = seokdok();
+        s.composer.set_text(&text);
+        s.handle(Key::Convert, &Echo);
+        let o = s.handle(Key::Left { shift: true }, &Echo);
+        let got: Vec<String> = preedit_of(&o).unwrap().into_iter().map(|r| r.text).collect();
+        assert_eq!(got, ["추".to_string(), HOLL.to_string()]);
+    }
+
+    #[test]
+    fn an_old_only_reading_can_be_focused_and_resized() {
+        // One candidate each: only the Hangul in the reading makes it a stop.
+        struct One;
+        impl Converter for One {
+            fn segments(&self, input: &str) -> Vec<Segment> {
+                Echo.segments(input)
+                    .into_iter()
+                    .map(|mut g| {
+                        g.candidates.truncate(1);
+                        g
+                    })
+                    .collect()
+            }
+        }
+        let text = format!("1 {HOLL}{SA} 2 \u{119E}");
+        let mut s = seokdok();
+        s.composer.set_text(&text);
+        s.handle(Key::Convert, &One);
+        assert_eq!(readings(&s)[s.conv.as_ref().unwrap().focus], format!("{HOLL}{SA}"));
+        s.handle(Key::Left { shift: true }, &One);
+        assert_whole_units(&s, &text);
+        assert_eq!(readings(&s)[2], HOLL);
+        assert_eq!(readings(&s)[3], format!("{SA} "));
+        // Right walks on to the stray old vowel, over the digit and the space.
+        s.handle(Key::Right { shift: false }, &One);
+        assert_eq!(readings(&s)[s.conv.as_ref().unwrap().focus], format!("{SA} "));
+        s.handle(Key::Right { shift: false }, &One);
+        assert_eq!(readings(&s)[s.conv.as_ref().unwrap().focus], "\u{119E}");
+        // Non-Hangul with one candidate stays out.
+        let mut s = seokdok();
+        s.composer.set_text("1 2");
+        s.handle(Key::Convert, &One);
+        assert_eq!(s.conv.as_ref().unwrap().focus, 0);
+        let c = s.conv.as_ref().unwrap();
+        assert!(!focusable(&c.segs[0]) && !focusable(&c.segs[2]));
+    }
+
+    #[test]
+    fn a_pick_keeps_old_hangul_converting() {
+        let mut s = seokdok();
+        s.composer.set_text(&format!("가 {HOLL}"));
+        s.handle(Key::Convert, &Echo);
+        s.handle(Key::Down, &Echo);
+        let o = s.handle(Key::Printable('1'), &Echo);
+        assert_eq!(commit_of(&o).unwrap(), "가");
+        assert_eq!(s.buffer(), format!(" {HOLL}"));
+        assert_eq!(readings(&s)[s.conv.as_ref().unwrap().focus], HOLL);
+        // Only spaces and digits left: all of it goes.
+        let mut s = seokdok();
+        s.composer.set_text("가 1");
+        s.handle(Key::Convert, &Echo);
+        s.handle(Key::Down, &Echo);
+        let o = s.handle(Key::Printable('1'), &Echo);
+        assert_eq!(commit_of(&o).unwrap(), "가 1");
+        assert!(!s.is_composing());
+    }
+
+    #[test]
+    fn backspace_never_leaves_part_of_an_earlier_syllable() {
+        // Typed: one letter at a time, inside the last syllable only.
+        let mut s = seokdok();
+        type_str(&mut s, "gkr");
+        s.handle(Key::Printable(','), &Echo);
+        s.handle(Key::Letter { ch: 'g', shift: false }, &Echo);
+        s.handle(Key::Letter { ch: 'k', shift: true }, &Echo);
+        s.handle(Key::Letter { ch: 'f', shift: false }, &Echo);
+        assert_eq!(s.buffer(), format!("학,{HOLL}"));
+        s.handle(Key::Backspace, &Echo);
+        assert_eq!(s.buffer(), "학,\u{1112}\u{119E}");
+        s.handle(Key::Backspace, &Echo);
+        assert_eq!(s.buffer(), "학,ㅎ");
+        s.handle(Key::Backspace, &Echo);
+        assert_eq!(s.buffer(), "학,");
+        // After a conversion it goes back to the same text.
+        let text = format!("追加{HOLL}까요");
+        let mut s = seokdok();
+        s.composer.set_text(&text);
+        s.handle(Key::Convert, &Echo);
+        s.handle(Key::Left { shift: true }, &Echo);
+        let o = s.handle(Key::Backspace, &Echo);
+        assert_eq!(preedit_of(&o).unwrap()[0].text, text);
+        assert_eq!(s.buffer(), text);
+    }
+
+    #[test]
+    fn a_conversion_without_candidates_keeps_its_text() {
+        struct Bare;
+        impl Converter for Bare {
+            fn segments(&self, input: &str) -> Vec<Segment> {
+                Echo.segments(input)
+                    .into_iter()
+                    .map(|g| Segment { reading: g.reading, candidates: Vec::new() })
+                    .collect()
+            }
+        }
+        let mut s = seokdok();
+        s.composer.set_text(&format!("{HOLL} 까요"));
+        s.handle(Key::Convert, &Bare);
+        let o = s.handle(Key::Enter, &Bare);
+        assert_eq!(commit_of(&o).unwrap(), format!("{HOLL} 까요"));
+    }
+
+    struct XorShift(u64);
+
+    impl XorShift {
+        fn next(&mut self) -> u64 {
+            self.0 ^= self.0 << 13;
+            self.0 ^= self.0 >> 7;
+            self.0 ^= self.0 << 17;
+            self.0
+        }
+        fn below(&mut self, n: usize) -> usize {
+            (self.next() % n as u64) as usize
+        }
+        fn pick<T: Copy>(&mut self, items: &[T]) -> T {
+            items[self.below(items.len())]
+        }
+    }
+
+    fn random_text(r: &mut XorShift) -> String {
+        const MODERN: &[&str] = &["가", "한", "까", "요", "말", "미", "나", "랏", "하", "늘", "았", "봤"];
+        const OLD: &[&str] = &[
+            HOLL,
+            SA,
+            SSAM,
+            STTO,
+            "\u{1140}\u{1161}\u{11AB}",
+            "\u{A960}\u{D7B0}\u{D7CB}",
+            "\u{115F}\u{119E}",
+            "\u{1100}\u{1160}",
+            "\u{1100}\u{1161}",
+            "\u{1112}\u{1161}\u{11BC}\u{11AB}",
+            "\u{114C}\u{119E}\u{11F0}",
+        ];
+        const STRAY: &[&str] = &[
+            "\u{1112}", "\u{1100}", "\u{A960}", "\u{115F}", "\u{1160}", "\u{119E}", "\u{1161}", "\u{D7B0}", "\u{11AF}", "\u{11A8}", "\u{D7CB}",
+        ];
+        const OTHER: &[&str] = &["追", "加", "天", " ", " ", ",", "1", "a", "ㅎ", "ㆍ"];
+        let mut out = String::new();
+        for _ in 0..r.below(12) + 1 {
+            let set = r.pick(&[MODERN, OLD, OLD, STRAY, OTHER]);
+            out.push_str(r.pick(set));
+        }
+        out
+    }
+
+    /// Every unit of `text` but the last.
+    fn all_but_last_unit(text: &str) -> String {
+        let u = units(text);
+        u[..u.len().saturating_sub(1)].concat()
+    }
+
+    /// One random session, all keys through `handle`. The converter must hand
+    /// back the reading as the text, so that the text can be followed through.
+    fn fuzz_echoing_session(r: &mut XorShift, c: &dyn Converter) {
+        let text = random_text(r);
+        let mut s = Session::new(Mode::Seokdok, r.below(2) == 0);
+        s.set_old_clusters(r.below(2) == 0);
+        s.set_horizontal(r.below(2) == 0);
+        s.composer.set_text(&text);
+        let current = |s: &Session| match &s.conv {
+            Some(_) => readings(s).concat(),
+            None => s.buffer().to_string(),
+        };
+        let mut committed = String::new();
+        let shift = |r: &mut XorShift| r.below(2) == 0;
+        for _ in 0..r.below(40) {
+            let key = match r.below(16) {
+                0 | 1 => Key::Left { shift: true },
+                2 | 3 => Key::Right { shift: true },
+                4 => Key::Left { shift: false },
+                5 => Key::Right { shift: false },
+                6 => Key::Space { shift: shift(r) },
+                7 => Key::Convert,
+                8 => Key::Tab { shift: shift(r) },
+                9 => r.pick(&[Key::Down, Key::Up, Key::PageUp, Key::PageDown]),
+                10 | 11 => Key::Backspace,
+                12 => Key::Printable(r.pick(&['1', '2', ',', '!'])),
+                13 => Key::Letter { ch: r.pick(&['g', 'k', 'f', 'r', 'd', 'l', 't', 'h']), shift: shift(r) },
+                14 => Key::Esc,
+                _ => Key::Enter,
+            };
+            let was_conv = s.conv.is_some();
+            let before = format!("{committed}{}", current(&s));
+            let buffered = s.buffer().len();
+            let out = s.handle(key, c);
+            for e in &out.effects {
+                if let Effect::Commit(t) = e {
+                    if s.conv.is_some() {
+                        assert!(!splits_unit(t, &current(&s)), "{text:?}: commit {t:?} cuts into {:?}", current(&s));
+                    }
+                    committed.push_str(t);
+                }
+            }
+            let now = current(&s);
+            let after = format!("{committed}{now}");
+            match key {
+                Key::Letter { .. } if was_conv => assert!(after.starts_with(&before), "{text:?} {key:?}: {before:?} -> {after:?}"),
+                Key::Letter { .. } => {
+                    let kept = all_but_last_unit(&before);
+                    assert!(after.starts_with(&kept), "{text:?} {key:?}: {before:?} -> {after:?}");
+                }
+                Key::Backspace if !was_conv && buffered > 0 => {
+                    let kept = all_but_last_unit(&before);
+                    assert!(after.starts_with(&kept) && after != before, "{text:?} {key:?}: {before:?} -> {after:?}");
+                }
+                Key::Esc if !was_conv && buffered > 0 => assert_eq!(now, ""),
+                Key::Printable(k) => assert!(after == before || after == format!("{before}{k}"), "{text:?} {key:?}: {before:?} -> {after:?}"),
+                Key::Space { .. } => assert!(after == before || after == format!("{before} "), "{text:?} {key:?}: {before:?} -> {after:?}"),
+                _ => assert_eq!(after, before, "{text:?} {key:?}"),
+            }
+            match &s.conv {
+                Some(_) => {
+                    assert_whole_units(&s, s.buffer());
+                    if let Some(runs) = preedit_of(&out) {
+                        assert_eq!(runs.iter().map(|x| x.text.as_str()).collect::<String>(), now);
+                    }
+                }
+                None => {
+                    if let Some(runs) = preedit_of(&out) {
+                        assert_eq!(runs[0].text, s.buffer());
+                    }
+                }
+            }
+        }
+        let end = format!("{committed}{}", current(&s));
+        for e in s.flush() {
+            if let Effect::Commit(t) = e {
+                committed.push_str(&t);
+            }
+        }
+        assert_eq!(committed, end, "{text:?}");
+        assert!(!s.is_composing());
+    }
+
+    #[test]
+    fn fuzz_sessions_keep_the_text_and_its_units() {
+        let mut r = XorShift(0x5EED_0B7D_1234_ABCD);
+        for _ in 0..3000 {
+            fuzz_echoing_session(&mut r, &Echo);
+        }
+        for _ in 0..1000 {
+            fuzz_echoing_session(&mut r, &Chop);
+        }
+    }
+
+    #[test]
+    fn fuzz_composer_backspace_empties_without_cutting() {
+        let mut r = XorShift(0x0DD1_EE7A_90F0_0001);
+        for _ in 0..3000 {
+            let text = random_text(&mut r);
+            let mut s = seokdok();
+            s.composer.set_text(&text);
+            // A letter typed onto the text must keep what lies before it.
+            if r.below(2) == 0 {
+                let kept = all_but_last_unit(&text);
+                let ch = r.pick(&['g', 'k', 'f', 'd', 'K']);
+                s.handle(Key::Letter { ch: ch.to_ascii_lowercase(), shift: ch.is_uppercase() }, &Echo);
+                assert!(s.buffer().starts_with(&kept), "{text:?} + {ch}: {:?}", s.buffer());
+            }
+            let mut left = s.buffer().to_string();
+            let mut steps = 0;
+            while !left.is_empty() {
+                let kept = all_but_last_unit(&left);
+                s.handle(Key::Backspace, &Echo);
+                assert!(s.buffer().starts_with(&kept) && s.buffer() != left, "{left:?} -> {:?}", s.buffer());
+                left = s.buffer().to_string();
+                steps += 1;
+                assert!(steps < 200);
+            }
+            assert!(!s.is_composing());
+        }
+    }
+
+    #[test]
+    fn fuzz_real_engine_keeps_readings_whole() {
+        let c = real_engine();
+        let mut r = XorShift(0xA11C_E5ED_0000_7777);
+        for _ in 0..600 {
+            let text = random_text(&mut r);
+            let mut s = seokdok();
+            s.composer.set_text(&text);
+            s.handle(Key::Convert, &c);
+            if s.conv.is_none() {
+                assert_eq!(s.buffer(), text);
+                continue;
+            }
+            assert_whole_units(&s, &text);
+            for g in &s.conv.as_ref().unwrap().segs {
+                let old = g.reading.chars().any(|c| is_hangul(c) && !('\u{AC00}'..='\u{D7A3}').contains(&c) && !('\u{3131}'..='\u{318E}').contains(&c));
+                assert!(!old || g.cands.iter().any(|k| k.text == g.reading), "{:?} cannot be kept as typed", g.reading);
+            }
+            for _ in 0..r.below(10) {
+                let key = r.pick(&[
+                    Key::Left { shift: true },
+                    Key::Right { shift: true },
+                    Key::Left { shift: false },
+                    Key::Right { shift: false },
+                    Key::Down,
+                ]);
+                s.handle(key, &c);
+                assert_whole_units(&s, &text);
+            }
+            if r.below(2) == 0 {
+                // Back to Hangul: nothing was lost.
+                s.handle(Key::Backspace, &c);
+                let o = s.handle(Key::Enter, &c);
+                assert_eq!(commit_of(&o).unwrap(), text);
+            } else {
+                let o = s.handle(Key::Enter, &c);
+                assert!(!commit_of(&o).unwrap().is_empty(), "{text:?}");
+            }
+            assert!(!s.is_composing());
+        }
     }
 }

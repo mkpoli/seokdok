@@ -21,10 +21,26 @@ struct ContentView: View {
     @AppStorage("codaAlways", store: Settings.store) private var codaAlways = false
     @AppStorage("resyllabify", store: Settings.store) private var resyllabify = false
     @AppStorage("hadaKun", store: Settings.store) private var hadaKun = false
+    @AppStorage("oldHa", store: Settings.store) private var oldHa = false
     @AppStorage("script", store: Settings.store) private var script = "seokdok"
     @AppStorage("maxCandidates", store: Settings.store) private var maxCandidates = 12
     @State private var trial = ""
+    @State private var trial2 = ""
     @FocusState private var trialFocused: Bool
+
+    /// Launch arguments for the simulator check: `-trialKind number` (also
+    /// decimal, phone, email, url) gives the try-it field that keyboard type,
+    /// and `-trialKind2` adds a second field of the given type below it.
+    private static func keyboard(_ argument: String) -> UIKeyboardType {
+        switch UserDefaults.standard.string(forKey: argument) {
+        case "number": return .numberPad
+        case "decimal": return .decimalPad
+        case "phone": return .phonePad
+        case "email": return .emailAddress
+        case "url": return .URL
+        default: return .default
+        }
+    }
 
     var body: some View {
         NavigationStack {
@@ -32,7 +48,13 @@ struct ContentView: View {
                 Section("試驗 · Try it") {
                     TextField("여기에 입력 · Type here", text: $trial, axis: .vertical)
                         .focused($trialFocused)
+                        .keyboardType(Self.keyboard("trialKind"))
                         .accessibilityIdentifier("trial")
+                    if UserDefaults.standard.string(forKey: "trialKind2") != nil {
+                        TextField("2", text: $trial2)
+                            .keyboardType(Self.keyboard("trialKind2"))
+                            .accessibilityIdentifier("trial2")
+                    }
                 }
                 Section("켜기 · Turn on") {
                     Text("설정 → 일반 → 키보드 → 키보드 → 새로운 키보드 추가 → 釋讀. 아래 設定을 쓰려면 「전체 접근 허용」을 켭니다. 켜지 않아도 기본 設定으로 動作합니다.")
@@ -81,6 +103,7 @@ struct ContentView: View {
                     Toggle("받침 늘 적기 · Always write the final consonant", isOn: $codaAlways)
                     Toggle("連音 · Carry a final consonant to a following ㅇ", isOn: $resyllabify)
                     Toggle("하다 → 爲 · Prefer 爲 for 하다", isOn: $hadaKun)
+                    Toggle("하 → ᄒᆞ 優先 · Old spelling of 하 first (하고 → ᄒᆞ고)", isOn: $oldHa)
                     Stepper("候補 數 · Candidates: \(maxCandidates)", value: $maxCandidates, in: 1...50)
                 } header: {
                     Text("變換 · Conversion")
@@ -98,6 +121,7 @@ struct ContentView: View {
             .onChange(of: codaAlways) { _ in Settings.write() }
             .onChange(of: resyllabify) { _ in Settings.write() }
             .onChange(of: hadaKun) { _ in Settings.write() }
+            .onChange(of: oldHa) { _ in Settings.write() }
             .onChange(of: script) { _ in Settings.write() }
             .onChange(of: maxCandidates) { _ in Settings.write() }
             .onAppear {
@@ -135,6 +159,7 @@ enum Settings {
         coda_always = \(bool("codaAlways", false))
         resyllabify = \(bool("resyllabify", false))
         hada_kun = \(bool("hadaKun", false))
+        old_ha = \(bool("oldHa", false))
         script = "\(text("script", "seokdok"))"
         max_candidates = \(s.object(forKey: "maxCandidates") as? Int ?? 12)
 

@@ -130,6 +130,11 @@ impl Engine {
         // A Hanja the reader does not know, or a 送韓字 letter left unread
         // (見ㅆ다ㅋㅋ → 견ㅆ다ㅋㅋ): the reading cannot stand for the word.
         let poor = reading.chars().any(is_hanja) || unread_tail(word, &reading);
+        let typed = |note: String| Candidate { text: word.to_string(), note };
+        if poor {
+            // Nothing derived from a failed reading is offered.
+            return vec![typed(String::new())];
+        }
         let all = self.reading_candidates(&reading);
         let first = all.first().cloned();
         let mut found = all;
@@ -143,9 +148,9 @@ impl Engine {
         found.retain(|c| c.text != reading);
         let typed = match found.iter().position(|c| c.text == word) {
             Some(i) => found.remove(i),
-            None => Candidate { text: word.to_string(), note: String::new() },
+            None => typed(String::new()),
         };
-        if self.options.sino_only && !poor {
+        if self.options.sino_only {
             if let Some(first) = first {
                 push(first, &mut menu);
             }
@@ -163,12 +168,9 @@ impl Engine {
                 }
             }
         }
-        if !poor {
-            // The plain reading ends the menu, which stays short enough to show whole.
-            menu.truncate(MENU - 1);
-            push(hangul, &mut menu);
-        }
-        menu.truncate(MENU);
+        // The plain reading ends the menu, which stays short enough to show whole.
+        menu.truncate(MENU - 1);
+        push(hangul, &mut menu);
         menu
     }
 

@@ -175,11 +175,14 @@ fn words_the_reader_cannot_read_are_kept() {
         // 𠀀 has no reading, and 見ㅆ다ㅋㅋ is not a form the reader knows.
         for s in ["𠀀을", "見ㅆ다ㅋㅋ"] {
             assert_eq!(first(e, s), s);
-            let m = menu(e, s);
-            assert_eq!(m[0], s);
-            assert!(!m.contains(&e.read(s)) || e.read(s) == s, "{s}: the broken reading must not be offered");
+            // Nothing is derived from the failed reading, not even a candidate
+            // for the part that was read (犬ㅆ悉ㅋㅋ for 견ㅆ다ㅋㅋ).
+            assert_eq!(menu(e, s), [s], "{s}");
         }
         assert_eq!(first(e, "𠀀을 abc"), "𠀀을 abc");
+        // The rest of the line still converts, and no candidate spoils the word.
+        assert!(first(e, "天을 見ㅆ다ㅋㅋ").ends_with(" 見ㅆ다ㅋㅋ"));
+        assert!(e.convert("天을 見ㅆ다ㅋㅋ").iter().all(|c| c.text.ends_with(" 見ㅆ다ㅋㅋ")));
     }
 }
 

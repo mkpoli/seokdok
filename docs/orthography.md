@@ -163,7 +163,7 @@ before the particle: 初음에, 久ㄴ만에, 言씀을.
 ### 6.3 Adverbs and determiners
 
 Adverbs, determiners and pronouns take entries like nouns: 何떻게 (65),
-此런 (50), 何슨 (35), 尙려 (오히려), 超무 (너무). 車魄 notes that the group has
+此런 (50), 何슨 (35), 尙려 (오히려), 超무 (너무), 過무 (너무). 車魄 notes that the group has
 yet to settle these ("副詞類도 언젠가 一番에 釋讀 表記를 考案해야겠죠",
 2026-10-28).
 
@@ -173,6 +173,43 @@ seokdok writes 하다 in Hangul, after a Sino-Korean word or on its own
 (安寧하세요, 했다), and lists 爲 as the next candidate (安寧爲세요, 爲ㅆ다).
 The `hada_kun` option makes 爲 the first choice. The community dictionary
 writes 하다 on its own as 爲다.
+
+### 6.5 Other amounts of Hangul after the Hanja
+
+An entry gives one written form (超무, 初음, 近다), and the same word can be
+written with less or more Hangul after the Hanja. For a noun, adverb or
+pronoun written with a single Hanja, the input method lists these forms behind
+the dictionary form, in this order:
+
+1. the last syllable (何게);
+2. every syllable but the first (尙히려);
+3. the last letter alone, as a jamo (超ㅜ, 初ㅁ, 何ㅔ);
+4. the Hanja alone (超, 初).
+
+A form equal to an earlier one is listed once. A particle follows whichever
+form is chosen. The forms are made from the entry when candidates are listed,
+and none of them is a dictionary entry or counted as one. They are
+*(constructed)*.
+
+| Word | Forms, in order |
+|---|---|
+| 너무 | 超무, 超ㅜ, 超 |
+| 처음 | 初음, 初ㅁ, 初 |
+| 처음에 | 初음에, 初ㅁ에, 初에 |
+| 어떻게 | 何떻게, 何게, 何ㅔ, 何 |
+| 말씀 | 言씀, 言ㅁ, 言 |
+| 오히려 | 尙려, 尙히려, 尙ㅕ, 尙 |
+
+A one-syllable word has the letter and the Hanja alone (我ㅏ, 我). An
+inflected word, when the Hanja stand for two syllables or more, writes the
+word's own syllables after the Hanja, from the last covered one or from the
+second: 가까웠다 is 近웠다 or 近까웠다, 가깝고 is 近고 or 近깝고, and 마셔라 is
+飮라 or 飮셔라. These forms are the same whatever the style options.
+
+The reader (釋讀文 → 한글) reads these forms back: 超ㅜ is 너무, 初ㅁ에 is
+처음에, 近까웠다 is 가까웠다. It reads the Hanja alone by sound, as 超 = 초. A
+form that is also a dictionary form of another word is read as that word:
+何게 is 어드럭하게, 言ㅁ is 말함 and 初ㅁ is 숫함.
 
 ## 7. Options summary
 

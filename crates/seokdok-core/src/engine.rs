@@ -8,6 +8,8 @@ use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify
 use crate::particles::{allowed, particles, Particle};
 use std::collections::HashMap;
 
+mod okurigana;
+
 /// How the Hangul after a 訓讀 stem is written.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum Style {
@@ -707,7 +709,18 @@ impl Engine {
         std::mem::take(&mut best[n])
     }
 
+    /// The dictionary's written forms of an edge, then the other 送韓字
+    /// choices for the same word (see [`Engine::okurigana`]).
     fn render(&self, comps: &[char], e: &Edge) -> Vec<Candidate> {
+        let mut out = self.render_dict(comps, e);
+        if !self.options.sino_only {
+            let more = self.okurigana(comps, e, &out, true);
+            out.extend(more);
+        }
+        out
+    }
+
+    fn render_dict(&self, comps: &[char], e: &Edge) -> Vec<Candidate> {
         let slice = &comps[e.start..e.end];
         let raw = || Candidate { text: compose(slice), note: String::new() };
         match &e.kind {
@@ -903,8 +916,16 @@ impl Engine {
                     .map(|(i, x)| (x.cost, i))
                     .collect();
                 alts.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+                // Dictionary forms of every reading first, then the constructed ones.
                 let mut cands: Vec<Candidate> = Vec::new();
-                for (_, i) in alts {
+                for &(_, i) in &alts {
+                    for c in self.render_dict(&comps, &edges[i]) {
+                        if !cands.iter().any(|x| x.text == c.text) {
+                            cands.push(c);
+                        }
+                    }
+                }
+                for &(_, i) in &alts {
                     for c in self.render(&comps, &edges[i]) {
                         if !cands.iter().any(|x| x.text == c.text) {
                             cands.push(c);
@@ -1059,21 +1080,21 @@ impl Engine {
                         kind: Kind::Verb { entry: i as u32, allo: a as u16, ending: idx as u16 },
                     };
                     let surface = compose(&comps);
-                    for c in self.render(&comps, &edge) {
+                    for c in self.render_dict(&comps, &edge) {
                         out.push((c.text, surface.clone()));
                     }
                 }
             }
         } else {
             let base = Edge { start: 0, end: n.stem.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: None } };
-            out.push((self.render(&n.stem, &base)[0].text.clone(), compose(&n.stem)));
+            out.push((self.render_dict(&n.stem, &base)[0].text.clone(), compose(&n.stem)));
             let pron = matches!(n.pos, Pos::Pron | Pos::Bound);
             let last = *n.stem.last().unwrap();
             for (pi, p) in self.particles.iter().enumerate() {
                 if allowed(p.cond, last, pron) {
                     let comps = [n.stem.clone(), p.comps.clone()].concat();
                     let e = Edge { start: 0, end: comps.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: Some(pi as u16) } };
-                    out.push((self.render(&comps, &e)[0].text.clone(), compose(&comps)));
+                    out.push((self.render_dict(&comps, &e)[0].text.clone(), compose(&comps)));
                 }
             }
         }
@@ -1185,16 +1206,7 @@ impl Engine {
             let written = written_tail(k);
             for &i in entries {
                 let n = &self.natives[i];
-                // Hand-made 訓讀 spellings win a tie with a whole-word 音讀
-                // reading (一番 = 한번, not 일번).
-                let tier = match n.source {
-                    Source::User | Source::Corpus | Source::Editorial => -0.5,
-                    Source::Community => 0.5,
-                    Source::Suggested => 2.0,
-                    Source::Gloss | Source::Japanese | Source::Lexicon => 3.0,
-                    Source::JapaneseWeak => 3.5,
-                };
-                let cost = 1.0 + tier - 0.1 * ((n.count as f32) + 1.0).ln();
+                let cost = self.kun_cost(n);
                 let (pre, pc) = self.read_sino(&cs[..k].iter().collect::<String>());
                 if pc + cost >= best.0 {
                     continue;
@@ -1203,8 +1215,43 @@ impl Engine {
                     best = (pc + cost, format!("{pre}{surface}"));
                 }
             }
+            // Not a dictionary form: a 送韓字 variant (超ㅜ, 近까웠다) of an entry.
+            if !tail.is_empty() {
+                self.read_variant(entries, &written, &cs[..k], &mut best);
+            }
         }
         best.1
+    }
+
+    /// Offer the reading of `written` as a 送韓字 variant of one of `entries`
+    /// (the 訓讀 entries of its Hanja after `prefix`), unless some entry
+    /// has it as a dictionary form.
+    fn read_variant(&self, entries: &[usize], written: &str, prefix: &[char], best: &mut (f32, String)) {
+        let (pre, pc) = self.read_sino(&prefix.iter().collect::<String>());
+        for &i in entries {
+            let cost = self.kun_cost(&self.natives[i]);
+            if pc + cost >= best.0 {
+                continue;
+            }
+            if let Some((_, surface)) = self.variant_forms(i).into_iter().find(|(w, _)| w == written) {
+                if !entries.iter().any(|&j| self.forms_of(j).iter().any(|(w, _)| w == written)) {
+                    *best = (pc + cost, format!("{pre}{surface}"));
+                }
+            }
+        }
+    }
+
+    /// The cost of reading Hanja through a 訓讀 entry: hand-made spellings
+    /// win a tie with a whole-word 音讀 reading (一番 = 한번, not 일번).
+    fn kun_cost(&self, n: &Native) -> f32 {
+        let tier = match n.source {
+            Source::User | Source::Corpus | Source::Editorial => -0.5,
+            Source::Community => 0.5,
+            Source::Suggested => 2.0,
+            Source::Gloss | Source::Japanese | Source::Lexicon => 3.0,
+            Source::JapaneseWeak => 3.5,
+        };
+        1.0 + tier - 0.1 * ((n.count as f32) + 1.0).ln()
     }
 
     /// Read 釋讀 text back into Hangul (釋讀文 → 한글). Sino-Korean words

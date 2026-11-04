@@ -24,7 +24,6 @@ object Native {
     const val PAGE_UP = 12
     const val PAGE_DOWN = 13
     const val CONVERT = 14
-    const val TOGGLE = 15
     const val OTHER = 16
 
     // Key states and modifier flags for modeKey, as in seokdok.h.
@@ -52,6 +51,10 @@ object Native {
     /** Selected index, 1-based position, total, horizontal (0/1). */
     @JvmStatic external fun candidateInfo(handle: Long): IntArray
     @JvmStatic external fun mode(handle: Long): Int
+    /** The on-screen mode key: 釋 → 混 → 한 → A → 釋. */
+    @JvmStatic external fun modeControl(handle: Long)
+    /** 0 釋讀, 1 國漢文混用, 2 韓㐎 專用. */
+    @JvmStatic external fun script(): Int
     @JvmStatic external fun keyJamo(key: Int): Int
     @JvmStatic external fun ready(): Boolean
     @JvmStatic external fun loadConfig(dir: String): String

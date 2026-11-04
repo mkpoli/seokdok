@@ -68,6 +68,14 @@ class Session {
     /** 0 釋讀, 1 Hangul, 2 Latin. */
     val mode: Int get() = if (handle == 0L) HANGUL else Native.mode(handle)
 
+    /** 0 釋讀, 1 國漢文混用, 2 韓㐎 專用. */
+    val script: Int get() = Native.script()
+
+    /** The on-screen mode key: 釋 → 混 → 한 → A → 釋. */
+    fun modeControl() {
+        if (handle != 0L) Native.modeControl(handle)
+    }
+
     @Synchronized
     fun close() {
         closed = true

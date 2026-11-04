@@ -193,9 +193,15 @@ class SeokdokService : InputMethodService(), KeyboardListener {
         return eatenKeys.remove(keyCode) || super.onKeyUp(keyCode, event)
     }
 
-    /** Draw after a hardware key: open the window for candidates, and name a new mode when it is hidden. */
+    /** The script last named after a hardware key. */
+    private var namedScript = -1
+
+    /** Draw after a hardware key: open the window for candidates, and name a new mode or script when it is hidden. */
     private fun hardwareRender(modeBefore: Int) {
         render()
+        val script = session.script
+        val rotated = namedScript != -1 && script != namedScript
+        namedScript = script
         val open = session.candidates() != null
         if (open && !isInputViewShown) {
             candidatesForced = true
@@ -209,8 +215,10 @@ class SeokdokService : InputMethodService(), KeyboardListener {
             candidatesForced = false
             requestHideSelf(0)
         }
-        if (session.mode != modeBefore && !isInputViewShown) {
-            Toast.makeText(this, resources.getStringArray(R.array.mode_labels)[session.mode], Toast.LENGTH_SHORT).show()
+        if ((rotated || session.mode != modeBefore) && !isInputViewShown) {
+            val label = if (rotated) resources.getStringArray(R.array.script_labels)[script]
+            else resources.getStringArray(R.array.mode_labels)[session.mode]
+            Toast.makeText(this, label, Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -248,7 +256,7 @@ class SeokdokService : InputMethodService(), KeyboardListener {
     private fun refresh(runs: List<Session.Run>? = null) {
         val kb = keyboard ?: return
         val preedit = runs ?: session.preedit()
-        state = state.copy(mode = if (passthrough) Session.LATIN else session.mode, composing = preedit.isNotEmpty())
+        state = state.copy(mode = if (passthrough) Session.LATIN else session.mode, script = session.script, composing = preedit.isNotEmpty())
         kb.update(state)
         kb.show(session.candidates(), preedit, loading = !loaded && !passthrough)
     }
@@ -326,9 +334,9 @@ class SeokdokService : InputMethodService(), KeyboardListener {
         refresh()
     }
 
-    override fun toggleMode() {
+    override fun cycleMode() {
         if (passthrough) return
-        session.key(Native.TOGGLE)
+        session.modeControl()
         render()
     }
 

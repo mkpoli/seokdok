@@ -8,8 +8,8 @@
 //! the window's life. A file named `gdi-candidates` in
 //! %LOCALAPPDATA%\seokdok asks for `gdi.rs` from the start.
 //!
-//! Display only: `WS_EX_NOACTIVATE` + `SW_SHOWNOACTIVATE` keep focus in the
-//! document. The key handler drives selection through the session; this
+//! Display only: `WS_EX_NOACTIVATE`, `SW_SHOWNOACTIVATE` and `MA_NOACTIVATE`
+//! keep focus in the document. The key handler drives selection through the session; this
 //! module renders what the session reports.
 
 mod fluent;
@@ -34,8 +34,8 @@ use windows::Win32::UI::WindowsAndMessaging::{
     CreateWindowExW, DefWindowProcW, DestroyWindow, GetClassLongPtrW, GetClientRect, GetGUIThreadInfo,
     GetSystemMetrics, GetWindowLongPtrW, LoadCursorW, RegisterClassExW, SetClassLongPtrW, SetWindowLongPtrW,
     SetWindowPos, ShowWindow, CS_DROPSHADOW, GCL_STYLE, GUITHREADINFO, GWLP_USERDATA, GWL_STYLE, HWND_TOPMOST,
-    IDC_ARROW, SM_CXSCREEN, SM_CYSCREEN, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER,
-    SW_HIDE, SW_SHOWNOACTIVATE, WM_PAINT, WNDCLASSEXW, WS_BORDER, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_EX_TOPMOST,
+    IDC_ARROW, MA_NOACTIVATE, SM_CXSCREEN, SM_CYSCREEN, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER,
+    SW_HIDE, SW_SHOWNOACTIVATE, WM_MOUSEACTIVATE, WM_PAINT, WNDCLASSEXW, WS_BORDER, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_EX_TOPMOST,
     WS_POPUP,
 };
 
@@ -414,6 +414,11 @@ fn caret_screen_pos() -> (i32, i32) {
 }
 
 unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
+    // WS_EX_NOACTIVATE alone lets a click take the foreground from a document
+    // of the same thread.
+    if msg == WM_MOUSEACTIVATE {
+        return LRESULT(MA_NOACTIVATE as isize);
+    }
     if msg != WM_PAINT {
         return DefWindowProcW(hwnd, msg, wparam, lparam);
     }
@@ -424,9 +429,10 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
     let _ = GetClientRect(hwnd, &mut rc);
     let mut failed = false;
     // SAFETY: set in `with_libraries`, before the window can be shown, and the
-    // box outlives the window.
-    if let Some(cell) = cell.as_ref() {
-        let mut inner = cell.borrow_mut();
+    // box outlives the window. A paint that arrives mid-update has nothing
+    // settled to draw and is followed by the update's own; a panic here would
+    // take the host application down.
+    if let Some(Ok(mut inner)) = cell.as_ref().map(RefCell::try_borrow_mut) {
         let inner = &mut *inner;
         match (&mut inner.backend, &inner.paint) {
             (Backend::Fluent { renderer, .. }, Some(Paint::Fluent(scene))) => {

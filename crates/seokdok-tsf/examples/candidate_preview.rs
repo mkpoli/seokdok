@@ -2,8 +2,8 @@
 //! Meant for a throwaway machine such as a CI runner: `real` moves the mouse,
 //! clicks and takes the foreground.
 //!
-//!   candidate_preview offscreen OUT   every sample at 100% and 200%, light and
-//!                                     dark, plus the GDI drawing
+//!   candidate_preview offscreen OUT   every sample at 100%, 150% and 200%, light
+//!                                     and dark, plus the GDI drawing
 //!   candidate_preview real LABEL OUT  the live window over a document window,
 //!                                     captured from the screen, checking that
 //!                                     focus never moves
@@ -193,12 +193,14 @@ mod app {
         for sample in samples() {
             let preedit = sample.preedit.as_deref();
             let popup = sample.popup.as_ref();
-            for (dpi, percent) in [(96u32, 100), (192, 200)] {
+            for (dpi, percent) in [(96u32, 100), (144, 150), (192, 200)] {
                 for (palette, theme) in [(Palette::default_light(), "light"), (Palette::default_dark(), "dark")] {
                     let image = preview::fluent(preedit, popup, &palette, dpi).expect("Direct2D paint");
                     let name = format!("{}-{theme}-{percent}", sample.name);
                     save(&image, &out.join(format!("fluent-{name}.png")));
-                    save(&compose(&image, (dpi / 96) as i32, palette.dark), &out.join(format!("composed-{name}.png")));
+                    if dpi % 96 == 0 {
+                        save(&compose(&image, (dpi / 96) as i32, palette.dark), &out.join(format!("composed-{name}.png")));
+                    }
                 }
                 let image = preview::gdi(preedit, popup, dpi).expect("GDI paint");
                 save(&image, &out.join(format!("gdi-{}-{percent}.png", sample.name)));
@@ -435,16 +437,24 @@ mod app {
         let per = start.elapsed() / 1000;
         pump(Duration::from_millis(200));
         let (ws2, private2) = memory_counters();
+        for _ in 0..9000 {
+            window.show(None, list.popup.as_ref(), Some((120, 140)));
+        }
+        pump(Duration::from_millis(200));
+        let (ws3, private3) = memory_counters();
         let mb = |v: usize| v as f64 / 1_048_576.0;
         println!(
             "{kind}: first show {first:?}, later shows {per:?}; base ws {:.1} MB private {:.1} MB; \
-             after first show +{:.1} MB ws +{:.1} MB private; after 1000 more +{:.1} MB ws +{:.1} MB private",
+             after first show +{:.1} MB ws +{:.1} MB private; after 1000 more +{:.1} MB ws +{:.1} MB private; \
+             after 9000 more +{:.1} MB ws +{:.1} MB private",
             mb(ws0),
             mb(private0),
             mb(ws1.saturating_sub(ws0)),
             mb(private1.saturating_sub(private0)),
             mb(ws2.saturating_sub(ws1)),
             mb(private2.saturating_sub(private1)),
+            mb(ws3.saturating_sub(ws2)),
+            mb(private3.saturating_sub(private2)),
         );
     }
 

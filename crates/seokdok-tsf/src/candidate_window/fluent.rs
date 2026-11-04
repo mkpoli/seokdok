@@ -230,7 +230,8 @@ impl Renderer {
             let note = if note_width > 0.0 { COLUMN_GAP + note_width } else { 0.0 };
             width = width.max(MARGIN * 2.0 + number_width + NUMBER_GAP + text_width + note);
         }
-        let width = width.ceil();
+        // Up to a whole device pixel, so the right stroke meets the window's edge.
+        let width = (width * scale).ceil() / scale;
 
         let centered = |top: f32, row: f32| top + (row - LINE) / 2.0;
         let divider = |ops: &mut Vec<Op>, y: f32| {
@@ -239,9 +240,9 @@ impl Renderer {
         };
         let selection = |ops: &mut Vec<Op>, left: f32, right: f32, top: f32| {
             ops.push(Op::Fill { rect: rect(left, top, right, top + ROW), radius: CORNER, color: palette.selection });
-            let t = snap(top + (ROW - INDICATOR_HEIGHT) / 2.0);
+            let (l, t) = (snap(left), snap(top + (ROW - INDICATOR_HEIGHT) / 2.0));
             ops.push(Op::Fill {
-                rect: rect(left, t, left + INDICATOR_WIDTH, t + INDICATOR_HEIGHT),
+                rect: rect(l, t, l + snap(INDICATOR_WIDTH), t + snap(INDICATOR_HEIGHT)),
                 radius: INDICATOR_CORNER,
                 color: palette.accent,
             });
@@ -317,7 +318,7 @@ impl Renderer {
             ops.push(Op::Text { x, y: top, layout: position.layout, color: palette.secondary });
             y += FOOTER - INSET;
         }
-        let height = y + INSET;
+        let height = ((y + INSET) * scale).ceil() / scale;
 
         // The flyout's own stroke, which WinUI draws too. It is all the outline
         // the popup has where the compositor adds none: Windows 10, a virtual

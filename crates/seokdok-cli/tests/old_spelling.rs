@@ -286,3 +286,30 @@ fn reading_keeps_old_syllables_whole() {
     let plain = "\u{1109}\u{119E}랑 나랏말\u{110A}\u{119E}미 \u{112F}\u{1169}";
     assert_eq!(e.read(plain), plain);
 }
+
+#[test]
+fn random_old_and_modern_text_never_panics_or_loses_a_run() {
+    let e = engine(Options::default());
+    let pieces = [
+        "사", "랑", "하", "텬", "됴", "타", "잇", "업", "믈", "미", "르", "슬", "니", "녀", "름", "\u{1112}\u{119E}", "\u{1112}\u{119E}\u{11AF}", "\u{110A}\u{119E}\u{11B7}",
+        "\u{1109}\u{119E}", "\u{112F}\u{1169}", "\u{1121}\u{1165}", "\u{1120}\u{1173}\u{11AE}", "\u{1105}\u{119E}\u{11AF}", "\u{110B}\u{119E}", "\u{1140}\u{1175}",
+        "\u{11A1}", "\u{1100}", "\u{1161}", "\u{11AB}", "\u{A960}", "\u{D7B0}", " ", "天", "ㅆ",
+    ];
+    let mut x: u64 = 0x2545F4914F6CDD1D;
+    let mut next = move || {
+        x ^= x << 13;
+        x ^= x >> 7;
+        x ^= x << 17;
+        x
+    };
+    for _ in 0..500 {
+        let n = 1 + (next() % 10) as usize;
+        let input: String = (0..n).map(|_| pieces[(next() % pieces.len() as u64) as usize]).collect();
+        let whole = e.convert(&input);
+        assert!(!whole.is_empty() || input.is_empty(), "{input:?}");
+        let segs = e.segments(&input);
+        assert_eq!(segs.iter().map(|s| s.reading.as_str()).collect::<String>(), input, "segments lose text");
+        assert!(segs.iter().all(|s| !s.candidates.is_empty()), "{input:?}");
+        e.read(&input);
+    }
+}

@@ -129,6 +129,38 @@ fn a_rare_primer_character_leaves_the_usual_one_first() {
 }
 
 #[test]
+fn an_old_verb_reaches_its_modern_word() {
+    let rows = rows();
+    // 新增類合 投 더딜, 忙 밧ᄇᆞᆯ, 譯語類解 澁 ᄠᅥᆲ다, 躊躇 머믓거리다, 光州千字文 貞 고ᄃᆞᆫ.
+    for (lemma, written) in [("던지다", "投다"), ("바쁘다", "忙다"), ("떫다", "澁다"), ("머뭇거리다", "躊躇다"), ("곧다", "貞다")] {
+        assert!(rows.iter().any(|r| r[0] == lemma && r[1] == written), "{lemma} {written}");
+    }
+    // Homographs and phrases the meaning check let through are excluded by hand.
+    for (lemma, written) in [("지붕", "屋"), ("이다", "繼다"), ("생각하다", "想一想하다")] {
+        assert!(!rows.iter().any(|r| r[0] == lemma && r[1] == written), "{lemma} {written}");
+    }
+}
+
+#[test]
+fn a_row_only_the_old_form_table_links_says_so() {
+    let rows = rows();
+    let mut linked = 0;
+    for r in &rows {
+        if r[6].contains("old form linked") {
+            linked += 1;
+            assert!(r[6].contains("English Wiktionary (CC BY-SA 4.0, GFDL)"), "{r:?}");
+        }
+    }
+    assert!(linked > 20, "{linked}");
+    assert!(rows.iter().any(|r| r[0] == "구렁" && r[1] == "坎" && r[6].contains("old form linked")));
+}
+
+#[test]
+fn a_primer_character_leaves_the_usual_one_of_ikkeulda_first() {
+    assert_eq!(candidates(&engine(), "이끌어")[0], "導어");
+}
+
+#[test]
 fn no_row_repeats_a_hand_made_pair() {
     let mut hand = std::collections::HashSet::new();
     for f in ["corpus.tsv", "editorial.tsv", "community.tsv"] {

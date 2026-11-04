@@ -101,6 +101,17 @@ with `source` set to `user`. Check a file with
   the old form (ᄀᆞᄅᆞᆷ 代 as 가름); every new row was then read and the wrong ones
   excluded in the tool.
 
+  Old forms also reach modern words through a table of what English Wiktionary states:
+  another form of an entry, an etymology's first attestation, a Descendants section
+  (wiktextract, `raw-wiktextract-data.jsonl.gz` dated 2026-11-04, sha256
+  `5ff2c072f8099f2d2ce484bd6957bf179f046d2ad37bc36555edf8bb84cb5291`; Ylonen,
+  "Wiktextract", LREC 2022; CC BY-SA 4.0 and GFDL). Only links the table calls `attested`
+  are read, for lemmas with a current sense; a descendant Wiktionary tags as reshaped is
+  left out, and so are readings of Hanja. The meaning check above still decides. A row
+  that needed the table says so in its note. Attested there means Wiktionary says so; its
+  citations were not checked against the books. Every row this added or changed was read
+  by hand: 137 candidates, 9 wrong (6.6%), since excluded, all homographs or phrases.
+
 - **Printed readings** (`kun-attested.tsv`, `tools/build_kun_usage.py`): books of
   1882-1945 that print a native reading beside Hanja: above it ({{윗주|飛|나}}는 in
   勞動夜學讀本, 俞吉濬, 1908), below or above a Hangul word (京釜鐵道歌, 崔南善, 1908;

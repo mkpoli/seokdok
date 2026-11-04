@@ -14,6 +14,7 @@ Raw downloads. Nothing here is executed. "MIT/BSD repo" asks whether the file ma
 | Korean Wikisource dump (old books) | books public domain; site CC BY-SA 4.0 | as a derived list under CC BY-SA, with credit |
 | kaikki.org Middle Korean JSONL | CC BY-SA 4.0 + GFDL (Wiktionary) | no (share-alike) |
 | 나무위키 신증유합, 훈몽자회 pages | books public domain; site CC BY-NC-SA 2.0 KR | uncertain; citations say so |
+| Old-form table from English Wiktionary | CC BY-SA 4.0 + GFDL (Wiktionary) | no (share-alike) |
 
 ## 1. libhangul — `libhangul/`
 
@@ -119,3 +120,11 @@ Raw downloads. Nothing here is executed. "MIT/BSD repo" asks whether the file ma
 ## 6. Microsoft IME Korean hanja dictionary
 
 No Microsoft statement on export or redistribution was found; Microsoft's documentation describes only the IME API (Windows IME escapes) and says the hangul-hanja escape is for the Korean editor and not for other apps. The dictionary is proprietary, shipped in the OS, with no export tool I know of. Treat as not redistributable.
+
+## Old-form table — `old-korean-mappings/`
+
+- `mappings.tsv`: old form to modern lemma as English Wiktionary states it, one row per statement, each naming its page and its line in the dump. Built with wiktextract from `raw-wiktextract-data.jsonl.gz` dated 2026-11-04, sha256 `5ff2c072f8099f2d2ce484bd6957bf179f046d2ad37bc36555edf8bb84cb5291`. The file used has sha256 `1309b78cd44acd2c5cc0b93c2c392f13fccfe69f71b06b6eb469a0e66faf3ef6`.
+- The table is the project owner's and is not published yet, so a rebuild needs a copy of it in this folder.
+- License: CC BY-SA 4.0 and GFDL, from Wiktionary.
+- Read by `tools/build_eonhae.py`, its `attested` tier only.
+- Weakness: English edition only and community-edited; attestation means Wiktionary says so, and citations were not checked against the books. An old key can name homographs, so `meaning_evidence` still decides each row.

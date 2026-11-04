@@ -4,13 +4,14 @@ Usage: uv run tools/build_eonhae.py [--audit DIR]
 
 Reads the Korean Wikisource dump in data/sources/wikisource-ko/ and the saved
 나무위키 pages in data/sources/namu-wiki/ (the books' transcriptions), and for the
-modern side English Wiktionary via kaikki.org, Unihan and the other dict/ files.
+modern side English Wiktionary via kaikki.org, the old-form table in
+data/sources/old-korean-mappings/, Unihan and the other dict/ files.
 See data/sources/README.md for how to fetch them.
 
 Primer rows come from one-gloss-per-character books (天 하ᄂᆞᆯ 텬). Aligned rows
 come from passages printing the Chinese next to its 諺解. An old word becomes a
 modern lemma through the folds of crates/seokdok-core/src/fold.rs or through
-Wiktionary's Middle Korean descendants; the lemma must exist in a modern source,
+Wiktionary's statements linking old and modern words; the lemma must exist in a modern source,
 and its meaning must agree with the character's (see `meaning_evidence`).
 """
 import argparse
@@ -32,6 +33,10 @@ SRC = ROOT / "data" / "sources"
 DUMP = SRC / "wikisource-ko" / "kowikisource-20261101-pages-articles.xml.bz2"
 CACHE = SRC / "wikisource-ko" / "books.jsonl"
 NAMU = SRC / "namu-wiki"
+# Old form to modern lemma, as English Wiktionary states it. Only its `attested` tier is read.
+OLD_MAPPINGS = SRC / "old-korean-mappings" / "mappings.tsv"
+# Stated in an etymology, but of a word built on the old one: 집 is the house, and 지붕 only contains it.
+NOT_THE_OLD_WORD = {("집", "지붕")}
 # Stated in each citation of these pages: a wiki's transcription under a licence narrower than the file's.
 NAMU_TERMS = "CC BY-NC-SA 2.0 KR, unproofread wiki text"
 
@@ -613,8 +618,11 @@ class Modern:
         self.char_readings = collections.defaultdict(set)
         self.old = collections.defaultdict(set)  # old word (normalized) -> modern lemmas (Wiktionary)
         self.old_senses = collections.defaultdict(set)  # old word -> English tokens
+        self.old_table = collections.defaultdict(set)  # old word -> modern lemmas the old-form table names
+        self.old_table_sound = collections.defaultdict(set)  # the same, by sound without syllable boundaries
         self._kaikki()
         self._middle_korean()
+        self._old_mappings()
         self._dict_files()
         self._unihan()
 
@@ -669,6 +677,25 @@ class Modern:
             for s in o.get("senses", []):
                 for g in s.get("glosses", []):
                     self.old_senses[w] |= tokens(g)
+
+    def _old_mappings(self):
+        """Links Wiktionary states and the extract above misses: another form of an entry, an etymology's first
+        attestation. A descendant Wiktionary tags as reshaped (`indirect`) stays out, as do readings of Hanja."""
+        with OLD_MAPPINGS.open(encoding="utf-8") as f:
+            lines = [l.rstrip("\n").split("\t") for l in f if not l.startswith("#")]
+        cols = {name: i for i, name in enumerate(lines[0])}
+        for r in lines[1:]:
+            lemma, kind = r[cols["lemma"]], r[cols["source_kind"]]
+            if r[cols["tier"]] != "attested" or r[cols["lemma_status"]] != "current" or kind == "etym-sino-reading":
+                continue
+            if not lemma or not all(0xAC00 <= ord(c) <= 0xD7A3 for c in lemma) or (r[cols["old_key"]], lemma) in NOT_THE_OLD_WORD:
+                continue
+            old = table_key(r[cols["old_key"]])
+            if not syllables(old.removesuffix(DA) or old):
+                continue
+            self.old_table[old].add(lemma)
+            self.old_table_sound[linear(old)].add(lemma)
+            self.old_senses[old] |= tokens(r[cols["old_gloss"]])
 
     def _dict_files(self):
         for name in ("corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"):
@@ -751,6 +778,14 @@ def descends(old, modern):
     return difflib.SequenceMatcher(None, a, b).ratio() >= 0.7
 
 
+DA = unicodedata.normalize("NFD", "다")  # an old word's dictionary ending, as `norm` spells it
+
+
+def table_key(s):
+    """The table's keys join coda ᇰ with ᆼ."""
+    return norm(s).replace("\u11F0", "\u11BC")
+
+
 def lemma_candidates(a, m):
     """Modern lemmas an old gloss can be: (lemma, pos, how)."""
     out = []
@@ -783,7 +818,7 @@ def lemma_candidates(a, m):
             if pos not in ("verb", "adj"):
                 add(lem, pos, "wiktionary")
     # An old verb in the Middle Korean list: 머글 for 먹다, by its sounds.
-    for lem in old_verb_stems(old, m):
+    for lem in old_verb_stems(old, m.old):
         for pos in m.pos.get(lem, ()):
             if pos in ("verb", "adj"):
                 add(lem, pos, "wiktionary")
@@ -798,6 +833,17 @@ def lemma_candidates(a, m):
             for pos in m.pos.get(text, ()):
                 if pos == "noun":
                     add(text, pos, "fold")
+    # The old-form table, by spelling and by sound (믈ᄭᅧᆯ, 물결), for what the rest did not reach. A gloss in
+    # dictionary form (ᄆᆡᆸ다 辣) is a verb as it stands; one that is not is an adnominal or a noun.
+    table = m.old_table.get(table_key(old), set()) | m.old_table_sound.get(linear(table_key(old)), set())
+    for lem in table:
+        for pos in m.pos.get(lem, ()):
+            if (pos in ("verb", "adj")) == old.endswith(DA):
+                add(lem, pos, "table")
+    for lem in old_verb_stems(table_key(old), m.old_table):
+        for pos in m.pos.get(lem, ()):
+            if pos in ("verb", "adj"):
+                add(lem, pos, "table")
     return out
 
 
@@ -824,22 +870,22 @@ def linear(s):
     return "".join(out)
 
 
-_old_verbs = None
+_old_verbs = {}
 
 
-def old_verb_stems(old, m):
-    """Modern descendants of Middle Korean verbs whose stem, plus an adnominal ending, spells this gloss."""
-    global _old_verbs
-    if _old_verbs is None:
-        _old_verbs = collections.defaultdict(set)
-        for w, lems in m.old.items():
-            if w.endswith("다") and len(w) > 1:
-                _old_verbs[linear(w[:-1])] |= lems
+def old_verb_stems(old, links):
+    """Modern descendants of old verbs in `links` whose stem, plus an adnominal ending, spells this gloss."""
+    stems = _old_verbs.get(id(links))
+    if stems is None:
+        stems = _old_verbs[id(links)] = collections.defaultdict(set)
+        for w, lems in links.items():
+            if w.endswith(DA) and len(w) > len(DA):
+                stems[linear(w[: -len(DA)])] |= lems
     lin = linear(old)
     out = set()
     for ending in ("\u1105", "\u119E\u1105", "\u1173\u1105", "\u1102", "\u119E\u1102", "\u1173\u1102"):
         if lin.endswith(ending):
-            out |= _old_verbs.get(lin[: -len(ending)], set())
+            out |= stems.get(lin[: -len(ending)], set())
     return out
 
 
@@ -1132,8 +1178,10 @@ def primer_rows(atts, m, rejects=None):
     for x in atts:
         if not syllables(x.old) or (x.eum and x.old == x.eum):
             continue
-        if len(x.char) > 1 and (len(x.char) != 2 or x.char[-1] in "的了著來去"):
+        if len(x.char) > 1 and x.char[-1] in "的了著來去者他":
             continue
+        # A word spelled with several characters (喜歡 깃브다): only where Wiktionary links its old form.
+        phrase = len(x.char) > 2
         if not reading_fits(x, m):
             if rejects is not None:
                 rejects.append((x, "reading does not fit the character"))
@@ -1142,7 +1190,7 @@ def primer_rows(atts, m, rejects=None):
         for lem, pos, how in lemma_candidates(x, m):
             if any(is_sino_gloss(lem, c, m) for c in x.char) or word_is_sino(lem, m):
                 continue
-            if len(x.char) > 1 and pos != "noun":
+            if how != "table" and (phrase or (len(x.char) > 1 and pos != "noun")):
                 continue
             w = written_of(lem, pos, x.char)
             res.append((lem, pos, w, how, meaning_evidence(lem, pos, w, x.char, m, x.old)))
@@ -1160,7 +1208,7 @@ def primer_rows(atts, m, rejects=None):
             weak = [r for r in res if any(e == "gloss" for e in r[4])]
             if len(weak) == 1 and len(x.char) == 1:
                 lem, pos, w, how, ev = weak[0]
-                verbs = [r for r in res if r[1] in ("verb", "adj")]
+                verbs = [r for r in res if r[1] in ("verb", "adj") and (r[3] != "wiktionary" or r[4])]
                 if pos in ("verb", "adj") and (len(verbs) > 1 or x.old.endswith("\u11AB")):
                     if rejects is not None:
                         rejects.append((x, "ambiguous verb"))
@@ -1210,6 +1258,11 @@ EXCLUDE = {
     ("배", "棹"),  # ᄇᆡᆺ is a genitive with its noun lost: 棹 is an oar
     ("복", "祚"), ("복", "祉"),  # 福; the fish 복 stays
     ("창", "牖"),  # 窓; the weapon 창 stays
+    ("끊다", "止다"),  # 그츨 止 is 그치다, which has its own row
+    ("들리다", "輸다"),  # 드릴 輸 is 들이다, bring in
+    ("이다", "繼다"),  # 니ᄋᆞᆯ is 잇다
+    ("생각하다", "想一想하다"),  # 想一想 is a phrase, have a think
+    ("자랑하다", "誇奬하다"),  # 誇奬 is to praise
 }
 # Headwords Wiktionary or FusionIME lists that are no modern form of the old word, or are Sino-Korean in origin.
 EXCLUDE_LEMMA = {
@@ -1223,6 +1276,14 @@ EXCLUDE_LEMMA = {
     "아람",  # ᄋᆞᄅᆞᆷ 私 survives in 아람치; 아람 alone is a ripe chestnut
     "공", "노적", "노하다", "심하다", "약하다", "원쑤", "죄", "평지",  # 功, 露積, 怒, 甚, 弱, 怨讐, 罪, 平地
 }
+
+
+def table_link(v):
+    """Where the old word's modern form is stated, when only the old-form table links them."""
+    forms = sorted({x.old for x, how, _, _ in v if how == "table"})
+    if not forms or any(how != "table" for _, how, _, _ in v):
+        return ""
+    return "; old form linked to this word by English Wiktionary (CC BY-SA 4.0, GFDL): " + unicodedata.normalize("NFC", forms[0])
 
 
 def citation(att):
@@ -1261,7 +1322,7 @@ def build(audit_dir=None):
                 cites.append(citation(y[0]))
         evidence = {e.split(":")[0] for y in v for e in y[2]}
         weight = (len(books), len(evidence), m.char_freq[w.removesuffix("다")[:1]] if len(w) else 0)
-        by_lemma[lem].append((0, weight, lem, w, pos, "primer: " + "; ".join(cites)))
+        by_lemma[lem].append((0, weight, lem, w, pos, "primer: " + "; ".join(cites) + table_link(v)))
     for (lem, w, pos), (dice, n, nbooks, quoted, ev) in alig.items():
         if (lem, w) in EXCLUDE or lem in EXCLUDE_LEMMA or (lem, w) in written_seen:
             continue
@@ -1316,8 +1377,9 @@ HEADER = """# 訓讀 readings attested in historical Korean books. Each note say
 # primer: a character primer glosses the character with the old form of this word (book, year, page, entry).
 # aligned: 諺解 passages print the Chinese next to the Korean; the note gives the count and quotes the shortest.
 # Text from the transcriptions on Korean Wikisource, dump of 2026-11-01, and on 나무위키, saved 2026-11-04.
+# Old words reach modern ones through English Wiktionary, via wiktextract: extract of 2026-10-30 and dump of 2026-11-04.
 # Built by tools/build_eonhae.py. Ranks below the hand-made tiers.
-# CC BY-SA 4.0 (Wikisource, Wiktionary); citations of 나무위키 say CC BY-NC-SA 2.0 KR, an anonymously edited
+# CC BY-SA 4.0 (Wikisource), CC BY-SA 4.0 and GFDL (Wiktionary); citations of 나무위키 say CC BY-NC-SA 2.0 KR, an anonymously edited
 # wiki's transcription that names no copy of the book and has not been read against a scan. See dict/README.md.
 """
 

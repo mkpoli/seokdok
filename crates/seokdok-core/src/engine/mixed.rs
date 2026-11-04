@@ -127,7 +127,7 @@ impl Engine {
     /// the mode's own writing of the reading comes first.
     pub(crate) fn word_menu(&self, word: &str) -> Vec<Candidate> {
         let reading = self.read(word);
-        // A Hanja the reader does not know, or a 送韓字 letter left unread
+        // A Hanja the reader does not know, or a 末音添記 letter left unread
         // (見ㅆ다ㅋㅋ → 견ㅆ다ㅋㅋ): the reading cannot stand for the word.
         let poor = reading.chars().any(is_hanja) || unread_tail(word, &reading);
         let typed = |note: String| Candidate { text: word.to_string(), note };

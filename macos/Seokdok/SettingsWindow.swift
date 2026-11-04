@@ -59,7 +59,7 @@ struct SettingsView: View {
                     Text("國漢文混用 / Hanja for Sino-Korean words only").tag("sino_only")
                     Text("韓㐎 專用 / Hangul only, no conversion").tag("hangul_only")
                 }
-                Picker("送韓字 / Style", selection: $model.config.conversion.style) {
+                Picker("末音添記 / Style", selection: $model.config.conversion.style) {
                     Text("表音式 / Surface  (見ㅆ다)").tag("surface")
                     Text("形態式 / Morpheme  (見았다)").tag("morpheme")
                 }

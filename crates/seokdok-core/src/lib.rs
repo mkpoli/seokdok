@@ -1,6 +1,6 @@
 //! Conversion engine for 釋讀, an experimental Korean orthography that writes
 //! Sino-Korean words in Hanja by sound (音讀) and native words in Hanja by
-//! meaning (訓讀), with the inflected remainder in Hangul (送韓字).
+//! meaning (訓讀), with the inflected remainder in Hangul (末音添記).
 
 pub mod conj;
 pub mod custom;

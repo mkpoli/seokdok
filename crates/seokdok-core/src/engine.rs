@@ -1,5 +1,5 @@
 //! The converter: a lattice over the jamo components of each Hangul run,
-//! k-best search, and rendering of each analysis in the configured 送韓字
+//! k-best search, and rendering of each analysis in the configured 末音添記
 //! style.
 
 use crate::conj::{ending_label, ending_surfaces, morph_ending, Ctx};
@@ -749,7 +749,7 @@ impl Engine {
         std::mem::take(&mut best[n])
     }
 
-    /// The dictionary's written forms of an edge, then the other 送韓字
+    /// The dictionary's written forms of an edge, then the other 末音添記
     /// choices for the same word (see [`Engine::okurigana`]).
     fn render(&self, comps: &[char], e: &Edge) -> Vec<Candidate> {
         let mut out = self.render_dict(comps, e);
@@ -1107,7 +1107,7 @@ impl Engine {
             }
             push(Candidate { text, note: notes.join(" / ") }, &mut whole);
         }
-        // Second rendering of the best path (other 送韓字 variant).
+        // Second rendering of the best path (other 末音添記 variant).
         if !best.is_empty() {
             let mut text = String::new();
             for r in &best {
@@ -1152,8 +1152,14 @@ impl Engine {
                 alts.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
                 // Dictionary forms of every reading first, then the constructed ones.
                 let mut cands: Vec<Candidate> = Vec::new();
+                // A one-syllable word has only its Hanja and its last letter to choose
+                // between, so each Hanja keeps its forms together: 少ㅁ, 少, 聊, 聊ㅁ.
+                let one_syllable = |e: &Edge| {
+                    matches!(e.kind, Kind::Nominal { entry, .. } if crate::jamo::syllable_count(&self.natives[entry as usize].stem) == 1)
+                };
                 for &(_, i) in &alts {
-                    for c in self.render_dict(&comps, &edges[i]) {
+                    let forms = if one_syllable(&edges[i]) { self.render(&comps, &edges[i]) } else { self.render_dict(&comps, &edges[i]) };
+                    for c in forms {
                         if !cands.iter().any(|x| x.text == c.text) {
                             cands.push(c);
                         }
@@ -1511,7 +1517,7 @@ impl Engine {
                     best = (pc + cost, format!("{pre}{surface}"));
                 }
             }
-            // Not a dictionary form: a 送韓字 variant (超ㅜ, 近까웠다) of an entry.
+            // Not a dictionary form: a 末音添記 variant (超ㅜ, 近까웠다) of an entry.
             if !tail.is_empty() {
                 self.read_variant(entries, &written, &cs[..k], &mut best);
             }
@@ -1545,7 +1551,7 @@ impl Engine {
         list
     }
 
-    /// Offer the reading of `written` as a 送韓字 variant of one of `entries`
+    /// Offer the reading of `written` as a 末音添記 variant of one of `entries`
     /// (the 訓讀 entries of its Hanja after `prefix`), unless some entry
     /// has it as a dictionary form.
     fn read_variant(&self, entries: &[usize], written: &str, prefix: &[char], best: &mut (f32, String)) {

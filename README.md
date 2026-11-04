@@ -1,6 +1,6 @@
 # seokdok 釋讀
 
-An input method for 釋讀, the Korean spelling played with in 釋讀會 (풀어읽기모임): Sino-Korean words in Hanja by sound (音讀), native words in Hanja by meaning (訓讀), and the inflected rest in Hangul (送韓字). It runs in the browser at [seokdok.mkpo.li](https://seokdok.mkpo.li/) and installs as a system input method on Windows and Linux (fcitx5).
+An input method for 釋讀, the Korean spelling played with in 釋讀會 (풀어읽기모임): Sino-Korean words in Hanja by sound (音讀), native words in Hanja by meaning (訓讀), and the inflected rest in Hangul (末音添記). It runs in the browser at [seokdok.mkpo.li](https://seokdok.mkpo.li/) and installs as a system input method on Windows and Linux (fcitx5).
 
 ```
 하늘을 봤다              → 天을 見ㅆ다

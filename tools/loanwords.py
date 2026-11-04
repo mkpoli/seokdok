@@ -65,7 +65,7 @@ def chat_hanja():
 def verb_lemmas():
     """Dictionary forms of the native verbs and adjectives in the 訓讀 files."""
     out = set()
-    for name in ("corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"):
+    for name in ("corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "wikt-native.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"):
         for line in (DICT / name).open(encoding="utf-8"):
             c = line.rstrip("\n").split("\t")
             if len(c) > 2 and not line.startswith("#") and c[2] in ("verb", "adj", "동사", "형용사"):

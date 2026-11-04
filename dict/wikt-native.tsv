@@ -1,0 +1,223 @@
+# Common native words that had no usable first candidate. Lemmas, parts of compounds and English senses from
+# English Wiktionary (kaikki.org extract, wiktextract; Ylonen, LREC 2022), CC BY-SA 4.0 and GFDL; 訓音 from Wiktionary and
+# libhangul (BSD-3-Clause); JMdict (EDRDG), CC BY-SA 4.0. Built by tools/wikt_native.py. Each note names what supports the
+# row. Every row was read by hand, but the choice of Hanja is this project's, so this file ranks with `suggested`.
+lemma	written	pos	class	source	count	note
+가닥	絲	noun		suggested		糸 “thread” (JMdict); Wiktionary “strand, thread, filament, fibre, wisp (a”
+각시	妻	noun		suggested		妻 “wife” (JMdict); Wiktionary “wife”
+개똥	犬糞	noun		suggested		compound 개+똥 (Wiktionary); 개 犬 (community), 똥 糞 (community)
+거미줄	蛛줄	noun		suggested		compound 거미+줄 (Wiktionary); 거미 蛛 (community)
+거북선	龜船	noun		suggested		compound 거북+선(船) (Wiktionary); 거북 龜 (eonhae), 선 船 (Wiktionary)
+겉옷	表衣	noun		suggested		compound 겉+옷 (Wiktionary); 겉 表 (kun-attested), 옷 衣 (community)
+겉장	表張	noun		suggested		compound 겉+장(張) (Wiktionary); 겉 表 (kun-attested), 장 張 (Wiktionary)
+겨울밤	冬夜	noun		suggested		compound 겨울+밤 (Wiktionary); 겨울 冬 (community), 밤 夜 (community)
+겨울철	冬철	noun		suggested		compound 겨울+철 (Wiktionary); 겨울 冬 (community)
+고춧가루	椒粉	noun		suggested		compound 고추+가루 (Wiktionary); 고추 椒 (eonhae), 가루 粉 (community)
+귀걸이	耳걸이	noun		suggested		compound 귀+걸이 (Wiktionary); 귀 耳 (community)
+귓속말	耳裏言	noun		suggested		compound 귀+속+말 (Wiktionary); 귀 耳 (community), 속 裏 (eonhae), 말 言 (corpus)
+그까짓	其까짓	det		suggested		compound 그+-까짓 (Wiktionary); 그 其 (community)
+그해	其年	noun		suggested		그 其, 해 年; read by hand
+기와집	瓦家	noun		suggested		compound 기와+집 (Wiktionary); 기와 瓦 (eonhae), 집 家 (community)
+김치찌개	沈菜찌개	noun		suggested		compound 김치+찌개 (Wiktionary); 김치 沈菜 (suggested)
+깃털	羽毛	noun		suggested		compound 깃+털 (Wiktionary); 깃 羽 (community), 털 毛 (community)
+깍지	殼	noun		suggested		殻 “pod” (JMdict); Wiktionary “pod, hull (especially that of bean, pea,”
+꺼풀	皮	noun		suggested		皮 “skin” (JMdict); Wiktionary “outer layer; skin; film; skim”
+꽃게	花蟹	noun		suggested		compound 꽃+게 (Wiktionary); 꽃 花 (community), 게 蟹 (community)
+꽃길	花道	noun		suggested		compound 꽃+길 (Wiktionary); 꽃 花 (community), 길 道 (community)
+꽃꽂이	花꽂이	noun		suggested		compound 꽃+꽂이 (Wiktionary); 꽃 花 (community)
+꽃밭	花田	noun		suggested		compound 꽃+밭 (Wiktionary); 꽃 花 (community), 밭 田 (community)
+꽃병	花甁	noun		suggested		꽃 花, 병 甁; read by hand
+꽃신	花鞋	noun		suggested		compound 꽃+신 (Wiktionary); 꽃 花 (community), 신 鞋 (eonhae)
+꽃집	花家	noun		suggested		compound 꽃+집 (Wiktionary); 꽃 花 (community), 집 家 (community)
+꿀맛	蜜味	noun		suggested		compound 꿀+맛 (Wiktionary); 꿀 蜜 (community), 맛 味 (community)
+꿀벌	蜜蜂	noun		suggested		compound 꿀+벌 (Wiktionary); 꿀 蜜 (community), 벌 蜂 (community)
+꿈결	夢결	noun		suggested		compound 꿈+결 (Wiktionary); 꿈 夢 (community)
+나뭇잎	木葉	noun		suggested		compound 나무+잎 (Wiktionary); 나무 木 (eonhae), 잎 葉 (community)
+낚시터	釣鈎場	noun		suggested		compound 낚시+터 (Wiktionary); 낚시 釣鈎 (eonhae), 터 場 (eonhae)
+낚싯대	竿	noun		suggested		낚싯대 간 竿 (libhangul); read by hand
+낮잠	晝眠	noun		suggested		compound 낮+잠 (Wiktionary); 낮 晝 (community), 잠 眠 (community)
+낯빛	面光	noun		suggested		compound 낯+빛 (Wiktionary); 낯 面 (community), 빛 光 (community)
+넋두리	魂두리	noun		suggested		compound 넋+두리 (Wiktionary); 넋 魂 (community)
+넙치	鰈	noun		suggested		넙치 접 鰈 (libhangul)
+논길	畓道	noun		suggested		compound 논+길 (Wiktionary); 논 畓 (community), 길 道 (community)
+놋쇠	鍮	noun		suggested		놋쇠 유 鍮 (libhangul)
+농어	鱸	noun		suggested		농어 로 鱸 (libhangul)
+눈덩이	雪덩이	noun		suggested		눈 雪; read by hand
+눈두덩	目두덩	noun		suggested		compound 눈+두덩 (Wiktionary); 눈 目 (community)
+눈보라	雪보라	noun		suggested		눈 雪; read by hand
+눈빛	目光	noun		suggested		compound 눈+빛 (Wiktionary); 눈 目 (community), 빛 光 (community)
+눈송이	雪송이	noun		suggested		눈 雪; read by hand
+눈앞	目前	noun		suggested		compound 눈+앞 (Wiktionary); 눈 目 (community), 앞 前 (community)
+단추	紐	noun		suggested		단추 뉴 紐 (libhangul)
+달밤	月夜	noun		suggested		compound 달+밤 (Wiktionary); 달 月 (community), 밤 夜 (community)
+닭똥	鷄糞	noun		suggested		compound 닭+똥 (Wiktionary); 닭 鷄 (community), 똥 糞 (community)
+담요	毯	noun		suggested		담요 담 毯 (libhangul); read by hand
+대밭	竹田	noun		suggested		compound 대+밭 (Wiktionary); 대 竹 (eonhae), 밭 田 (community)
+덮개	蓋	noun		suggested		덮개 개 蓋 (libhangul)
+두세	二三	num		suggested		compound 두+세 (Wiktionary); 두 二 (eonhae), 세 三 (kun-attested)
+둔덕	丘	noun		suggested		丘 “knoll” (JMdict); Wiktionary “a low hill, a knoll”
+둥지	巢	noun		suggested		巣 “nest” (JMdict); Wiktionary “nest”
+뒤끝	後末	noun		suggested		compound 뒤+끝 (Wiktionary); 뒤 後 (community), 끝 末 (eonhae)
+뒤쪽	後쪽	noun		suggested		뒤 後; read by hand
+뒷맛	後味	noun		suggested		compound 뒤+맛 (Wiktionary); 뒤 後 (community), 맛 味 (community)
+뒷발	後足	noun		suggested		compound 뒤+발 (Wiktionary); 뒤 後 (community), 발 足 (community)
+뒷일	後事	noun		suggested		compound 뒤+일 (Wiktionary); 뒤 後 (community), 일 事 (community)
+뒷집	後家	noun		suggested		compound 뒤+집 (Wiktionary); 뒤 後 (community), 집 家 (community)
+들꽃	野花	noun		suggested		compound 들-+꽃 (Wiktionary); 들 野 (eonhae), 꽃 花 (community)
+들소	野牛	noun		suggested		compound 들-+소 (Wiktionary); 들 野 (eonhae), 소 牛 (community)
+들쥐	野鼠	noun		suggested		compound 들-+쥐 (Wiktionary); 들 野 (eonhae), 쥐 鼠 (community)
+땅콩	地豆	noun		suggested		compound 땅+콩 (Wiktionary); 땅 地 (community), 콩 豆 (community)
+떡국	餠羹	noun		suggested		compound 떡+국 (Wiktionary); 떡 餠 (community), 국 羹 (eonhae)
+떡볶이	餠볶이	noun		suggested		compound 떡+볶이 (Wiktionary); 떡 餠 (community)
+뜻밖	意外	noun		suggested		compound 뜻+밖 (Wiktionary); 뜻 意 (corpus), 밖 外 (kun-attested)
+막내딸	末女	noun		suggested		막내 末, 딸 女; read by hand
+말끝	言末	noun		suggested		compound 말+끝 (Wiktionary); 말 言 (corpus), 끝 末 (eonhae)
+말똥	馬糞	noun		suggested		말 馬, 똥 糞; read by hand
+말벗	言友	noun		suggested		compound 말+벗 (Wiktionary); 말 言 (corpus), 벗 友 (community)
+머리띠	頭帶	noun		suggested		compound 머리+띠 (Wiktionary); 머리 頭 (community), 띠 帶 (community)
+머릿속	頭裏	noun		suggested		compound 머리+속 (Wiktionary); 머리 頭 (community), 속 裏 (eonhae)
+머슴	傭	noun		suggested		머슴 용 傭 (libhangul)
+먹물	墨水	noun		suggested		compound 먹+물 (Wiktionary); 먹 墨 (eonhae), 물 水 (community)
+메밀	蕎	noun		suggested		메밀 교 蕎 (Wiktionary)
+메주	豉	noun		suggested		메주 시 豉 (libhangul)
+목걸이	頸걸이	noun		suggested		compound 목+걸이 (Wiktionary); 목 頸 (community)
+목줄	頸줄	noun		suggested		compound 목+줄 (Wiktionary); 목 頸 (community)
+몸값	體價	noun		suggested		compound 몸+값 (Wiktionary); 몸 體 (community), 값 價 (community)
+몸무게	體重	noun		suggested		몸 體, 무겁다 重다; read by hand
+물속	水裏	noun		suggested		compound 물+속 (Wiktionary); 물 水 (community), 속 裏 (eonhae)
+물엿	水糖	noun		suggested		compound 물+엿 (Wiktionary); 물 水 (community), 엿 糖 (community)
+물컵	水컵	noun		suggested		compound 물+컵 (Wiktionary); 물 水 (community)
+바닷길	海道	noun		suggested		compound 바다+길 (Wiktionary); 바다 海 (community), 길 道 (community)
+바람결	風결	noun		suggested		compound 바람+결 (Wiktionary); 바람 風 (community)
+바람둥이	風둥이	noun		suggested		compound 바람+-둥이 (Wiktionary); 바람 風 (community)
+바람막이	風막이	noun		suggested		compound 바람+막이 (Wiktionary); 바람 風 (community)
+바람잡이	風잡이	noun		suggested		compound 바람+-잡이 (Wiktionary); 바람 風 (community)
+발끝	足末	noun		suggested		compound 발+끝 (Wiktionary); 발 足 (community), 끝 末 (eonhae)
+발밑	足下	noun		suggested		발 足, 밑돌다 下돌다; read by hand
+밤길	夜道	noun		suggested		compound 밤+길 (Wiktionary); 밤 夜 (community), 길 道 (community)
+밤낮	夜晝	noun		suggested		compound 밤+낮 (Wiktionary); 밤 夜 (community), 낮 晝 (community)
+밤송이	栗송이	noun		suggested		밤 栗; read by hand
+밤잠	夜眠	noun		suggested		compound 밤+잠 (Wiktionary); 밤 夜 (community), 잠 眠 (community)
+밥값	食價	noun		suggested		compound 밥+값 (Wiktionary); 밥 食 (community), 값 價 (community)
+밥솥	食鼎	noun		suggested		compound 밥+솥 (Wiktionary); 밥 食 (community), 솥 鼎 (community)
+방울	鈴	noun		suggested		방울 령 鈴 (libhangul); read by hand
+배꽃	梨花	noun		suggested		배 梨, 꽃 花; read by hand
+뱃놀이	舟놀이	noun		suggested		배 舟; read by hand
+벌집	蜂巢	noun		suggested		벌 蜂, 둥지 巢; read by hand
+벼랑	崖	noun		suggested		벼랑 애 崖 (Wiktionary)
+벽돌	甎	noun		suggested		벽돌 전 甎 (libhangul); read by hand
+별빛	星光	noun		suggested		compound 별+빛 (Wiktionary); 별 星 (community), 빛 光 (community)
+볏짚	稻藁	noun		suggested		compound 벼+짚 (Wiktionary); 벼 稻 (community), 짚 藁 (community)
+보릿고개	麥峴	noun		suggested		compound 보리+고개 (Wiktionary); 보리 麥 (community), 고개 峴 (community)
+봄비	春雨	noun		suggested		compound 봄+비 (Wiktionary); 봄 春 (community), 비 雨 (corpus)
+봄빛	春光	noun		suggested		compound 봄+빛 (Wiktionary); 봄 春 (community), 빛 光 (community)
+봄철	春철	noun		suggested		compound 봄+철 (Wiktionary); 봄 春 (community)
+봇짐	褓짐	noun		suggested		compound 보(褓)+짐 (Wiktionary); 보 褓 (Wiktionary)
+부레	鰾	noun		suggested		부레 표 鰾 (libhangul)
+부엌칼	竈刀	noun		suggested		부엌 竈, 칼 刀; read by hand
+불꽃놀이	焰놀이	noun		suggested		compound 불꽃+놀이 (Wiktionary); 불꽃 焰 (eonhae)
+불바다	火海	noun		suggested		compound 불+바다 (Wiktionary); 불 火 (community), 바다 海 (community)
+비옷	雨衣	noun		suggested		compound 비+옷 (Wiktionary); 비 雨 (corpus), 옷 衣 (community)
+비탈	嶝	noun		suggested		비탈 등 嶝 (libhangul)
+빗발	雨足	noun		suggested		compound 비+발 (Wiktionary); 비 雨 (corpus), 발 足 (community)
+빗방울	雨방울	noun		suggested		compound 비+방울 (Wiktionary); 비 雨 (corpus)
+빗속	雨裏	noun		suggested		compound 비+속 (Wiktionary); 비 雨 (corpus), 속 裏 (eonhae)
+빗질	櫛질	noun		suggested		compound 빗+질 (Wiktionary); 빗 櫛 (community)
+산속	山裏	noun		suggested		compound 산(山)+속 (Wiktionary); 산 山 (Wiktionary), 속 裏 (eonhae)
+살결	腠	noun		suggested		살결 주 腠 (libhangul)
+새싹	新芽	noun		suggested		새 新, 싹 芽; read by hand
+새우젓	蝦醢	noun		suggested		compound 새우+젓 (Wiktionary); 새우 蝦 (community), 젓 醢 (eonhae)
+새해	新年	noun		suggested		새 新, 해 年; read by hand
+샘물	泉水	noun		suggested		compound 샘+물 (Wiktionary); 샘 泉 (community), 물 水 (community)
+샘터	泉場	noun		suggested		compound 샘+터 (Wiktionary); 샘 泉 (community), 터 場 (eonhae)
+성에	霜	noun		suggested		霜 “frost” (JMdict); Wiktionary “frost”
+속옷	裏衣	noun		suggested		compound 속+옷 (Wiktionary); 속 裏 (eonhae), 옷 衣 (community)
+손끝	手末	noun		suggested		compound 손+끝 (Wiktionary); 손 手 (community), 끝 末 (eonhae)
+손때	手垢	noun		suggested		compound 손+때 (Wiktionary); 손 手 (community), 때 垢 (community)
+손짓	手行	noun		suggested		compound 손+짓 (Wiktionary); 손 手 (community), 짓 行 (community)
+솔잎	松葉	noun		suggested		compound 솔+잎 (Wiktionary); 솔 松 (eonhae), 잎 葉 (community)
+쇠똥	牛糞	noun		suggested		소 牛, 똥 糞; read by hand
+쇠뼈	牛骨	noun		suggested		소 牛, 뼈 骨; read by hand
+쇠뿔	牛角	noun		suggested		소 牛, 뿔 角; read by hand
+술맛	酒味	noun		suggested		compound 술+맛 (Wiktionary); 술 酒 (community), 맛 味 (community)
+숨결	息결	noun		suggested		compound 숨+결 (Wiktionary); 숨 息 (community)
+숫돌	砥	noun		suggested		숫돌 지 砥 (libhangul); read by hand
+숯불	炭火	noun		suggested		compound 숯+불 (Wiktionary); 숯 炭 (community), 불 火 (community)
+시골집	鄕家	noun		suggested		compound 시골+집 (Wiktionary); 시골 鄕 (community), 집 家 (community)
+신맛	酸味	noun		suggested		시다 酸, 맛 味; read by hand
+신발	靴	noun		suggested		신발 靴 “shoes” (JMdict); read by hand
+실눈	絲目	noun		suggested		compound 실+눈 (Wiktionary); 실 絲 (community), 눈 目 (community)
+아들딸	子女	noun		suggested		아들 子, 딸 女; read by hand
+아래쪽	下쪽	noun		suggested		아래 下; read by hand
+아랫물	下水	noun		suggested		compound 아래+물 (Wiktionary); 아래 下 (eonhae), 물 水 (community)
+아무것	某物	noun		suggested		compound 아무+것 (Wiktionary); 아무 某 (eonhae), 것 物 (community)
+안전벨트	安全벨트	noun		suggested		compound 안전(安全)+벨트 (Wiktionary); 안전 安全 (Wiktionary)
+알몸	倮	noun		suggested		알몸 라 倮 (libhangul); read by hand
+암캐	雌犬	noun		suggested		compound 암-+개 (Wiktionary); 암 雌 (eonhae), 개 犬 (community)
+앞발	前足	noun		suggested		compound 앞+발 (Wiktionary); 앞 前 (community), 발 足 (community)
+앞집	前家	noun		suggested		compound 앞+집 (Wiktionary); 앞 前 (community), 집 家 (community)
+앞쪽	前쪽	noun		suggested		앞 前; read by hand
+어젯밤	昨夜	noun		suggested		compound 어제+밤 (Wiktionary); 어제 昨 (eonhae), 밤 夜 (community)
+얼굴색	顔色	noun		suggested		compound 얼굴+색(色) (Wiktionary); 얼굴 顔 (community), 색 色 (Wiktionary)
+얼음물	氷水	noun		suggested		compound 얼음+물 (Wiktionary); 얼음 氷 (community), 물 水 (community)
+에미	母	noun		suggested		母 “mother” (JMdict); Wiktionary “mother (parent)”
+여덟째	八째	num		suggested		compound 여덟+-째 (Wiktionary); 여덟 八 (eonhae)
+여름밤	夏夜	noun		suggested		compound 여름+밤 (Wiktionary); 여름 夏 (community), 밤 夜 (community)
+여름철	夏철	noun		suggested		compound 여름+철 (Wiktionary); 여름 夏 (community)
+여섯째	六째	num		suggested		compound 여섯+-째 (Wiktionary); 여섯 六 (kun-attested)
+옆방	傍房	noun		suggested		compound 옆+방(房) (Wiktionary); 옆 傍 (community), 방 房 (Wiktionary)
+옆집	傍家	noun		suggested		compound 옆+집 (Wiktionary); 옆 傍 (community), 집 家 (community)
+예스럽다	古스럽다	adj		suggested		예 古 in eonhae.tsv; “archaic” (Wiktionary)
+오리발	鴨足	noun		suggested		compound 오리+발 (Wiktionary); 오리 鴨 (community), 발 足 (community)
+옷걸이	衣걸이	noun		suggested		compound 옷+걸이 (Wiktionary); 옷 衣 (community)
+웃음꽃	笑花	noun		suggested		compound 웃음+꽃 (Wiktionary); 웃음 笑 (eonhae), 꽃 花 (community)
+위쪽	上쪽	noun		suggested		위 上; read by hand
+윤달	閏月	noun		suggested		compound 윤(閏)+달 (Wiktionary); 윤 閏 (Wiktionary), 달 月 (community)
+윷놀이	擲柶놀이	noun		suggested		compound 윷+놀이 (Wiktionary); 윷 擲柶 (kun-attested)
+이쑤시개	齒쑤시개	noun		suggested		compound 이+쑤시개 (Wiktionary); 이 齒 (community)
+이웃집	鄰家	noun		suggested		compound 이웃+집 (Wiktionary); 이웃 鄰 (community), 집 家 (community)
+일곱째	七째	num		suggested		compound 일곱+-째 (Wiktionary); 일곱 七 (eonhae)
+일터	事場	noun		suggested		compound 일+터 (Wiktionary); 일 事 (community), 터 場 (eonhae)
+입덧	口덧	noun		suggested		compound 입+덧- (Wiktionary); 입 口 (community)
+입맛	口味	noun		suggested		compound 입+맛 (Wiktionary); 입 口 (community), 맛 味 (community)
+잔칫집	宴家	noun		suggested		compound 잔치+집 (Wiktionary); 잔치 宴 (community), 집 家 (community)
+잠결	眠결	noun		suggested		compound 잠+결 (Wiktionary); 잠 眠 (community)
+잠옷	眠衣	noun		suggested		compound 잠+옷 (Wiktionary); 잠 眠 (community), 옷 衣 (community)
+장난꾸러기	戲꾸러기	noun		suggested		compound 장난+-꾸러기 (Wiktionary); 장난 戲 (suggested)
+잿더미	灰더미	noun		suggested		compound 재+더미 (Wiktionary); 재 灰 (community)
+잿물	灰水	noun		suggested		compound 재+물 (Wiktionary); 재 灰 (community), 물 水 (community)
+잿빛	灰光	noun		suggested		compound 재+빛 (Wiktionary); 재 灰 (community), 빛 光 (community)
+저렇다	彼렇다	adj		suggested		저 彼 in editorial.tsv, as 이렇다 此렇다 in corpus.tsv
+절터	寺터	noun		suggested		절 寺; read by hand
+젖꼭지	乳꼭지	noun		suggested		compound 젖+꼭지 (Wiktionary); 젖 乳 (community)
+제빵	製빵	noun		suggested		compound 제(製)+빵 (Wiktionary); 제 製 (Wiktionary)
+주먹밥	拳食	noun		suggested		compound 주먹+밥 (Wiktionary); 주먹 拳 (community), 밥 食 (community)
+진흙	泥	noun		suggested		진흙 니 泥 (libhangul); read by hand
+짚신	藁鞋	noun		suggested		compound 짚+신 (Wiktionary); 짚 藁 (community), 신 鞋 (eonhae)
+참깨	蕂	noun		suggested		참깨 승 蕂 (Wiktionary)
+찹쌀떡	糯餠	noun		suggested		compound 찹쌀+떡 (Wiktionary); 찹쌀 糯 (eonhae), 떡 餠 (community)
+칫솔	齒솔	noun		suggested		이 齒; read by hand
+칼질	刀질	noun		suggested		칼 刀; read by hand
+코끝	鼻末	noun		suggested		compound 코+끝 (Wiktionary); 코 鼻 (community), 끝 末 (eonhae)
+코밑	鼻下	noun		suggested		코 鼻, 밑돌다 下돌다; read by hand
+코피	鼻血	noun		suggested		compound 코+피 (Wiktionary); 코 鼻 (community), 피 血 (community)
+콩밥	豆食	noun		suggested		compound 콩+밥 (Wiktionary); 콩 豆 (community), 밥 食 (community)
+턱뼈	顎骨	noun		suggested		compound 턱+뼈 (Wiktionary); 턱 顎 (community), 뼈 骨 (community)
+털보	毛보	noun		suggested		compound 털+-보 (Wiktionary); 털 毛 (community)
+털실	毛絲	noun		suggested		compound 털+실 (Wiktionary); 털 毛 (community), 실 絲 (community)
+털옷	毛衣	noun		suggested		compound 털+옷 (Wiktionary); 털 毛 (community), 옷 衣 (community)
+톱질	鋸질	noun		suggested		compound 톱+-질 (Wiktionary); 톱 鋸 (community)
+팔뚝	肱	noun		suggested		팔뚝 굉 肱 (libhangul)
+풀밭	草田	noun		suggested		compound 풀+밭 (Wiktionary); 풀 草 (community), 밭 田 (community)
+풀잎	草葉	noun		suggested		compound 풀+잎 (Wiktionary); 풀 草 (community), 잎 葉 (community)
+피땀	血汗	noun		suggested		compound 피+땀 (Wiktionary); 피 血 (community), 땀 汗 (community)
+피바다	血海	noun		suggested		compound 피+바다 (Wiktionary); 피 血 (community), 바다 海 (community)
+피투성이	血투성이	noun		suggested		compound 피+투성이 (Wiktionary); 피 血 (community)
+핏덩이	血塊	noun		suggested		compound 피+덩이 (Wiktionary); 피 血 (community), 덩이 塊 (community)
+핏줄	血줄	noun		suggested		compound 피+줄 (Wiktionary); 피 血 (community)
+할미꽃	婆花	noun		suggested		compound 할미+꽃 (Wiktionary); 할미 婆 (eonhae), 꽃 花 (community)
+혼잣말	獨言	noun		suggested		compound 혼자+말 (Wiktionary); 혼자 獨 (suggested), 말 言 (corpus)
+횟집	膾家	noun		suggested		compound 회(膾)+집 (Wiktionary); 회 膾 (Wiktionary), 집 家 (community)
+흉터	痕	noun		suggested		흉터 흔 痕 (Wiktionary); read by hand
+흙더미	土더미	noun		suggested		compound 흙+더미 (Wiktionary); 흙 土 (community)
+흙투성이	土투성이	noun		suggested		compound 흙+투성이 (Wiktionary); 흙 土 (community)

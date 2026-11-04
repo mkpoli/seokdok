@@ -42,7 +42,7 @@ final class CandidateDrawer: UIView {
     var onPick: ((Int) -> Void)?
     let close = BarButton(symbol: "chevron.up", label: "Fewer candidates")
 
-    private let scroll = UIScrollView()
+    private let scroll = CandidateScroll()
     private var cells: [CandidateCell] = []
     private var lines: [UIView] = []
     private var laidWidth: CGFloat = 0
@@ -53,7 +53,6 @@ final class CandidateDrawer: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        scroll.delaysContentTouches = false
         scroll.alwaysBounceVertical = true
         scroll.showsVerticalScrollIndicator = false
         scroll.translatesAutoresizingMaskIntoConstraints = false
@@ -148,6 +147,23 @@ final class CandidateDrawer: UIView {
             lines.append(line)
         }
         scroll.contentSize = CGSize(width: width, height: CGFloat(rows.count) * Self.rowHeight)
+    }
+}
+
+/// A scroll view of candidates. Touches reach the cells at once so that they
+/// highlight, and a drag starting on a cell still scrolls.
+final class CandidateScroll: UIScrollView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        delaysContentTouches = false
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("not used")
+    }
+
+    override func touchesShouldCancel(in view: UIView) -> Bool {
+        true
     }
 }
 

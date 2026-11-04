@@ -63,7 +63,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private let stripScroll = UIScrollView()
     private let resizeKeys = UIStackView()
     private let bar = UIStackView()
-    private let barScroll = UIScrollView()
+    private let barScroll = CandidateScroll()
     private let barEnd = UIStackView()
     private var shownCandidates: Session.Candidates?
     private let more = BarButton(symbol: "chevron.down", label: "More candidates")
@@ -118,7 +118,6 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
 
         stripRow = scrolling(strip, in: stripScroll, trailing: resizeKeys, height: 26)
         barRow = scrolling(bar, in: barScroll, trailing: barEnd, height: 44)
-        barScroll.delaysContentTouches = false
         column.addArrangedSubview(stripRow)
         column.addArrangedSubview(barRow)
         column.setCustomSpacing(8, after: barRow)

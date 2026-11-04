@@ -3,7 +3,7 @@
   import { reveal } from '../lib/reveal.js'
   import { t, r, plain } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
-  import { options, saveOptions } from '../lib/options.svelte.js'
+  import { options, saveOptions, showRubyPosition } from '../lib/options.svelte.js'
   import Keyboard from './Keyboard.svelte'
   import Ruby from './Ruby.svelte'
   import { PAGE } from '../lib/ime.svelte.js'
@@ -284,6 +284,11 @@
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.codaAlways} />{@html r(t().options.coda)}</label>
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.resyllabify} />{@html r(t().options.resyllabify)}</label>
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.hadaKun} />{@html r(t().options.hada)}</label>
+            <div class="pair" role="radiogroup" aria-label={plain(t().options.rubyPosition)}>
+              <span>{@html r(t().options.rubyPosition)}</span>
+              <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.rubyPosition} value="above" onchange={showRubyPosition} />{@html r(t().options.rubyAbove)}</label>
+              <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.rubyPosition} value="right" onchange={showRubyPosition} />{@html r(t().options.rubyRight)}</label>
+            </div>
             <div class="pair" role="radiogroup" aria-label={plain(t().options.itda)} title={plain(t().options.itdaTip)}>
               <span>{@html r(t().options.itda)}</span>
               {#each [['有', '有다'], ['在', '在다'], ['在ㅆ', '在ㅆ다']] as [value, label]}

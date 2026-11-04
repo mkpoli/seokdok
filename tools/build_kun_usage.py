@@ -39,18 +39,22 @@ RUBY_NAMES = "윗주|윗주2|아랫주|ruby|Ruby"
 def strip_markup(text):
     """Wiki text as running text: rubies and {{sic}} become marked spans the parsers read."""
     text = re.sub(r"<noinclude>.*?</noinclude>", " ", text, flags=re.S)
-    text = re.sub(r"<ref[^>]*>.*?</ref>|<ref[^>]*/>|<score.*?</score>|<!--.*?-->", " ", text, flags=re.S)
+    text = re.sub(r"<ref[^>]*/>", " ", text)
+    text = re.sub(r"<ref[^>]*>.*?</ref>|<score.*?</score>|<!--.*?-->", " ", text, flags=re.S)
     text = re.sub(r"\[\[(?:파일|File|그림|Image):[^\n]*?\]\]", " ", text)
     text = re.sub(r"\[\[[^\]|]*\|([^\]]*)\]\]", r"\1", text)
     text = re.sub(r"\[\[([^\]]*)\]\]", r"\1", text)
     text = re.sub(r"<br\s*/?>", "\n", text)
-    for _ in range(4):  # templates nest
+    # Templates nest: unwrap what is known from the inside out, and drop another template only when nothing is left to unwrap.
+    for _ in range(12):
+        before = text
         text = re.sub(r"\{\{[Ss][Ii][Cc]\|([^|{}]*)\|([^|{}]*)\}\}", lambda m: SIC_OPEN + m[1] + SIC_MID + m[2] + SIC_CLOSE, text)
         text = re.sub(rf"\{{\{{(?:{RUBY_NAMES})\|([^|{{}}]*)\|([^|{{}}]*)(?:\|[^{{}}]*)?\}}\}}", lambda m: RUBY_OPEN + m[1].strip() + RUBY_MID + m[2].strip() + RUBY_CLOSE, text)
-        text = re.sub(r"\{\{이체자\|([^|{}]*)(\|[^{}]*)?\}\}", r"\1", text)
-        text = re.sub(r"\{\{드러냄표\|([^|{}]*)(\|[^{}]*)?\}\}", r"\1", text)
-        text = re.sub(r"\{\{(?:[^|{}]*작게|크게|더 ?크게|더더 ?크게|더더더 ?크게|가운데|오른쪽|왼쪽)\|([^|{}]*)(\|[^{}]*)?\}\}", r"\1", text)
-        text = re.sub(r"\{\{[^{}]*\}\}", " ", text)
+        text = re.sub(r"\{\{(?:이체자|드러냄표|[Ss][Ii][Cc]|u|du|첫가끝|[^|{}]*작게|크게|더 ?크게|더더 ?크게|더더더 ?크게|가운데|오른쪽|왼쪽)\|([^|{}]*)(\|[^{}]*)?\}\}", r"\1", text)
+        if text == before:
+            text = re.sub(r"\{\{[^{}]*\}\}", " ", text)
+            if text == before:
+                break
     text = re.sub(r"<[^>]+>", "", text)
     return re.sub(r"'''?|^[:;*#=]+|=+\s*$", "", text, flags=re.M)
 
@@ -117,7 +121,7 @@ def flat(text):
 
 def grapheme_cut(s, i):
     """The nearest place at or before i that does not split a syllable of conjoining jamo."""
-    while 0 < i < len(s) and unicodedata.category(s[i]) == "Mn" or 0 < i < len(s) and 0x1160 <= ord(s[i]) <= 0x11FF or 0 < i < len(s) and 0xD7B0 <= ord(s[i]) <= 0xD7FB:
+    while 0 < i < len(s) and unicodedata.category(s[i]) in ("Mn", "Mc") or 0 < i < len(s) and 0x1160 <= ord(s[i]) <= 0x11FF or 0 < i < len(s) and 0xD7B0 <= ord(s[i]) <= 0xD7FB:
         i -= 1
     return i
 
@@ -457,6 +461,11 @@ ONLY = {
 KEEP_MIXED = {("軍浦場", "군포내"), ("烏山", "오믜"), ("五十五尺", "오십오댜"), ("新羅興德王時", "신라흥덕왕ᄯᅢ"), ("韓日間貿易", "한일사이무역"), ("米所出", "쌀소튤"),
               ("一老婆", "한노파"), ("初都邑", "텻도읍"), ("石柱礎", "돌듀툐"), ("詩趣", "시맛"), ("南半區", "남반편"), ("人山", "사람산"), ("船醫", "배의원"),
               ("二十九番", "스물아홉번"), ("一月三十日", "한달ᄉᆞᆷ십일")}
+# A syllable of the reading happens to be the character's sound, or the gloss comes with the sound after it (물수, 뫼산).
+BY_ACCIDENT = {("多", "많다"), ("餌", "먹이")}
+GLOSS_AND_SOUND = {("女", "계집녀"), ("良", "어질량"), ("樓", "다락루"), ("忘", "이즐망"), ("山", "뫼산"), ("間", "ᄉᆡ이간"), ("還", "도라올환"), ("水", "물수"), ("中", "가온ᄃᆡ즁"),
+                   ("死", "죽을사"), ("鉤", "낛구"), ("薇", "장밋미"), ("菊", "구홧국"), ("藤", "드ᇱ등"), ("擒", "닝그ᇝ금"), ("橙", "효근귨등"), ("八", "여ᄃᆞᆲ팔"), ("詠", "읇흘영"),
+                   ("五", "다ᄉᆞ오"), ("敬", "공겨ᇱ경"), ("日", "날일자")}
 # Read by hand and found to be no reading: a remark, a slip of the printer, a character over the wrong syllable, a loanword.
 NOT_A_READING = {
     ("內一局", "내포일"), ("驛", "두"), ("晝", "밤"), ("入港出船船", "입항출항선"), ("傳", "뎐하난"),
@@ -468,8 +477,8 @@ NOT_A_READING = {
     ("裏", "굴속"), ("取拔", "ᄎᆔ급"), ("光", "흐르는빗"), ("年", "나는나히"), ("力", "ᄒᆞ는힘"), ("目", "군대의눈"), ("市場人", "군"), ("裁縫工", "군"),
     ("族", "기"), ("頁", "엽"), ("本義", "토다"), ("本義", "홈은"), ("漁網", "조막이"), ("晝", "은낫이"), ("蛙", "게고리"), ("底", "빝"), ("薪", "섭"), ("畑", "밫"), ("炭", "숱"), ("僧", "숭"),
     ("欲爲", "의고싶"), ("人", "사람이"), ("魂", "넋이"), ("利点", "수"), ("段", "칸"),
-    ("戰車", "수레"), ("乾自", "근지"), ("乃終", "임"), ("彈力", "힘"), ("佛蘭西", "프랑쓰국"), ("白耳義", "벨기국"), ("禁", "검"), ("土耳其", "튀르크"), ("語調", "악센트"), ("隧道", "턴넬"),
-    ("宇", "임씨"), ("穰", "임씨"), ("月子", "다리"), ("鷲", "게우"), ("望", "발랄"),
+    ("呼吸器官", "자리"), ("火海", "불마다"), ("戰車", "수레"), ("乾自", "근지"), ("乃終", "임"), ("彈力", "힘"), ("佛蘭西", "프랑쓰국"), ("白耳義", "벨기국"), ("禁", "검"), ("土耳其", "튀르크"), ("語調", "악센트"), ("隧道", "턴넬"),
+    ("宇", "임씨"), ("穰", "임씨"), ("月子", "다리"), ("鷲", "게우"),
     ("火", "차환"), ("老嫗", "고루"), ("白鷺", "겻헤"), ("紅顔", "옥빈"), ("十", "심"), ("鵲", "딕"), ("船", "항"), ("故", "로"), ("曰", "욀"), ("欠", "험"), ("大", "경"),
 }
 
@@ -546,6 +555,10 @@ def collect(m):
         book, year, author = info
         for u in uses_of(p["text"], sounds):
             kind = classify(u, sounds)
+            if (u.hanja, u.reading) in BY_ACCIDENT:
+                kind = "meaning"
+            elif (u.hanja, u.reading) in GLOSS_AND_SOUND:
+                kind = "mixed"
             syls = split_syllables(u.meant or u.reading)
             if kind in (None, "sound") or not syls or is_noise(u, syls):
                 continue
@@ -557,7 +570,7 @@ def collect(m):
                 continue
             if pair in NOT_A_READING:
                 continue
-            if kind == "mixed" and pair not in KEEP_MIXED and book != "勞動夜學讀本":
+            if kind == "mixed" and pair not in KEEP_MIXED and pair not in GLOSS_AND_SOUND and book != "勞動夜學讀本":
                 continue
             k = (u.hanja, u.reading, book)
             r = rows.get(k)
@@ -595,14 +608,18 @@ def hand_lemmas():
 
 def attach_lemmas(rows, m):
     hand = hand_lemmas()
+    used = set()
     for r in rows.values():
         key = (r.hanja, unicodedata.normalize("NFC", r.meant))
+        used.add(key)
         found = hand[key] if key in hand else lemma_of(r.hanja, r.meant, r.tails, m)
         if not found or r.kind != "meaning":
             continue
         lemma, pos = found
         cover = None if r.pattern == "ruby" else 99  # a Hangul word in the text carries its Hanja over the whole of it
         r.lemma = (lemma, pos, written_for(lemma, pos, r.hanja, cover or len(split_syllables(r.meant) or [])))
+    for key in sorted(set(hand) - used):
+        print(f"kun_lemmas.txt: no row has {key[0]} {key[1]}", file=sys.stderr)
 
 
 DICT_HEADER = """# 訓讀 attested in Korean books of 1882-1945: Hanja printed with a native reading beside them.
@@ -637,6 +654,7 @@ NOT_FOR_THE_DICTIONARY = {
     ("다다르다", "臨"),  # 到 stays usual
     ("된장", "味噲"),  # 된醬 stays usual; 味噲 is a Japanese word in 배비장전's list
     ("이끌다", "引"),  # 導 stays usual
+    ("우습다", "笑"),  # 笑다 is 웃다; 笑습다 stays
 }
 
 

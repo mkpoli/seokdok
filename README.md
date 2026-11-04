@@ -78,7 +78,7 @@ uv run tools/build_dict.py
 uv run tools/attest.py
 ```
 
-These rebuild `community.tsv`, `gloss.tsv` and `sino.tsv` and refresh the usage counts. `uv run tools/build_eonhae.py` rebuilds `eonhae.tsv` from the Wikisource dump and saved 나무위키 pages named in `data/sources/README.md`; run `attest.py` after it to restore that file's counts. `uv run tools/build_kun_usage.py` rebuilds `data/kun-usage.tsv` and `kun-attested.tsv` from the Wikisource dump. The chat export stays in `data/private/` and is never committed.
+These rebuild `community.tsv`, `gloss.tsv` and `sino.tsv` and refresh the usage counts. `uv run tools/build_eonhae.py` rebuilds `eonhae.tsv` from the Wikisource dump and saved 나무위키 pages named in `data/sources/README.md`; run `attest.py` after it to restore that file's counts. `uv run tools/build_kun_usage.py` rebuilds `data/kun-usage.tsv` and `kun-attested.tsv` from the Wikisource dump; `attest.py` fills in that file's counts too. The chat export stays in `data/private/` and is never committed.
 
 ## References
 

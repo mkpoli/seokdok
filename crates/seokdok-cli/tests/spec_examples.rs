@@ -401,6 +401,7 @@ fn reading_variants_does_not_depend_on_the_options() {
     }
 }
 
+#[test]
 fn the_group_reads_as_its_own_name() {
     let e = engine(Options::default());
     assert_eq!(e.convert("풀어읽기모임")[0].text, "釋讀會");
@@ -496,12 +497,13 @@ fn a_one_syllable_word_keeps_each_hanjas_forms_together() {
 fn the_bound_noun_teo() {
     let e = engine(Options::default());
     assert_eq!(e.convert("터")[0].text, "基");
-    assert_eq!(e.convert("테니")[0].text, "基ㅣ니");
-    assert_eq!(e.convert("텐데")[0].text, "基ㅣㄴ데");
-    for (input, want) in [("테니", "테니"), ("테니", "筈ㅣ니"), ("테니", "所ㅣ니"), ("텐데", "텐데"), ("텐데", "筈ㅣㄴ데")] {
+    assert_eq!(e.convert("테니")[0].text, "址ㅣ니");
+    assert_eq!(e.convert("텐데")[0].text, "址ㅣㄴ데");
+    for (input, want) in [("테니", "테니"), ("테니", "基ㅣ니"), ("테니", "筈ㅣ니"), ("테니", "所ㅣ니"), ("텐데", "텐데"), ("텐데", "筈ㅣㄴ데")] {
         assert!(offers(&e, input, want), "{input} → {want}");
     }
     assert_eq!(e.read("基ㅣ니"), "테니");
+    assert_eq!(e.read("址ㅣ니"), "테니");
     // 터 alone takes no particles, so 부터 is left whole.
     assert_eq!(e.convert("부터인데요")[0].text, "부터인데요");
     assert_eq!(e.convert("집터")[0].text, "垈");
@@ -516,4 +518,14 @@ fn spellings_from_the_chat_on_4_november() {
     assert!(offers(&e, "괜찮다", "不空然다"));
     assert!(offers(&e, "이런", "此樣"));
     assert_eq!(e.convert("이런")[0].text, "此런");
+}
+
+#[test]
+fn readings_of_the_chat_of_2026_11_04() {
+    let e = engine(Options::default());
+    for (input, want) in [("귀찮다", "不貴다"), ("괜찮네요", "不公然네요"), ("가없다", "邊無다"), ("빈터", "空基"), ("빈터", "空墟"), ("터", "址"), ("터", "墟")] {
+        assert!(offers(&e, input, want), "{input} → {want}");
+    }
+    assert_eq!(e.convert("괜찮다")[0].text, "不空然다");
+    assert_eq!(e.convert("집터")[0].text, "垈");
 }

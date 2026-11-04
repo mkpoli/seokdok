@@ -195,3 +195,22 @@ fn hada_kun_still_offers_the_old_spelling_in_convert_and_segments() {
     assert_eq!(segs[0][0], ha_go);
     assert_eq!(texts(&e, "추가할까요").0[0], format!("追加{HAL}까요"));
 }
+
+#[test]
+fn old_input_gets_the_same_old_spelling_as_modern_input() {
+    let ha_go = format!("愛{HA}고");
+    let sarang = "\u{1109}\u{119E}랑하고";
+    // Setting off: third place, behind the typed run, as for 사랑하고.
+    let e = engine(Options::default());
+    let (whole, segs) = texts(&e, sarang);
+    assert_eq!(whole[..3], ["愛하고".to_string(), sarang.to_string(), ha_go.clone()]);
+    assert_eq!(segs[0][..3], whole[..3]);
+    assert_eq!(texts(&e, "사랑하고").0[2], ha_go);
+    // Setting on: first, with the modern spelling behind it.
+    let e = engine(Options { old_ha: true, ..Options::default() });
+    let (whole, segs) = texts(&e, sarang);
+    assert_eq!(whole[..2], [ha_go.clone(), "愛하고".to_string()]);
+    assert_eq!(segs[0][..2], whole[..2]);
+    assert_eq!(texts(&e, "사랑하고").0[..2], whole[..2]);
+    assert!(whole.contains(&sarang.to_string()));
+}

@@ -334,6 +334,10 @@ struct Converted {
     whole: Vec<Candidate>,
     segments: Vec<Segment>,
     cost: Option<f32>,
+    /// The old spelling of the best reading, and with `old_ha` the one that
+    /// writes only the 하 rows that way (built when `full`).
+    old: Option<String>,
+    ha: Option<String>,
 }
 
 /// A modern reading of old input is kept when its best path costs at most
@@ -896,7 +900,7 @@ impl Engine {
             return self.convert_old(run);
         }
         let Converted { mut whole, mut segments, .. } = self.convert_plain(run, after_hanja, true);
-        if whole.first().is_some_and(|c| c.text == run) && has_era(run) {
+        if whole.first().is_some_and(|c| c.text == run && has_era(run)) {
             if let Some(syls) = parse(run) {
                 // Behind what was typed: the first candidate stays.
                 let mut era: Vec<Candidate> = Vec::new();
@@ -927,21 +931,34 @@ impl Engine {
         if found.is_empty() {
             found = self.read_as(&syls, true);
         }
+        // The old spelling of the best reading, as for modern input.
+        let (old, ha) = match found.first() {
+            Some((_, reading, _)) => {
+                let c = self.convert_plain(reading, false, true);
+                (c.old, c.ha)
+            }
+            None => (None, None),
+        };
+        let restored = |reading: &str, cands: Vec<Candidate>| -> Vec<Candidate> {
+            cands
+                .into_iter()
+                .map(|c| Candidate { text: keep_typed_tail(&c.text, reading, &syls).unwrap_or(c.text), note: c.note })
+                .collect()
+        };
         let mut list: Vec<Candidate> = Vec::new();
         for (_, reading, cands) in found {
-            for c in cands {
-                let text = keep_typed_tail(&c.text, &reading, &syls).unwrap_or(c.text);
-                if !list.iter().any(|x| x.text == text) {
-                    list.push(Candidate { text, note: c.note });
+            for c in restored(&reading, cands) {
+                if !list.iter().any(|x| x.text == c.text) {
+                    list.push(c);
                 }
             }
         }
         // Old letters that are all function syllables stay as typed: the
         // candidates that keep them come first.
-        let old: Vec<&str> = syls.iter().map(|s| s.typed.as_str()).filter(|t| !t.chars().all(is_syllable)).collect();
+        let old_syls: Vec<&str> = syls.iter().map(|s| s.typed.as_str()).filter(|t| !t.chars().all(is_syllable)).collect();
         let mut at = list.len().min(1);
-        if !old.is_empty() && old.iter().all(|o| is_function_old(o)) {
-            let (kept, rest): (Vec<Candidate>, Vec<Candidate>) = list.into_iter().partition(|c| old.iter().any(|o| c.text.contains(o)));
+        if !old_syls.is_empty() && old_syls.iter().all(|o| is_function_old(o)) {
+            let (kept, rest): (Vec<Candidate>, Vec<Candidate>) = list.into_iter().partition(|c| old_syls.iter().any(|o| c.text.contains(o)));
             at = kept.len().min(1);
             list = kept;
             list.extend(rest);
@@ -950,6 +967,8 @@ impl Engine {
         if !list.iter().any(|c| c.text == run) {
             list.insert(at, typed.clone());
         }
+        offer_old(&mut list, old);
+        first_old(&mut list, ha);
         let keep = self.options.max_candidates.max(2);
         if list.len() > keep {
             let had = list[..keep].iter().any(|c| c.text == run);
@@ -1103,8 +1122,8 @@ impl Engine {
                         first_old(&mut s.candidates, v);
                     }
                 }
-                offer_old(&mut whole, old_whole);
-                first_old(&mut whole, ha_whole);
+                offer_old(&mut whole, old_whole.clone());
+                first_old(&mut whole, ha_whole.clone());
             }
         } else {
             // A key spans the run, so the run becomes one segment to pick from.
@@ -1116,7 +1135,7 @@ impl Engine {
             whole = self.with_hun(whole, run, hun);
         }
         whole.truncate(self.options.max_candidates.max(2));
-        Converted { whole, segments, cost }
+        Converted { whole, segments, cost, old: old_whole, ha: ha_whole }
     }
 
     /// Characters whose gloss is `word`, in either order: 살찔비 or 비살찔 → 肥.

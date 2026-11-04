@@ -187,6 +187,27 @@ for (const [name, raw] of [['garbage', 'not a table'], ['a truncated row', '# se
   })
 }
 
+test('another tab saving keeps what waits here; another tab forgetting does not', async () => {
+  const storage = memoryStorage()
+  const here = setup(storage).picks
+  const there = setup(storage).picks
+  here.commit('나', '我', false)
+  there.commit('한', '恨', false)
+  there.flush()
+  here.reload()
+  here.flush()
+  expect(storage.items.get(STORAGE_KEY)).toContain('我')
+  expect(storage.items.get(STORAGE_KEY)).toContain('恨')
+
+  here.commit('가', '歌', false)
+  there.reload()
+  there.forget()
+  here.reload()
+  here.flush()
+  expect(storage.items.has(STORAGE_KEY)).toBe(false)
+  expect(here.empty).toBe(true)
+})
+
 test('storage that throws or is absent still learns for the page', async () => {
   const broken = {
     getItem() {

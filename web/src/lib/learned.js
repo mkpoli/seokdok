@@ -10,6 +10,8 @@ export class Picks {
   #table
   #storage
   #timer = null
+  /** Commits not yet stored, kept through another tab's save. */
+  #pending = []
 
   /**
    * @param {any} Table the wasm class
@@ -68,13 +70,16 @@ export class Picks {
    * @param {boolean} first it was the first candidate shown
    */
   commit(reading, text, first) {
-    if (this.#table.commit(reading, text, first)) this.#saveSoon()
+    if (!this.#table.commit(reading, text, first)) return
+    this.#pending.push([reading, text, first])
+    this.#saveSoon()
   }
 
   /** Empty the table and the stored copy. */
   forget() {
     clearTimeout(this.#timer)
     this.#timer = null
+    this.#pending = []
     this.#table = new this.#Table('')
     try {
       this.#storage?.removeItem(STORAGE_KEY)
@@ -86,9 +91,16 @@ export class Picks {
     if (this.#timer !== null) this.#save()
   }
 
-  /** Another tab changed or cleared the stored table. */
+  /** Another tab changed the stored table. If it is gone, that tab forgot, and
+   *  what waits here goes too. */
   reload() {
     this.#table = this.#read()
+    if (this.empty) {
+      clearTimeout(this.#timer)
+      this.#timer = null
+      this.#pending = []
+    }
+    for (const [reading, text, first] of this.#pending) this.#table.commit(reading, text, first)
   }
 
   #saveSoon() {
@@ -100,6 +112,7 @@ export class Picks {
     this.#timer = null
     try {
       this.#storage?.setItem(STORAGE_KEY, this.#table.toText())
+      this.#pending = []
     } catch {}
   }
 }

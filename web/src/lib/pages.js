@@ -24,7 +24,7 @@ const ko = {
           [
             '`config.toml`: {設定|설정} {値|값}을 {貯藏|저장}합니다. {位置|위치}는 Windows `%APPDATA%\\seokdok`, Linux `~/.config/seokdok`, macOS `~/Library/Application Support/seokdok`, Android 앱 {專用|전용} {貯藏|저장} {空間|공간}, iOS 앱과 키보드가 {共|함께} {用|쓰}는 App Group 컨테이너입니다.',
             '`custom.json`, `user.tsv`: {利用者|이용자}가 {直接|직접} {置|둔} {境遇|경우}에만 {有|있}습니다. {自作|자작} {規則|규칙}과 {個言|낱말}이 {入|들}어 {有|있}고 {打|치}ㄴ {文|글}은 {入|들}어 {有|있}지 {不|안}ㅎ습니다.',
-            '`learned.tsv`: {候補|후보} {窓|창}에서 {選|고르}ㄴ {個言|낱말}과 {其|그} {讀音|읽기}, {回數|횟수}를 {貯藏|저장}합니다. {二|두} {番|번} {選|고르}ㄴ {候補|후보}를 {先|먼저} {見|보}이려는 {事|거}ㅅ입니다. {第一|첫} {候補|후보}를 {其|그}대로 {確定|확정}한 {個言|낱말}, {文章|문장}, {時刻|시각}은 {入|들}어{去|가}지 {不|안}ㅎ습니다. {位置|위치}는 `config.toml`과 {同|같}으며 {何處|어디}로도 {傳送|전송}되지 {不|안}ㅎ습니다.',
+            '`learned.tsv`: {候補|후보} {窓|창}에서 {選|고르}ㄴ {個言|낱말}과 {其|그} {讀音|읽기}, {回數|횟수}를 {貯藏|저장}합니다. {二|두} {番|번} {選|고르}ㄴ {候補|후보}를 {先|먼저} {見|보}이려는 {事|거}ㅅ입니다. {第一|첫} {候補|후보}를 {其|그}대로 {確定|확정}한 {個言|낱말}은 {前|전}에 {選|고르}ㄴ {事|적}이 {有|있}을 {時|때}만 {入|들}어{去|가}고, {時刻|시각}, {數字|숫자}, 띄어{書|쓰}ㄴ {文|글}, 12{音節|음절}이 {超|넘}는 {文|글}은 {入|들}어{去|가}지 {不|안}ㅎ습니다. 띄어{書|쓰}지 {不|안}ㅎ은 {短|짧}은 {文|글}은 {入|들}어{去|가}ㄹ {手|수} {有|있}습니다. {位置|위치}는 `config.toml`과 {同|같}으며 {何處|어디}로도 {傳送|전송}되지 {不|안}ㅎ습니다.',
           ],
           '{選|고르}ㄴ {個言|낱말}을 {消|지우}려면 {設定|설정}의 「{選|고르}ㄴ {事|거}ㅅ {忘|잊}기」를 {押|누르}거나 `learned.tsv`를 {消|지우}ㅂ니다. 「{選|고르}ㄴ {候補|후보} {學習|학습}」(`input.learn`)을 {滅|끄}면 {學習|학습}도 {使用|사용}도 {止|멈추}고, {消|지우}기 {前|전}까지 파일은 {殘|남}습니다.',
           '{暗號|암호}, {電子郵便|전자우편}, 웹 {住所|주소}, {數字|숫자} 칸과 {學習|학습}을 {禁|막}는 칸(시크릿 탭 {等|등})에서는 {學習|학습}하지 {不|안}ㅎ습니다. {其|그} {判斷|판단}은 앱이 {告|알리}는 칸의 {種類|종류}를 {從|따르}므로, {種類|종류}를 {告|알리}지 {不|안}ㅎ는 앱에서는 {學習|학습}할 {手|수} {有|있}습니다. macOS는 {入力器|입력기}에 {保安|보안} {入力|입력} {與否|여부}만 {告|알리}므로 {暗號|암호} 칸만 {區別|구별}합니다.',
@@ -218,7 +218,7 @@ const en = {
           [
             '`config.toml` holds your settings. Windows: `%APPDATA%\\seokdok`. Linux: `~/.config/seokdok`. macOS: `~/Library/Application Support/seokdok`. Android: the app’s private storage. iOS: the App Group container shared by the app and the keyboard.',
             '`custom.json` and `user.tsv` exist only if you put them there. They hold your own words and rules, not what you typed.',
-            '`learned.tsv` holds the words you picked from the candidate list, with their readings and counts, so that a candidate picked twice comes first. Words you accept as first offered, sentences and times of day are not in it. It sits beside `config.toml` and is not sent anywhere.',
+            '`learned.tsv` holds the words you picked from the candidate list, with their readings and counts, so that a candidate picked twice comes first. A word you accept as first offered goes in only if you picked it before. Times of day, numbers, spaced text and text over 12 syllables never go in; a short phrase typed without spaces can. It sits beside `config.toml` and is not sent anywhere.',
           ],
           'To clear the words you picked, press “Forget what I picked” in the settings or delete `learned.tsv`. Turning off “Learn picks” (`input.learn`) stops both learning and using them, and the file stays until you clear it.',
           'Nothing is learned in password, email, web address and number fields, or in fields that ask for no learning, such as private tabs. This relies on the app naming the kind of field, so an app that does not name it can still be learned from. macOS tells an input method only about secure entry, so there only password fields are told apart.',

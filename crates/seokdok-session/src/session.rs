@@ -133,7 +133,8 @@ enum Act {
     Resize(isize),
     /// Close the candidate window, keeping the conversion.
     CloseWindow,
-    ToggleLatin,
+    /// Switch to this mode; nothing happens when it is the current one.
+    SwitchTo(Mode),
     /// Commit the composition and leave the key to the application.
     CommitPass,
     Noop,
@@ -231,9 +232,29 @@ impl Session {
         self.plan(key) == Some(Act::CommitPass)
     }
 
+    /// The mode a switching key leads to from here; `None` for other keys.
+    /// 韓㐎 專用 has no 釋讀 to tell from 한글, so those keys only leave Latin.
+    fn switch_target(&self, key: Key) -> Option<Mode> {
+        let latin = self.mode == Mode::Latin;
+        Some(match key {
+            Key::HangulToggle if latin => self.hangul_mode,
+            Key::HangulToggle | Key::ToLatin => Mode::Latin,
+            Key::ToKorean if latin => self.hangul_mode,
+            Key::ToKorean => self.mode,
+            Key::FlipHangul if latin => self.hangul_mode,
+            Key::FlipHangul if self.hangul_only => self.mode,
+            Key::FlipHangul if self.mode == Mode::Seokdok => Mode::Hangul,
+            Key::FlipHangul => Mode::Seokdok,
+            Key::ToSeokdok | Key::ToHangul if self.hangul_only && !latin => self.mode,
+            Key::ToSeokdok => Mode::Seokdok,
+            Key::ToHangul => Mode::Hangul,
+            _ => return None,
+        })
+    }
+
     fn plan(&self, key: Key) -> Option<Act> {
-        if key == Key::HangulToggle {
-            return Some(Act::ToggleLatin);
+        if let Some(target) = self.switch_target(key) {
+            return Some(Act::SwitchTo(target));
         }
         if self.mode == Mode::Latin {
             return None;
@@ -269,7 +290,7 @@ impl Session {
                 Key::Esc if conv.open => Act::CloseWindow,
                 Key::Esc | Key::Backspace => Act::Revert,
                 Key::Other => Act::Noop,
-                Key::HangulToggle => unreachable!(),
+                Key::HangulToggle | Key::ToLatin | Key::ToKorean | Key::FlipHangul | Key::ToSeokdok | Key::ToHangul => unreachable!(),
             });
         }
         if self.composer.is_empty() {
@@ -296,7 +317,7 @@ impl Session {
             // on the text as usual.
             Key::Up | Key::Left { .. } | Key::Right { .. } | Key::PageUp | Key::PageDown | Key::Other if !converts => Act::CommitPass,
             Key::Up | Key::Left { .. } | Key::Right { .. } | Key::PageUp | Key::PageDown | Key::Other => Act::Noop,
-            Key::HangulToggle => unreachable!(),
+            Key::HangulToggle | Key::ToLatin | Key::ToKorean | Key::FlipHangul | Key::ToSeokdok | Key::ToHangul => unreachable!(),
         })
     }
 
@@ -418,9 +439,10 @@ impl Session {
                 }
                 self.commit_through(&mut fx);
             }
-            Act::ToggleLatin => {
-                let next = if self.mode == Mode::Latin { self.hangul_mode } else { Mode::Latin };
-                fx.extend(self.set_mode(next));
+            Act::SwitchTo(next) => {
+                if next != self.mode {
+                    fx.extend(self.set_mode(next));
+                }
             }
         }
         Output { eaten: act != Act::CommitPass, effects: fx }
@@ -1138,6 +1160,81 @@ mod tests {
         assert_eq!(s.mode(), Mode::Latin);
         s.handle(Key::HangulToggle, &Stub(3));
         assert_eq!(s.mode(), Mode::Hangul);
+    }
+
+    #[test]
+    fn switching_keys_commit_and_reach_every_mode() {
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        // Mid-composition the switch commits, as set_mode does.
+        let o = s.handle(Key::FlipHangul, &Stub(3));
+        assert!(o.eaten);
+        assert_eq!(commit_of(&o).as_deref(), Some("한"));
+        assert_eq!(s.mode(), Mode::Hangul);
+        assert_eq!(s.handle(Key::FlipHangul, &Stub(3)).effects, vec![]);
+        assert_eq!(s.mode(), Mode::Seokdok);
+        s.handle(Key::ToHangul, &Stub(3));
+        assert_eq!(s.mode(), Mode::Hangul);
+        s.handle(Key::ToLatin, &Stub(3));
+        assert_eq!(s.mode(), Mode::Latin);
+        // Back to the Korean mode last in use, by any of the keys that lead there.
+        s.handle(Key::ToKorean, &Stub(3));
+        assert_eq!(s.mode(), Mode::Hangul);
+        s.handle(Key::HangulToggle, &Stub(3));
+        assert_eq!(s.mode(), Mode::Latin);
+        s.handle(Key::FlipHangul, &Stub(3));
+        assert_eq!(s.mode(), Mode::Hangul);
+        s.handle(Key::ToSeokdok, &Stub(3));
+        assert_eq!(s.mode(), Mode::Seokdok);
+    }
+
+    #[test]
+    fn a_switch_to_the_current_mode_leaves_the_composition() {
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        for k in [Key::ToKorean, Key::ToSeokdok] {
+            let o = s.handle(k, &Stub(3));
+            assert!(o.eaten);
+            assert_eq!(o.effects, vec![]);
+            assert_eq!(s.buffer(), "한");
+        }
+        let mut latin = Session::new(Mode::Latin, true);
+        let o = latin.handle(Key::ToLatin, &Stub(3));
+        assert!(o.eaten && o.effects.is_empty());
+        assert_eq!(latin.mode(), Mode::Latin);
+    }
+
+    #[test]
+    fn switching_a_conversion_commits_it() {
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        s.handle(Key::Convert, &Stub(3));
+        let o = s.handle(Key::HangulToggle, &Stub(3));
+        assert_eq!(commit_of(&o).as_deref(), Some("한1"));
+        assert_eq!(popup_of(&o), Some(None));
+        assert_eq!(s.mode(), Mode::Latin);
+    }
+
+    #[test]
+    fn hangul_only_has_no_seokdok_to_flip_to() {
+        let mut s = seokdok();
+        s.set_hangul_only(true);
+        assert_eq!(s.mode(), Mode::Hangul);
+        type_str(&mut s, "gks");
+        // Nothing to switch between: the composition is not disturbed.
+        for k in [Key::FlipHangul, Key::ToSeokdok, Key::ToHangul] {
+            let o = s.handle(k, &Stub(3));
+            assert!(o.eaten && o.effects.is_empty());
+            assert_eq!(s.buffer(), "한");
+        }
+        // Latin stays reachable, and the toggle comes back to Hangul.
+        s.handle(Key::HangulToggle, &Stub(3));
+        assert_eq!(s.mode(), Mode::Latin);
+        s.handle(Key::FlipHangul, &Stub(3));
+        assert_eq!(s.mode(), Mode::Hangul);
+        // Turning the script off brings the requested 釋讀 back.
+        s.set_hangul_only(false);
+        assert_eq!(s.mode(), Mode::Seokdok);
     }
 
     #[test]

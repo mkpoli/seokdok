@@ -156,6 +156,14 @@ fn endings_the_chat_runs_into_the_next_word() {
 }
 
 #[test]
+fn words_that_look_like_a_loanword_or_an_ending_keep_their_reading() {
+    // 올리고 and 알리고 are verb forms, not the loanwords oligo- and Aligot.
+    first(&[("올리고", "昇고"), ("알리고", "告리고"), ("가자", "去자"), ("그러나", "其러나")]);
+    // The copula typed as its own word stays Hangul.
+    first(&[("인듯", "인듯"), ("일지도", "일지도"), ("뜻인듯", "意인듯"), ("의미인가요", "意味인가요")]);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "吾ㄹ")]);
 }

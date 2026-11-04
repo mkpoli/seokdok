@@ -778,7 +778,7 @@ impl Engine {
             .filter(|e| match e.kind {
                 Kind::Nominal { entry, .. } => {
                     let nat = &self.natives[entry as usize];
-                    matches!(nat.source, Source::Community | Source::Corpus | Source::Editorial) && matches!(nat.pos, Pos::Noun | Pos::Pron | Pos::Num | Pos::Adv)
+                    matches!(nat.source, Source::Community | Source::Corpus | Source::Editorial | Source::Suggested) && matches!(nat.pos, Pos::Noun | Pos::Pron | Pos::Num | Pos::Adv)
                 }
                 Kind::Sino { entry, .. } => self.sinos.count(entry as usize) > 0,
                 _ => false,

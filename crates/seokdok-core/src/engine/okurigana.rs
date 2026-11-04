@@ -96,40 +96,40 @@ pub(super) fn add_i_spellings(list: &mut Vec<Candidate>) {
 }
 
 impl Engine {
-    /// Where `text` is Hanja, then 들 and at most a particle up to its end,
-    /// the Hanja and that particle.
-    fn plural_parts<'a>(&self, text: &'a str) -> Option<(&'a str, &'a str)> {
-        let (at, _) = text.char_indices().rev().find(|&(i, c)| c == '들' && text[..i].chars().next_back().is_some_and(is_han))?;
-        let (head, rest) = (&text[..at], &text[at + '들'.len_utf8()..]);
-        let known = rest.is_empty() || self.particles.iter().any(|p| compose(&p.comps).strip_prefix('들') == Some(rest));
-        known.then_some((head, rest))
-    }
-
-    /// Follow each candidate with the plural 들 by its 等 and 們 spellings, and
-    /// put the form without 들 before one whose word is already plural.
-    pub(super) fn add_plural_spellings(&self, list: &mut Vec<Candidate>) {
-        if self.options.sino_only || !list.iter().any(|c| c.text.contains('들')) {
-            return;
-        }
-        let mut out: Vec<Candidate> = Vec::with_capacity(list.len() + 2);
-        for c in list.drain(..) {
-            let Some((head, rest)) = self.plural_parts(&c.text) else {
-                out.push(c);
-                continue;
-            };
-            if head.ends_with(['等', '們']) {
-                out.push(Candidate { text: format!("{head}{rest}"), note: c.note.clone() });
-                out.push(c);
-            } else {
-                let spell = |m: char| Candidate { text: format!("{head}{m}{rest}"), note: c.note.clone() };
-                let more = [spell('等'), spell('們')];
-                out.push(c);
-                out.extend(more);
+    /// Add the 等 and 們 spellings of a plural 들 to the forms of edge `e`. A
+    /// word that is already plural (我等 우리) puts the form without 들 first.
+    pub(super) fn add_plural_forms(&self, e: &Edge, forms: &mut Vec<Candidate>) {
+        let (particle, native) = match e.kind {
+            Kind::Nominal { particle: Some(p), .. } => (p, true),
+            Kind::Sino { particle: Some(p), .. } => (p, false),
+            _ => return,
+        };
+        let particle = compose(&self.particles[particle as usize].comps);
+        let Some(rest) = particle.strip_prefix('들') else { return };
+        let mut out = Vec::with_capacity(forms.len() + 2);
+        for c in forms.drain(..) {
+            let head = c.text.strip_suffix(particle.as_str()).filter(|h| h.chars().next_back().is_some_and(is_han)).map(str::to_string);
+            let with = |text: String| Candidate { text, note: c.note.clone() };
+            match head {
+                Some(h) if native && h.ends_with(['等', '們']) => {
+                    out.push(with(format!("{h}{rest}")));
+                    out.push(c);
+                }
+                Some(h) => {
+                    let more = [with(format!("{h}等{rest}")), with(format!("{h}們{rest}"))];
+                    out.push(c);
+                    out.extend(more);
+                }
+                None => out.push(c),
             }
         }
-        let mut seen = std::collections::HashSet::new();
-        out.retain(|c| seen.insert(c.text.clone()));
-        *list = out;
+        *forms = out;
+    }
+
+    /// Whether edge `e` is a word with the plural 들.
+    pub(super) fn is_plural(&self, e: &Edge) -> bool {
+        let (Kind::Nominal { particle: Some(p), .. } | Kind::Sino { particle: Some(p), .. }) = e.kind else { return false };
+        self.particles[p as usize].comps.starts_with(&crate::jamo::decompose("들"))
     }
 
     /// The 末音添記 variants of an edge whose dictionary forms are `dict`, new

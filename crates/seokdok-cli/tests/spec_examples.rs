@@ -571,6 +571,17 @@ fn the_plural_is_also_written_with_hanja() {
     assert_eq!(e.convert("우리들")[0].text, "我等");
     assert_eq!(e.convert("너희들")[0].text, "汝等");
     assert!(offers(&e, "우리들", "我等들"));
-    // 들 of the verb 들다 is left alone.
+    // 들 of the verb 들다 and of a word's own last syllable is left alone.
     assert!(!offers(&e, "손들어", "手等어"));
+    assert!(!offers(&e, "아들", "子等"));
+    assert!(!offers(&e, "물들이", "染等이"));
+    // 平等 is not plural, and other words stay in the list.
+    assert_eq!(e.convert("평등들")[0].text, "平等들");
+    assert!(offers(&e, "길들이", "馴"));
+    assert!(offers(&e, "뎌들", "伊들"));
+    // Reading back.
+    for (written, reading) in [("學生等", "학생들"), ("學生們은", "학생들은"), ("平等", "평등")] {
+        assert_eq!(e.read(written), reading, "{written}");
+    }
+    assert_eq!(e.read("人等은"), e.read("人들은"));
 }

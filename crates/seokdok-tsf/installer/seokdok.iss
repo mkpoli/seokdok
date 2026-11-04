@@ -65,6 +65,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [InstallDelete]
 Type: files; Name: "{app}\seokdok-old-*.dll"
+Type: filesandordirs; Name: "{app}\settings"
 
 [UninstallDelete]
 Type: files; Name: "{app}\seokdok-old-*.dll"

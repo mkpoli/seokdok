@@ -35,7 +35,6 @@ lemma	written	pos	class	source	count	note
 것	事ㅅ	bound		corpus	18	事ㅅ을; also the 釋讀會 welcome message
 저	自	pron		corpus	296	自도, 自ㄴ (전)
 저	僕	pron		corpus	36	僕는
-나	吾	pron		corpus	80	吾ㅣ (내)
 우리	我리	pron		corpus	5	
 처음	初음	noun		corpus	47	
 첫	初ㅅ	det		corpus	14	
@@ -109,3 +108,5 @@ lemma	written	pos	class	source	count	note
 모든	皆ㄴ	det		corpus		皆 다·모두 개
 모두	皆	adv		corpus	57	
 돈	錢	noun		corpus	13	錢 聊(좀) 賜세요 (mkpoli, 2026-11-03)
+나	我	pron		corpus	79	我ㅣ (내), 我는; mkpoli's decision (2026-11-05): 我 first
+나	吾	pron		corpus	70	吾ㅣ (내)

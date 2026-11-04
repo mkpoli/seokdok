@@ -130,7 +130,7 @@ fn a_particle_typed_alone_stays_hangul() {
 #[test]
 fn a_particle_that_is_also_a_word_converts_as_the_word() {
     first(&[
-        ("이", "此"), ("나", "吾"), ("보다", "見다"), ("들", "入ㄹ"), ("같이", "如이"), ("대로", "如"), ("만큼", "許"),
+        ("이", "此"), ("나", "我"), ("보다", "見다"), ("들", "入ㄹ"), ("같이", "如이"), ("대로", "如"), ("만큼", "許"),
         ("들은", "聽은"),
     ]);
 }
@@ -197,7 +197,7 @@ fn context_decides_between_a_verb_and_a_noun_or_particle() {
 
 #[test]
 fn contractions_stay() {
-    first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "吾ㄹ")]);
+    first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "我ㄹ")]);
 }
 
 #[test]

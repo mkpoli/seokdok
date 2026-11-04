@@ -36,8 +36,8 @@ pub struct TextServiceState {
     pub candidate_window: Option<CandidateWindow>,
     /// Screen position (left, bottom) of the focused segment, for the popup.
     pub anchor: Option<(i32, i32)>,
-    /// Text being composed, drawn in the popup instead of the document for
-    /// IMM32 applications (see `composition.rs`).
+    /// Text being composed, drawn in the popup instead of the document when a
+    /// converting composition goes through IMM32 (see `surface.rs`).
     pub floating: Option<Vec<Run>>,
     /// The candidate page last shown.
     pub popup: Option<Popup>,

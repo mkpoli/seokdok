@@ -559,6 +559,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
             for (i, item) in c.items.enumerated() {
                 let cell = CandidateCell(item)
+                cell.heightAnchor.constraint(equalToConstant: 36).isActive = true
                 cell.addAction(UIAction { [weak self] _ in self?.tap { $0.pick(i) } }, for: .touchUpInside)
                 bar.addArrangedSubview(cell)
             }

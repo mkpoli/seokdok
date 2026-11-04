@@ -37,4 +37,8 @@ jq -n --arg v "$version" --arg w "$win" --arg l "$linux" --arg a "$android" \
   --argjson ls "$(stat -c %s "$web/public/downloads/$linux")" \
   --argjson as "$(stat -c %s "$web/public/downloads/$android")" \
   '{version: $v, windows: {file: $w, size: $ws}, linux: {file: $l, size: $ls}, android: {file: $a, size: $as}}' >"$web/src/lib/downloads.json"
+# Cloudflare refuses an asset over 25 MiB, and the whole deploy with it.
+for f in "$web/public/downloads/"*; do
+  [ "$(stat -c %s "$f")" -le 26214400 ] || { echo "$f is over 25 MiB: the site cannot serve it" >&2; exit 1; }
+done
 cat "$web/src/lib/downloads.json"

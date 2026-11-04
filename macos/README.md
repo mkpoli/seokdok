@@ -104,7 +104,10 @@ LANG1 and LANG2 keys), so on such a keyboard `toggle = ["Alt", "Kana"]`,
 as `~/Library/Application Support/seokdok/config.toml`, the same file the
 other front ends read (every key is documented in it), and apply the next
 time a text field gains focus. `custom.json`, exported from
-https://seokdok.mkpo.li/#custom, goes in the same folder.
+https://seokdok.mkpo.li/#custom, goes in the same folder, as does `learned.tsv`,
+the candidates a person picks ([docs/learning.md](../docs/learning.md)). An input
+method is told only about secure entry, so email, URL and number fields can be
+learned from here.
 
 ## Layout
 

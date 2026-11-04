@@ -21,6 +21,9 @@ final class KeyboardViewController: UIInputViewController {
     private var checkGeneration = 0
     /// What the focused field asks for; only `.standard` converts.
     private var layout = Layout.standard
+    /// A long press on the mode key opened the strip's controls for what was
+    /// learned. Without Full Access the app cannot reach this keyboard's files.
+    private var learnMenu = false
 
     /// The simulator shows the system's own globe, so the keyboard asks for
     /// none of its own. A Debug build can be made to show one for the UI
@@ -64,8 +67,24 @@ final class KeyboardViewController: UIInputViewController {
     /// Full Access and a signature that grants the group; without them the
     /// keyboard runs on the defaults.
     private func configDir() -> String? {
-        guard hasFullAccess else { return nil }
-        return AppGroup.containerURL?.path
+        guard hasFullAccess, let group = AppGroup.containerURL?.path else { return nil }
+        adoptOwnPicks(into: group)
+        return group
+    }
+
+    /// Picks kept while Full Access was off are in this keyboard's own folder,
+    /// out of the app's reach. They move to the shared folder, where the app's
+    /// button clears them; a table already there wins.
+    private func adoptOwnPicks(into group: String) {
+        let manager = FileManager.default
+        let own = NSHomeDirectory() + "/.config/seokdok/learned.tsv"
+        guard manager.fileExists(atPath: own) else { return }
+        let shared = group + "/learned.tsv"
+        if manager.fileExists(atPath: shared) {
+            try? manager.removeItem(atPath: own)
+        } else {
+            try? manager.moveItem(atPath: own, toPath: shared)
+        }
     }
 
     override func viewWillAppear(_ animated: Bool) {
@@ -162,6 +181,15 @@ final class KeyboardViewController: UIInputViewController {
         }
     }
 
+    /// A field whose content the system describes as private, on a keyboard
+    /// type that would otherwise convert. Asked as a composition starts, since
+    /// a composition can still be open when the focus has moved on.
+    private func fieldIsPrivate() -> Bool {
+        guard let type = textDocumentProxy.textContentType ?? nil else { return false }
+        let hidden: [UITextContentType] = [.password, .newPassword, .oneTimeCode, .username, .emailAddress, .URL, .telephoneNumber, .creditCardNumber]
+        return hidden.contains(type)
+    }
+
     /// Follow the field in focus. A field that wants another layout is
     /// another field, so what was being composed stays behind in the old one
     /// (the system keeps its marked text as plain text) instead of being
@@ -191,6 +219,7 @@ final class KeyboardViewController: UIInputViewController {
 
     /// Write the session's view into the document and the keyboard.
     private func apply() {
+        learnMenu = false
         let proxy = textDocumentProxy
         if let commit = session.takeCommit() {
             // Replaces the marked text, if any.
@@ -222,6 +251,8 @@ final class KeyboardViewController: UIInputViewController {
         s.runs = runs
         s.candidates = session.candidates()
         s.loading = !Session.ready
+        s.learnMenu = learnMenu
+        s.learnOn = hasFullAccess && AppGroup.containerURL != nil ? nil : Session.learn
         keys.render(s)
     }
 
@@ -240,6 +271,9 @@ extension KeyboardViewController: KeyboardViewDelegate {
             if shift == .once { shift = .off }
             refresh()
             return
+        }
+        if session.preedit().isEmpty {
+            session.setPrivateField(fieldIsPrivate())
         }
         if !session.key(Session.Key.letter, key, shift: shifted) {
             insert(String(shifted ? Character(key.uppercased()) : key))
@@ -326,6 +360,27 @@ extension KeyboardViewController: KeyboardViewDelegate {
             AppGroup.defaults?.set(["seokdok", "sino_only", "hangul_only"][Int(Session.script)], forKey: "script")
         }
         apply()
+    }
+
+    /// A long press on the mode key: the controls for what was learned, here
+    /// because a keyboard without Full Access is out of the app's reach.
+    func toggleLearnMenu() {
+        learnMenu.toggle()
+        refresh()
+    }
+
+    func forgetPicks() {
+        Session.forgetPicks()
+        learnMenu = false
+        session.sync()
+        refresh()
+    }
+
+    func setLearn(_ on: Bool) {
+        Session.learn = on
+        learnMenu = false
+        session.sync()
+        refresh()
     }
 
     func pick(_ index: Int) {

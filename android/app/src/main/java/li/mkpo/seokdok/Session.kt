@@ -6,11 +6,15 @@ class Session {
     @Volatile
     private var handle = 0L
     private var closed = false
+    private var privateField = false
 
     /** Create the native session once the dictionaries are on disk; any thread. */
     @Synchronized
     fun attach(dictDir: String, configDir: String) {
-        if (!closed && handle == 0L) handle = Native.create(dictDir, configDir)
+        if (closed || handle != 0L) return
+        val created = Native.create(dictDir, configDir)
+        Native.setPrivateField(created, privateField)
+        handle = created
     }
 
     /** The native session exists; keys are used only after this. */
@@ -26,6 +30,13 @@ class Session {
     /** Re-read the settings. */
     fun sync() {
         if (handle != 0L) Native.sync(handle)
+    }
+
+    /** The field asks not to be learned from. Kept for a session attached later. */
+    @Synchronized
+    fun setPrivateField(privateField: Boolean) {
+        this.privateField = privateField
+        if (handle != 0L) Native.setPrivateField(handle, privateField)
     }
 
     /** Feed a key; true when the session used it. */

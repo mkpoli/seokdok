@@ -76,6 +76,22 @@ final class Session {
         seokdok_mode_control(ime)
     }
 
+    /// The field wants nothing learned: picks are neither used nor added.
+    func setPrivateField(_ privateField: Bool) {
+        seokdok_set_private_field(ime, privateField)
+    }
+
+    /// `input.learn` in the config.toml in force.
+    static var learn: Bool {
+        get { seokdok_learn() }
+        set { _ = seokdok_set_learn(newValue) }
+    }
+
+    /// Delete learned.tsv beside the config.toml in force, and the table in memory.
+    static func forgetPicks() {
+        _ = seokdok_learned_forget()
+    }
+
     /// Re-read the settings.
     func sync() {
         seokdok_sync(ime)

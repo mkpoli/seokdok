@@ -82,20 +82,27 @@ final class KeyboardViewController: UIInputViewController {
     /// The text changed outside the keyboard (the cursor moved, the app
     /// cleared the field): the document now holds the marked text as plain
     /// text, so drop the composition instead of writing it again. The proxy's
-    /// context can lag behind our own setMarkedText, so a mismatch counts
-    /// only when it persists a moment later; judging at once dropped the
-    /// first jamo of a word on a slow device. A change of field is told apart
-    /// by its layout and cancels any check still waiting.
+    /// context can lag behind our own setMarkedText, by more than a moment
+    /// while the extension is starting, so a mismatch counts only when it
+    /// persists through several looks; judging too soon split the first jamo
+    /// off a word (ㄱㅏ for 가). A change of field is told apart by its layout
+    /// and cancels any check still waiting.
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
         if updateLayout() { return }
         guard marked != nil else { return }
         checkGeneration += 1
-        let generation = checkGeneration
+        checkComposition(generation: checkGeneration, looksLeft: 4)
+    }
+
+    private func checkComposition(generation: Int, looksLeft: Int) {
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.2) { [weak self] in
             guard let self, generation == self.checkGeneration, let m = self.marked else { return }
             let before = self.textDocumentProxy.documentContextBeforeInput ?? ""
-            if !before.hasSuffix(m) {
+            if before.hasSuffix(m) { return }
+            if looksLeft > 1 {
+                self.checkComposition(generation: generation, looksLeft: looksLeft - 1)
+            } else {
                 self.abandonComposition()
             }
         }

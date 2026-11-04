@@ -3,7 +3,7 @@
 //! style.
 
 use crate::conj::{ending_label, ending_surfaces, morph_ending, Ctx};
-use crate::dict::{parse_native, parse_sino, tsv_lines, Native, Pos, Source, Tail};
+use crate::dict::{parse_native, parse_sino, tsv_file, tsv_lines, Native, Pos, Source, Tail};
 use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify};
 use crate::fold::{foldable, has_era_only, has_old, modern_mask, parse, readings, Reading, Syl, ALL, MAX_READINGS_MODERN, MAX_READINGS_OLD, STRONG};
 use crate::old_spelling::{ends_in_hanja, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant};
@@ -451,44 +451,64 @@ impl Builder {
     /// Add a 訓讀 dictionary (`native.tsv` format).
     pub fn native(&mut self, label: &str, text: &str) {
         for (line, f) in tsv_lines(text) {
-            match parse_native(&f) {
-                Ok(mut e) => {
-                    e.origin = (label.to_string(), line);
-                    self.natives.push(e)
-                }
-                Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
+            self.native_row(label, line, &f);
+        }
+    }
+
+    /// As [`Builder::native`], reading the file a line at a time; lines before
+    /// a read error stay added.
+    pub fn native_file(&mut self, label: &str, path: &std::path::Path) -> std::io::Result<()> {
+        tsv_file(path, |line, f| self.native_row(label, line, f))
+    }
+
+    fn native_row(&mut self, label: &str, line: usize, f: &[&str]) {
+        match parse_native(f) {
+            Ok(mut e) => {
+                e.origin = (label.to_string(), line);
+                self.natives.push(e)
             }
+            Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
         }
     }
 
     /// Add a 音讀 dictionary (`sino.tsv` format). A pair already present
     /// keeps its first entry, with the lowest cost any file gives it.
     pub fn sino(&mut self, label: &str, text: &str) {
-        use std::hash::{BuildHasher, Hash, Hasher};
         for (line, f) in tsv_lines(text) {
-            match parse_sino(&f) {
-                Ok(e) if f.get(3) == Some(&"hun") => self.hun.push((e.reading.into(), e.hanja.into())),
-                Ok(e) if f.get(3) == Some(&"loanword") => {
-                    self.loans.insert(e.reading.into());
-                }
-                Ok(e) => {
-                    let mut h = self.index.hasher().build_hasher();
-                    (&*e.reading, &*e.hanja).hash(&mut h);
-                    let key = h.finish();
-                    match self.index.get(&key).map(|&i| i as usize) {
-                        Some(i) if self.sinos.reading(i) == &*e.reading && self.sinos.hanja(i) == &*e.hanja => {
-                            let kept = &mut self.sinos.entries[i];
-                            kept.cost = kept.cost.min(e.cost);
-                            kept.count = kept.count.saturating_add(e.count);
-                        }
-                        _ => {
-                            self.index.entry(key).or_insert(self.sinos.len() as u32);
-                            self.sinos.push(&e.reading, &e.hanja, e.cost, e.count);
-                        }
+            self.sino_row(label, line, &f);
+        }
+    }
+
+    /// As [`Builder::sino`], reading the file a line at a time; lines before a
+    /// read error stay added.
+    pub fn sino_file(&mut self, label: &str, path: &std::path::Path) -> std::io::Result<()> {
+        tsv_file(path, |line, f| self.sino_row(label, line, f))
+    }
+
+    fn sino_row(&mut self, label: &str, line: usize, f: &[&str]) {
+        use std::hash::{BuildHasher, Hash, Hasher};
+        match parse_sino(f) {
+            Ok(e) if f.get(3) == Some(&"hun") => self.hun.push((e.reading.into(), e.hanja.into())),
+            Ok(e) if f.get(3) == Some(&"loanword") => {
+                self.loans.insert(e.reading.into());
+            }
+            Ok(e) => {
+                let mut h = self.index.hasher().build_hasher();
+                (&*e.reading, &*e.hanja).hash(&mut h);
+                let key = h.finish();
+                match self.index.get(&key).map(|&i| i as usize) {
+                    Some(i) if self.sinos.reading(i) == &*e.reading && self.sinos.hanja(i) == &*e.hanja => {
+                        let kept = &mut self.sinos.entries[i];
+                        kept.cost = kept.cost.min(e.cost);
+                        kept.count = kept.count.saturating_add(e.count);
+                    }
+                    _ => {
+                        self.index.entry(key).or_insert(self.sinos.len() as u32);
+                        self.sinos.push(&e.reading, &e.hanja, e.cost, e.count);
                     }
                 }
-                Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
             }
+            Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
         }
     }
 
@@ -544,20 +564,20 @@ impl Engine {
     pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "editorial-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv", "loanwords.tsv", "hun.tsv"];
 
     /// Load every known dictionary file present in `dir`.
-    /// One file is read at a time and dropped once parsed, which keeps the
-    /// peak low (the iOS keyboard extension has little memory).
+    /// Files are read a line at a time, which keeps the peak low (the iOS
+    /// keyboard extension has little memory).
     pub fn from_dir(dir: &std::path::Path, options: Options) -> std::io::Result<(Engine, Vec<String>)> {
         let mut b = Builder::new();
         for n in Self::NATIVE_FILES {
             let p = dir.join(n);
             if p.exists() {
-                b.native(n, &std::fs::read_to_string(&p)?);
+                b.native_file(n, &p)?;
             }
         }
         for n in Self::SINO_FILES {
             let p = dir.join(n);
             if p.exists() {
-                b.sino(n, &std::fs::read_to_string(&p)?);
+                b.sino_file(n, &p)?;
             }
         }
         Ok(b.build(options))

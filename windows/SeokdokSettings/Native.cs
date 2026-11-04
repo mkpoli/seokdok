@@ -20,6 +20,8 @@ internal static partial class Native
     [LibraryImport(Dll)] public static partial void seokdok_popup_info(IntPtr ime, out nuint selected, out nuint position, out nuint total, [MarshalAs(UnmanagedType.U1)] out bool horizontal);
     [LibraryImport(Dll)] public static partial void seokdok_set_mode(IntPtr ime, int mode);
     [LibraryImport(Dll)] public static partial void seokdok_reload(IntPtr ime);
+    [LibraryImport(Dll)] public static partial void seokdok_set_private_field(IntPtr ime, [MarshalAs(UnmanagedType.U1)] bool privateField);
+    [LibraryImport(Dll)][return: MarshalAs(UnmanagedType.U1)] public static partial bool seokdok_learned_forget();
     [LibraryImport(Dll)][return: MarshalAs(UnmanagedType.U1)] public static partial bool seokdok_ready();
 
     [LibraryImport(Dll)] private static partial IntPtr seokdok_config_json();

@@ -105,6 +105,12 @@ public:
 
     State *state(fcitx::InputContext *ic) { return ic->propertyFor(&factory_); }
 
+    // Picks are neither used nor kept in these fields.
+    static bool isPrivateField(fcitx::InputContext *ic) {
+        using fcitx::CapabilityFlag;
+        return ic->capabilityFlags().testAny(fcitx::CapabilityFlags{CapabilityFlag::Password, CapabilityFlag::Sensitive, CapabilityFlag::Email, CapabilityFlag::Url, CapabilityFlag::Digit, CapabilityFlag::Number, CapabilityFlag::Dialable});
+    }
+
     void activate(const fcitx::InputMethodEntry &, fcitx::InputContextEvent &event) override {
         seokdok_sync(state(event.inputContext())->ime);
     }
@@ -139,6 +145,7 @@ public:
         const fcitx::KeyStates states = key.states();
         const fcitx::KeyStates shortcut{fcitx::KeyState::Ctrl, fcitx::KeyState::Alt, fcitx::KeyState::Super};
         const char *name = keyName(sym);
+        seokdok_set_private_field(st->ime, isPrivateField(ic));
 
         if (event.isRelease()) {
             if (sym == st->modeKeyHeld) {

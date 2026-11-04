@@ -240,6 +240,61 @@ impl Default for Composer {
     }
 }
 
+/// What the reader keeps picking: the table the input methods use, with the
+/// page holding its text (web/src/lib/learned.js).
+#[wasm_bindgen]
+pub struct Learned {
+    inner: seokdok_session::learned::Learned,
+}
+
+#[wasm_bindgen]
+impl Learned {
+    /// The table in `text`, as [`Learned::to_text`] writes it; empty for
+    /// anything else.
+    #[wasm_bindgen(constructor)]
+    pub fn new(text: &str) -> Learned {
+        Learned { inner: seokdok_session::learned::Learned::parse(text).unwrap_or_default() }
+    }
+
+    #[wasm_bindgen(js_name = isEmpty)]
+    pub fn is_empty(&self) -> bool {
+        self.inner.is_empty()
+    }
+
+    /// `text` was committed for `reading`; `first` says it was the first
+    /// candidate shown. True when the table changed.
+    pub fn commit(&mut self, reading: &str, text: &str, first: bool) -> bool {
+        self.inner.commit(reading, text, first)
+    }
+
+    /// Whether some form of this reading has been picked enough.
+    pub fn promotes(&self, reading: &str) -> bool {
+        self.inner.promotes(reading)
+    }
+
+    /// The index of the learned form in a JSON array of candidate texts, or -1.
+    #[wasm_bindgen(js_name = rankIndex)]
+    pub fn rank_index(&self, reading: &str, texts: &str) -> i32 {
+        let texts: Vec<String> = serde_json::from_str(texts).unwrap_or_default();
+        self.inner.learned_at(reading, texts.iter().map(String::as_str)).map_or(-1, |at| at as i32)
+    }
+
+    /// The runs of adjacent segments to join, from a JSON array of readings:
+    /// `[[start, end], …]`.
+    pub fn joins(&self, readings: &str) -> String {
+        let readings: Vec<String> = serde_json::from_str(readings).unwrap_or_default();
+        let readings: Vec<&str> = readings.iter().map(String::as_str).collect();
+        let runs: Vec<Value> = self.inner.joins(&readings).into_iter().map(|r| json!([r.start, r.end])).collect();
+        to_js_string(&Value::Array(runs))
+    }
+
+    /// The table as text, to store.
+    #[wasm_bindgen(js_name = toText)]
+    pub fn to_text(&self) -> String {
+        self.inner.to_text()
+    }
+}
+
 /// The Hangul jamo a QWERTY key types in 두벌식, or "" (for the on-screen keyboard).
 #[wasm_bindgen(js_name = keyToJamo)]
 pub fn key_to_jamo(key: &str) -> String {

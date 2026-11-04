@@ -1,7 +1,8 @@
 <script>
-  import { Composer } from '../pkg/seokdok.js'
+  import { Composer, Learned } from '../pkg/seokdok.js'
   import { engine } from './lib/engine.svelte.js'
   import { Ime } from './lib/ime.svelte.js'
+  import { Picks, STORAGE_KEY } from './lib/learned.js'
   import TopBar from './ui/TopBar.svelte'
   import Hero from './ui/Hero.svelte'
   import ImePanel from './ui/ImePanel.svelte'
@@ -24,6 +25,16 @@
     async (text) => output(await engine.convert(input(text))),
   )
 
+  let storage = null
+  try {
+    storage = localStorage
+  } catch {}
+  const picks = new Picks(Learned, storage)
+  addEventListener('pagehide', () => picks.flush())
+  addEventListener('storage', (e) => {
+    if (e.key === STORAGE_KEY || e.key === null) picks.reload()
+  })
+
   /** Put a word into the input method and convert it (from the word grid). */
   async function tryWord(word) {
     if (ime.segs) ime.commit()
@@ -41,7 +52,7 @@
 <TopBar />
 <main>
   <Hero />
-  <ImePanel {ime} />
+  <ImePanel {ime} {picks} />
   <OldHangul />
   <Custom />
   <Samples onopen={tryWord} />

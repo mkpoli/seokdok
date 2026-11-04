@@ -34,3 +34,11 @@ test('the site switch leaves 韓㐎 專用 alone when it turns 國漢文混用 o
   options.sinoOnly = true
   expect(options.script).toBe('sino')
 })
+
+test('the 하 → ᄒᆞ setting is off by default and remembered', () => {
+  expect(DEFAULTS.oldHa).toBe(false)
+  expect(options.oldHa).toBe(false)
+  options.oldHa = true
+  expect({ ...options }.oldHa).toBe(true)
+  options.oldHa = false
+})

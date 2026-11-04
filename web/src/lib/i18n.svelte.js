@@ -78,6 +78,8 @@ const ko = {
     coda: '{末音添記|말음첨기} 늘 {書|쓰}기 (有ㅆ다)',
     resyllabify: '받침 {移|넘기}기 (在쓰면)',
     hada: '하다를 爲로 (安寧爲세요)',
+    oldHa: '하 → ᄒᆞ {優先|우선}',
+    oldHaTip: '하·한·할·함·합·해의 {古|예}ㅅ{韓㐎|한글} {表記|표기}(ᄒᆞ ᄒᆞᆫ ᄒᆞᆯ ᄒᆞᆷ ᄒᆞᆸ ᄒᆡ)를 {現代|현대} {表記|표기}보다 {先|먼저} {置|둡}니다. 하고 → ᄒᆞ고, 追加할까요 → 追加ᄒᆞᆯ까요. {解|끄}면 {現代|현대} {表記|표기} {後|뒤}에 {置|둡}니다.',
   },
   convert: {
     eyebrow: '{變換|변환}',
@@ -324,6 +326,8 @@ const en = {
     coda: 'Always write the final consonant (有ㅆ다)',
     resyllabify: 'Carry it to the next syllable (在쓰면)',
     hada: '爲 for 하다 (安寧爲세요)',
+    oldHa: '하 → ᄒᆞ first',
+    oldHaTip: 'Puts the old spelling of 하 한 할 함 합 해 (ᄒᆞ ᄒᆞᆫ ᄒᆞᆯ ᄒᆞᆷ ᄒᆞᆸ ᄒᆡ) before the modern one: 하고 → ᄒᆞ고, 追加할까요 → 追加ᄒᆞᆯ까요. Off, the old spelling is offered after the modern one.',
   },
   convert: {
     eyebrow: 'Convert',

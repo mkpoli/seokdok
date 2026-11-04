@@ -8,6 +8,8 @@ pub mod jamo;
 pub mod dict;
 pub mod dubeolsik;
 mod old_jamo;
+mod fold;
+mod old_spelling;
 pub mod engine;
 pub mod particles;
 

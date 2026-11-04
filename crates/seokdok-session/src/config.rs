@@ -376,10 +376,9 @@ max_candidates = {max}
     }
 }
 
-/// A TOML array of strings on one line. Key names have no quotes or
-/// backslashes, so any that appear are dropped.
+/// A TOML array of strings on one line.
 fn toml_list(items: &[String]) -> String {
-    let quoted: Vec<String> = items.iter().map(|s| format!("\"{}\"", s.replace(['"', '\\'], ""))).collect();
+    let quoted: Vec<String> = items.iter().map(|s| toml::Value::String(s.clone()).to_string()).collect();
     format!("[{}]", quoted.join(", "))
 }
 
@@ -496,10 +495,10 @@ mod tests {
     }
 
     #[test]
-    fn stray_quotes_cannot_break_the_file() {
+    fn any_string_in_a_list_survives_the_file() {
         let mut c = Config::default();
-        c.input.keys.toggle = vec!["bad\"entry\\".into()];
-        assert_eq!(Config::parse(&c.to_documented_toml()).input.keys.toggle, ["badentry"]);
+        c.input.keys.toggle = vec!["bad\"entry\\".into(), "F12\n".into(), "\t한/영".into()];
+        assert_eq!(Config::parse(&c.to_documented_toml()), c);
     }
 
     #[test]

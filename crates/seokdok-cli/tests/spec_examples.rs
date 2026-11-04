@@ -261,7 +261,9 @@ fn other_okurigana_follow_the_dictionary_form() {
         ("가깝고", &["近고", "近깝고"]),
     ] {
         let got = candidates(&e, input);
-        assert!(in_order(&got, want), "{input}: {want:?} not in order in {got:?}");
+        // Another entry may already write a form in the dictionary, which puts
+        // it earlier, so presence is what holds here.
+        assert!(want.iter().all(|w| got.iter().any(|c| c == w)), "{input}: {want:?} not all in {got:?}");
         // The dictionary form stays first and nothing is listed twice.
         assert_eq!(got[0], want[0], "{input}");
         let mut seen = std::collections::HashSet::new();
@@ -274,6 +276,9 @@ fn other_okurigana_follow_the_dictionary_form() {
     // The dictionary forms of a word come before its other forms.
     let got = candidates(&e, "오히려");
     assert!(got.iter().position(|c| c == "尙려") < got.iter().position(|c| c == "尙히려"));
+    // Attested spellings of every reading come before constructed ones.
+    let got = candidates(&e, "이것");
+    assert!(got.iter().position(|c| c == "此物") < got.iter().position(|c| c == "此ㅅ"), "{got:?}");
 }
 
 #[test]

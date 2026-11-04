@@ -356,6 +356,51 @@ fn demonstratives_of_place_side_and_time() {
 }
 
 #[test]
+fn verb_variants_keep_the_syllables_of_the_word() {
+    let e = engine(Options::default());
+    // The syllables from the second on, joined as typed.
+    for (input, want) in [("마신", "飮신"), ("마셔라", "飮셔라"), ("바빠", "忙빠"), ("바빴다", "忙빴다")] {
+        let got = candidates(&e, input);
+        assert!(got.iter().any(|c| c == want), "{input} → {want} in {got:?}");
+    }
+    // Nothing is made of a composed stem and a rendered ending.
+    for bad in ["飮시ㄴ", "飮시라", "近깝ㅂ고", "近까았다"] {
+        assert!(!candidates(&e, "마신").contains(&bad.to_string()) && !candidates(&e, "마셔라").contains(&bad.to_string()), "{bad}");
+    }
+    // The style options leave the variants as they are.
+    for o in [
+        Options { coda_always: true, ..Options::default() },
+        Options { style: Style::Morpheme, ..Options::default() },
+        Options { fragment: Fragment::Letter, ..Options::default() },
+        Options { resyllabify: true, ..Options::default() },
+    ] {
+        let e = engine(o);
+        for (input, want) in [("가깝고", "近깝고"), ("가까웠다", "近까웠다"), ("마셔라", "飮셔라"), ("바빠", "忙빠")] {
+            let got = candidates(&e, input);
+            assert!(got.iter().any(|c| c == want), "{input} → {want} in {got:?}");
+        }
+        for (input, bad) in [("가깝고", "近깝ㅂ고"), ("가까웠다", "近까았다")] {
+            assert!(!candidates(&e, input).iter().any(|c| c == bad), "{input} → {bad}");
+        }
+    }
+}
+
+#[test]
+fn reading_variants_does_not_depend_on_the_options() {
+    for o in [
+        Options::default(),
+        Options { coda_always: true, ..Options::default() },
+        Options { style: Style::Morpheme, ..Options::default() },
+        Options { fragment: Fragment::Letter, ..Options::default() },
+        Options { resyllabify: true, ..Options::default() },
+    ] {
+        let e = engine(o.clone());
+        for (written, read) in [("近깝고", "가깝고"), ("近까웠다", "가까웠다"), ("忙빠", "바빠"), ("忙빴다", "바빴다")] {
+            assert_eq!(e.read(written), read, "{written} with {o:?}");
+        }
+    }
+}
+
 fn the_group_reads_as_its_own_name() {
     let e = engine(Options::default());
     assert_eq!(e.convert("풀어읽기모임")[0].text, "釋讀會");

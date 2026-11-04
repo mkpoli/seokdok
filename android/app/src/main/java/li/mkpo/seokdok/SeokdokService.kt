@@ -10,6 +10,7 @@ import android.text.SpannableString
 import android.text.Spanned
 import android.text.style.BackgroundColorSpan
 import android.text.style.UnderlineSpan
+import android.util.Log
 import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
@@ -29,16 +30,34 @@ class SeokdokService : InputMethodService(), KeyboardListener {
     /** Password, number, e-mail and URL fields: keys go straight through. */
     private var passthrough = false
     private var lastShiftTap = 0L
+    /** The dictionaries are on disk and the engine has loaded them. */
+    private val loaded: Boolean get() = session.attached && Session.ready
     private val timer = Handler(Looper.getMainLooper())
     private val pollReady = object : Runnable {
         override fun run() {
-            if (Session.ready) refresh() else timer.postDelayed(this, 200)
+            if (loaded) refresh() else timer.postDelayed(this, 200)
         }
     }
 
     override fun onCreate() {
         super.onCreate()
-        session = Session(Files.dictDir(this).path, Files.configDir(this).path)
+        session = Session()
+        // The first run (and each update) copies the dictionaries, about 20 MB;
+        // that happens off the main thread. The strip shows "loading" and keys
+        // are held back until the native session exists.
+        val started = SystemClock.elapsedRealtime()
+        Thread({
+            val dict = Files.dictDir(this).path
+            val config = Files.configDir(this).path
+            val copied = SystemClock.elapsedRealtime() - started
+            session.attach(dict, config)
+            Log.i(TAG, "dictionaries ready after $copied ms, session attached")
+            timer.post {
+                session.sync()
+                if (keyboard != null) refresh()
+                if (!loaded) timer.post(pollReady)
+            }
+        }, "seokdok-dict").start()
     }
 
     override fun onDestroy() {
@@ -52,6 +71,9 @@ class SeokdokService : InputMethodService(), KeyboardListener {
         keyboard = view
         return view
     }
+
+    /** In landscape the system would replace the app with its own light extract editor, also at night. */
+    override fun onEvaluateFullscreenMode(): Boolean = false
 
     override fun onStartInput(attribute: EditorInfo, restarting: Boolean) {
         super.onStartInput(attribute, restarting)
@@ -72,7 +94,7 @@ class SeokdokService : InputMethodService(), KeyboardListener {
         session.sync()
         state = state.copy(shift = false, capsLock = false, enterLabel = enterLabel(info), globe = offersSwitching())
         refresh()
-        if (!Session.ready) timer.post(pollReady)
+        if (!loaded) timer.post(pollReady)
     }
 
     override fun onFinishInputView(finishingInput: Boolean) {
@@ -141,7 +163,7 @@ class SeokdokService : InputMethodService(), KeyboardListener {
         val preedit = runs ?: session.preedit()
         state = state.copy(mode = if (passthrough) Session.LATIN else session.mode, composing = preedit.isNotEmpty())
         kb.update(state)
-        kb.show(session.candidates(), preedit, loading = !Session.ready && !passthrough)
+        kb.show(session.candidates(), preedit, loading = !loaded && !passthrough)
     }
 
     /** The preedit underlined, the segment being converted highlighted. */
@@ -280,6 +302,7 @@ class SeokdokService : InputMethodService(), KeyboardListener {
     }
 
     private companion object {
+        const val TAG = "Seokdok"
         const val DOUBLE_TAP_MS = 300L
         val LATIN_VARIATIONS = setOf(
             InputType.TYPE_TEXT_VARIATION_PASSWORD,

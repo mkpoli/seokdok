@@ -11,7 +11,7 @@ const ko = {
     kicker: '{釋讀會|풀어읽기모임} {御製|어제}',
     title1: '{韓㐎|한글}로 {打|치}면',
     title2: '{漢字|한자}로 {解|풀}어 {記|적}는다',
-    lede: '{漢字語|한자어}는 {音|소리}로, {固有語|고유어}는 {意|뜻}으로. {韓國語|한국어}를 {其|그}대로 {打|치}고 Space를 {押|누르}면 {音讀|음독}・{訓讀|훈독}・{送韓字|송한자}가 한꺼번에 {出|나}옵니다. {入力器|입력기}가 {無|없}어도 {此|이} 페이지에서 바로 {書|써} {見|보}ㄹ 수 {有|있}습니다.',
+    lede: '{漢字語|한자어}는 {音|소리}로, {固有語|고유어}는 {意|뜻}으로. {韓國語|한국어}를 {其|그}대로 {打|치}고 Space를 {押|누르}면 {音讀|음독}・{訓讀|훈독}・{送韓字|송한자}가 한꺼번에 {出|나}옵니다. {入力器|입력기}가 {無|없}어도 {此|이} 페이지에서 바로 {書|써} {見|보}ㄹ {手|수} {有|있}습니다.',
     try: '바로 {書|써} {見|보}기',
     join: '텔레그램 {會|모임}',
   },
@@ -84,7 +84,7 @@ const ko = {
   convert: {
     eyebrow: '{變換|변환}',
     title: '{韓㐎|한글}을 {釋讀文|석독문}으로',
-    lede: '{韓㐎|한글} {文|글}을 {貼|붙여} {入|넣}으면 {個言|낱말}마다 {變換|변환}합니다. {個言|낱말}에 마우스를 {置|올리}거나 {押|누르}면 {他|다른} {候補|후보}를 {選|고를} 수 {有|있}습니다.',
+    lede: '{韓㐎|한글} {文|글}을 {貼|붙여} {入|넣}으면 {個言|낱말}마다 {變換|변환}합니다. {個言|낱말}에 마우스를 {置|올리}거나 {押|누르}면 {他|다른} {候補|후보}를 {選|고를} {手|수} {有|있}습니다.',
     sample: '하늘을 보며 이것저것 생각하는 게 좋아요\n대충 사 주세요',
     input: '{韓㐎|한글} {入力|입력}',
     result: '{變換|변환} {結果|결과}',
@@ -125,9 +125,9 @@ const ko = {
   custom: {
     eyebrow: '{自作|자작}',
     title: '{自己|자기}만의 {規則|규칙}',
-    lede: 'RIME처럼 {規則|규칙}과 {個言|낱말}을 {直接|직접} {定|정}합니다. {此|이} {瀏覽器|브라우저}에 {保存|저장}되고, JSON으로 {共有|공유}할 수 {有|있}습니다.',
+    lede: 'RIME처럼 {規則|규칙}과 {個言|낱말}을 {直接|직접} {定|정}합니다. {此|이} {瀏覽器|브라우저}에 {保存|저장}되고, JSON으로 {共有|공유}할 {手|수} {有|있}습니다.',
     tabs: { rules: '{規則|규칙}', phrases: '{自作|자작} {個言|낱말}', words: '{訓讀|훈독} {個言|낱말}', share: '{共有|공유}' },
-    rulesHelp: '{上|위}에서부터 {次例|차례}로 {適用|적용}합니다. {入力|입력} {規則|규칙}은 {變換|변환} {前|전}의 {韓㐎|한글}을, {出力|출력} {規則|규칙}은 {候補|후보}마다 {適用|적용}됩니다. 「{加|더하}기」는 {原來|원래} {候補|후보}를 {殘|남}기고 {新|새} {候補|후보}를 {後|뒤}에 {添|붙}입니다. regex에서는 $1 같은 {參照|참조}를 {用|쓸} 수 {有|있}습니다.',
+    rulesHelp: '{上|위}에서부터 {次例|차례}로 {適用|적용}합니다. {入力|입력} {規則|규칙}은 {變換|변환} {前|전}의 {韓㐎|한글}을, {出力|출력} {規則|규칙}은 {候補|후보}마다 {適用|적용}됩니다. 「{加|더하}기」는 {原來|원래} {候補|후보}를 {殘|남}기고 {新|새} {候補|후보}를 {後|뒤}에 {添|붙}입니다. regex에서는 $1 같은 {參照|참조}를 {用|쓸} {手|수} {有|있}습니다.',
     presets: '{例|예}:',
     on: '{使用|사용}',
     stage: '{段階|단계}',
@@ -163,7 +163,7 @@ const ko = {
   samples: {
     eyebrow: '{例文|예문}',
     title: '{名文|명문}을 {釋讀|석독}으로',
-    lede: '{訓民正音|훈민정음}에서 {詩|시}와 {百科|백과}까지, {原文|원문}을 {其|그}대로 {入|넣}어 {變換|변환}했습니다. {入力器|입력기}에서 {開|열}면 {節|마디}마다 {他|다른} {候補|후보}를 {見|보}ㄹ 수 {有|있}습니다.',
+    lede: '{訓民正音|훈민정음}에서 {詩|시}와 {百科|백과}까지, {原文|원문}을 {其|그}대로 {入|넣}어 {變換|변환}했습니다. {入力器|입력기}에서 {開|열}면 {節|마디}마다 {他|다른} {候補|후보}를 {見|보}ㄹ {手|수} {有|있}습니다.',
     kinds: { all: '{全部|전부}', classic: '{古典|고전}', poem: '{詩|시}', wiki: '{百科|백과}', law: '{法|법}' },
     open: '{入力器|입력기}에서 {開|열}기',
     original: '{原文|원문}',
@@ -207,7 +207,7 @@ const ko = {
   install: {
     eyebrow: '{設置|설치}',
     title: '{自己|제} 컴퓨터에서 {書|쓰}기',
-    lede: '{此|이} {頁|쪽}과 {同|같}은 엔진과 {辭典|사전}을 {用|쓰}는 {入力器|입력기}입니다. Windows와 Linux(fcitx5)를 {支援|지원}합니다.',
+    lede: '{此|이} {頁|쪽}과 {同|같}은 엔진과 {辭典|사전}을 {用|쓰}는 {入力器|입력기}입니다. Windows, Linux(fcitx5), Android를 {支援|지원}합니다.',
     download: '{下|내}려{受|받}기',
     windows: [
       '{下|내}려{受|받}은 {設置|설치} 파일을 {實行|실행}합니다. {管理者|관리자} {權限|권한}을 {求|구}합니다.',
@@ -217,7 +217,7 @@ const ko = {
       '{壓縮|압축}을 {解|풀}고 install.sh를 {實行|실행}합니다. sudo {無|없}이 {此|이} {使用者|사용자}에게만 {設置|설치}합니다.',
       'fcitx5를 {再|다시} {始作|시작}하고, fcitx5-configtool에서 「Only Show Current Language」를 {解除|해제}한 {後|뒤} {釋讀|석독}을 {加|더}합니다.',
     ],
-    more: 'iOS · macOS · Android',
+    more: 'iOS · macOS',
     moreNote: '{未|아직} {配布|배포}{前|전}입니다. 소스에서 {直接|직접} 빌드하여 {試|시험}해 {見|볼} {手|수} {有|있}습니다.',
     source: '소스와 {案內|안내}',
     ios: [
@@ -231,9 +231,9 @@ const ko = {
       '메뉴 막대의 입력 메뉴에서 {釋讀|석독}을 {選|고르}ㅂ니다.',
     ],
     android: [
-      'Android Studio나 Gradle로 APK를 빌드하여 {設置|설치}합니다.',
-      '{釋讀|석독} 앱에서 키보드를 {有效化|유효화}하고, {入力器|입력기}로 {選|고르}ㅂ니다.',
-      'Space로 {變換|변환}하고, {候補|후보}를 {押|눌러} {確定|확정}합니다.',
+      '{下|내}려{受|받}은 APK를 엽니다. 「출처를 알 수 없는 앱」 {設置|설치}를 {許容|허용}하라는 {案內|안내}가 나오면, APK를 연 브라우저나 파일 앱에 {許容|허용}합니다.',
+      '{設置|설치}한 뒤 {釋讀|석독} 앱을 엽니다. 「키보드 設定 열기」에서 {釋讀|석독}을 켭니다.',
+      '글을 쓰는 곳에서 「入力 方法 고르기」나 키보드의 ⇆ 키로 {釋讀|석독}을 {選|고르}ㅂ니다. Space로 {變換|변환}하고, {候補|후보}를 {押|눌러} {確定|확정}합니다.',
     ],
     system: '{全|모든} {使用者|사용자}에게:',
     remove: '{削除|삭제}:',
@@ -455,7 +455,7 @@ const en = {
   install: {
     eyebrow: 'Install',
     title: 'Type it on your own computer',
-    lede: 'A system input method with the same engine and dictionaries as this page, for Windows and for Linux (fcitx5).',
+    lede: 'A system input method with the same engine and dictionaries as this page, for Windows, Linux (fcitx5) and Android.',
     download: 'Download',
     windows: [
       'Run the downloaded setup. It asks for administrator rights.',
@@ -465,7 +465,7 @@ const en = {
       'Unpack and run install.sh. It installs for your user only, without sudo.',
       'Restart fcitx5, then add 釋讀 in fcitx5-configtool (untick “Only Show Current Language” to find it).',
     ],
-    more: 'iOS · macOS · Android',
+    more: 'iOS · macOS',
     moreNote: 'Not released yet. You can build them from source and try them.',
     source: 'Source and guide',
     ios: [
@@ -479,9 +479,9 @@ const en = {
       'Pick 釋讀 in the input menu of the menu bar.',
     ],
     android: [
-      'Build the APK with Android Studio or Gradle and install it.',
-      'Enable the keyboard from the 釋讀 app and choose it as your input method.',
-      'Space converts; tap a candidate to confirm.',
+      'Open the downloaded APK. If Android asks to allow installing apps from unknown sources, allow it for the browser or file manager you opened the APK from.',
+      'After installing, open the 釋讀 app and use “Keyboard settings” to turn 釋讀 on.',
+      'Where you type, pick 釋讀 with “Choose input method” or the ⇆ key on the keyboard. Space converts; tap a candidate to confirm.',
     ],
     system: 'For all users:',
     remove: 'Uninstall:',
@@ -532,6 +532,8 @@ const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>'
 
 /** A mark read by its characters' own Sino-Korean readings (音讀). */
 export function isSino(hanja, reading) {
+  // 手 for the bound noun 수 goes by meaning, though 手 also reads 수 by sound.
+  if (hanja === '手' && reading === '수') return false
   const h = [...hanja]
   const k = [...reading]
   return h.length === k.length && h.every((c, i) => SINO[c]?.includes(k[i]))

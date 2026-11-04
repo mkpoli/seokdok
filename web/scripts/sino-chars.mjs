@@ -7,7 +7,7 @@ import { join } from 'node:path'
 
 const web = join(import.meta.dirname, '..')
 const dict = join(web, '..', 'dict')
-const sources = [join(web, 'src/lib/i18n.svelte.js'), ...readdirSync(join(web, 'src/ui')).map((f) => join(web, 'src/ui', f))]
+const sources = [join(web, 'src/lib/i18n.svelte.js'), join(web, 'src/lib/pages.js'), ...readdirSync(join(web, 'src/ui')).map((f) => join(web, 'src/ui', f))]
 const used = new Set()
 for (const f of sources) {
   for (const [, h] of readFileSync(f, 'utf8').matchAll(/\{([^|}]+)\|[^}]+\}/g)) for (const c of h) used.add(c)

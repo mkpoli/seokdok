@@ -738,8 +738,10 @@ impl Engine {
     /// choices for the same word (see [`Engine::okurigana`]).
     fn render(&self, comps: &[char], e: &Edge) -> Vec<Candidate> {
         let mut out = self.render_dict(comps, e);
-        let more = self.okurigana(e, &out, true);
-        out.extend(more);
+        if !self.options.sino_only {
+            let more = self.okurigana(comps, e, &out, true);
+            out.extend(more);
+        }
         out
     }
 

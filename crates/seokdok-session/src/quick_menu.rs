@@ -186,12 +186,28 @@ pub enum Check {
     Plain,
 }
 
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub enum Entry {
     Separator,
-    /// The title of a group, not selectable.
-    Heading(&'static str),
-    Choice { action: Action, label: &'static str, check: Check },
+    /// A line that cannot be chosen: a group's title, or with `hint` a key that
+    /// has no entry of its own (변환).
+    Heading { label: &'static str, hint: String },
+    /// `hint` names the keys that do the same, empty when none is bound.
+    Choice { action: Action, label: &'static str, check: Check, hint: String },
+}
+
+/// Keys found only on Japanese keyboards.
+const JIS_KEYS: [&str; 5] = ["Zenkaku", "Henkan", "Muhenkan", "ImeOn", "ImeOff"];
+/// How many keys a hint names: enough to recognise one's own, and short.
+const HINT_KEYS: usize = 2;
+
+/// `keys` as a hint: what this keyboard can press, with the Korean keys under
+/// their printed names.
+fn hint(keys: &[&[String]], jis: bool) -> String {
+    let usable = |k: &&String| jis || !k.split('+').any(|part| JIS_KEYS.contains(&part));
+    let list = keys.iter().map(|l| l.iter().filter(usable).collect::<Vec<_>>()).find(|l| !l.is_empty()).unwrap_or_default();
+    let name = |k: &String| k.replace("Hangul", "한/영").replace("Hanja", "한자");
+    list.into_iter().take(HINT_KEYS).map(name).collect::<Vec<_>>().join(", ")
 }
 
 const SCRIPTS: [(Script, &str); 3] = [
@@ -205,7 +221,15 @@ const MODES: [(Mode, &str); 3] =
 
 /// The menu for these settings, with `shown` the input mode in use. Settings…
 /// is always there, so what `windows.menu_items` removes can be brought back.
-pub fn entries(config: &Config, shown: Mode) -> Vec<Entry> {
+/// `jis` says the keyboard is Japanese, for the keys the hints name.
+pub fn entries(config: &Config, shown: Mode, jis: bool) -> Vec<Entry> {
+    let keys = &config.input.keys;
+    let mode_hint = |m: Mode| match m {
+        Mode::Seokdok => hint(&[&keys.seokdok, &keys.seokdok_hangul], jis),
+        Mode::Hangul => hint(&[&keys.hangul, &keys.seokdok_hangul], jis),
+        Mode::Latin => hint(&[&keys.latin, &keys.toggle], jis),
+    };
+    let heading = |label| Entry::Heading { label, hint: String::new() };
     let chosen = |item: MenuItem| config.windows.menu_items.iter().any(|k| k == item.key());
     let script = config.conversion.script;
     let mut out = Vec::new();
@@ -219,29 +243,34 @@ pub fn entries(config: &Config, shown: Mode) -> Vec<Entry> {
     };
 
     if chosen(MenuItem::Script) {
-        let mut g = vec![Entry::Heading(MenuItem::Script.label())];
+        let mut g = vec![heading(MenuItem::Script.label())];
         g.extend(SCRIPTS.map(|(s, label)| Entry::Choice {
             action: Action::Script(s),
             label,
             check: Check::Radio(s == script),
+            hint: String::new(),
         }));
         group(&g);
     }
     if chosen(MenuItem::InputMode) {
-        let mut g = vec![Entry::Heading(MenuItem::InputMode.label())];
+        let mut g = vec![heading(MenuItem::InputMode.label())];
         // 韓㐎 專用 has no 釋讀 to tell from 한글.
         g.extend(MODES.iter().filter(|(m, _)| script != Script::HangulOnly || *m != Mode::Seokdok).map(
-            |(m, label)| Entry::Choice { action: Action::Mode(*m), label, check: Check::Radio(*m == shown) },
+            |(m, label)| Entry::Choice { action: Action::Mode(*m), label, check: Check::Radio(*m == shown), hint: mode_hint(*m) },
         ));
+        let convert = hint(&[&keys.convert], jis);
+        if !convert.is_empty() {
+            g.push(Entry::Heading { label: "變換 / Convert", hint: convert });
+        }
         group(&g);
     }
     let flips: Vec<Entry> = MenuItem::ALL
         .into_iter()
         .filter(|i| !matches!(i, MenuItem::Script | MenuItem::InputMode) && chosen(*i))
-        .map(|i| Entry::Choice { action: Action::Flip(i), label: i.label(), check: Check::Box(i.is_on(config)) })
+        .map(|i| Entry::Choice { action: Action::Flip(i), label: i.label(), check: Check::Box(i.is_on(config)), hint: String::new() })
         .collect();
     group(&flips);
-    group(&[Entry::Choice { action: Action::Settings, label: "設定 / 설정 / Settings…", check: Check::Plain }]);
+    group(&[Entry::Choice { action: Action::Settings, label: "設定 / 설정 / Settings…", check: Check::Plain, hint: String::new() }]);
     out
 }
 
@@ -343,7 +372,7 @@ mod tests {
     #[test]
     fn the_default_menu_has_script_mode_layout_old_ha_and_settings() {
         let c = Config::default();
-        let e = entries(&c, Mode::Seokdok);
+        let e = entries(&c, Mode::Seokdok, false);
         assert_eq!(
             actions(&e),
             [
@@ -358,7 +387,7 @@ mod tests {
                 Action::Settings,
             ]
         );
-        assert_eq!(e[0], Entry::Heading("文字 / Script"));
+        assert_eq!(e[0], Entry::Heading { label: "文字 / Script", hint: String::new() });
         assert_eq!(e.iter().filter(|x| **x == Entry::Separator).count(), 3);
     }
 
@@ -366,7 +395,7 @@ mod tests {
     fn menu_items_choose_what_appears() {
         // Unknown names are ignored, and the file's order does not matter.
         let c = with_items(&["hada_kun", "nonsense", "script"]);
-        let a = actions(&entries(&c, Mode::Seokdok));
+        let a = actions(&entries(&c, Mode::Seokdok, false));
         assert_eq!(
             a,
             [
@@ -380,14 +409,14 @@ mod tests {
         // Every item can be shown, each by its key.
         let keys: Vec<&str> = MenuItem::ALL.map(MenuItem::key).to_vec();
         let c = with_items(&keys);
-        let a = actions(&entries(&c, Mode::Seokdok));
+        let a = actions(&entries(&c, Mode::Seokdok, false));
         for item in MenuItem::ALL {
             if !matches!(item, MenuItem::Script | MenuItem::InputMode) {
                 assert!(a.contains(&Action::Flip(item)), "{item:?}");
             }
         }
         // With nothing chosen, Settings… alone remains, and no separator.
-        let e = entries(&with_items(&[]), Mode::Seokdok);
+        let e = entries(&with_items(&[]), Mode::Seokdok, false);
         assert_eq!(e.len(), 1);
         assert_eq!(actions(&e), [Action::Settings]);
     }
@@ -397,7 +426,7 @@ mod tests {
         let mut c = Config::default();
         c.conversion.script = Script::SinoOnly;
         c.conversion.old_ha = true;
-        let e = entries(&c, Mode::Hangul);
+        let e = entries(&c, Mode::Hangul, false);
         assert_eq!(check_of(&e, Action::Script(Script::SinoOnly)), Check::Radio(true));
         assert_eq!(check_of(&e, Action::Script(Script::Seokdok)), Check::Radio(false));
         assert_eq!(check_of(&e, Action::Mode(Mode::Hangul)), Check::Radio(true));
@@ -411,7 +440,7 @@ mod tests {
     fn hangul_only_has_no_seokdok_input_mode() {
         let mut c = Config::default();
         c.conversion.script = Script::HangulOnly;
-        let a = actions(&entries(&c, Mode::Hangul));
+        let a = actions(&entries(&c, Mode::Hangul, false));
         assert!(!a.contains(&Action::Mode(Mode::Seokdok)));
         assert!(a.contains(&Action::Mode(Mode::Hangul)));
         assert!(a.contains(&Action::Script(Script::Seokdok)));
@@ -508,5 +537,28 @@ mod tests {
         assert_eq!(click_target(Mode::Latin, Script::Seokdok), Mode::Seokdok);
         assert_eq!(click_target(Mode::Hangul, Script::HangulOnly), Mode::Latin);
         assert_eq!(click_target(Mode::Latin, Script::HangulOnly), Mode::Hangul);
+    }
+
+    #[test]
+    fn entries_name_their_keys() {
+        use crate::mode_keys::{ModeKeys, Platform};
+        let mut c = Config::default();
+        c.input.keys = ModeKeys::for_platform(Platform::Windows);
+        let hint_of = |e: &[Entry], wanted: Action| {
+            e.iter().find_map(|x| match x {
+                Entry::Choice { action, hint, .. } if *action == wanted => Some(hint.clone()),
+                _ => None,
+            })
+        };
+        let e = entries(&c, Mode::Seokdok, false);
+        assert_eq!(hint_of(&e, Action::Mode(Mode::Latin)).unwrap(), "한/영, RAlt");
+        assert_eq!(hint_of(&e, Action::Mode(Mode::Hangul)).unwrap(), "LCtrl+LAlt, Shift+한/영");
+        assert_eq!(hint_of(&e, Action::Settings).unwrap(), "");
+        assert!(e.contains(&Entry::Heading { label: "變換 / Convert", hint: "한자, RCtrl".into() }));
+        // A Japanese keyboard has its own keys, and a key the user bound shows.
+        let jis = entries(&c, Mode::Seokdok, true);
+        assert_eq!(hint_of(&jis, Action::Mode(Mode::Latin)).unwrap(), "Muhenkan, ImeOff");
+        c.input.keys.latin = vec!["F9".into()];
+        assert_eq!(hint_of(&entries(&c, Mode::Seokdok, false), Action::Mode(Mode::Latin)).unwrap(), "F9");
     }
 }

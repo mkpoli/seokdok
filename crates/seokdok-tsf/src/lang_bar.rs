@@ -128,23 +128,25 @@ unsafe fn fill_menu(menu: HMENU, entries: &[Entry]) -> windows::core::Result<()>
     for (at, entry) in entries.iter().enumerate() {
         let mut info = MENUITEMINFOW { cbSize: std::mem::size_of::<MENUITEMINFOW>() as u32, fMask: MIIM_FTYPE, ..Default::default() };
         let mut text = Vec::new();
-        let mut set_text = |info: &mut MENUITEMINFOW, label: &str, ftype: MENU_ITEM_TYPE, state: MENU_ITEM_STATE| {
-            text = label.encode_utf16().chain([0]).collect();
+        // A tab right-aligns what follows, the way menus show shortcuts.
+        let mut set_text = |info: &mut MENUITEMINFOW, label: &str, hint: &str, ftype: MENU_ITEM_TYPE, state: MENU_ITEM_STATE| {
+            let shown = if hint.is_empty() { label.to_string() } else { format!("{label}\t{hint}") };
+            text = shown.encode_utf16().chain([0]).collect();
             info.fMask |= MIIM_STRING | MIIM_STATE;
             info.fType = ftype;
             info.fState = state;
             info.dwTypeData = PWSTR(text.as_mut_ptr());
         };
-        match *entry {
+        match entry {
             Entry::Separator => info.fType = MFT_SEPARATOR,
-            Entry::Heading(label) => set_text(&mut info, label, MFT_STRING, MFS_DISABLED),
-            Entry::Choice { action, label, check } => {
-                let (ftype, state) = match check {
+            Entry::Heading { label, hint } => set_text(&mut info, label, hint, MFT_STRING, MFS_DISABLED),
+            Entry::Choice { action, label, check, hint } => {
+                let (ftype, state) = match *check {
                     Check::Radio(on) => (MFT_STRING | MFT_RADIOCHECK, if on { MFS_CHECKED } else { MENU_ITEM_STATE(0) }),
                     Check::Box(on) => (MFT_STRING, if on { MFS_CHECKED } else { MENU_ITEM_STATE(0) }),
                     Check::Plain => (MFT_STRING, MENU_ITEM_STATE(0)),
                 };
-                set_text(&mut info, label, ftype, state);
+                set_text(&mut info, label, hint, ftype, state);
                 info.fMask |= MIIM_ID;
                 info.wID = action.id();
             }
@@ -245,7 +247,7 @@ impl ITfLangBarItemButton_Impl for ModeButton_Impl {
             // A check mark must show what the file says now: choosing an entry
             // flips the value in the file.
             crate::config::refresh();
-            let entries = quick_menu::entries(&crate::config::current(), self.shared.shown());
+            let entries = quick_menu::entries(&crate::config::current(), self.shared.shown(), japanese_keyboard());
             if let Some(action) = pick(&entries, *pt) {
                 self.shared.choose(action);
             }
@@ -300,4 +302,11 @@ impl ITfSource_Impl for ModeButton_Impl {
         *self.shared.sink.borrow_mut() = None;
         Ok(())
     }
+}
+
+/// Whether the keyboard is a Japanese one (type 7), whose 半角/全角 and 変換 keys
+/// the menu's hints may name.
+fn japanese_keyboard() -> bool {
+    // SAFETY: no pointers; 0 asks for the keyboard type.
+    unsafe { windows::Win32::UI::Input::KeyboardAndMouse::GetKeyboardType(0) == 7 }
 }

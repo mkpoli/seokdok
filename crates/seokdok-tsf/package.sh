@@ -7,7 +7,13 @@ set -euo pipefail
 cd "$(dirname "$0")/../.."
 root="$PWD"
 version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name=="seokdok-tsf") | .version')
+command -v llvm-rc >/dev/null || export PATH="$root/tools/rc:$PATH"
+touch crates/seokdok-tsf/resources.rc
 cargo xwin build --release --target x86_64-pc-windows-msvc -p seokdok-tsf
+# Without a resource compiler the build only warns, and the IME ships with no icons.
+dll="$root/target/x86_64-pc-windows-msvc/release/seokdok.dll"
+python3 -c "import sys; d=open(sys.argv[1],'rb').read(4096); sys.exit(b'.rsrc' not in d)" "$dll" ||
+  { echo "seokdok.dll has no resources: llvm-rc failed; see the warnings above" >&2; exit 1; }
 
 stage="target/stage/windows"
 crates/seokdok-tsf/stage.sh

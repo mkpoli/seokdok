@@ -1,0 +1,9 @@
+#!/bin/bash
+# llvm-rc for machines without LLVM: `zig rc` through uv. embed-resource passes
+# /no-preprocess, which zig spells /:no-preprocess.
+args=()
+for a in "$@"; do
+  [ "$a" = /no-preprocess ] && a=/:no-preprocess
+  args+=("$a")
+done
+exec uv tool run --from ziglang python -m ziglang rc "${args[@]}"

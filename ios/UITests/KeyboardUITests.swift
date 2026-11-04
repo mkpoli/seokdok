@@ -229,29 +229,29 @@ final class KeyboardUITests: XCTestCase {
     func testHoldingSpaceMovesTheCaret() throws {
         let (app, field) = launch(kind: "email")
         let g = Geometry(app: app)
-        tapUntilTyped(field) { g.letter("a") }
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("a") }
         g.letter("b")
-        XCTAssertEqual(text(field), "ab")
+        assertText(field, "ab")
         g.dragSpace(by: -60)
         g.letter("c")
         sleep(1)
         shot("trackpad-moved")
-        XCTAssertEqual(text(field), "cab", "the caret did not move")
+        assertText(field, "cab", "the caret did not move")
         g.dragSpace(by: 16) // two steps to the right of c
         g.letter("d")
         sleep(1)
-        XCTAssertEqual(text(field), "cabd", "the caret did not move back")
+        assertText(field, "cabd", "the caret did not move back")
         app.terminate()
 
         let (app2, field2) = launch(kind: "default")
         let g2 = Geometry(app: app2)
-        tapUntilTyped(field2) { g2.letter("r") } // ㄱ
+        tapUntilTyped(field2, delete: { g2.delete() }) { g2.letter("r") } // ㄱ
         g2.letter("k") // ㅏ: 가 is being composed
         g2.dragSpace(by: -60)
         g2.letter("s") // ㄴ, before the committed 가
         sleep(1)
         shot("trackpad-composition")
-        XCTAssertEqual(text(field2), "ㄴ가", "the composition was not committed before the caret moved")
+        assertText(field2, "ㄴ가", "the composition was not committed before the caret moved")
     }
 
     /// A held letter shows its pop-up; the recording and these frames show it.
@@ -259,7 +259,7 @@ final class KeyboardUITests: XCTestCase {
     func testKeyPressFeedback() throws {
         let (app, field) = launch(kind: "default")
         let g = Geometry(app: app)
-        tapUntilTyped(field) { g.letter("d") }
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
         g.hold("q", seconds: 1.5)
         g.hold("g", seconds: 1.5)
         g.hold("p", seconds: 1.5)
@@ -298,7 +298,7 @@ final class KeyboardUITests: XCTestCase {
         XCUIDevice.shared.appearance = .dark
         defer { XCUIDevice.shared.appearance = .light }
         sleep(2)
-        tapUntilTyped(field) { g.letter("d") }
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
         g.type("kssud")
         sleep(1)
         shot("composing-dark")

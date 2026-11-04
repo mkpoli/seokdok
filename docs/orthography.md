@@ -18,7 +18,9 @@ A 釋讀 sentence is Korean grammar written with three kinds of material.
 |---|---|---|---|
 | 音讀 | A Sino-Korean word, in Hanja by sound | 規則, 歡迎 | 규칙, 환영 |
 | 訓讀 | A native word or stem, in Hanja by meaning | 讀, 天, 有 | 읽-, 하늘, 있- |
-| 送韓字 | The rest of the word, in Hangul | 讀**었다**, 天**을** | 읽었다, 하늘을 |
+| 末音添記, 吐 | The rest of the word, in Hangul | 超**무**, 讀**었다**, 天**을** | 너무, 읽었다, 하늘을 |
+
+The Hangul has two names. 末音添記 (말음첨기, the chat's term, 35 uses) is the last sound written after a word read by meaning, a practice named from 鄕札 spellings such as 夜音 for 밤. 吐 (40 uses) is a grammatical particle or ending. Members compare the whole with Japanese 送り仮名 (오쿠리가나).
 
 Particles, endings and words with no chosen character stay in Hangul.
 Sino-Korean verbs keep 하다 in Hangul by default (安寧하세요, 153 times), with

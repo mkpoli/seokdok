@@ -481,3 +481,13 @@ fn yeoreo_has_every_hanja_for_many() {
     assert_eq!(e.convert("여러분")[0].text, "諸位");
     assert_eq!(e.convert("여러번")[0].text, "諸番");
 }
+
+#[test]
+fn a_one_syllable_word_keeps_each_hanjas_forms_together() {
+    let e = engine(Options::default());
+    let got: Vec<String> = e.segments("좀")[0].candidates.iter().map(|c| c.text.clone()).collect();
+    assert_eq!(&got[..2], ["少ㅁ", "少"], "{got:?}");
+    let pos = |w: &str| got.iter().position(|c| c == w).unwrap_or_else(|| panic!("{w}: {got:?}"));
+    assert_eq!(pos("聊ㅁ"), pos("聊") + 1, "{got:?}");
+    assert_eq!(e.convert("좀")[0].text, "少ㅁ");
+}

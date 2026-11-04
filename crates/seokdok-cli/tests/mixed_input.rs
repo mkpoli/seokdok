@@ -87,7 +87,8 @@ fn the_example_line_is_cut_into_words_and_spaces() {
 fn menus_hold_typed_dictionary_constructed_and_plain_forms_in_that_order() {
     let e = seokdok();
     let m = menu(e, "天을");
-    assert_eq!(&m[..3], ["天을", "乾을", "宇을"]);
+    assert_eq!(&m[..2], ["天을", "乾을"]);
+    assert!(m.contains(&"宇을".to_string()));
     assert_eq!(m.last().unwrap(), "하늘을");
     // Attested forms (天을 乾을 …) come before constructed ones (天늘을).
     let pos = |w: &str| m.iter().position(|c| c == w).unwrap_or_else(|| panic!("{w} not in {m:?}"));
@@ -280,4 +281,24 @@ fn text_the_readme_and_the_site_show_is_not_changed() {
             assert_eq!(first(e, out), out);
         }
     }
+}
+
+#[test]
+fn words_mixing_hanja_and_old_letters_stay_first_and_read_back() {
+    for e in [seokdok(), sino()] {
+        let m = menu(e, "追加ᄒᆞᆯ까요");
+        assert!(m.contains(&"追加ᄒᆞᆯ까요".to_string()));
+        assert!(m.contains(&"追加할까요".to_string()), "{m:?}");
+        assert!(m.contains(&"추가할까요".to_string()));
+        let m = menu(e, "字ᄅᆞᆯ");
+        assert!(m.contains(&"字ᄅᆞᆯ".to_string()));
+        assert!(m.len() > 3, "字ᄅᆞᆯ offers alternatives: {m:?}");
+        assert!(m.contains(&"자를".to_string()));
+        assert_eq!(readings(e, "字ᄅᆞᆯ 追加ᄒᆞᆯ까요"), ["字ᄅᆞᆯ", " ", "追加ᄒᆞᆯ까요"]);
+    }
+    assert_eq!(first(seokdok(), "追加ᄒᆞᆯ까요"), "追加ᄒᆞᆯ까요");
+    assert_eq!(first(seokdok(), "字ᄅᆞᆯ 追加ᄒᆞᆯ까요"), "字ᄅᆞᆯ 追加ᄒᆞᆯ까요");
+    assert!(menu(seokdok(), "字ᄅᆞᆯ").contains(&"切ㄹ".to_string()));
+    assert_eq!(seokdok().read("追加ᄒᆞᆯ까요"), "추가할까요");
+    assert_eq!(seokdok().read("字ᄅᆞᆯ"), "자를");
 }

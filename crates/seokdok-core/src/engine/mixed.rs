@@ -154,6 +154,15 @@ impl Engine {
         for c in found {
             push(c, &mut menu);
         }
+        // The old spelling of a tail (字ᄅᆞᆯ for 字를) is offered third, as for Hangul.
+        if reading.chars().any(is_syllable) {
+            let old = self.convert_unmixed(word).into_iter().filter(|c| c.note == "옛한글" && c.text != word);
+            for (k, c) in old.enumerate() {
+                if !menu.iter().any(|m| m.text == c.text) {
+                    menu.insert((2 + k).min(menu.len()), c);
+                }
+            }
+        }
         if !poor {
             // The plain reading ends the menu, which stays short enough to show whole.
             menu.truncate(MENU - 1);

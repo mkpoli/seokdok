@@ -1,5 +1,5 @@
-//! DLL entry points (`DllMain`, the COM server exports, `ShowSettings`), the
-//! module handle and the module lock count.
+//! DLL entry points (`DllMain`, the COM server exports), the module handle and
+//! the module lock count.
 
 #![allow(non_snake_case)]
 
@@ -56,6 +56,8 @@ pub(crate) fn dll_dir() -> Option<PathBuf> {
 pub(crate) fn load_engine() {
     let Some(dir) = dll_dir() else { return };
     let options = crate::config::current().engine_options();
+    // What the load reads from here on is what later looks compare with.
+    crate::config::custom_changed();
     crate::engine_host::HOST.start_load(dir.join("dict"), crate::config::Config::user_dir(), options);
 }
 
@@ -135,16 +137,4 @@ pub unsafe extern "system" fn DllRegisterServer() -> HRESULT {
 pub unsafe extern "system" fn DllUnregisterServer() -> HRESULT {
     let _ = crate::registry::unregister_all();
     S_OK
-}
-
-/// `rundll32.exe "<path>\seokdok.dll",ShowSettings` opens the settings dialog
-/// (used by the Start-menu shortcut).
-#[no_mangle]
-pub extern "system" fn ShowSettings(
-    _hwnd: windows::Win32::Foundation::HWND,
-    _hinst: HMODULE,
-    _cmdline: windows::core::PCSTR,
-    _ncmdshow: i32,
-) {
-    crate::settings_dialog::show(windows::Win32::Foundation::HWND::default());
 }

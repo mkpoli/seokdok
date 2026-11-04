@@ -1,0 +1,73 @@
+<Application x:Class="SeokdokSettings.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+  <Application.Resources>
+    <ResourceDictionary>
+      <ResourceDictionary.MergedDictionaries>
+        <XamlControlsResources xmlns="using:Microsoft.UI.Xaml.Controls"/>
+      </ResourceDictionary.MergedDictionaries>
+
+      <!-- Hanja and old Hangul come from Malgun Gothic, as in the candidate window. -->
+      <FontFamily x:Key="ContentControlThemeFontFamily">Segoe UI Variable Text, Malgun Gothic</FontFamily>
+      <FontFamily x:Key="SampleFont">Malgun Gothic</FontFamily>
+
+      <!-- Mica shows through the pane and the page: the card pattern. -->
+      <SolidColorBrush x:Key="NavigationViewContentBackground" Color="Transparent"/>
+      <SolidColorBrush x:Key="NavigationViewContentGridBorderBrush" Color="Transparent"/>
+      <SolidColorBrush x:Key="NavigationViewExpandedPaneBackground" Color="Transparent"/>
+      <SolidColorBrush x:Key="NavigationViewDefaultPaneBackground" Color="Transparent"/>
+      <Thickness x:Key="NavigationViewContentGridBorderThickness">0</Thickness>
+      <Thickness x:Key="NavigationViewContentMargin">0</Thickness>
+
+      <Style x:Key="SettingCard" TargetType="Border">
+        <Setter Property="Background" Value="{ThemeResource CardBackgroundFillColorDefaultBrush}"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="MinHeight" Value="68"/>
+      </Style>
+      <Style x:Key="KeyChip" TargetType="Border">
+        <Setter Property="Background" Value="{ThemeResource ControlFillColorSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource ControlStrokeColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{ThemeResource ControlCornerRadius}"/>
+        <Setter Property="MinHeight" Value="32"/>
+      </Style>
+      <Style x:Key="PreviewPanel" TargetType="Border">
+        <Setter Property="Background" Value="{ThemeResource LayerOnMicaBaseAltFillColorSecondaryBrush}"/>
+        <Setter Property="BorderBrush" Value="{ThemeResource CardStrokeColorDefaultBrush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="{ThemeResource OverlayCornerRadius}"/>
+        <Setter Property="Padding" Value="16,12"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+      </Style>
+      <Style x:Key="SettingDescription" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+      </Style>
+      <Style x:Key="SettingExample" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource SampleFont}"/>
+        <Setter Property="Foreground" Value="{ThemeResource AccentTextFillColorPrimaryBrush}"/>
+        <Setter Property="TextWrapping" Value="Wrap"/>
+      </Style>
+      <Style x:Key="PreviewTyped" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource SampleFont}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}"/>
+        <Setter Property="FontSize" Value="16"/>
+      </Style>
+      <Style x:Key="PreviewBefore" TargetType="TextBlock" BasedOn="{StaticResource PreviewTyped}">
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorTertiaryBrush}"/>
+        <Setter Property="TextDecorations" Value="Strikethrough"/>
+      </Style>
+      <Style x:Key="PreviewResult" TargetType="TextBlock" BasedOn="{StaticResource BodyTextBlockStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource SampleFont}"/>
+        <Setter Property="FontSize" Value="24"/>
+      </Style>
+      <Style x:Key="PreviewCandidate" TargetType="TextBlock" BasedOn="{StaticResource CaptionTextBlockStyle}">
+        <Setter Property="FontFamily" Value="{StaticResource SampleFont}"/>
+        <Setter Property="Foreground" Value="{ThemeResource TextFillColorSecondaryBrush}"/>
+      </Style>
+    </ResourceDictionary>
+  </Application.Resources>
+</Application>

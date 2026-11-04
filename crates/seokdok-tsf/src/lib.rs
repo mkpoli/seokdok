@@ -37,7 +37,7 @@ mod mode_key_events;
 #[cfg(windows)]
 mod registry;
 #[cfg(windows)]
-mod settings_dialog;
+mod settings_app;
 #[cfg(windows)]
 mod text_input_processor;
 #[cfg(windows)]

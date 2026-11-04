@@ -28,6 +28,44 @@ pub fn is_t(c: char) -> bool {
     (0x11A8..=0x11C2).contains(&(c as u32))
 }
 
+/// Any Hangul letter: a syllable, a conjoining jamo (modern or old) or a
+/// compatibility jamo.
+pub fn is_hangul(c: char) -> bool {
+    is_syllable(c) || matches!(c as u32, 0x1100..=0x11FF | 0x3131..=0x318E | 0xA960..=0xA97C | 0xD7B0..=0xD7FB)
+}
+
+fn is_conjoining_l(c: char) -> bool {
+    matches!(c as u32, 0x1100..=0x115F | 0xA960..=0xA97C)
+}
+fn is_conjoining_v(c: char) -> bool {
+    matches!(c as u32, 0x1160..=0x11A7 | 0xD7B0..=0xD7C6)
+}
+fn is_conjoining_t(c: char) -> bool {
+    matches!(c as u32, 0x11A8..=0x11FF | 0xD7CB..=0xD7FB)
+}
+
+/// Split text into the units it is edited by: an initial, a medial and any
+/// finals in conjoining jamo (ᄒᆞᆯ, three chars) make one unit; every other
+/// char, a precomposed syllable or a stray jamo included, is a unit of its own.
+pub fn units(s: &str) -> Vec<&str> {
+    let mut out = Vec::new();
+    let mut rest = s;
+    while let Some(first) = rest.chars().next() {
+        let mut end = first.len_utf8();
+        if is_conjoining_l(first) {
+            let mut after = rest[end..].chars();
+            if let Some(v) = after.next().filter(|&v| is_conjoining_v(v)) {
+                end += v.len_utf8();
+                end += after.take_while(|&t| is_conjoining_t(t)).map(char::len_utf8).sum::<usize>();
+            }
+        }
+        let (unit, tail) = rest.split_at(end);
+        out.push(unit);
+        rest = tail;
+    }
+    out
+}
+
 fn ch(u: u32) -> char {
     char::from_u32(u).unwrap()
 }
@@ -334,5 +372,31 @@ mod tests {
         assert_eq!(compose(&resyllabify(&decompose("ㅎ어서"))), "ㅎ어서");
         assert_eq!(compose(&['ᄄ']), "ㄸ");
         assert_eq!(compose(&['ᆯ', 'ᆸ']), "ㄹㅂ");
+    }
+
+    #[test]
+    fn units_keep_a_conjoining_syllable_whole() {
+        let holl = "\u{1112}\u{119E}\u{11AF}";
+        let text = format!("追加{holl}까요");
+        assert_eq!(units(&text), ["追", "加", holl, "까", "요"]);
+        // Extended blocks and fillers.
+        assert_eq!(units("\u{A960}\u{D7B0}\u{D7CB}\u{11A8}x"), ["\u{A960}\u{D7B0}\u{D7CB}\u{11A8}", "x"]);
+        assert_eq!(units("\u{115F}\u{119E}\u{1100}\u{1160}"), ["\u{115F}\u{119E}", "\u{1100}\u{1160}"]);
+        // Stray letters stand alone.
+        assert_eq!(units("\u{1112}가"), ["\u{1112}", "가"]);
+        assert_eq!(units("\u{119E}\u{11AF}\u{11AF}"), ["\u{119E}", "\u{11AF}", "\u{11AF}"]);
+        assert_eq!(units("가\u{11AF}"), ["가", "\u{11AF}"]);
+        assert_eq!(units("\u{1112}\u{1112}\u{119E}"), ["\u{1112}", "\u{1112}\u{119E}"]);
+        assert!(units("").is_empty());
+    }
+
+    #[test]
+    fn hangul_covers_every_block() {
+        for c in ['가', 'ㅎ', 'ㆍ', '\u{1112}', '\u{119E}', '\u{11AF}', '\u{A960}', '\u{D7B0}', '\u{D7CB}'] {
+            assert!(is_hangul(c), "{c}");
+        }
+        for c in ['追', 'a', ' ', '1', '。'] {
+            assert!(!is_hangul(c), "{c}");
+        }
     }
 }

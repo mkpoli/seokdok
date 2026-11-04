@@ -48,6 +48,13 @@ bool seokdok_space_converts(void);
 char *seokdok_config_json(void);
 bool seokdok_config_save_json(const char *json);
 char *seokdok_config_dir(void);
+char *seokdok_config_defaults_json(void);
+char *seokdok_config_error(void);
+char *seokdok_config_update_json(const char *patch);
+bool seokdok_chord_valid(const char *text);
+char *seokdok_custom_json(void);
+char *seokdok_custom_save_json(const char *json);
+void seokdok_reload(Ime *ime);
 void seokdok_string_free(char *s);
 
 #ifdef __cplusplus

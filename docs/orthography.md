@@ -287,7 +287,7 @@ of the candidates. The folds of old letters:
 |---|---|---|
 | ㆍ (U+119E) | ㅏ or ㅡ; as a guess ㅗ or ㅜ | ᄉᆞ랑 = 사랑, ᄂᆞᆫ = 는, ᄒᆞᆰ = 흙, 아ᄆᆞ리 = 아무리 (3), ᄃᆞᆯ = 돌 (16) |
 | ᆡ (U+11A1, ㆍ+ㅣ) | ㅐ; as a guess ㅔ | ᄇᆡ = 배, ᄒᆡ = 해 (171 in all) |
-| ㅿ (U+1140) | ㅅ | ᅀᅵ = 시 (71) |
+| ㅿ (U+1140) | ㅅ, or ㅇ as a guess | ᅀᅵ = 시 (71), 거ᅀᅵ = 거의 |
 | ㆁ (U+114C) | ㅇ | ᅌᅵ = 이 (22) |
 | ㅸ (U+112B) | ㅂ; as a guess ㅇ | 25 |
 | ᄭ (U+112D), ᄢ | ㄲ | 28 |
@@ -300,7 +300,7 @@ of the candidates. The folds of old letters:
 The folds are the usual correspondences between Middle Korean spelling and
 today's, applied letter by letter; no single reference was used, and the
 chat spellings above are the evidence for each. They serve only to find the
-word. ㅿ also became ㅇ in some words (겨울), which is not tried. A letter
+word. ㅿ also became ㅇ in many words (겨울, 마음, 거의), tried as a guess. A letter
 outside the table (such as ᄓ) gives no reading, and the run stays as typed.
 
 Examples: ᄉᆞ랑 offers 愛, 사ᄅᆞᆷ offers 人, 말ᄊᆞᆷ offers 言씀, 있ᄂᆞᆫ

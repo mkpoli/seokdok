@@ -165,7 +165,8 @@ fn fold_l(l: char) -> Option<Vec<(char, f32, bool)>> {
     let one = |c: char| Some(vec![(c, 0.0, false)]);
     match l as u32 {
         0x1100..=0x1112 => one(l),
-        0x1140 => one('\u{1109}'),
+        // ㅿ mostly fell away (거ᅀᅵ 거의, ᄆᆞᅀᆞᆷ 마음), and is ㅅ in a few words.
+        0x1140 => Some(vec![('\u{1109}', 0.0, false), ('\u{110B}', 0.0, true)]),
         0x114C => one('\u{110B}'),
         0x112B => Some(vec![('\u{1107}', 0.0, false), ('\u{110B}', 0.4, true)]),
         // ㅅ or ㅂ + ㄱ, ㅅ+ㄷ, ㅂ+ㄷ, ㅅ+ㅂ, ㅂ+ㅅㄱ, ㅅ+ㅈ, ㅂ+ㅈ: the tense consonant.
@@ -510,7 +511,7 @@ mod tests {
         assert_eq!(reads("\u{1102}\u{119E}\u{11AB}", 0, false)[..2], ["난", "는"]);
         has("\u{1112}\u{119E}\u{11B0}", 0, false, "흙");
         assert_eq!(reads("\u{1112}\u{11A1}", 0, false)[0], "해");
-        assert_eq!(reads("\u{1140}\u{1175}", 0, false), ["시"]);
+        assert_eq!(reads("\u{1140}\u{1175}", 0, false), ["시", "이"]);
         assert_eq!(reads("\u{114C}\u{1175}", 0, false), ["이"]);
         assert_eq!(reads("\u{112F}\u{1169}", 0, false), ["또"]);
         assert_eq!(reads("\u{1109}\u{11A1}\u{11F0}", 0, false)[0], "생");

@@ -89,3 +89,76 @@ fn old_ha_off_changes_nothing() {
     assert_eq!(texts(&off, "하고").0[0], "하고");
     assert_eq!(texts(&off, "공부한").0[0], "工夫한");
 }
+
+/// Both the whole-phrase list and the one segment of a single run.
+fn offers_all(e: &Engine, input: &str, want: &[&str]) {
+    let (whole, segs) = texts(e, input);
+    assert_eq!(segs.len(), 1, "{input}: one segment for the run");
+    for w in want {
+        assert!(whole.iter().any(|t| t == w), "{input}: {w} not in {whole:?}");
+        assert!(segs[0].iter().any(|t| t == w), "{input}: {w} not in {:?}", segs[0]);
+    }
+}
+
+#[test]
+fn old_syllables_are_looked_up_by_their_modern_letters() {
+    let e = engine(Options::default());
+    // ᄉᆞ랑 = 사랑, 사ᄅᆞᆷ = 사람 (人), 말ᄊᆞᆷ = 말씀.
+    let sarang = "\u{1109}\u{119E}랑";
+    offers_all(&e, sarang, &["愛", sarang]);
+    assert_eq!(texts(&e, sarang).0[0], "愛");
+    let saram = "사\u{1105}\u{119E}\u{11B7}";
+    offers_all(&e, saram, &["人", saram]);
+    let malssam = "말\u{110A}\u{119E}\u{11B7}";
+    offers_all(&e, malssam, &["言씀", malssam]);
+    // ᄂᆞᆫ = 는, so 있ᄂᆞᆫ is 있는 with its tail as typed.
+    let issneun = format!("있{NEUN}");
+    offers_all(&e, &issneun, &["有\u{1102}\u{119E}\u{11AB}", "在ㅆ\u{1102}\u{119E}\u{11AB}", &issneun]);
+    // ᄒᆞᆰ = 흙, ᄯᅩ = 또, ᅌᅵ = 이.
+    offers_all(&e, "\u{1112}\u{119E}\u{11B0}", &["土"]);
+}
+
+#[test]
+fn an_old_tail_is_kept_as_typed_in_first_place() {
+    let e = engine(Options::default());
+    let ha_go = format!("{HA}고");
+    let (whole, segs) = texts(&e, &ha_go);
+    assert_eq!(whole[..2], [ha_go.clone(), "爲고".to_string()]);
+    assert_eq!(segs[0][..2], [ha_go.clone(), "爲고".to_string()]);
+    let input = format!("추가{HAL}까요");
+    let (whole, segs) = texts(&e, &input);
+    assert_eq!(whole[0], format!("追加{HAL}까요"));
+    assert_eq!(segs[0][0], whole[0]);
+    assert!(whole.contains(&input));
+    // Not read as the Sino-Korean word 하야.
+    assert_eq!(texts(&e, &format!("{HA}야")).0[0], format!("{HA}야"));
+    // 國漢文混用 too.
+    let s = engine(Options { sino_only: true, ..Options::default() });
+    assert_eq!(texts(&s, &format!("공부{HA}{NEUN}")).0[0], format!("工夫{HA}{NEUN}"));
+}
+
+#[test]
+fn old_text_is_read_back_without_panicking() {
+    let e = engine(Options::default());
+    assert_eq!(e.read(&format!("追加{HAL}까요")), "추가할까요");
+    assert_eq!(e.read(&format!("工夫{HA}{NEUN}")), "공부하는");
+    assert_eq!(e.read(&format!("字{REUL}")), e.read("字를"));
+    // Letters the reader does not know stay as they are.
+    let sarang = "\u{1109}\u{119E}랑 天을";
+    assert_eq!(e.read(sarang), "\u{1109}\u{119E}랑 하늘을");
+    // Modern text reads as before.
+    assert_eq!(e.read("天을 見ㅆ다"), "하늘을 봤다");
+}
+
+#[test]
+fn no_jamo_makes_the_engine_panic() {
+    let e = engine(Options::default());
+    let jamo = ('\u{1100}'..='\u{11FF}').chain('\u{A960}'..='\u{A97C}').chain('\u{D7B0}'..='\u{D7FB}');
+    for c in jamo {
+        for input in [format!("{c}"), format!("가{c}"), format!("{c}가"), format!("{c}\u{1161}"), format!("\u{1109}{c}"), format!("\u{1109}\u{119E}{c}"), format!("天{c}")] {
+            e.convert(&input);
+            e.segments(&input);
+            e.read(&input);
+        }
+    }
+}

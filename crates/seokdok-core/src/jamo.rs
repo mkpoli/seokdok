@@ -60,6 +60,21 @@ fn split_v(v: char) -> &'static [char] {
     }
 }
 
+/// The syllable block character for an onset, a vowel and an optional coda
+/// (each a conjoining jamo of the modern set), if they are one.
+pub fn join_syllable(l: char, v: char, t: Option<char>) -> Option<char> {
+    let (l, v) = (l as u32, v as u32);
+    if !(LBASE..LBASE + LCOUNT).contains(&l) || !(VBASE..VBASE + VCOUNT).contains(&v) {
+        return None;
+    }
+    let t = match t {
+        None => 0,
+        Some(t) if is_t(t) => t as u32 - TBASE,
+        Some(_) => return None,
+    };
+    char::from_u32(SBASE + ((l - LBASE) * VCOUNT + (v - VBASE)) * TCOUNT + t)
+}
+
 /// Rebuild one vowel jamo from simple components, if they form one.
 fn join_v(parts: &[char]) -> Option<char> {
     (0x1161..=0x1175u32).map(ch).find(|&v| split_v(v) == parts)

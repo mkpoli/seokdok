@@ -5,7 +5,7 @@
 use crate::conj::{ending_label, ending_surfaces, morph_ending, Ctx};
 use crate::dict::{parse_native, parse_sino, tsv_lines, Native, Pos, Source, Tail};
 use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify};
-use crate::old_spelling::{ends_in_hanja, old_variant};
+use crate::old_spelling::{ends_in_hanja, has_old, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant, parse, readings, Syl};
 use crate::particles::{allowed, particles, Particle};
 use std::collections::HashMap;
 
@@ -325,6 +325,18 @@ struct Reverse {
     /// …): 釋讀하면 reads 석독 + 하면.
     light: std::collections::HashSet<String>,
 }
+
+/// What a run converts to: the whole-run candidates, the segments, and the
+/// cost of the best path when it uses a dictionary word.
+struct Converted {
+    whole: Vec<Candidate>,
+    segments: Vec<Segment>,
+    cost: Option<f32>,
+}
+
+/// A modern reading of old input is kept when its best path costs at most
+/// this much more than the best reading's.
+const READING_MARGIN: f32 = 4.0;
 
 const RAW_COST: f32 = 4.5;
 /// The ending index of a bare stem (않 → 不ㅎ), typed alone to be continued
@@ -865,7 +877,77 @@ impl Engine {
         Some(format!("{}{}", n.hanja, compose(&rest)))
     }
 
+    /// Whole-run candidates and segments of one run of Hangul. A run with old
+    /// letters is looked up by its modern readings.
     fn convert_run(&self, run: &str, after_hanja: bool) -> (Vec<Candidate>, Vec<Segment>) {
+        if has_old(run) {
+            return self.convert_old(run);
+        }
+        let Converted { whole, segments, .. } = self.convert_plain(run, after_hanja, true);
+        (whole, segments)
+    }
+
+    /// A run with old letters: what its modern readings convert to, with the
+    /// tail as typed when it is made of function syllables, and the run itself
+    /// kept as a choice.
+    fn convert_old(&self, run: &str) -> (Vec<Candidate>, Vec<Segment>) {
+        let syls = parse(run).unwrap_or_default();
+        let found = self.read_as(&syls);
+        let mut list: Vec<Candidate> = Vec::new();
+        for (_, reading, cands) in found {
+            for c in cands {
+                let text = keep_typed_tail(&c.text, &reading, &syls).unwrap_or(c.text);
+                if !list.iter().any(|x| x.text == text) {
+                    list.push(Candidate { text, note: c.note });
+                }
+            }
+        }
+        // Old letters that are all function syllables stay as typed: the
+        // candidates that keep them come first.
+        let old: Vec<&str> = syls.iter().map(|s| s.typed.as_str()).filter(|t| !t.chars().all(is_syllable)).collect();
+        let mut at = list.len().min(1);
+        if !old.is_empty() && old.iter().all(|o| is_function_old(o)) {
+            let (kept, rest): (Vec<Candidate>, Vec<Candidate>) = list.into_iter().partition(|c| old.iter().any(|o| c.text.contains(o)));
+            at = kept.len().min(1);
+            list = kept;
+            list.extend(rest);
+        }
+        let typed = Candidate { text: run.to_string(), note: "한글".into() };
+        if !list.iter().any(|c| c.text == run) {
+            list.insert(at, typed.clone());
+        }
+        let keep = self.options.max_candidates.max(2);
+        if list.len() > keep {
+            let had = list[..keep].iter().any(|c| c.text == run);
+            list.truncate(keep);
+            if !had {
+                list[keep - 1] = typed;
+            }
+        }
+        let segments = vec![Segment { reading: run.to_string(), candidates: list.clone() }];
+        (list, segments)
+    }
+
+    /// The conversions of the modern readings of a run, best path first, only
+    /// those that use a dictionary word and cost little more than the best.
+    fn read_as(&self, syls: &[Syl]) -> Vec<(f32, String, Vec<Candidate>)> {
+        let mut found: Vec<(f32, String, Vec<Candidate>)> = Vec::new();
+        for reading in readings(syls) {
+            let c = self.convert_plain(&reading, false, false);
+            if let Some(cost) = c.cost {
+                found.push((cost, reading, c.whole));
+            }
+        }
+        found.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+        if let Some(best) = found.first().map(|f| f.0) {
+            found.retain(|f| f.0 <= best + READING_MARGIN);
+        }
+        found
+    }
+
+    /// `full`: also build the segments and the old spellings, which the
+    /// readings tried for another run do not need.
+    fn convert_plain(&self, run: &str, after_hanja: bool, full: bool) -> Converted {
         let comps = decompose(run);
         let edges = self.edges(&comps);
         let paths = self.kbest(&comps, &edges, self.options.max_candidates.max(4));
@@ -875,11 +957,19 @@ impl Engine {
                 whole.push(c);
             }
         };
-        for (_, path) in &paths {
+        // The best path's renderings are used three times.
+        let best: Vec<Vec<Candidate>> = paths.first().map(|(_, path)| path.iter().map(|&ei| self.render(&comps, &edges[ei])).collect()).unwrap_or_default();
+        for (n, (_, path)) in paths.iter().enumerate() {
             let mut text = String::new();
             let mut notes = Vec::new();
-            for &ei in path {
-                let r = self.render(&comps, &edges[ei]);
+            for (k, &ei) in path.iter().enumerate() {
+                let rendered;
+                let r = if n == 0 {
+                    &best[k]
+                } else {
+                    rendered = self.render(&comps, &edges[ei]);
+                    &rendered
+                };
                 text.push_str(&r[0].text);
                 if !r[0].note.is_empty() {
                     notes.push(r[0].note.clone());
@@ -888,16 +978,16 @@ impl Engine {
             push(Candidate { text, note: notes.join(" / ") }, &mut whole);
         }
         // Second rendering of the best path (other 送韓字 variant).
-        if let Some((_, path)) = paths.first() {
+        if !best.is_empty() {
             let mut text = String::new();
-            for &ei in path {
-                let r = self.render(&comps, &edges[ei]);
+            for r in &best {
                 text.push_str(&r.get(1).unwrap_or(&r[0]).text);
             }
             push(Candidate { text, note: "variant".into() }, &mut whole);
         }
         push(Candidate { text: run.to_string(), note: "한글".into() }, &mut whole);
 
+        let cost = paths.first().filter(|(_, path)| path.iter().any(|&ei| !matches!(edges[ei].kind, Kind::Raw))).map(|(c, _)| *c);
         let mut segments = Vec::new();
         // The old spelling of each segment's tail, for the best path.
         let mut old_seg: Vec<Option<String>> = Vec::new();
@@ -906,7 +996,7 @@ impl Engine {
         let ha = self.options.old_ha;
         let mut ha_seg: Vec<Option<String>> = Vec::new();
         let mut ha_whole = None;
-        if let Some((_, path)) = paths.first() {
+        if let Some((_, path)) = paths.first().filter(|_| full) {
             let mut pieces: Vec<String> = Vec::new();
             let mut ha_pieces: Vec<String> = Vec::new();
             let mut any = false;
@@ -915,7 +1005,7 @@ impl Engine {
                 let e = &edges[ei];
                 let tail = after_hanja && n == 0;
                 let light = matches!(&e.kind, Kind::Verb { entry, .. } if self.natives[*entry as usize].lemma == "하다");
-                let r = self.render(&comps, e);
+                let r = &best[n];
                 let v = old_variant(r.iter().map(|c| c.text.as_str()), light, tail, false);
                 any |= v.is_some();
                 pieces.push(v.unwrap_or_else(|| r[0].text.clone()));
@@ -962,16 +1052,18 @@ impl Engine {
         }
         let hun = self.hun_candidates(run);
         if hun.is_empty() {
-            if segments.len() == old_seg.len() {
-                for (s, v) in segments.iter_mut().zip(old_seg) {
-                    offer_old(&mut s.candidates, v);
+            if full {
+                if segments.len() == old_seg.len() {
+                    for (s, v) in segments.iter_mut().zip(old_seg) {
+                        offer_old(&mut s.candidates, v);
+                    }
+                    for (s, v) in segments.iter_mut().zip(ha_seg) {
+                        first_old(&mut s.candidates, v);
+                    }
                 }
-                for (s, v) in segments.iter_mut().zip(ha_seg) {
-                    first_old(&mut s.candidates, v);
-                }
+                offer_old(&mut whole, old_whole);
+                first_old(&mut whole, ha_whole);
             }
-            offer_old(&mut whole, old_whole);
-            first_old(&mut whole, ha_whole);
         } else {
             // A key spans the run, so the run becomes one segment to pick from.
             let cands = match segments.as_mut_slice() {
@@ -982,7 +1074,7 @@ impl Engine {
             whole = self.with_hun(whole, run, hun);
         }
         whole.truncate(self.options.max_candidates.max(2));
-        (whole, segments)
+        Converted { whole, segments, cost }
     }
 
     /// Characters whose gloss is `word`, in either order: 살찔비 or 비살찔 → 肥.
@@ -1264,7 +1356,7 @@ impl Engine {
     /// are read by sound, 訓讀 words through the dictionary entries that
     /// produce them; anything unknown is left as written.
     pub fn read(&self, text: &str) -> String {
-        let cs: Vec<char> = crate::dict::unify(text).chars().collect();
+        let cs: Vec<char> = crate::dict::unify(&modernize_function(text)).chars().collect();
         let mut out = String::new();
         let mut i = 0;
         while i < cs.len() {
@@ -1344,11 +1436,12 @@ fn first_old(list: &mut Vec<Candidate>, old: Option<String>) {
     list.insert(0, Candidate { text, note: "옛한글".into() });
 }
 
-/// Split input into runs of Hangul syllables and everything else.
+/// Split input into runs of Hangul (syllables and conjoining jamo) and
+/// everything else.
 fn runs(input: &str) -> Vec<(bool, String)> {
     let mut out: Vec<(bool, String)> = Vec::new();
     for c in input.chars() {
-        let h = is_syllable(c);
+        let h = is_syllable(c) || is_jamo(c);
         match out.last_mut() {
             Some((k, s)) if *k == h => s.push(c),
             _ => out.push((h, c.to_string())),

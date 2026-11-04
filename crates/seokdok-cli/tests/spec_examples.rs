@@ -773,3 +773,44 @@ fn the_common_word_leads_its_homophones() {
     assert!(offers(&e, "음성", "陰城"));
     assert!(offers(&e, "고령", "高靈"));
 }
+
+#[test]
+fn i_is_wo_first() {
+    let e = engine(Options::default());
+    for (input, want) in [("나", "我"), ("내", "我ㅣ"), ("내가", "我ㅣ가"), ("나는", "我는"), ("난", "我ㄴ")] {
+        assert_eq!(e.convert(input)[0].text, want, "{input}");
+    }
+    assert!(offers(&e, "나", "吾"));
+}
+
+#[test]
+fn the_word_a_writer_means_leads_its_readings() {
+    let e = engine(Options::default());
+    // (input, first candidate, a losing reading that stays offered)
+    for (input, want, other) in [
+        // The chat's habit.
+        ("부정", "否定", "不正"),
+        ("전역", "轉役", "全域"),
+        ("대북", "臺北", "對北"),
+        ("주의", "注意", "主義"),
+        // A place or a person.
+        ("이천", "二千", "利川"),
+        ("의성", "擬聲", "義城"),
+        ("이인", "二人", "李仁"),
+        ("정성", "精誠", "鄭成"),
+        // A rarer homophone.
+        ("동화", "童話", "同和"),
+        ("명동", "明洞", "鳴動"),
+        // A split into a stem and an ending.
+        ("단지", "但只", "團地"),
+        ("사기", "詐欺", "史記"),
+        ("시기", "時期", "時機"),
+        ("한국인", "韓國人", "韓國인"),
+    ] {
+        assert_eq!(e.convert(input)[0].text, want, "{input}");
+        assert!(offers(&e, input, other), "{input} loses {other}");
+    }
+    // A particle follows the word; a longer word keeps its own reading.
+    assert_eq!(e.convert("시기를")[0].text, "時期를");
+    assert_eq!(e.convert("수도")[0].text, "手도");
+}

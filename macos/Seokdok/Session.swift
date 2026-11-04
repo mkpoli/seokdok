@@ -97,6 +97,11 @@ final class Session {
         set { seokdok_set_mode(ime, newValue.rawValue) }
     }
 
+    /// `conversion.script`: 0 釋讀, 1 國漢文混用, 2 韓㐎 專用.
+    static var script: Int32 {
+        seokdok_script()
+    }
+
     /// 韓㐎 專用 is on: the session reports Hangul for the 釋讀 mode.
     static var hangulOnly: Bool {
         seokdok_hangul_only()

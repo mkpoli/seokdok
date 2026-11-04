@@ -240,6 +240,11 @@ final class SeokdokInputController: IMKInputController {
             menu.addItem(item)
         }
         menu.addItem(.separator())
+        // The input sources are modes; the script chord shows here.
+        let script = NSMenuItem(title: ["文字 / Script: 釋讀", "文字 / Script: 國漢文混用", "文字 / Script: 韓㐎 專用"][Int(Session.script)], action: nil, keyEquivalent: "")
+        script.isEnabled = false
+        menu.addItem(script)
+        menu.addItem(.separator())
         menu.addItem(NSMenuItem(title: "設定 / Settings…", action: #selector(showPreferences(_:)), keyEquivalent: ""))
         return menu
     }

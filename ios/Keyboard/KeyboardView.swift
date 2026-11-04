@@ -141,6 +141,7 @@ final class KeyboardView: UIView {
             keysColumn.bottomAnchor.constraint(equalTo: keyPad.bottomAnchor, constant: -3),
         ])
         keyPad.onPress = { [weak self] in self?.feedback.key() }
+        Key.onActivate = { [weak self] in self?.feedback.key() }
         keyPad.onPreview = { [weak self] key in self?.showPopup(key) }
         keyPad.onCursorBegin = { [weak self] in
             self?.feedback.cursor()

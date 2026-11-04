@@ -20,6 +20,9 @@ final class Key: UIView {
     /// Space: held, it turns the keyboard into a trackpad.
     var holdsForCursor = false
     var action: (() -> Void)?
+    /// The click and tap of a press, for keys VoiceOver activates: those touches
+    /// never reach `KeyPad`.
+    static var onActivate: (() -> Void)?
 
     private let label = UILabel()
     private let icon = UIImageView()
@@ -179,6 +182,7 @@ final class Key: UIView {
     }
 
     override func accessibilityActivate() -> Bool {
+        Self.onActivate?()
         action?()
         return true
     }

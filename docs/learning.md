@@ -92,7 +92,7 @@ conversion.
 
 | Front end | Switch | Forget |
 |---|---|---|
-| Windows | settings window | settings window |
+| Windows | settings app | settings app |
 | fcitx5 | `config.toml` | delete `learned.tsv` |
 | macOS | settings window | settings window |
 | Android | settings screen | settings screen |

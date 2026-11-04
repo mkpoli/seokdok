@@ -341,7 +341,7 @@ old_clusters = {old}
 # Put a spelling you keep picking first for that reading: two picks of one
 # candidate, and the most recent such choice wins.  (true | false)
 # The picks stay on this device in learned.tsv beside this file; nothing is
-# sent anywhere.  Delete learned.tsv, or use the settings window's button, to
+# sent anywhere.  Delete learned.tsv, or use the button in the settings, to
 # forget them.
 learn = {learn}
 

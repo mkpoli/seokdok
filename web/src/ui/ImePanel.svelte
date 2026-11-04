@@ -293,6 +293,7 @@
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.codaAlways} />{@html r(t().options.coda)}</label>
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.resyllabify} />{@html r(t().options.resyllabify)}</label>
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.hadaKun} />{@html r(t().options.hada)}</label>
+            <label class="ui-field" title={plain(t().options.oldHaTip)}><input class="ui-check" type="checkbox" bind:checked={options.oldHa} />{@html r(t().options.oldHa)}</label>
           </fieldset>
         </div>
       </details>

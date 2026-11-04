@@ -70,6 +70,7 @@ struct SettingsView: View {
                 Toggle("末音添記 늘 / Always write the final consonant  (有ㅆ다)", isOn: $model.config.conversion.codaAlways)
                 Toggle("받침 넘기기 / Resyllabify  (在쓰면)", isOn: $model.config.conversion.resyllabify)
                 Toggle("하다를 爲로 / Prefer 爲 for 하다", isOn: $model.config.conversion.hadaKun)
+                Toggle("하 → ᄒᆞ 優先 / Old spelling of 하 first  (하고 → ᄒᆞ고)", isOn: $model.config.conversion.oldHa)
                 Stepper(value: $model.config.conversion.maxCandidates, in: 1...99) {
                     Text("最大 候補 數 / Max candidates: \(model.config.conversion.maxCandidates)")
                 }

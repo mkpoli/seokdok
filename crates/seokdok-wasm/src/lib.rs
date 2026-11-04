@@ -76,8 +76,8 @@ impl Engine {
     }
 
     /// Set options from a JSON object: `{ style: "surface"|"morpheme",
-    /// fragment: "absorb"|"letter", codaAlways, resyllabify, hadaKun, sinoOnly,
-    /// maxCandidates }`. Missing keys keep their value.
+    /// fragment: "absorb"|"letter", codaAlways, resyllabify, hadaKun, oldHa,
+    /// sinoOnly, maxCandidates }`. Missing keys keep their value.
     #[wasm_bindgen(js_name = setOptions)]
     pub fn set_options(&mut self, json: &str) -> Result<(), JsError> {
         let v: Value = serde_json::from_str(json).map_err(|e| JsError::new(&e.to_string()))?;
@@ -96,6 +96,9 @@ impl Engine {
         }
         if let Some(b) = v.get("hadaKun").and_then(Value::as_bool) {
             o.hada_kun = b;
+        }
+        if let Some(b) = v.get("oldHa").and_then(Value::as_bool) {
+            o.old_ha = b;
         }
         if let Some(b) = v.get("sinoOnly").and_then(Value::as_bool) {
             o.sino_only = b;

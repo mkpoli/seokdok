@@ -37,7 +37,6 @@ final class Key: UIView {
         didSet { refill() }
     }
 
-<<<<<<< HEAD
     /// The labels go while the keyboard is a trackpad.
     var isDimmed = false {
         didSet {
@@ -48,10 +47,7 @@ final class Key: UIView {
         }
     }
 
-    /// Instant going down; a short fade coming back, as on the system keyboard.
-=======
     /// Instant going down; a short fade coming back, whose length is our choice.
->>>>>>> feat/ios-key-press
     var isPressed = false {
         didSet {
             guard isPressed != oldValue else { return }
@@ -253,14 +249,11 @@ final class KeyPad: UIView {
     private var tracks: [ObjectIdentifier: Track] = [:]
     private var previewing: Key?
     private var repeatTimer: Timer?
-<<<<<<< HEAD
     private var holdTimer: Timer?
     /// The touch steering the caret, and what it has moved short of a character.
     private var cursorTouch: ObjectIdentifier?
     private var cursorX: CGFloat = 0
-=======
     /// How far a finger may stray from a function key; our choice.
->>>>>>> feat/ios-key-press
     private static let slop: CGFloat = 40
     /// Our choices: the half second follows Hamster's default, and 8 pt per
     /// character was set by eye.

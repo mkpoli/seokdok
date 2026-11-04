@@ -47,13 +47,13 @@ final class CandidateDrawer: UIView {
 
     private let shorter = BarButton(symbol: "minus", label: "Shorter segment")
     private let longer = BarButton(symbol: "plus", label: "Longer segment")
-    private let segmentScroll = UIScrollView()
+    private let segmentScroll = CandidateScroll()
     private let segments = UIStackView()
     private var shownRuns: [String] = []
     private var shownFocus = -1
     private var segmentHeight: NSLayoutConstraint!
     private let segmentLine = UIView()
-    private let scroll = UIScrollView()
+    private let scroll = CandidateScroll()
     private var cells: [CandidateCell] = []
     private var lines: [UIView] = []
     private var laidWidth: CGFloat = 0
@@ -65,12 +65,10 @@ final class CandidateDrawer: UIView {
 
     override init(frame: CGRect) {
         super.init(frame: frame)
-        scroll.delaysContentTouches = false
         scroll.alwaysBounceVertical = true
         scroll.showsVerticalScrollIndicator = false
         scroll.translatesAutoresizingMaskIntoConstraints = false
         close.translatesAutoresizingMaskIntoConstraints = false
-        segmentScroll.delaysContentTouches = false
         segmentScroll.showsHorizontalScrollIndicator = false
         segmentScroll.translatesAutoresizingMaskIntoConstraints = false
         segments.axis = .horizontal
@@ -127,7 +125,7 @@ final class CandidateDrawer: UIView {
         shorter.isEnabled = list.canShorten
         longer.isEnabled = list.canLengthen
         if list.items != shown {
-            clear()
+            clearGrid()
             shown = list.items
             cells = list.items.enumerated().map { i, item in
                 let cell = CandidateCell(item)
@@ -172,6 +170,10 @@ final class CandidateDrawer: UIView {
         segments.arrangedSubviews.forEach { $0.removeFromSuperview() }
         shownRuns = []
         shownFocus = -1
+        clearGrid()
+    }
+
+    private func clearGrid() {
         cells.forEach { $0.removeFromSuperview() }
         cells = []
         lines.forEach { $0.removeFromSuperview() }
@@ -221,6 +223,23 @@ final class CandidateDrawer: UIView {
             lines.append(line)
         }
         scroll.contentSize = CGSize(width: width, height: CGFloat(rows.count) * Self.rowHeight)
+    }
+}
+
+/// A scroll view of candidates. Touches reach the cells at once so that they
+/// highlight, and a drag starting on a cell still scrolls.
+final class CandidateScroll: UIScrollView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        delaysContentTouches = false
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("not used")
+    }
+
+    override func touchesShouldCancel(in view: UIView) -> Bool {
+        true
     }
 }
 

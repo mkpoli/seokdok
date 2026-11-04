@@ -59,7 +59,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private var globeWidth: NSLayoutConstraint?
 
     private let bar = UIStackView()
-    private let barScroll = UIScrollView()
+    private let barScroll = CandidateScroll()
     private let barEnd = UIStackView()
     private var shownCandidates: Session.Candidates?
     private let more = BarButton(symbol: "chevron.down", label: "More candidates")
@@ -115,7 +115,6 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         ])
 
         barRow = scrolling(bar, in: barScroll, trailing: barEnd, height: 45)
-        barScroll.delaysContentTouches = false
         column.addArrangedSubview(barRow)
         column.setCustomSpacing(9, after: barRow)
 

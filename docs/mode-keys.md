@@ -91,7 +91,7 @@ A left click toggles conversion and plain Hangul, or Hangul and Latin under
 the script, the input mode, `candidate_layout` and `old_ha`, then Settings….
 The script entries name the `script_cycle` keys, and 釋讀 and 한글 name their own
 lists, which are empty by default.
-`windows.menu_items` in config.toml, or the settings dialog, adds the other
+`windows.menu_items` in config.toml, or the settings app, adds the other
 settings or takes these away. Choosing a script also leaves plain Hangul and
 Latin, so the icon always shows the choice.
 

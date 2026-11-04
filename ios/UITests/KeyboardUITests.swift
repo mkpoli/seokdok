@@ -54,4 +54,120 @@ final class KeyboardUITests: XCTestCase {
         let value = field.value as? String ?? ""
         XCTAssertTrue(value.contains("安寧"), "field holds \(value)")
     }
+
+    // MARK: Keyboard types
+    //
+    // Keys of the pad layouts and the email layout, by point offsets from the
+    // top of the keyboard. The keyboard is 284 pt high and its top sits 359 pt
+    // above the bottom of an iPhone 16-sized window. Pad rows are 50 pt with 7
+    // between, in three columns with 6 between, 3 pt in from each side.
+
+    private struct Geometry {
+        let app: XCUIApplication
+        var width: CGFloat { app.windows.firstMatch.frame.width }
+        var height: CGFloat { app.windows.firstMatch.frame.height }
+
+        func tap(x: CGFloat, y: CGFloat) {
+            let top = height - 359
+            app.coordinate(withNormalizedOffset: CGVector(dx: x / width, dy: (top + y) / height)).tap()
+            usleep(400_000)
+        }
+
+        /// Pad key in column `c` (0-2) of row `r` (0-3 the grid, 4 the bottom row).
+        func pad(_ r: Int, _ c: Int) {
+            let w = (width - 6 - 12) / 3
+            tap(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: 2 + CGFloat(r) * 57 + 25)
+        }
+    }
+
+    private func launch(kind: String, second: String? = nil) -> (XCUIApplication, XCUIElement) {
+        let app = XCUIApplication()
+        app.launchArguments = ["-focusTrial", "YES", "-trialKind", kind]
+        if let second { app.launchArguments += ["-trialKind2", second] }
+        app.launch()
+        let field = app.descendants(matching: .any)["trial"]
+        XCTAssertTrue(field.waitForExistence(timeout: 10))
+        return (app, field)
+    }
+
+    private func text(_ field: XCUIElement) -> String {
+        let v = field.value as? String ?? ""
+        return v == field.placeholderValue ? "" : v
+    }
+
+    /// Tap until the keyboard has come up and the field changed, so a slow
+    /// extension start does not lose the first key.
+    private func tapUntilTyped(_ field: XCUIElement, _ key: () -> Void) {
+        for _ in 0..<10 {
+            key()
+            sleep(2)
+            if !text(field).isEmpty { return }
+        }
+    }
+
+    func testNumberPadTypesDigits() throws {
+        let (app, field) = launch(kind: "number")
+        let g = Geometry(app: app)
+        tapUntilTyped(field) { g.pad(0, 0) } // 1
+        g.pad(0, 1) // 2
+        g.pad(2, 2) // 9
+        g.pad(3, 1) // 0
+        shot("number-pad")
+        XCTAssertEqual(text(field), "1290")
+        g.pad(3, 2) // delete
+        XCTAssertEqual(text(field), "129")
+    }
+
+    func testDecimalPadTypesDecimalPoint() throws {
+        let (app, field) = launch(kind: "decimal")
+        let g = Geometry(app: app)
+        tapUntilTyped(field) { g.pad(0, 2) } // 3
+        g.pad(3, 0) // the decimal separator
+        g.pad(1, 1) // 5
+        shot("decimal-pad")
+        XCTAssertEqual(text(field), "3" + (Locale.current.decimalSeparator ?? ".") + "5")
+    }
+
+    /// An email field gets Latin letters and an @ key, never Hangul.
+    func testEmailFieldTypesLatinWithoutConverting() throws {
+        let (app, field) = launch(kind: "email")
+        let g = Geometry(app: app)
+        let d = g.width * 274 / 920
+        let k = g.width * 738 / 920
+        tapUntilTyped(field) { g.tap(x: d, y: 159) }
+        g.tap(x: 74, y: 259) // @
+        g.tap(x: k, y: 159)
+        g.tap(x: 119, y: 259) // .
+        shot("email")
+        XCTAssertEqual(text(field), "d@k.")
+    }
+
+    /// Hangul pending in one field must not be written into the next field.
+    func testComposingThenFocusingAnotherFieldWritesNothingThere() throws {
+        let (app, field) = launch(kind: "default", second: "email")
+        let second = app.descendants(matching: .any)["trial2"]
+        let g = Geometry(app: app)
+        let w = (g.width - 6 - 45) / 10
+        let r = 3 + 3 * (w + 5) + w / 2 // ㄱ
+        tapUntilTyped(field) { g.tap(x: r, y: 107) }
+        g.tap(x: g.width * 738 / 920, y: 159) // ㅏ
+        XCTAssertEqual(text(field), "가")
+        second.tap()
+        sleep(2)
+        shot("switched-field")
+        XCTAssertEqual(text(second), "", "the composition leaked into the next field")
+        g.tap(x: g.width * 274 / 920, y: 159) // d, typed as Latin in the email field
+        XCTAssertEqual(text(second), "d")
+    }
+
+    /// With the keyboard's own globe shown (the workflow forces it on in
+    /// Debug builds), the pad still lays out and types.
+    func testNumberPadWithGlobeKey() throws {
+        let (app, field) = launch(kind: "number")
+        let g = Geometry(app: app)
+        tapUntilTyped(field) { g.pad(0, 0) }
+        g.pad(0, 1)
+        shot("number-pad-globe")
+        XCTAssertEqual(text(field), "12")
+    }
 }

@@ -100,6 +100,10 @@ jobs:
           xcrun simctl ui "$UDID" appearance dark
           sleep 3
           xcrun simctl io "$UDID" screenshot shots/keyboard-dark.png
+          xcrun simctl terminate "$UDID" li.mkpo.seokdok
+          xcrun simctl launch "$UDID" li.mkpo.seokdok -focusTrial YES -trialKind number
+          sleep 8
+          xcrun simctl io "$UDID" screenshot shots/number-pad-dark.png
 
       # App Store rule 4.4.1: the keyboard must remain functional without
       # Full Access. Rebuild the extension with the key off and run the same
@@ -116,6 +120,28 @@ jobs:
             build/Build/Products/Debug-iphonesimulator/Seokdok.app/PlugIns/SeokdokKeyboard.appex/Info.plist)
           echo "RequestsOpenAccess in the tested extension: $flag"
           test "$flag" = false
+
+      # The simulator shows the system's globe, so force the keyboard's own
+      # for one test, then fail on any Auto Layout conflict the extension
+      # logged during the run.
+      - name: UI test with the keyboard's own globe key
+        if: always()
+        working-directory: ios
+        run: |
+          xcrun simctl spawn "$UDID" defaults write li.mkpo.seokdok.keyboard forceGlobe -bool YES
+          mkdir -p shots/globe
+          TEST_RUNNER_SHOTS="$PWD/shots/globe" xcodebuild -quiet test -project Seokdok.xcodeproj -scheme Seokdok \
+            -destination "id=$UDID" -derivedDataPath build \
+            -only-testing:SeokdokUITests/KeyboardUITests/testNumberPadWithGlobeKey
+          xcrun simctl spawn "$UDID" defaults delete li.mkpo.seokdok.keyboard forceGlobe
+
+      - name: Auto Layout conflicts in the keyboard
+        if: always()
+        working-directory: ios
+        run: |
+          xcrun simctl spawn "$UDID" log show --style compact --last 90m \
+            --predicate 'process == "SeokdokKeyboard" AND eventMessage CONTAINS "Unable to simultaneously satisfy constraints"' | tee shots/constraints.txt
+          if grep -q "Unable to simultaneously" shots/constraints.txt; then exit 1; fi
 
       - uses: actions/upload-artifact@v4
         if: always()

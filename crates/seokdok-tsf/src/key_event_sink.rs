@@ -116,7 +116,10 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         if let Some(context) = pic.as_ref() {
             self.sync(context);
         }
-        let eats = self.inner().session.eats(key);
+        let eats = {
+            let state = self.inner();
+            state.session.eats(key) || state.session.commits_then_passes(key)
+        };
         crate::debug_log::log(|| format!("OnTestKeyDown vk={:#x} eats={eats} ctx={:?}", wparam.0, pic.as_ref().map(|c| windows::core::Interface::as_raw(c))));
         Ok(eats.into())
     }
@@ -157,6 +160,10 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             COMMITTED_BY.with(|c| c.set(Some((wparam.0 & 0xFFFF) as u16)));
         }
         if !output.eaten {
+            // A plain keyboard commits its composition before the key goes on.
+            if !output.effects.is_empty() {
+                let _ = self.apply(context, output.effects);
+            }
             return Ok(false.into());
         }
         {

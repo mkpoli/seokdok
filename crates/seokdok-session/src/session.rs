@@ -133,6 +133,8 @@ enum Act {
     /// Close the candidate window, keeping the conversion.
     CloseWindow,
     ToggleLatin,
+    /// Commit the composition and leave the key to the application.
+    CommitPass,
     Noop,
 }
 
@@ -218,7 +220,14 @@ impl Session {
 
     /// Would [`Session::handle`] consume this key?
     pub fn eats(&self, key: Key) -> bool {
-        self.plan(key).is_some()
+        !matches!(self.plan(key), None | Some(Act::CommitPass))
+    }
+
+    /// Does this key commit the composition and then go to the application?
+    /// The front end must apply the effects of [`Session::handle`] before it
+    /// passes the key on.
+    pub fn commits_then_passes(&self, key: Key) -> bool {
+        self.plan(key) == Some(Act::CommitPass)
     }
 
     fn plan(&self, key: Key) -> Option<Act> {
@@ -281,15 +290,11 @@ impl Session {
             Key::Esc => Act::Cancel,
             Key::Backspace => Act::Backspace,
             Key::Tab { .. } | Key::Down | Key::Convert if converts => Act::Convert(false),
-            Key::Tab { .. }
-            | Key::Down
-            | Key::Convert
-            | Key::Up
-            | Key::Left { .. }
-            | Key::Right { .. }
-            | Key::PageUp
-            | Key::PageDown
-            | Key::Other => Act::Noop,
+            Key::Tab { .. } | Key::Down | Key::Convert => Act::Noop,
+            // A plain keyboard: the composition is final, the key then acts
+            // on the text as usual.
+            Key::Up | Key::Left { .. } | Key::Right { .. } | Key::PageUp | Key::PageDown | Key::Other if !converts => Act::CommitPass,
+            Key::Up | Key::Left { .. } | Key::Right { .. } | Key::PageUp | Key::PageDown | Key::Other => Act::Noop,
             Key::HangulToggle => unreachable!(),
         })
     }
@@ -328,6 +333,10 @@ impl Session {
                 fx.push(Effect::Cancel);
             }
             Act::Convert(spaced) => self.convert(conv, spaced, &mut fx),
+            Act::CommitPass => {
+                fx.push(Effect::Commit(self.take_text()));
+                fx.push(Effect::Popup(None));
+            }
             Act::CommitWith(c) => {
                 let mut text = self.take_text();
                 text.extend(c);
@@ -413,7 +422,7 @@ impl Session {
                 fx.extend(self.set_mode(next));
             }
         }
-        Output { eaten: true, effects: fx }
+        Output { eaten: act != Act::CommitPass, effects: fx }
     }
 
     /// Confirm the segments up to the focused one; the rest stay converting.
@@ -957,7 +966,7 @@ mod tests {
     fn hangul_mode_never_converts() {
         let mut s = Session::new(Mode::Hangul, true);
         type_str(&mut s, "gks");
-        for k in [Key::Convert, Key::Tab { shift: false }, Key::Down, Key::Left { shift: false }, Key::Other] {
+        for k in [Key::Convert, Key::Tab { shift: false }, Key::Down] {
             let o = s.handle(k, &Stub(3));
             assert!(o.eaten && o.effects.is_empty(), "{k:?}");
         }
@@ -1018,6 +1027,33 @@ mod tests {
         type_str(&mut s, "rk");
         let fx = s.set_hangul_only(false);
         assert_eq!(fx[0], Effect::Commit("가".into()));
+    }
+
+    #[test]
+    fn a_plain_keyboard_commits_before_navigation_keys() {
+        for mut s in [Session::new(Mode::Hangul, true), hangul_only()] {
+            for k in [
+                Key::Left { shift: false },
+                Key::Right { shift: true },
+                Key::Up,
+                Key::PageUp,
+                Key::PageDown,
+                Key::Other,
+            ] {
+                type_str(&mut s, "gks");
+                assert!(!s.eats(k) && s.commits_then_passes(k), "{k:?}");
+                let o = s.handle(k, &Stub(3));
+                assert!(!o.eaten, "{k:?}");
+                assert_eq!(commit_of(&o).unwrap(), "한", "{k:?}");
+                assert!(!s.is_composing());
+                // Nothing composing: the key is not touched.
+                assert!(!s.commits_then_passes(k));
+            }
+        }
+        // 釋讀 keeps its own navigation.
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        assert!(s.eats(Key::Left { shift: false }) && !s.commits_then_passes(Key::Left { shift: false }));
     }
 
     #[test]

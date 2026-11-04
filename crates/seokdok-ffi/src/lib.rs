@@ -183,9 +183,8 @@ pub unsafe extern "C" fn seokdok_key(ime: *mut Ime, kind: i32, ch: u32, shift: b
     let ime = &mut *ime;
     let Some(key) = key_of(kind, ch, shift) else { return false };
     let out = ime.session.handle(key, &HOST);
-    if out.eaten {
-        ime.apply(out.effects);
-    }
+    // A key left to the application can still commit first.
+    ime.apply(out.effects);
     out.eaten
 }
 
@@ -472,6 +471,13 @@ mod tests {
             let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
             assert_eq!(c, "안녕 ");
             assert_eq!(seokdok_popup_len(ime), 0);
+            // An arrow key commits the composition and is left to the application.
+            for k in "gks".chars() {
+                assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
+            }
+            assert!(!seokdok_key(ime, SK_LEFT, 0, false));
+            let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
+            assert_eq!(c, "한");
             seokdok_free(ime);
         }
         std::env::remove_var("SEOKDOK_CONFIG_DIR");

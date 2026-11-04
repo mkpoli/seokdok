@@ -31,7 +31,7 @@ import { chars, splitsChar, HANGUL } from './chars.js'
 // punctuation confirm without one. With spaceMode 'space', Space types a
 // space and Tab, ↓ or the convert key convert.
 
-import { KOREAN, JAMO, OLD_RUN, syllables } from './sink.js'
+import { JAMO, OLD_RUN, syllables } from './sink.js'
 
 /** @typedef {{ text: string, note: string }} Candidate */
 /** @typedef {{ reading: string, candidates: Candidate[], pick: number }} Seg */
@@ -256,7 +256,7 @@ export class Ime {
 
   /** @param {boolean} [spaced] started by Space: confirming implies a word break */
   async convert(spaced = false) {
-    if (this.hangulOnly || !this.pre || !KOREAN.test(this.pre)) return false
+    if (this.hangulOnly || !this.pre || !HANGUL.test(this.pre)) return false
     this.#spaced = spaced
     this.busy = true
     try {
@@ -422,7 +422,7 @@ export class Ime {
     if (this.segs) this.commit()
     const brk = this.#wordBreak
     this.#wordBreak = false
-    if (!this.pre && !KOREAN.test(s)) return this.#insert(s)
+    if (!this.pre && !HANGUL.test(s)) return this.#insert(s)
     if (brk && !this.pre) this.#space()
     this.#pushText(s)
     this.#tidy()
@@ -435,7 +435,7 @@ export class Ime {
    * @param {import('./sink.js').Unit[]} units
    */
   retype(base, units) {
-    if (this.#wordBreak && !base && units.some((u) => KOREAN.test(u.c) || this.#isKey(u))) {
+    if (this.#wordBreak && !base && units.some((u) => HANGUL.test(u.c) || this.#isKey(u))) {
       this.#space()
       this.#wordBreak = false
     }

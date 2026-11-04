@@ -16,7 +16,8 @@
 // MARK keeps the textarea from ever being empty, because Backspace in an empty
 // textarea fires no input event on phones.
 
-export const KOREAN = /[\u1100-\u11FF\u3131-\u318E\uA960-\uA97C\uD7B0-\uD7FB가-힣]/
+import { HANGUL } from './chars.js'
+
 export const JAMO = /[\u3131-\u318E]/
 // A run of compatibility letters holding an old one (ㅎㆍㄴ): no finished text
 // spells a syllable that way, so it is still to be composed. Others (ㅋㅋ) stay.
@@ -132,7 +133,7 @@ export class Sink {
   }
 
   #isKorean(u) {
-    return KOREAN.test(u.c) || (this.ime.mode === 'hangul' && !u.finished && LATIN.test(u.c))
+    return HANGUL.test(u.c) || (this.ime.mode === 'hangul' && !u.finished && LATIN.test(u.c))
   }
 
   /** @param {{ inputType?: string }} [e] */
@@ -176,7 +177,7 @@ export class Sink {
     if (!composing && BREAK.test(added.at(-1)) && !added.slice(0, -1).some((c) => BREAK.test(c))) press = added.pop()
 
     const kept = spent ? [] : prev.slice(0, at)
-    if (!composing && added.length === 1 && added[0].length === 1 && !KOREAN.test(added[0])) {
+    if (!composing && added.length === 1 && added[0].length === 1 && !HANGUL.test(added[0])) {
       if (kept.length !== prev.length && !spent) this.#fill(kept)
       ime.key({ key: added[0] })
       this.#rebase()

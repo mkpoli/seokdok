@@ -3,7 +3,8 @@ import UIKit
 /// The 釋讀 keyboard: 두벌식 keys feed the Rust session; the text being
 /// composed is the document's marked text (as azooKey does), confirmed text
 /// is inserted, and the focused segment's candidates show in the bar above
-/// the keys.
+/// the keys. The document's marked text is the only copy of the composition on
+/// screen.
 final class KeyboardViewController: UIInputViewController {
     private var session: Session!
     private var keys: KeyboardView!
@@ -39,7 +40,8 @@ final class KeyboardViewController: UIInputViewController {
         keys.delegate = self
         keys.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(keys)
-        let height = keys.heightAnchor.constraint(equalToConstant: 284)
+        // As tall as the system keyboard with its suggestion bar.
+        let height = keys.heightAnchor.constraint(equalToConstant: 261)
         // Below required, so it gives way to the system's own height while
         // the keyboard is being set up.
         height.priority = UILayoutPriority(999)

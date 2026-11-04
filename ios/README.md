@@ -91,9 +91,10 @@ after changing `project.yml`.
 - Beside a candidate, in smaller text, is only what tells it from the others:
   a dictionary word that differs from what was typed (行ㄹ 가다, 磨ㄹ 갈다 for 갈),
   or 音 and 訓 when the list holds both.
-- The strip above the bar shows the composition. Tap the Hangul to convert
-  it (also when Space only types a space); tap a segment to focus it; − and
-  + shorten or lengthen the focused segment.
+- While typing, the bar holds the Hangul; tap it to convert (also when Space
+  only types a space).
+- The drawer's top row holds the composition's segments. Tap one to focus it;
+  − and + shorten or lengthen the focused one. The drawer stays open meanwhile.
 - 確定 (Return) confirms everything. Backspace undoes the conversion, then
   deletes letters; hold it to repeat.
 - The mode key cycles 釋 (釋讀) → 混 (國漢文混用) → 한 (韓㐎 專用) → A (Latin), writing
@@ -133,10 +134,9 @@ turned off.
 
 - `Keyboard/Session.swift`: the Swift face of the C interface.
 - `Keyboard/KeyboardViewController.swift`: keys → session → marked text,
-  commits, the strip and the candidate bar; drops the composition when the
+  commits and the candidate bar; drops the composition when the
   text changes outside the keyboard.
-- `Keyboard/KeyboardView.swift`: the strip, the candidate bar, the 두벌식
-  and symbol layers.
+- `Keyboard/KeyboardView.swift`: the candidate bar, the 두벌식 and symbol layers.
 - `Keyboard/CandidateDrawer.swift`: the candidate cells and the grid that opens
   over the keys.
 - `App/SeokdokApp.swift`: a field to try the keyboard, how to enable it, and

@@ -12,6 +12,9 @@ protocol KeyboardViewDelegate: AnyObject {
     func convert()
     func focus(run: Int)
     func resize(_ step: Int)
+    func toggleLearnMenu()
+    func forgetPicks()
+    func setLearn(_ on: Bool)
 }
 
 /// What the text field asks for (`textDocumentProxy.keyboardType` and secure
@@ -39,6 +42,10 @@ struct KeyboardState {
     var layout = Layout.standard
     var shift: Shift = .off
     var mode: Session.Mode = .seokdok
+    /// The strip shows the controls for what was learned.
+    var learnMenu = false
+    /// `input.learn`, when this keyboard rather than the app decides it.
+    var learnOn: Bool?
     var script: Int32 = 0
     var composing = false
     var spaceConverts = true
@@ -329,6 +336,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         modeKey.accessibilityLabel = "Input mode"
         modeKey.addAction(UIAction { [weak self] _ in self?.tap { $0.cycleMode() } }, for: .touchUpInside)
         modeKey.widthAnchor.constraint(equalToConstant: 46).isActive = true
+        modeKey.addGestureRecognizer(UILongPressGestureRecognizer(target: self, action: #selector(modeKeyHeld(_:))))
         spaceKey = KeyButton(title: "띄어쓰기")
         spaceKey.addAction(UIAction { [weak self] _ in self?.tap { $0.space() } }, for: .touchUpInside)
         enterKey = KeyButton(title: "改行", accent: true)
@@ -338,6 +346,12 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             bottom.addArrangedSubview(k)
         }
         return bottom
+    }
+
+    @objc private func modeKeyHeld(_ press: UILongPressGestureRecognizer) {
+        if press.state == .began {
+            tap { $0.toggleLearnMenu() }
+        }
     }
 
     private func tap(_ act: (KeyboardViewDelegate) -> Void) {
@@ -466,6 +480,20 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         strip.arrangedSubviews.forEach { $0.removeFromSuperview() }
         let converted = s.runs.contains { $0.attr != 0 }
         resizeKeys.isHidden = !converted
+        if s.learnMenu && s.runs.isEmpty {
+            func control(_ title: String, _ act: @escaping (KeyboardViewDelegate) -> Void) {
+                let b = UIButton(type: .system)
+                b.setTitle(title, for: .normal)
+                b.titleLabel?.font = .systemFont(ofSize: 14)
+                b.addAction(UIAction { [weak self] _ in self?.tap(act) }, for: .touchUpInside)
+                strip.addArrangedSubview(b)
+            }
+            if let on = s.learnOn {
+                control(on ? "學習 끄기 · Stop learning" : "學習 켜기 · Learn picks") { $0.setLearn(!on) }
+            }
+            control("고른 것 잊기 · Forget picks") { $0.forgetPicks() }
+            return
+        }
         if s.runs.isEmpty {
             let label = UILabel()
             label.font = .systemFont(ofSize: 14)

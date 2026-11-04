@@ -272,9 +272,16 @@ final class KeyboardUITests: XCTestCase {
         XCTAssertEqual(text(field).count, start.count + 1, "the key after Return typed nothing")
         g.enter()
         sleep(1)
-        // Between ㅏ (k) and ㅣ (l) in the letter row, then between two rows.
+        // ㅣ (l) itself, then between ㅓ (j) and ㅏ (k), then between two rows.
+        let beforeL = text(field)
+        g.letter("l")
+        sleep(1)
+        shot("key-l")
+        XCTAssertEqual(text(field).count, beforeL.count + 1, "the ㅣ key typed nothing")
+        g.enter()
+        sleep(1)
         let w = (g.width - 6 - 54) / 10
-        let gapX = 3 + 21 + 7 * (w + 6) + w + 3
+        let gapX = 3 + 21 + 7 * (w + 6) - 3
         let afterKey = text(field)
         g.tap(x: gapX, y: 129)
         sleep(1)
@@ -290,14 +297,28 @@ final class KeyboardUITests: XCTestCase {
         g.enter()
     }
 
-    /// The candidate bar, a held key and the drawer in dark mode.
-    func testDarkScreens() throws {
+    /// Holding the 釋 key offers to forget what was learned, in the bar.
+    func testHoldingTheModeKeyShowsLearnControls() throws {
         let (app, field) = launch(kind: "default")
         let g = Geometry(app: app)
-        // Set once the app is up: before the first launch it did not take.
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
+        g.delete()
+        sleep(1)
+        let top = g.height - 336
+        app.coordinate(withNormalizedOffset: CGVector(dx: 78 / g.width, dy: (top + 237) / g.height)).press(forDuration: 1)
+        sleep(1)
+        shot("learn-controls")
+    }
+
+    /// The candidate bar, a held key and the drawer in dark mode.
+    func testDarkScreens() throws {
+        // The look reaches an app launched after it is set, with one up already.
+        _ = launch(kind: "default").0
         XCUIDevice.shared.appearance = .dark
         defer { XCUIDevice.shared.appearance = .light }
         sleep(2)
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
         tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
         g.type("kssud")
         sleep(1)

@@ -1,6 +1,6 @@
 //! `ITfTextInputProcessor` + `ITfTextInputProcessorEx`: the activation
 //! lifecycle. `ActivateEx` advises the sinks, registers the display
-//! attributes, adds the language-bar button and starts loading the engine;
+//! attributes, adds the input-indicator button and starts loading the engine;
 //! `Deactivate` undoes it in reverse, idempotently.
 
 use windows::core::{IUnknownImpl, Interface, Ref};
@@ -114,7 +114,7 @@ impl TextService_Impl {
             state.session = Session::new(mode, cfg.input.space_converts);
             let hangul_only = cfg.conversion.script == crate::config::Script::HangulOnly;
             state.session.set_hangul_only(hangul_only);
-            state.mode.set_hangul_only(hangul_only);
+            state.mode.set_script(cfg.conversion.script);
             state.mode.show(state.session.mode());
         }
         let shown = self.inner().session.mode();
@@ -157,7 +157,7 @@ impl TextService_Impl {
             state.composition = None;
         }
 
-        // Language-bar button; best effort, a missing language bar must not
+        // Input-indicator button; best effort, a missing language bar must not
         // fail activation.
         let shared = self.inner().mode.clone();
         let item: ITfLangBarItem = ModeButton::new(shared).into();

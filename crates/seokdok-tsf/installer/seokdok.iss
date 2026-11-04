@@ -80,7 +80,7 @@ Source: "{#Stage}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "korean-keyboard.ps1"; DestDir: "{app}"; Flags: ignoreversion
 
 [Icons]
-; Settings entry point; Windows 11 hides the language bar menu.
+; Settings entry point; the input indicator's menu is the other.
 Name: "{autoprograms}\釋讀 seokdok 設定"; Filename: "{sys}\rundll32.exe"; Parameters: """{app}\seokdok.dll"",ShowSettings"; WorkingDir: "{app}"
 
 [Run]

@@ -5,7 +5,7 @@
 //! the shared `seokdok-session` crate (also used by the Linux front end); the
 //! TSF glue here is compiled on Windows only.
 
-pub use seokdok_session::{config, engine_host, keys, mode_keys, session, surface};
+pub use seokdok_session::{config, engine_host, keys, mode_keys, quick_menu, session, surface};
 
 #[cfg(windows)]
 #[doc(hidden)]

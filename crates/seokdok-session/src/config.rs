@@ -10,6 +10,7 @@ use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::sync::RwLock;
+use std::time::SystemTime;
 
 use crate::mode_keys::ModeKeys;
 
@@ -146,11 +147,26 @@ impl Default for Conversion {
     }
 }
 
+#[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
+#[serde(default)]
+pub struct Windows {
+    /// What the input indicator's menu shows: the keys of
+    /// [`crate::quick_menu::MenuItem`]. Other entries are ignored.
+    pub menu_items: Vec<String>,
+}
+
+impl Default for Windows {
+    fn default() -> Self {
+        Windows { menu_items: ["script", "input_mode", "candidate_layout", "old_ha"].map(String::from).to_vec() }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Default, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Config {
     pub input: Input,
     pub conversion: Conversion,
+    pub windows: Windows,
     /// Where to draw the composition, by executable name. An application not
     /// listed is decided automatically.
     pub composition: BTreeMap<String, Surface>,
@@ -223,6 +239,23 @@ impl Config {
         toml::from_str(text).unwrap_or_default()
     }
 
+    /// Change the file through `change`, writing only if the settings differ.
+    /// A file that does not parse is left alone and is an error: loading it
+    /// gives the defaults, and saving those would lose what it holds.
+    pub fn update_file(path: &Path, change: impl FnOnce(&mut Config)) -> std::io::Result<Config> {
+        let mut config = match std::fs::read_to_string(path) {
+            Ok(text) => toml::from_str(&text).map_err(std::io::Error::other)?,
+            Err(e) if e.kind() == std::io::ErrorKind::NotFound => Config::default(),
+            Err(e) => return Err(e),
+        };
+        let before = config.clone();
+        change(&mut config);
+        if config != before {
+            config.save_to(path)?;
+        }
+        Ok(config)
+    }
+
     /// The file as written to disk: every option with a comment and its
     /// allowed values.
     pub fn to_documented_toml(&self) -> String {
@@ -268,7 +301,8 @@ impl Config {
 #   macOS:   ~/Library/Application Support/seokdok/config.toml
 #   Linux:   ~/.config/seokdok/config.toml
 #
-# Re-activate the input method (switch away and back) to apply changes.
+# On Windows, changes apply at the next key or when an application gets the
+# focus.  Elsewhere, re-activate the input method (switch away and back).
 # Delete this file to regenerate it with the defaults.
 
 [input]
@@ -355,6 +389,22 @@ script = \"{script}\"
 # Maximum number of whole-phrase candidates.  (integer, 1 or more)
 max_candidates = {max}
 
+[windows]
+# What the menu of the input indicator on the taskbar shows (right-click its
+# icon).  Settings… is always there.
+#   script           = 釋 混 한: conversion.script
+#   input_mode       = 釋讀, 한글, A
+#   candidate_layout = horizontal candidates: input.candidate_layout
+#   old_ha           = conversion.old_ha
+#   old_clusters     = input.old_clusters
+#   space_converts   = input.space_converts
+#   style            = 形態式: conversion.style
+#   fragment         = leftover vowel as a letter: conversion.fragment
+#   coda_always      = conversion.coda_always
+#   resyllabify      = conversion.resyllabify
+#   hada_kun         = conversion.hada_kun
+menu_items = {menu_items}
+
 # Windows: where the text being typed is drawn, by executable name.
 #   inline   = in the document
 #   floating = in a popup at the caret
@@ -385,6 +435,7 @@ max_candidates = {max}
             old_ha = c.old_ha,
             script = script,
             max = c.max_candidates,
+            menu_items = toml_list(&self.windows.menu_items),
             composition = composition,
         )
     }
@@ -400,7 +451,8 @@ max_candidates = {max}
         if let Some(dir) = path.parent() {
             std::fs::create_dir_all(dir)?;
         }
-        let tmp = path.with_extension("toml.tmp");
+        // Each process has its own, so two writers cannot mix their text.
+        let tmp = path.with_extension(format!("toml.{}.tmp", std::process::id()));
         std::fs::write(&tmp, self.to_documented_toml())?;
         std::fs::rename(&tmp, path)
     }
@@ -412,12 +464,50 @@ fn toml_list(items: &[String]) -> String {
     format!("[{}]", quoted.join(", "))
 }
 
-static GLOBAL: RwLock<Option<Config>> = RwLock::new(None);
+/// What tells one version of the file from another without reading it.
+#[derive(Debug, Clone, Copy, PartialEq)]
+struct FileStamp {
+    modified: Option<SystemTime>,
+    len: u64,
+}
+
+fn stamp_of(path: &Path) -> Option<FileStamp> {
+    let m = std::fs::metadata(path).ok()?;
+    Some(FileStamp { modified: m.modified().ok(), len: m.len() })
+}
+
+/// The settings in use and the version of the file they came from.
+#[derive(Default)]
+struct Cache {
+    config: Option<Config>,
+    stamp: Option<FileStamp>,
+}
+
+impl Cache {
+    fn reload(&mut self, path: Option<&Path>) -> Config {
+        // The stamp comes first: a write between the two is seen as a change.
+        self.stamp = path.and_then(stamp_of);
+        let config = path.map(Config::load_from).unwrap_or_default();
+        self.config = Some(config.clone());
+        config
+    }
+
+    /// Whether another writer changed the file; the cache follows it if so.
+    fn refresh(&mut self, path: Option<&Path>) -> bool {
+        if self.config.is_some() && self.stamp == path.and_then(stamp_of) {
+            return false;
+        }
+        self.reload(path);
+        true
+    }
+}
+
+static GLOBAL: RwLock<Cache> = RwLock::new(Cache { config: None, stamp: None });
 
 /// The cached configuration, loaded on first use.
 pub fn current() -> Config {
     if let Ok(g) = GLOBAL.read() {
-        if let Some(c) = g.as_ref() {
+        if let Some(c) = g.config.as_ref() {
             return c.clone();
         }
     }
@@ -426,11 +516,28 @@ pub fn current() -> Config {
 
 /// Re-read the file and refresh the cache.
 pub fn reload() -> Config {
-    let c = Config::load();
-    if let Ok(mut g) = GLOBAL.write() {
-        *g = Some(c.clone());
+    let path = Config::path();
+    match GLOBAL.write() {
+        Ok(mut g) => g.reload(path.as_deref()),
+        Err(_) => Config::load(),
     }
-    c
+}
+
+/// Follow the file if something changed it, such as the same input method in
+/// another application. True when it changed. This only reads the file's
+/// timestamp and length, so it can run at every key.
+pub fn refresh() -> bool {
+    let path = Config::path();
+    GLOBAL.write().map(|mut g| g.refresh(path.as_deref())).unwrap_or(false)
+}
+
+/// Change the file (see [`Config::update_file`]) and the cache with it.
+pub fn update(change: impl FnOnce(&mut Config)) -> std::io::Result<Config> {
+    let Some(path) = Config::path() else {
+        return Err(std::io::Error::from(std::io::ErrorKind::NotFound));
+    };
+    Config::update_file(&path, change)?;
+    Ok(reload())
 }
 
 /// Write the default file when none exists, so it can be found and edited.
@@ -496,6 +603,7 @@ mod tests {
                 script: Script::HangulOnly,
                 max_candidates: 5,
             },
+            windows: Windows { menu_items: vec!["script".into(), "no such item".into()] },
             composition: BTreeMap::from([
                 ("Telegram.exe".to_string(), Surface::Floating),
                 ("vivaldi.exe".to_string(), Surface::Inline),
@@ -558,6 +666,78 @@ mod tests {
         assert_eq!(d.style, Style::Surface);
         assert_eq!(d.max_candidates, Options::default().max_candidates);
         assert!(!d.old_ha);
+    }
+
+    #[test]
+    fn menu_items_are_read_and_their_default_is_listed() {
+        let c = Config::parse("[windows]\nmenu_items = [\"old_ha\", \"unknown\"]\n");
+        assert_eq!(c.windows.menu_items, ["old_ha", "unknown"]);
+        assert_eq!(c.input, Input::default());
+        assert_eq!(Config::parse("").windows, Windows::default());
+        assert!(Config::parse("[windows]\nmenu_items = []\n").windows.menu_items.is_empty());
+    }
+
+    fn scratch(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("seokdok-cfg-{name}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::fs::create_dir_all(&dir).unwrap();
+        dir.join("config.toml")
+    }
+
+    #[test]
+    fn a_cache_follows_a_write_from_another_process() {
+        let path = scratch("refresh");
+        let p = Some(path.as_path());
+        let mut cache = Cache::default();
+        // No file yet: the first look loads the defaults.
+        assert!(cache.refresh(p));
+        assert!(!cache.refresh(p));
+        assert_eq!(cache.config.as_ref().unwrap(), &Config::default());
+
+        let mut other = Config::default();
+        other.conversion.script = Script::SinoOnly;
+        other.save_to(&path).unwrap();
+        assert!(cache.refresh(p));
+        assert_eq!(cache.config.as_ref().unwrap().conversion.script, Script::SinoOnly);
+        assert!(!cache.refresh(p));
+
+        // A change the first process made itself is not news to it.
+        other.input.old_clusters = true;
+        other.save_to(&path).unwrap();
+        cache.reload(p);
+        assert!(!cache.refresh(p));
+        assert!(cache.config.as_ref().unwrap().input.old_clusters);
+
+        std::fs::remove_file(&path).unwrap();
+        assert!(cache.refresh(p));
+        assert_eq!(cache.config.as_ref().unwrap(), &Config::default());
+        let _ = std::fs::remove_dir_all(path.parent().unwrap());
+    }
+
+    #[test]
+    fn update_file_writes_changes_only_and_spares_a_broken_file() {
+        let path = scratch("update");
+        // A missing file starts from the defaults.
+        let c = Config::update_file(&path, |c| c.conversion.old_ha = true).unwrap();
+        assert!(c.conversion.old_ha);
+        assert_eq!(Config::load_from(&path), c);
+
+        // Other settings survive.
+        let c = Config::update_file(&path, |c| c.conversion.script = Script::HangulOnly).unwrap();
+        assert!(c.conversion.old_ha);
+        assert_eq!(c.conversion.script, Script::HangulOnly);
+
+        // Nothing changed: the file, comments added by hand included, stays.
+        let text = std::fs::read_to_string(&path).unwrap() + "# a note\n";
+        std::fs::write(&path, &text).unwrap();
+        Config::update_file(&path, |_| {}).unwrap();
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), text);
+
+        let broken = "[conversion]\nmax_candidates = \"x\"\n";
+        std::fs::write(&path, broken).unwrap();
+        assert!(Config::update_file(&path, |c| c.conversion.old_ha = false).is_err());
+        assert_eq!(std::fs::read_to_string(&path).unwrap(), broken);
+        let _ = std::fs::remove_dir_all(path.parent().unwrap());
     }
 
     #[test]

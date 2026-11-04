@@ -30,7 +30,7 @@ pub struct TextServiceState {
     pub display_atoms: [u32; 3],
     pub composition: Option<ITfComposition>,
     pub session: Session,
-    /// Mode shared with the language-bar button.
+    /// Mode shared with the input-indicator button.
     pub mode: Rc<ModeShared>,
     pub langbar_item: Option<ITfLangBarItem>,
     pub candidate_window: Option<CandidateWindow>,

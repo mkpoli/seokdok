@@ -59,6 +59,15 @@ pub(crate) fn load_engine() {
     crate::engine_host::HOST.start_load(dir.join("dict"), crate::config::Config::user_dir(), options);
 }
 
+/// Give the engine the current settings' options, reading the dictionaries
+/// again only if another thread holds it.
+pub(crate) fn apply_engine_options() {
+    let options = crate::config::current().engine_options();
+    if !crate::engine_host::HOST.apply_options(&options) {
+        load_engine();
+    }
+}
+
 #[no_mangle]
 pub extern "system" fn DllMain(hinst: HMODULE, reason: u32, _reserved: *mut c_void) -> BOOL {
     if reason == DLL_PROCESS_ATTACH {
@@ -128,7 +137,7 @@ pub unsafe extern "system" fn DllUnregisterServer() -> HRESULT {
 }
 
 /// `rundll32.exe "<path>\seokdok.dll",ShowSettings` opens the settings dialog
-/// (used by the Start-menu shortcut; Windows 11 hides the language bar).
+/// (used by the Start-menu shortcut).
 #[no_mangle]
 pub extern "system" fn ShowSettings(
     _hwnd: windows::Win32::Foundation::HWND,

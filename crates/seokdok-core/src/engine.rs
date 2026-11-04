@@ -46,7 +46,7 @@ pub enum Itda {
     JaeCoda,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub struct Options {
     pub style: Style,
     pub fragment: Fragment,

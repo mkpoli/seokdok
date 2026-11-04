@@ -64,8 +64,39 @@ with no document in focus, and modifier taps need key-up tracking that a
 preserved key would not replace. The sink stays the single path, so
 `OnTestKeyDown` and `OnKeyDown` cannot disagree about a key.
 
+## The Windows quick menu
+
+The input indicator on the taskbar shows the icon of one button: 釋 converts to
+釋讀, 混 to 國漢文混用, 한 types Hangul without converting, A passes keys through.
+A left click toggles conversion and plain Hangul, or Hangul and Latin under
+韓㐎 專用. A right click opens the menu:
+the script, the input mode, `candidate_layout` and `old_ha`, then Settings….
+`windows.menu_items` in config.toml, or the settings dialog, adds the other
+settings or takes these away. Choosing a script also leaves plain Hangul and
+Latin, so the icon always shows the choice.
+
+A setting chosen there goes to config.toml through `Config::save_to` and applies
+at the next key. Other applications load their own copy of the DLL, so they
+compare the file's timestamp and length at every key and on focus. Spelling
+options change on the running engine with no dictionary load. A config.toml
+that does not parse is left alone and the menu does nothing.
+
+**One button.** Since Windows 8 a language-bar item is ignored unless its GUID
+is `GUID_LBI_INPUTMODE`, and only the first such item is shown [26], [27]. Those
+pages do not mention Windows 11, and no Microsoft page found says the rule
+changed. Separate buttons for 釋, 混 and 한 would therefore not appear, and were
+not built. The style follows Microsoft's sample and Mozc: `TF_LBI_STYLE_BTN_BUTTON`
+with `TF_LBI_STYLE_SHOWNINTRAY` [28], [29]. Microsoft documents `InitMenu` only
+for `TF_LBI_STYLE_BTN_MENU` items [30], and Mozc draws its menu with
+`TrackPopupMenu` on `TF_LBI_CLK_RIGHT`, as this one does.
+
 ## Uncertain
 
+- How Windows 11 draws the quick menu and the icon: nothing on Windows has run
+  it. Microsoft's pages on the indicator date from Windows 8, and how the
+  Windows 11 taskbar treats `TF_LBI_CLK_RIGHT` rests on Mozc's code.
+- Whether an application in an AppContainer can read or write config.toml in
+  `%APPDATA%`, which following the file and the menu both need.
 - The virtual key a Japanese 半角/全角 gives under a Korean profile. The sink
   takes scan 0x29 as 半角/全角 when `GetKeyboardType(0)` is 7, Japanese [25], and
   that value under a Korean layout has not been checked on hardware.
@@ -100,3 +131,8 @@ preserved key would not replace. The sink stays the single path, so
 23. Unity Issue Tracker, [Android language toggle with an external keyboard](https://issuetracker.unity3d.com/issues/android-legacy-tmp-and-ui-toolkit-input-field-language-toggle-to-some-non-latin-alphabet-languages-does-not-work-with-external-keyboard).
 24. Microsoft Learn, [ITfKeystrokeMgr::PreserveKey](https://learn.microsoft.com/en-us/windows/win32/api/msctf/nf-msctf-itfkeystrokemgr-preservekey).
 25. Microsoft Learn, [GetKeyboardType](https://learn.microsoft.com/en-us/windows/win32/api/winuser/nf-winuser-getkeyboardtype).
+26. Microsoft Learn, [TF_LANGBARITEMINFO](https://learn.microsoft.com/en-us/windows/win32/api/ctfutb/ns-ctfutb-tf_langbariteminfo), 2018-12-05, read 2026-11-04.
+27. Microsoft Learn, [ITfLangBarItemMgr::AddItem](https://learn.microsoft.com/en-us/windows/win32/api/ctfutb/nf-ctfutb-itflangbaritemmgr-additem), 2018-12-05, read 2026-11-04, and [Third-party input method editors](https://learn.microsoft.com/en-us/windows/win32/w8cookbook/third-party-input-method-editors), 2018-05-31, written for Windows 8.
+28. Microsoft, [SampleIME `LanguageBar.cpp`](https://github.com/microsoft/Windows-classic-samples/blob/main/Samples/IME/cpp/SampleIME/LanguageBar.cpp), `main`.
+29. Mozc, [`tip_lang_bar.cc`](https://github.com/google/mozc/blob/master/src/win32/tip/tip_lang_bar.cc) and [`tip_lang_bar_menu.cc`](https://github.com/google/mozc/blob/master/src/win32/tip/tip_lang_bar_menu.cc), `master`. Another input method's code, which shows what it does and does not state that Windows promises it.
+30. Microsoft Learn, [ITfLangBarItemButton::InitMenu](https://learn.microsoft.com/en-us/windows/win32/api/ctfutb/nf-ctfutb-itflangbaritembutton-initmenu).

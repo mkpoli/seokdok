@@ -343,6 +343,31 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
+    /// What is being composed goes into the document first, with no word break
+    /// owed afterwards: the caret is leaving.
+    func beginCursor() {
+        session.flush()
+        apply()
+        session.reset()
+        refresh()
+    }
+
+    /// Step over whole characters, so the caret never lands inside an old
+    /// Hangul cluster or a surrogate pair. `adjustTextPosition` counts UTF-16
+    /// units. The context can be empty where the proxy cannot see the text;
+    /// the steps are then single units.
+    func moveCursor(by steps: Int) {
+        let proxy = textDocumentProxy
+        let context = (steps < 0 ? proxy.documentContextBeforeInput : proxy.documentContextAfterInput) ?? ""
+        guard !context.isEmpty else {
+            proxy.adjustTextPosition(byCharacterOffset: steps)
+            return
+        }
+        let span = steps < 0 ? context.suffix(-steps) : context.prefix(steps)
+        let units = span.utf16.count
+        proxy.adjustTextPosition(byCharacterOffset: steps < 0 ? -units : units)
+    }
+
     /// Tap: Shift for one letter; double tap: locked until tapped again.
     func toggleShift() {
         let now = Date()

@@ -95,6 +95,9 @@ after changing `project.yml`.
   only types a space).
 - The drawer's top row holds the composition's segments. Tap one to focus it;
   − and + shorten or lengthen the focused one. The drawer stays open meanwhile.
+- Hold Space for 0.6 s to turn the keyboard into a trackpad, then slide
+  to move the caret. What is being composed is committed first. The caret moves
+  along the line only: `adjustTextPosition` has no up and down.
 - 確定 (Return) confirms everything. Backspace undoes the conversion, then
   deletes letters; hold it to repeat.
 - The mode key cycles 釋 (釋讀) → 混 (國漢文混用) → 한 (韓㐎 專用) → A (Latin), writing

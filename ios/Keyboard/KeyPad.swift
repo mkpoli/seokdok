@@ -17,6 +17,8 @@ final class Key: UIView {
     var repeats = false
     /// Show the pop-up preview while held.
     var previews = false
+    /// Space: held, it turns the keyboard into a trackpad.
+    var holdsForCursor = false
     var action: (() -> Void)?
     /// Instead of `action`, once held for half a second (the 釋 key).
     var onHold: (() -> Void)?
@@ -35,6 +37,20 @@ final class Key: UIView {
     /// Shift while it is on.
     var isOn = false {
         didSet { refill() }
+    }
+
+    /// While the keyboard is a trackpad the labels and shadows go and the caps
+    /// fade towards the background, by the amounts measured from a recording
+    /// of the system keyboard (iOS 18.5 simulator).
+    var isDimmed = false {
+        didSet {
+            let alpha: CGFloat = isDimmed ? 0 : 1
+            label.alpha = alpha
+            icon.alpha = alpha
+            hint.alpha = alpha
+            layer.shadowOpacity = isDimmed ? 0 : 0.35
+            refill()
+        }
     }
 
     /// Instant going down; a short fade coming back, whose length is our choice.
@@ -159,6 +175,9 @@ final class Key: UIView {
             label.textColor = .white
         }
         icon.tintColor = look == .accent ? .white : .label
+        if isDimmed {
+            backgroundColor = backgroundColor?.withAlphaComponent(look == .letter ? 0.45 : 0.6)
+        }
     }
 
     override func accessibilityActivate() -> Bool {
@@ -220,6 +239,11 @@ final class GlobeKey: UIButton {
 final class KeyPad: UIView {
     /// The key being previewed; nil when none is.
     var onPreview: ((Key?) -> Void)?
+    /// Space was held; the keyboard is a trackpad until `onCursorEnd`.
+    var onCursorBegin: (() -> Void)?
+    /// The finger moved this many characters' worth.
+    var onCursorMove: ((Int) -> Void)?
+    var onCursorEnd: (() -> Void)?
     /// The system's next-keyboard handling needs a real control.
     weak var passThrough: UIView?
 
@@ -233,11 +257,20 @@ final class KeyPad: UIView {
     private var previewing: Key?
     private var repeatTimer: Timer?
     private var holdTimer: Timer?
+    /// The touch steering the caret, and what it has moved short of a character.
+    private var cursorTouch: ObjectIdentifier?
+    private var cursorX: CGFloat = 0
     /// How far from a key a touch still belongs to it: wider than the widest
     /// gap between keys, narrower than a blank cell of the number pad. Our choice.
     private static let reach: CGFloat = 16
     /// How far a finger may stray from a function key; our choice.
     private static let slop: CGFloat = 40
+    /// The system keyboard's trackpad began about 0.6 s into a held press and
+    /// its fade took about 0.1 s, in one recording on an iOS 18.5 simulator.
+    /// The 8 pt per character is our choice.
+    private static let cursorHold: TimeInterval = 0.6
+    private static let cursorFade: TimeInterval = 0.1
+    private static let cursorStep: CGFloat = 8
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -284,13 +317,21 @@ final class KeyPad: UIView {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        // Other fingers do nothing while one steers the caret.
+        guard cursorTouch == nil else { return }
         for touch in touches.sorted(by: { $0.timestamp < $1.timestamp }) {
             rollOver()
             guard let k = key(at: touch.location(in: self)) else { continue }
             let id = ObjectIdentifier(touch)
             tracks[id] = Track(key: k)
             press(k)
-            if k.onHold != nil {
+            if k.holdsForCursor {
+                holdTimer?.invalidate()
+                holdTimer = Timer.scheduledTimer(withTimeInterval: Self.cursorHold, repeats: false) { [weak self, weak touch] _ in
+                    guard let self, let touch, self.tracks[id]?.inside == true else { return }
+                    self.beginCursor(id, at: touch.location(in: self).x)
+                }
+            } else if k.onHold != nil {
                 holdTimer?.invalidate()
                 holdTimer = Timer.scheduledTimer(withTimeInterval: 0.5, repeats: false) { [weak self] _ in
                     guard let self, self.tracks[id]?.inside == true else { return }
@@ -305,8 +346,16 @@ final class KeyPad: UIView {
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
             let id = ObjectIdentifier(touch)
-            guard var t = tracks[id], t.key.fires == .onRelease else { continue }
             let p = touch.location(in: self)
+            if id == cursorTouch {
+                let steps = Int((p.x - cursorX) / Self.cursorStep)
+                if steps != 0 {
+                    cursorX += CGFloat(steps) * Self.cursorStep
+                    onCursorMove?(steps)
+                }
+                continue
+            }
+            guard var t = tracks[id], t.key.fires == .onRelease else { continue }
             if t.key.previews {
                 // Off the keyboard's keys altogether, a lift types nothing.
                 let next = key(at: p)
@@ -329,7 +378,12 @@ final class KeyPad: UIView {
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            guard let t = tracks.removeValue(forKey: ObjectIdentifier(touch)) else { continue }
+            let id = ObjectIdentifier(touch)
+            if id == cursorTouch {
+                endCursor()
+                continue
+            }
+            guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
             if t.inside, t.key.fires == .onRelease { t.key.action?() }
         }
@@ -337,7 +391,12 @@ final class KeyPad: UIView {
 
     override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
         for touch in touches {
-            guard let t = tracks.removeValue(forKey: ObjectIdentifier(touch)) else { continue }
+            let id = ObjectIdentifier(touch)
+            if id == cursorTouch {
+                endCursor()
+                continue
+            }
+            guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
         }
     }
@@ -365,11 +424,39 @@ final class KeyPad: UIView {
         }
     }
 
+    private func beginCursor(_ id: ObjectIdentifier, at x: CGFloat) {
+        guard let t = tracks.removeValue(forKey: id) else { return }
+        t.key.isPressed = false
+        // Other keys still down (a thumb on a letter) end with it.
+        for (other, held) in tracks {
+            tracks[other] = nil
+            release(held.key)
+        }
+        cursorTouch = id
+        cursorX = x
+        setDimmed(true)
+        onCursorBegin?()
+    }
+
+    private func endCursor() {
+        cursorTouch = nil
+        setDimmed(false)
+        onCursorEnd?()
+    }
+
+    private func setDimmed(_ dimmed: Bool) {
+        var keys: [Key] = []
+        visibleKeys(in: self, into: &keys)
+        UIView.animate(withDuration: Self.cursorFade, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState]) {
+            keys.forEach { $0.isDimmed = dimmed }
+        }
+    }
+
     private func release(_ k: Key) {
         // Another finger may still hold the same key.
         if tracks.values.contains(where: { $0.key === k }) { return }
         k.isPressed = false
-        if k.onHold != nil {
+        if k.holdsForCursor || k.onHold != nil {
             holdTimer?.invalidate()
             holdTimer = nil
         }

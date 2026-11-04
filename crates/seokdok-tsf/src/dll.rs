@@ -1,5 +1,5 @@
-//! DLL entry points (`DllMain`, the COM server exports, `ShowSettings`), the
-//! module handle and the module lock count.
+//! DLL entry points (`DllMain`, the COM server exports), the module handle and
+//! the module lock count.
 
 #![allow(non_snake_case)]
 
@@ -134,16 +134,4 @@ pub unsafe extern "system" fn DllRegisterServer() -> HRESULT {
 pub unsafe extern "system" fn DllUnregisterServer() -> HRESULT {
     let _ = crate::registry::unregister_all();
     S_OK
-}
-
-/// `rundll32.exe "<path>\seokdok.dll",ShowSettings` opens the settings dialog
-/// (used by the Start-menu shortcut).
-#[no_mangle]
-pub extern "system" fn ShowSettings(
-    _hwnd: windows::Win32::Foundation::HWND,
-    _hinst: HMODULE,
-    _cmdline: windows::core::PCSTR,
-    _ncmdshow: i32,
-) {
-    crate::settings_dialog::show(windows::Win32::Foundation::HWND::default());
 }

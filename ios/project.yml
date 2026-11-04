@@ -68,7 +68,9 @@ targets:
             IsASCIICapable: false
             PrefersRightToLeft: false
             # Full Access lets the keyboard read the settings the app writes to
-            # the shared container; the keyboard works without it.
+            # the shared container; nothing else needs it. The keyboard works
+            # without it (App Store Review Guideline 4.4.1) and has no network
+            # code. ios.yml runs the UI test once more with the key off.
             RequestsOpenAccess: true
     entitlements:
       path: Keyboard/SeokdokKeyboard.entitlements

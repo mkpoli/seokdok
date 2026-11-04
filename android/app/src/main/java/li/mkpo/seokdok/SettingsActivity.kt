@@ -126,7 +126,8 @@ class SettingsActivity : Activity() {
 
     private fun customChanged() {
         showCustom()
-        Native.reload(Files.dictDir(this).path)
+        // The first call may copy the dictionaries.
+        Thread { Native.reload(Files.dictDir(this).path) }.start()
     }
 
     private fun showCustom() {

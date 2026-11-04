@@ -32,8 +32,7 @@ interface KeyboardListener {
 
 /**
  * The candidate strip and the keys. Each letter key shows the jamo it types
- * and, in its corner, the one on the other Shift layer; old letters
- * (ㆍ ㅿ ㆁ ㆆ ᄼ …) are tinted.
+ * and, in its corner, the one on the other Shift layer.
  */
 @SuppressLint("ViewConstructor")
 class KeyboardView(context: Context, private val listener: KeyboardListener) : LinearLayout(context) {
@@ -93,7 +92,6 @@ class KeyboardView(context: Context, private val listener: KeyboardListener) : L
             if (latin) {
                 key.main = (if (s.shift || s.capsLock) up else ch).toString()
                 key.hint = null
-                key.old = false
                 continue
             }
             val shifted = s.shift || s.capsLock
@@ -102,7 +100,6 @@ class KeyboardView(context: Context, private val listener: KeyboardListener) : L
             val hint = other.takeIf { it != main }
             key.main = shown(main)
             key.hint = hint?.let { shown(it) }
-            key.old = isOld(main) || isOld(hint ?: "")
         }
         shiftKey?.on = s.shift || s.capsLock
         shiftKey?.main = if (s.capsLock) "⇪" else "⇧"
@@ -264,11 +261,6 @@ class KeyboardView(context: Context, private val listener: KeyboardListener) : L
 
     /** An initial-only jamo (ᄼ) needs a vowel filler to show on its own. */
     private fun shown(j: String): String = if (j.isNotEmpty() && j[0].code in 0x1100..0x115F) j + "ᅠ" else j
-
-    private fun isOld(j: String): Boolean {
-        if (j.isEmpty()) return false
-        return j[0] in "ㆍㅿㆁㆆ" || j[0].code in 0x1100..0x115F
-    }
 
     private fun dp(v: Int) = (v * density).toInt()
 

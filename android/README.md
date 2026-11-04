@@ -50,7 +50,7 @@ pick it with 入力 方法 고르기 (or hold the space bar while typing).
 
 - 두벌식 letters; each key shows the jamo it types and, in its corner, the
   one on the Shift layer. Shift (double-tap to lock) gives the tense
-  consonants, ㅒ ㅖ, and the old letters (ㆍ ㅿ ㆁ ㆆ ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ), tinted.
+  consonants, ㅒ ㅖ, and the old letters (ㆍ ㅿ ㆁ ㆆ ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ).
 - 韓 / A switches 釋讀 and Latin. 123 opens digits and punctuation.
 - Space (變換) converts; again walks the candidates. Tap a candidate to take
   it; ‹ › turn the page. 確定 (Enter) commits.

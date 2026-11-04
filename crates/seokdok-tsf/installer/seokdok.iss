@@ -1,7 +1,8 @@
 ; Inno Setup 6.7 script for the 釋讀 (seokdok) Windows input method. Built by
 ; crates/seokdok-tsf/package.sh, which stages the files and runs:
 ;   ISCC.exe /DMyAppVersion=0.1.0 /DStage=<stage folder> seokdok.iss
-; The stage folder holds seokdok.dll, dict\*.tsv and LICENSE.
+; The stage folder holds seokdok.dll, dict\*.tsv, LICENSE and settings\, the
+; settings app.
 
 #ifndef MyAppVersion
   #define MyAppVersion "0.0.0"
@@ -64,6 +65,7 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [InstallDelete]
 Type: files; Name: "{app}\seokdok-old-*.dll"
+Type: filesandordirs; Name: "{app}\settings"
 
 [UninstallDelete]
 Type: files; Name: "{app}\seokdok-old-*.dll"
@@ -78,10 +80,11 @@ Source: "{#Stage}\seokdok.dll"; DestDir: "{app}"; BeforeInstall: MoveLoadedDll; 
 Source: "{#Stage}\dict\*"; DestDir: "{app}\dict"; Flags: ignoreversion recursesubdirs
 Source: "{#Stage}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
 Source: "korean-keyboard.ps1"; DestDir: "{app}"; Flags: ignoreversion
+Source: "{#Stage}\settings\*"; DestDir: "{app}\settings"; Flags: ignoreversion recursesubdirs
 
 [Icons]
 ; Settings entry point; the input indicator's menu is the other.
-Name: "{autoprograms}\釋讀 seokdok 設定"; Filename: "{sys}\rundll32.exe"; Parameters: """{app}\seokdok.dll"",ShowSettings"; WorkingDir: "{app}"
+Name: "{autoprograms}\釋讀 seokdok 設定"; Filename: "{app}\settings\SeokdokSettings.exe"; WorkingDir: "{app}\settings"
 
 [Run]
 ; Korean keyboards are per user: add 釋讀 for the user who ran Setup.
@@ -89,6 +92,7 @@ Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile
 Filename: "https://seokdok.mkpo.li/#install"; Description: "{cm:OpenGuide}"; Flags: postinstall shellexec skipifsilent unchecked
 
 [UninstallRun]
+Filename: "{sys}\taskkill.exe"; Parameters: "/f /im SeokdokSettings.exe"; Flags: runhidden waituntilterminated; RunOnceId: "CloseSettings"
 Filename: "{sys}\WindowsPowerShell\v1.0\powershell.exe"; Parameters: "-NoProfile -ExecutionPolicy Bypass -File ""{app}\korean-keyboard.ps1"" -Remove"; Flags: runhidden waituntilterminated; RunOnceId: "RemoveKeyboard"
 
 [CustomMessages]
@@ -108,6 +112,15 @@ japanese.FinishedLabel=インストールが完了しました。Win+Space で�
 english.FinishedLabel=Done. Pick 釋讀 under Korean with Win+Space. Apps that were already open use the new version once reopened.
 
 [Code]
+// A settings window left open would hold its files against the update.
+function PrepareToInstall(var NeedsRestart: Boolean): String;
+var
+  Code: Integer;
+begin
+  Exec(ExpandConstant('{sys}\taskkill.exe'), '/f /im SeokdokSettings.exe', '', SW_HIDE, ewWaitUntilTerminated, Code);
+  Result := '';
+end;
+
 procedure MoveLoadedDll();
 var
   Dll: String;

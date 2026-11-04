@@ -79,13 +79,17 @@ impl TextService_Impl {
         }
     }
 
-    /// Take in settings written elsewhere: by the menu or the settings dialog
-    /// in another application, or by hand. The icon follows even when there is
+    /// Take in settings written elsewhere: by the menu in another application,
+    /// by the settings app, or by hand. The icon follows even when there is
     /// nothing to type in; a composition in progress waits for `sync`.
     pub(crate) fn follow_settings(&self) {
         crate::config::refresh();
         let cfg = crate::config::current();
-        crate::dll::apply_engine_options();
+        if crate::config::custom_changed() {
+            crate::dll::load_engine();
+        } else {
+            crate::dll::apply_engine_options();
+        }
         {
             let mut state = self.inner_mut();
             state.mode.set_script(cfg.conversion.script);

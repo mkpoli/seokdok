@@ -554,6 +554,36 @@ pub mod preview {
         }
         Ok(lines)
     }
+
+    #[cfg(test)]
+    mod tests {
+        use windows::Win32::Graphics::Gdi::{SetLayout, LAYOUT_RTL};
+
+        use super::*;
+
+        #[test]
+        fn a_mirrored_device_context_does_not_mirror_the_popup() {
+            let popup = Popup {
+                items: vec![("家".into(), "집 가".into())],
+                selected: 0,
+                position: 1,
+                total: 9,
+                horizontal: false,
+            };
+            let palette = Palette::default_light();
+            let mut renderer = fluent::Renderer::start(&fluent::SYSTEM_LIBRARIES).unwrap();
+            let scene = renderer.layout(None, Some(&popup), &palette, 96.0).unwrap();
+            let (width, height) = scene.pixel_size();
+            let plain = render(width, height, |dc, rc| renderer.paint(dc, rc, &scene)).unwrap();
+            let mirrored = render(width, height, |dc, rc| {
+                // SAFETY: dc is the render's own.
+                unsafe { SetLayout(dc, LAYOUT_RTL) };
+                renderer.paint(dc, rc, &scene)
+            })
+            .unwrap();
+            assert!(plain.bgra == mirrored.bgra);
+        }
+    }
 }
 
 #[cfg(test)]

@@ -30,7 +30,7 @@ use windows::Win32::Graphics::DirectWrite::{
     DWRITE_LINE_SPACING_METHOD_UNIFORM, DWRITE_WORD_WRAPPING_NO_WRAP,
 };
 use windows::Win32::Graphics::Dxgi::Common::DXGI_FORMAT_B8G8R8A8_UNORM;
-use windows::Win32::Graphics::Gdi::HDC;
+use windows::Win32::Graphics::Gdi::{GetLayout, SetLayout, DC_LAYOUT, HDC};
 use windows::Win32::System::LibraryLoader::{GetProcAddress, LoadLibraryExW, LOAD_LIBRARY_SEARCH_SYSTEM32};
 
 use super::theme::{Color, Palette};
@@ -368,6 +368,30 @@ impl Renderer {
             self.target = Some(self.make_target()?);
         }
         let Some((target, brush)) = &self.target else { return Err(E_FAIL.into()) };
+        // A popup inherits a right-to-left host's mirrored layout, and copying
+        // the finished bitmap through it would mirror the text as well.
+        // SAFETY: hdc is valid for this paint.
+        let layout = unsafe { GetLayout(hdc) };
+        if layout != 0 {
+            // SAFETY: as above; restored below.
+            unsafe { SetLayout(hdc, DC_LAYOUT(0)) };
+        }
+        let result = self.draw(hdc, rc, scene, target, brush);
+        if layout != 0 {
+            // SAFETY: as above.
+            unsafe { SetLayout(hdc, DC_LAYOUT(layout)) };
+        }
+        result
+    }
+
+    fn draw(
+        &self,
+        hdc: HDC,
+        rc: &RECT,
+        scene: &Scene,
+        target: &ID2D1DCRenderTarget,
+        brush: &ID2D1SolidColorBrush,
+    ) -> Result<()> {
         // SAFETY: hdc is valid for this paint and every draw call happens
         // between BeginDraw and EndDraw with objects from this target.
         unsafe {

@@ -144,10 +144,11 @@ class SeokdokService : InputMethodService(), KeyboardListener {
         val ic = currentInputEditorInfo
         if (passthrough || ic == null || ic.inputType == InputType.TYPE_NULL) return super.onKeyDown(keyCode, event)
         val before = session.mode
+        val scriptBefore = session.script
         val state = if (event.repeatCount > 0) Native.KEY_REPEAT else Native.KEY_DOWN
         if (session.modeKey(HardwareKeys.name(keyCode), HardwareKeys.mods(event), state)) {
             eatenKeys.add(keyCode)
-            hardwareRender(before)
+            hardwareRender(before, scriptBefore)
             return true
         }
         if (HardwareKeys.isModifier(keyCode)) return super.onKeyDown(keyCode, event)
@@ -178,7 +179,7 @@ class SeokdokService : InputMethodService(), KeyboardListener {
                 feed(Native.PRINTABLE, c.toChar(), event.isShiftPressed)
             }
         }
-        hardwareRender(before)
+        hardwareRender(before, scriptBefore)
         if (!eaten) return super.onKeyDown(keyCode, event)
         eatenKeys.add(keyCode)
         return true
@@ -186,22 +187,19 @@ class SeokdokService : InputMethodService(), KeyboardListener {
 
     override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
         val before = session.mode
+        val scriptBefore = session.script
         if (HardwareKeys.isModifier(keyCode) && !passthrough && session.modeKey(HardwareKeys.name(keyCode), 0, Native.KEY_UP)) {
-            hardwareRender(before)
+            hardwareRender(before, scriptBefore)
             return true
         }
         return eatenKeys.remove(keyCode) || super.onKeyUp(keyCode, event)
     }
 
-    /** The script last named after a hardware key. */
-    private var namedScript = -1
-
     /** Draw after a hardware key: open the window for candidates, and name a new mode or script when it is hidden. */
-    private fun hardwareRender(modeBefore: Int) {
+    private fun hardwareRender(modeBefore: Int, scriptBefore: Int) {
         render()
         val script = session.script
-        val rotated = namedScript != -1 && script != namedScript
-        namedScript = script
+        val rotated = script != scriptBefore
         val open = session.candidates() != null
         if (open && !isInputViewShown) {
             candidatesForced = true

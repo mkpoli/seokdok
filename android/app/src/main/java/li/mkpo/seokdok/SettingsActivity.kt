@@ -32,12 +32,15 @@ import java.io.File
 class SettingsActivity : Activity() {
     private lateinit var config: ConfigText
     private lateinit var configDir: File
+    /** The script this screen last wrote or read; the keyboard's chord can change the file since. */
+    private var knownScript: String? = null
     private lateinit var customStatus: TextView
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         configDir = Files.configDir(this)
         config = ConfigText(Native.loadConfig(configDir.path))
+        knownScript = config.string(SCRIPT)
 
         val column = LinearLayout(this).apply {
             orientation = LinearLayout.VERTICAL
@@ -67,7 +70,7 @@ class SettingsActivity : Activity() {
         column.addView(keyList(R.string.keys_convert, "input.keys.convert"))
 
         column.addView(header(R.string.section_conversion))
-        column.addView(choice(R.string.script, R.array.script_labels, "conversion.script", listOf("seokdok", "sino_only", "hangul_only")))
+        column.addView(choice(R.string.script, R.array.script_labels, SCRIPT, listOf("seokdok", "sino_only", "hangul_only")))
         column.addView(choice(R.string.style, R.array.style_labels, "conversion.style", listOf("surface", "morpheme")))
         column.addView(choice(R.string.fragment, R.array.fragment_labels, "conversion.fragment", listOf("absorb", "letter")))
         column.addView(toggle(R.string.coda_always, "conversion.coda_always"))
@@ -127,6 +130,11 @@ class SettingsActivity : Activity() {
 
     /** Write config.toml; the keyboard reads it on the next text field. */
     private fun save() {
+        // Unless chosen here, the script stays what the chord left in the file.
+        if (config.string(SCRIPT) == knownScript) {
+            ConfigText(Native.loadConfig(configDir.path)).string(SCRIPT)?.let { config.set(SCRIPT, it) }
+        }
+        knownScript = config.string(SCRIPT)
         if (!Native.saveConfig(configDir.path, config.toString())) {
             Toast.makeText(this, R.string.saved_failed, Toast.LENGTH_SHORT).show()
         }
@@ -237,5 +245,6 @@ class SettingsActivity : Activity() {
     private companion object {
         const val PICK_CUSTOM = 1
         const val CUSTOM = "custom.json"
+        const val SCRIPT = "conversion.script"
     }
 }

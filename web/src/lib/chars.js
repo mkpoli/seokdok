@@ -12,3 +12,6 @@ export const splitsChar = (a, b) => chars(a + b).length < chars(a).length + char
 // and syllables, for use inside a regex character class.
 export const HANGUL_CLASS = '\\u1100-\\u11FF\\u3131-\\u318E\\uA960-\\uA97C\\uAC00-\\uD7A3\\uD7B0-\\uD7FB'
 export const HANGUL = new RegExp(`[${HANGUL_CLASS}]`)
+
+// Text the converter works on: Hangul of any kind, or Hanja (words already in 釋讀).
+export const WORD = new RegExp(`[${HANGUL_CLASS}\\p{Script=Han}]`, 'u')

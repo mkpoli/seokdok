@@ -102,7 +102,7 @@ const ko = {
   convert: {
     eyebrow: '{變換|변환}',
     title: '{韓㐎|한글}을 {釋讀文|석독문}으로',
-    lede: '{韓㐎|한글} {文|글}을 {貼|붙여} {入|넣}으면 {個言|낱말}마다 {變換|변환}합니다. {個言|낱말}에 마우스를 {置|올리}거나 {押|누르}면 {異|다르}ㄴ {候補|후보}를 {選|고르}ㄹ {手|수} {有|있}습니다.',
+    lede: '{韓㐎|한글}이나 {釋讀文|석독문}을 {貼|붙여} {入|넣}으면 {個言|낱말}마다 {候補|후보}가 {出|나}옵니다. {個言|낱말}에 마우스를 {置|올리}거나 {押|누르}면 {異|다르}ㄴ {候補|후보}를 {選|고르}ㄹ {手|수} {有|있}습니다.',
     sample: '하늘을 보며 이것저것 생각하는 게 좋아요\n대충 사 주세요',
     input: '{韓㐎|한글} {入力|입력}',
     result: '{變換|변환} {結果|결과}',
@@ -371,7 +371,7 @@ const en = {
   convert: {
     eyebrow: 'Convert',
     title: 'Hangul text to 釋讀',
-    lede: 'Paste Hangul text and every word is converted. Hover over a word, or tap it, to pick another candidate.',
+    lede: 'Paste Hangul or 釋讀 text and every word gets its candidates. Hover over a word, or tap it, to pick another candidate.',
     sample: '하늘을 보며 이것저것 생각하는 게 좋아요\n대충 사 주세요',
     input: 'Hangul input',
     result: 'Result',

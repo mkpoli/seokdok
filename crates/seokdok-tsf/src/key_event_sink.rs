@@ -69,6 +69,15 @@ fn decode(wparam: WPARAM, lparam: LPARAM) -> Option<Key> {
 }
 
 impl TextService_Impl {
+    /// `OnTestKeyDown` and `OnTestKeyUp` run only on the IMM32 path; a text
+    /// store of the application's own calls `OnKeyDown` directly.
+    fn note_imm32(&self, context: Option<&ITfContext>) {
+        let raw = context.map(|c| windows::core::Interface::as_raw(c) as usize);
+        if raw.is_some() {
+            self.inner_mut().imm32_context = raw;
+        }
+    }
+
     /// The key this key-down means: a bound one, else its plain meaning.
     fn key_of(&self, wparam: WPARAM, lparam: LPARAM) -> Option<Key> {
         let bound = mode_key_events::press(wparam, lparam, &self.inner().session);
@@ -132,6 +141,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         wparam: WPARAM,
         lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
+        self.note_imm32(pic.as_ref());
         note_key_down(wparam);
         if repeat_of_commit(wparam, lparam) {
             return Ok(true.into());
@@ -140,6 +150,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             return Ok(false.into());
         };
         if let Some(context) = pic.as_ref() {
+            self.note_typing_context(context);
             self.sync(context);
         }
         let eats = {
@@ -152,10 +163,11 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
 
     fn OnTestKeyUp(
         &self,
-        _pic: Ref<'_, ITfContext>,
+        pic: Ref<'_, ITfContext>,
         wparam: WPARAM,
         lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
+        self.note_imm32(pic.as_ref());
         let state = self.inner();
         let tap = mode_key_events::peek_release(wparam, lparam, &state.session).is_some_and(|k| state.session.eats(k));
         if !tap {
@@ -182,10 +194,15 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         let Some(context) = pic.as_ref() else {
             return Ok(self.switch_without_document(key).into());
         };
+        self.note_typing_context(context);
         self.sync(context);
         // Release the borrow before touching the document: TSF calls back
         // into this object during edit sessions.
-        let output = self.inner_mut().session.handle(key, &HOST);
+        let output = {
+            let mut state = self.inner_mut();
+            state.current_key = Some(key);
+            state.session.handle(key, &HOST)
+        };
         crate::debug_log::log(|| format!("OnKeyDown vk={:#x} lparam={:#x} eaten={} effects={:?} ctx={:?}", wparam.0, lparam.0, output.eaten, output.effects, windows::core::Interface::as_raw(context)));
         if key.switches_mode() || matches!(key, Key::Enter | Key::Printable('1'..='9')) && output.effects.iter().any(|e| matches!(e, Effect::Commit(_))) {
             COMMITTED_BY.with(|c| c.set(Some((wparam.0 & 0xFFFF) as u16)));
@@ -195,6 +212,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             if !output.effects.is_empty() {
                 let _ = self.apply(context, output.effects);
             }
+            self.inner_mut().current_key = None;
             return Ok(false.into());
         }
         self.show_mode();
@@ -203,7 +221,15 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         if let Err(e) = self.apply(context, output.effects) {
             crate::debug_log::log(|| format!("apply failed: {e:?}"));
         }
-        Ok(true.into())
+        let passed = {
+            let mut state = self.inner_mut();
+            state.current_key = None;
+            std::mem::take(&mut state.replay_passed)
+        };
+        if passed {
+            crate::debug_log::log(|| format!("OnKeyDown vk={:#x} replay did not eat it, passed on", wparam.0));
+        }
+        Ok((!passed).into())
     }
 
     fn OnKeyUp(
@@ -219,6 +245,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         let Some(context) = pic.as_ref() else {
             return Ok(self.switch_without_document(key).into());
         };
+        self.note_typing_context(context);
         self.sync(context);
         let output = self.inner_mut().session.handle(key, &HOST);
         self.show_mode();

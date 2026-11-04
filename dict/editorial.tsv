@@ -173,6 +173,18 @@ lemma	written	pos	class	source	count	note
 여러분	庶러位	noun		editorial		the chat writes 庶러位 and 諸公 for 여러분 (mkpoli's request, 2026-11-04)
 여러분	諸公	noun		editorial		the chat writes 庶러位 and 諸公 for 여러분 (mkpoli's request, 2026-11-04)
 여러번	諸番	noun		editorial		여러 諸 + 번 番 (mkpoli's request, 2026-11-04)
+터	基	interj		editorial		터 by its usual gloss 터 기 (libhangul); the -(으)ㄹ 터 link is the editors' choice, unattested, and the chat mostly leaves 테니 and 텐데 in Hangul (mkpoli's request, 2026-11-04)
+테니	基ㅣ니	adv		editorial		터 by its usual gloss 터 기 (libhangul); the -(으)ㄹ 터 link is the editors' choice, unattested, and the chat mostly leaves 테니 and 텐데 in Hangul (mkpoli's request, 2026-11-04)
+텐데	基ㅣㄴ데	adv		editorial		터 by its usual gloss 터 기 (libhangul); the -(으)ㄹ 터 link is the editors' choice, unattested, and the chat mostly leaves 테니 and 텐데 in Hangul (mkpoli's request, 2026-11-04)
+테니	筈ㅣ니	adv		editorial		터 by meaning, 'expected as', unattested experiment (mkpoli's request, 2026-11-04)
+텐데	筈ㅣㄴ데	adv		editorial		터 by meaning, 'expected as', unattested experiment (mkpoli's request, 2026-11-04)
+테니	所ㅣ니	adv		editorial		터 by meaning, 'expected as', unattested experiment (mkpoli's request, 2026-11-04)
+텐데	所ㅣㄴ데	adv		editorial		터 by meaning, 'expected as', unattested experiment (mkpoli's request, 2026-11-04)
+괜찮다	不空然다	adj		editorial	11	車魄 in the chat (2026-11-04): 不空然네요, from 공연하지 않다; 車魄 notes a rival claim that it shortens 관계하지 않다, so the etymology is disputed
+이런	此樣	det		editorial		Jirō in the chat (2026-11-04): 此樣(이런)
+안	不	interj		editorial	112	the negative adverb; the chat writes 不 before a verb 112 times (不 成는, 不 用는)
+무언가	何ㄴ가	pron		editorial	2	the chat writes 何ㄴ가
+무어라	何라	pron		editorial		무어 何 + 라, as the chat writes 何라 (3)
 거	事	bound		editorial	35	colloquial 것 (事ㅅ in the chat) without its ㅅ: 게 事ㅣ, 건 事ㄴ, 걸 事ㄹ
 거	件	bound		editorial	21	colloquial 것, as 件 for 것 in the community dictionary
 거	物	bound		editorial	32	colloquial 것, as 物 for 것 in the community dictionary
@@ -202,3 +214,31 @@ lemma	written	pos	class	source	count	note
 임금님	王님	noun		editorial	1	the chat: 王님
 임금님	王主	noun		editorial	1	임금 王 + 主
 너무	過	adv		editorial		mkpoli's request (2026-11-04): 過무 for 너무
+거의	殆	adv		editorial	11	the chat writes 殆 (11×)
+꽤	頗	adv		editorial	10	the chat writes 頗 (10×)
+사실	事實	noun		editorial	94	the chat writes 事實 (94×); Sino-Korean 事實 as a 訓讀-format row so it ranks with the chat-attested entries
+물론	勿論	adv		editorial	38	the chat writes 勿論 (38×); Sino-Korean 勿論
+일단	一旦	adv		editorial	21	the chat writes 一旦 (21×); Sino-Korean 一旦
+세기	世紀	noun		editorial	21	the chat writes 世紀 (21×); Sino-Korean 世紀
+매일	每日	noun		editorial	6	the chat writes 每日 (6×); Sino-Korean 每日
+시대	時代	noun		editorial	6	the chat writes 時代 (6×); Sino-Korean 時代
+고려	高麗	noun		editorial	8	the chat writes 高麗 (8×); the dynasty, not 考慮
+모음	母音	noun		editorial	12	the chat writes 母音 (12×); vowel, not 모음 集
+등	等	bound		editorial	58	the chat writes 等 (58×) for the bound noun 등 (A 等 B)
+번	番	bound		editorial	35	the chat writes 番 (35×) for the counter 번 (한 番, 두 番)
+년	年	bound		editorial	112	the chat writes 年 (112×) for 년 (2026年)
+위해	爲해	adv		editorial	22	the chat writes 爲해 (22×); 위하다 + 어, written as one word
+위한	爲한	det		editorial	27	the chat writes 爲한 (27×); 위하다 + ㄴ, written as one word
+별로	別로	adv		editorial	26	the chat writes 別로 (26×); Sino-Korean 別 + 로
+눈	目	noun		editorial	8	the chat writes 目 (8×) for 눈 (eye); community.tsv also has 目 and 雪
+자기	自己	pron		editorial	3	the chat writes 自己 (3×); Sino-Korean 自己
+사진	寫眞	noun		editorial	9	the chat writes 寫眞 (9×); Sino-Korean 寫眞
+나라	國	noun		editorial	27	the chat writes 國 (27×) for 나라 (country); community.tsv also has 國
+아니라	非라	adv		editorial	14	the chat writes 非라 (14×); 아니다 + 라 (아니라 …이다)
+강하다	強하다	adj		editorial	3	the chat writes 強하고 (2×) and 強해서 (1×); 強 alone 24×
+주소	住所	noun		editorial	1	the chat writes 住所 alone once and with a Hangul ending four more times (住所입니다, 住所라, 住所주소)
+돌	石	noun		editorial	9	the chat writes 石 (9×) for 돌 (stone); community.tsv also has 石
+발	足	noun		editorial	3	the chat writes 足 (3×) for 발 (foot); community.tsv also has 足
+털	毛	noun		editorial	1	the chat writes 毛 (1×) for 털 (hair); community.tsv also has 毛
+감	柿	noun		editorial	1	the chat writes 柿 (1×) for 감 (persimmon); community.tsv also has 柿
+실	絲	noun		editorial	1	the chat writes 絲 (1×) for 실 (thread); community.tsv also has 絲

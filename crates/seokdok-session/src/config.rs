@@ -7,6 +7,7 @@
 
 use seokdok_core::{Fragment, Options, Style};
 use serde::{Deserialize, Serialize};
+use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::sync::RwLock;
 
@@ -22,6 +23,16 @@ pub enum InputMode {
     Hangul,
     /// Pass keys through.
     Latin,
+}
+
+/// Where the text being composed is drawn.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Surface {
+    /// In the document, as a composition.
+    Inline,
+    /// In a popup at the caret; the document gets the text when it is confirmed.
+    Floating,
 }
 
 /// What the input method writes.
@@ -126,6 +137,9 @@ impl Default for Conversion {
 pub struct Config {
     pub input: Input,
     pub conversion: Conversion,
+    /// Where to draw the composition, by executable name. An application not
+    /// listed is decided automatically.
+    pub composition: BTreeMap<String, Surface>,
 }
 
 impl Config {
@@ -212,6 +226,17 @@ impl Config {
             FragmentOpt::Absorb => "absorb",
             FragmentOpt::Letter => "letter",
         };
+        let composition: String = self
+            .composition
+            .iter()
+            .map(|(app, surface)| {
+                let surface = match surface {
+                    Surface::Inline => "inline",
+                    Surface::Floating => "floating",
+                };
+                format!("\"{app}\" = \"{surface}\"\n")
+            })
+            .collect();
         format!(
             "\
 # seokdok configuration
@@ -300,7 +325,14 @@ old_ha = {old_ha}
 script = \"{script}\"
 # Maximum number of whole-phrase candidates.  (integer, 1 or more)
 max_candidates = {max}
-",
+
+# Windows: where the text being typed is drawn, by executable name.
+#   inline   = in the document
+#   floating = in a popup at the caret
+# An application not listed is decided automatically.
+#   \"example.exe\" = \"floating\"
+[composition]
+{composition}",
             mode = mode,
             space = self.input.space_converts,
             old = self.input.old_clusters,
@@ -323,6 +355,7 @@ max_candidates = {max}
             old_ha = c.old_ha,
             script = script,
             max = c.max_candidates,
+            composition = composition,
         )
     }
 
@@ -430,6 +463,10 @@ mod tests {
                 script: Script::HangulOnly,
                 max_candidates: 5,
             },
+            composition: BTreeMap::from([
+                ("Telegram.exe".to_string(), Surface::Floating),
+                ("vivaldi.exe".to_string(), Surface::Inline),
+            ]),
         }
     }
 

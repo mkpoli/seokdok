@@ -59,6 +59,8 @@ final class CandidateDrawer: UIView {
     private let segments = UIStackView()
     private var shownRuns: [String] = []
     private var shownFocus = -1
+    private var segmentHeight: NSLayoutConstraint!
+    private let segmentLine = UIView()
     private let scroll = UIScrollView()
     private var cells: [CandidateCell] = []
     private var lines: [UIView] = []
@@ -67,6 +69,7 @@ final class CandidateDrawer: UIView {
 
     private static let rowHeight: CGFloat = 44
     private static let columns: CGFloat = 5
+    private static let margin: CGFloat = 3
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -86,15 +89,17 @@ final class CandidateDrawer: UIView {
         longer.translatesAutoresizingMaskIntoConstraints = false
         shorter.addAction(UIAction { [weak self] _ in self?.onResize?(-1) }, for: .touchUpInside)
         longer.addAction(UIAction { [weak self] _ in self?.onResize?(1) }, for: .touchUpInside)
-        let line = UIView()
-        line.backgroundColor = .separator
-        line.translatesAutoresizingMaskIntoConstraints = false
+        segmentLine.backgroundColor = .separator
+        segmentLine.isHidden = true
+        segmentLine.translatesAutoresizingMaskIntoConstraints = false
+        let line = segmentLine
         [segmentScroll, line, scroll, close, shorter, longer].forEach(addSubview)
+        segmentHeight = segmentScroll.heightAnchor.constraint(equalToConstant: 0)
         NSLayoutConstraint.activate([
             segmentScroll.topAnchor.constraint(equalTo: topAnchor),
             segmentScroll.leadingAnchor.constraint(equalTo: leadingAnchor),
             segmentScroll.trailingAnchor.constraint(equalTo: close.leadingAnchor),
-            segmentScroll.heightAnchor.constraint(equalToConstant: Self.rowHeight),
+            segmentHeight,
             segments.leadingAnchor.constraint(equalTo: segmentScroll.contentLayoutGuide.leadingAnchor, constant: 6),
             segments.trailingAnchor.constraint(equalTo: segmentScroll.contentLayoutGuide.trailingAnchor, constant: -6),
             segments.topAnchor.constraint(equalTo: segmentScroll.contentLayoutGuide.topAnchor),
@@ -157,6 +162,10 @@ final class CandidateDrawer: UIView {
         guard texts != shownRuns || focus != shownFocus else { return }
         shownRuns = texts
         shownFocus = focus
+        // With one segment there is nothing to choose between, and the grid
+        // takes the row.
+        segmentHeight.constant = texts.count > 1 ? Self.rowHeight : 0
+        segmentLine.isHidden = texts.count <= 1
         segments.arrangedSubviews.forEach { $0.removeFromSuperview() }
         for (i, text) in texts.enumerated() {
             let cell = CandidateCell(.init(text: text, reading: ""))
@@ -192,12 +201,13 @@ final class CandidateDrawer: UIView {
     /// the last row stays as it is.
     private func layoutGrid(width: CGFloat) {
         guard width > 0 else { return }
-        let minimum = width / Self.columns
+        let inner = width - Self.margin
+        let minimum = inner / Self.columns
         var rows: [[(cell: CandidateCell, width: CGFloat)]] = [[]]
         var used: CGFloat = 0
         for cell in cells {
-            let w = min(width, max(minimum, cell.naturalWidth))
-            if used + w > width, !rows[rows.count - 1].isEmpty {
+            let w = min(inner, max(minimum, cell.naturalWidth))
+            if used + w > inner, !rows[rows.count - 1].isEmpty {
                 rows.append([])
                 used = 0
             }
@@ -208,8 +218,8 @@ final class CandidateDrawer: UIView {
         lines = []
         for (r, row) in rows.enumerated() {
             let total = row.reduce(0) { $0 + $1.width }
-            let extra = r < rows.count - 1 ? (width - total) / CGFloat(max(row.count, 1)) : 0
-            var x: CGFloat = 0
+            let extra = r < rows.count - 1 ? (inner - total) / CGFloat(max(row.count, 1)) : 0
+            var x = Self.margin
             let y = CGFloat(r) * Self.rowHeight
             for (cell, w) in row {
                 cell.frame = CGRect(x: x, y: y + 4, width: w + extra, height: Self.rowHeight - 8)

@@ -209,8 +209,9 @@ final class KeyboardView: UIView {
         render(KeyboardState())
     }
 
-    /// Open or close the drawer over the keys. The cross-fade and its length
-    /// are our choice.
+    /// Open or close the drawer over the keys. In recordings of the system's
+    /// Chinese keyboard (iOS 18.5 simulator) its drawer changes within about
+    /// 50 ms with no slide, so this is a very short cross-fade.
     private func setDrawer(open: Bool) {
         guard open != drawerOpen else { return }
         drawerOpen = open
@@ -229,7 +230,7 @@ final class KeyboardView: UIView {
         }
     }
 
-    private static let drawerDuration: TimeInterval = 0.25
+    private static let drawerDuration: TimeInterval = 0.06
 
     required init?(coder: NSCoder) {
         fatalError("not used")

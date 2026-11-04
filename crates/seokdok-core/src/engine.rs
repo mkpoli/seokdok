@@ -1194,6 +1194,11 @@ impl Engine {
                 }
             }
         }
+        // Last, so the spellings do not take the place of other words.
+        okurigana::add_i_spellings(&mut whole);
+        for s in &mut segments {
+            okurigana::add_i_spellings(&mut s.candidates);
+        }
         (whole, segments)
     }
 

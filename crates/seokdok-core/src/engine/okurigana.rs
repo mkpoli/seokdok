@@ -12,6 +12,9 @@
 //! typed word's own syllables from the last covered one, or from the second,
 //! after the Hanja: 近웠다 also reads 近까웠다, 飮ㄴ also reads 飮신. Particles
 //! follow whichever form is chosen.
+//!
+//! A ㅣ standing after Hanja is also written as a syllable (基ㅣ니 as 基이니,
+//! 基ㅣㄴ데 as 基인데, 我ㅣ as 我이).
 
 use super::{Candidate, Edge, Engine, Kind};
 use crate::conj::ending_surfaces;
@@ -39,6 +42,54 @@ fn last_letter(comps: &[char]) -> Vec<char> {
         Some(&c) if is_t(c) => vec![c],
         _ => comps[comps.len() - comps.iter().rev().take_while(|&&c| is_v(c)).count()..].to_vec(),
     }
+}
+
+/// `text` with each ㅣ after Hanja written as a syllable, taking a following
+/// lone final consonant into it. `None` if it has no such ㅣ.
+pub(super) fn i_spelling(text: &str) -> Option<String> {
+    let mut out = String::with_capacity(text.len());
+    let mut chars = text.chars().peekable();
+    let (mut prev, mut changed) = ('\0', false);
+    while let Some(c) = chars.next() {
+        if c != 'ㅣ' || !is_han(prev) {
+            out.push(c);
+            prev = c;
+            continue;
+        }
+        changed = true;
+        let merged = chars.peek().and_then(|n| match n {
+            'ㄱ' => Some('익'),
+            'ㄴ' => Some('인'),
+            'ㄹ' => Some('일'),
+            'ㅁ' => Some('임'),
+            'ㅂ' => Some('입'),
+            'ㅅ' => Some('잇'),
+            'ㅆ' => Some('있'),
+            _ => None,
+        });
+        if merged.is_some() {
+            chars.next();
+        }
+        out.push(merged.unwrap_or('이'));
+        prev = '이';
+    }
+    changed.then_some(out)
+}
+
+/// Follow each candidate that has a ㅣ after Hanja with its [`i_spelling`].
+pub(super) fn add_i_spellings(list: &mut Vec<Candidate>) {
+    if !list.iter().any(|c| c.text.contains('ㅣ')) {
+        return;
+    }
+    let mut out: Vec<Candidate> = Vec::with_capacity(list.len() + 2);
+    for c in list.drain(..) {
+        let spelled = i_spelling(&c.text).map(|text| Candidate { text, note: c.note.clone() });
+        out.push(c);
+        out.extend(spelled);
+    }
+    let mut seen = std::collections::HashSet::new();
+    out.retain(|c| seen.insert(c.text.clone()));
+    *list = out;
 }
 
 impl Engine {
@@ -108,7 +159,8 @@ impl Engine {
     /// [`Engine::forms_of`] lists the dictionary's forms, for [`Engine::read`].
     pub(super) fn variant_forms(&self, i: usize) -> Vec<(String, String)> {
         let n = &self.natives[i];
-        let mut out = Vec::new();
+        let mut out: Vec<(String, String)> =
+            self.forms_of(i).into_iter().filter_map(|(w, s)| Some((i_spelling(&w)?, s))).collect();
         if !eligible(n) {
             return out;
         }

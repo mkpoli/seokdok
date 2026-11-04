@@ -529,3 +529,26 @@ fn readings_of_the_chat_of_2026_11_04() {
     assert_eq!(e.convert("괜찮다")[0].text, "不空然다");
     assert_eq!(e.convert("집터")[0].text, "垈");
 }
+#[test]
+fn i_after_hanja_is_also_written_as_a_syllable() {
+    let e = engine(Options::default());
+    for (input, plain, spelled) in [
+        ("테니", "址ㅣ니", "址이니"),
+        ("텐데", "址ㅣㄴ데", "址인데"),
+        ("내", "我ㅣ", "我이"),
+        ("내가", "我ㅣ가", "我이가"),
+        ("게", "事ㅣ", "事이"),
+    ] {
+        let list: Vec<String> = e.convert(input).into_iter().map(|c| c.text).collect();
+        let at = list.iter().position(|t| t == plain).unwrap_or_else(|| panic!("{input}: {list:?}"));
+        assert_eq!(list.get(at + 1).map(String::as_str), Some(spelled), "{input}: {list:?}");
+    }
+    assert_eq!(e.read("址이니"), "터이니");
+    // Nothing else is pushed out, and a final ㅆ joins the syllable.
+    assert!(offers(&e, "내", "吾ㅐ"));
+    assert!(offers(&e, "냈다", "出있다"));
+    assert!(!offers(&e, "냈다", "出이ㅆ다"));
+    // A Hanja with the particle 이 still reads by its sound.
+    assert_eq!(e.read("脚이"), "각이");
+}
+

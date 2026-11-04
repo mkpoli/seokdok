@@ -95,7 +95,7 @@ after changing `project.yml`.
   only types a space).
 - The drawer's top row holds the composition's segments. Tap one to focus it;
   − and + shorten or lengthen the focused one. The drawer stays open meanwhile.
-- Hold Space for half a second to turn the keyboard into a trackpad, then slide
+- Hold Space for 0.6 s to turn the keyboard into a trackpad, then slide
   to move the caret. What is being composed is committed first. The caret moves
   along the line only: `adjustTextPosition` has no up and down.
 - 確定 (Return) confirms everything. Backspace undoes the conversion, then

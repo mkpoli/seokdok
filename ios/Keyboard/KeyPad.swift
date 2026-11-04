@@ -37,13 +37,17 @@ final class Key: UIView {
         didSet { refill() }
     }
 
-    /// The labels go while the keyboard is a trackpad.
+    /// While the keyboard is a trackpad the labels and shadows go and the caps
+    /// fade towards the background, by the amounts measured from a recording
+    /// of the system keyboard (iOS 18.5 simulator).
     var isDimmed = false {
         didSet {
             let alpha: CGFloat = isDimmed ? 0 : 1
             label.alpha = alpha
             icon.alpha = alpha
             hint.alpha = alpha
+            layer.shadowOpacity = isDimmed ? 0 : 0.35
+            refill()
         }
     }
 
@@ -169,6 +173,9 @@ final class Key: UIView {
             label.textColor = .white
         }
         icon.tintColor = look == .accent ? .white : .label
+        if isDimmed {
+            backgroundColor = backgroundColor?.withAlphaComponent(look == .letter ? 0.45 : 0.6)
+        }
     }
 
     override func accessibilityActivate() -> Bool {
@@ -253,9 +260,11 @@ final class KeyPad: UIView {
     private var cursorX: CGFloat = 0
     /// How far a finger may stray from a function key; our choice.
     private static let slop: CGFloat = 40
-    /// Our choices: the half second follows Hamster's default, and 8 pt per
-    /// character was set by eye.
-    private static let cursorHold: TimeInterval = 0.5
+    /// The system keyboard's trackpad began about 0.6 s into a held press and
+    /// its fade took about 0.1 s, in one recording on an iOS 18.5 simulator.
+    /// The 8 pt per character is our choice.
+    private static let cursorHold: TimeInterval = 0.6
+    private static let cursorFade: TimeInterval = 0.1
     private static let cursorStep: CGFloat = 8
 
     override init(frame: CGRect) {
@@ -418,7 +427,7 @@ final class KeyPad: UIView {
     private func setDimmed(_ dimmed: Bool) {
         var keys: [Key] = []
         visibleKeys(in: self, into: &keys)
-        UIView.animate(withDuration: 0.2, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState]) {
+        UIView.animate(withDuration: Self.cursorFade, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState]) {
             keys.forEach { $0.isDimmed = dimmed }
         }
     }

@@ -140,7 +140,7 @@ jobs:
         working-directory: ios
         run: |
           xcrun simctl spawn "$UDID" log show --style compact --last 90m \
-            --predicate 'eventMessage CONTAINS "Unable to simultaneously satisfy constraints"' | tee shots/constraints.txt
+            --predicate 'process == "SeokdokKeyboard" AND eventMessage CONTAINS "Unable to simultaneously satisfy constraints"' | tee shots/constraints.txt
           if grep -q "Unable to simultaneously" shots/constraints.txt; then exit 1; fi
 
       - uses: actions/upload-artifact@v4

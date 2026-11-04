@@ -68,11 +68,8 @@ pub enum Layout {
 pub struct Input {
     pub default_mode: InputMode,
     /// Space converts the composition. When false, Space inserts a space and
-    /// only the Hanja key, F7 and Tab convert.
+    /// only the convert keys and Tab convert.
     pub space_converts: bool,
-    /// Alt pressed and released on its own switches 釋讀 ↔ Latin, like the
-    /// Han/Eng key.
-    pub alt_toggles: bool,
     /// Candidate window direction; horizontal lets ← → walk the candidates.
     pub candidate_layout: Layout,
     /// Modern letters typed in a row form old-Hangul clusters: ㅅ+ㄱ → ᄭ,
@@ -88,7 +85,6 @@ impl Default for Input {
         Input {
             default_mode: InputMode::Seokdok,
             space_converts: true,
-            alt_toggles: true,
             candidate_layout: Layout::Vertical,
             old_clusters: false,
             keys: ModeKeys::default(),
@@ -233,10 +229,8 @@ impl Config {
 #   latin   = pass keys through
 default_mode = \"{mode}\"
 # Space converts the composition.  (true | false)
-# When false, Space inserts a space; the Hanja key, F7 and Tab convert.
+# When false, Space inserts a space; the convert keys below and Tab convert.
 space_converts = {space}
-# Alt pressed and released alone switches 釋讀 ↔ Latin, like Han/Eng.  (true | false)
-alt_toggles = {alt}
 # Candidate window direction.
 #   vertical   = a column
 #   horizontal = a row; ← → move through the candidates
@@ -309,7 +303,6 @@ max_candidates = {max}
 ",
             mode = mode,
             space = self.input.space_converts,
-            alt = self.input.alt_toggles,
             old = self.input.old_clusters,
             k_toggle = toml_list(&self.input.keys.toggle),
             k_latin = toml_list(&self.input.keys.latin),
@@ -415,7 +408,6 @@ mod tests {
             input: Input {
                 default_mode: InputMode::Hangul,
                 space_converts: false,
-                alt_toggles: false,
                 candidate_layout: Layout::Horizontal,
                 old_clusters: true,
                 keys: ModeKeys {

@@ -378,12 +378,6 @@ pub extern "C" fn seokdok_ready() -> bool {
     HOST.is_ready()
 }
 
-/// Whether Alt tapped alone should switch modes (from the settings).
-#[no_mangle]
-pub extern "C" fn seokdok_alt_toggles() -> bool {
-    config::current().input.alt_toggles
-}
-
 /// Whether the script setting is 韓㐎 專用. The session then reports Hangul
 /// for the 釋讀 mode; front ends use this to leave the user's input source
 /// as it is.

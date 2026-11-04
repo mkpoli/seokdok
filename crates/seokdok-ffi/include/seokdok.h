@@ -36,7 +36,6 @@ int32_t seokdok_mode(Ime *ime);
 void seokdok_set_mode(Ime *ime, int32_t mode);
 uint32_t seokdok_key_jamo(uint32_t key);
 bool seokdok_ready(void);
-bool seokdok_alt_toggles(void);
 bool seokdok_hangul_only(void);
 bool seokdok_space_converts(void);
 char *seokdok_config_json(void);

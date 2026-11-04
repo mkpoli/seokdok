@@ -111,8 +111,12 @@ final class KeyboardViewController: UIInputViewController {
     /// field switch starts a new composition in the new field.
     @discardableResult
     private func dropForeignComposition() -> Bool {
-        guard marked != nil, let doc = composingDocument,
+        guard let m = marked, let doc = composingDocument,
               doc != textDocumentProxy.documentIdentifier else { return false }
+        // The identifier can lag behind a field change, as the context can,
+        // so it only counts together with a context that lacks our text.
+        let before = textDocumentProxy.documentContextBeforeInput ?? ""
+        if before.hasSuffix(m) { return false }
         abandonComposition()
         return true
     }

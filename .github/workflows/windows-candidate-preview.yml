@@ -30,7 +30,7 @@ jobs:
 
       - name: Build
         run: |
-          cargo build --release -p seokdok-tsf --example candidate_preview
+          cargo build --release -p seokdok-tsf --lib --example candidate_preview
           Get-Item target/release/seokdok.dll | Select-Object Name, Length
 
       - name: Offscreen, light and dark at 100% and 200%

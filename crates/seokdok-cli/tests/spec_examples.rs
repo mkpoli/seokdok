@@ -556,7 +556,7 @@ fn i_after_hanja_is_also_written_as_a_syllable() {
 fn the_plural_is_also_written_with_hanja() {
     let e = engine(Options::default());
     for (input, first, more) in [
-        ("사람들", "人들", ["人等", "人們"]),
+        ("사람들", "人들", ["人等", "人達"]),
         ("사람들은", "人들은", ["人等은", "人們은"]),
         ("학생들", "學生들", ["學生等", "學生們"]),
         ("친구들이", "親舊들이", ["親舊等이", "親舊們이"]),
@@ -580,7 +580,7 @@ fn the_plural_is_also_written_with_hanja() {
     assert!(offers(&e, "길들이", "馴"));
     assert!(offers(&e, "뎌들", "伊들"));
     // Reading back.
-    for (written, reading) in [("學生等", "학생들"), ("學生們은", "학생들은"), ("平等", "평등")] {
+    for (written, reading) in [("學生等", "학생들"), ("學生們은", "학생들은"), ("學生達", "학생들"), ("平等", "평등"), ("到達", "도달")] {
         assert_eq!(e.read(written), reading, "{written}");
     }
     assert_eq!(e.read("人等은"), e.read("人들은"));
@@ -596,13 +596,31 @@ fn the_adverb_kkwae_is_hanja_inside_a_phrase() {
 }
 
 #[test]
+fn sino_words_with_their_own_row_convert_in_the_sino_mode() {
+    let e = engine(Options { sino_only: true, ..Options::default() });
+    assert_eq!(e.convert("물론")[0].text, "勿論");
+    assert_eq!(e.convert("그건물론")[0].text, "그건勿論");
+    assert_eq!(e.convert("사실")[0].text, "事實");
+    assert_eq!(e.convert("일단은")[0].text, "一旦은");
+    // Native words stay in Hangul.
+    assert_eq!(e.convert("하늘")[0].text, "하늘");
+    assert_eq!(e.convert("수")[0].text, "수");
+}
+
+#[test]
 fn the_past_is_also_written_with_ssang_siot() {
     let e = engine(Options::default());
     for (input, want) in [("있었다", "在ㅆ다"), ("있었어요", "在ㅆ어요"), ("먹었다", "食ㅆ다"), ("먹었습니다", "食ㅆ습니다"), ("받았다", "受ㅆ다")] {
-        assert!(offers(&e, input, want), "{input} → {want}");
+        assert!(e.segments(input).iter().any(|s| s.candidates.iter().any(|c| c.text == want)), "{input} → {want}");
     }
     // The dictionary's form stays first, and 在ㅆ다 for 있다 stays.
     assert_eq!(e.convert("먹었다")[0].text, "食었다");
     assert!(offers(&e, "있다", "在ㅆ다"));
     assert_eq!(e.read("在ㅆ다"), "있다");
+    // It comes right after the form it spells.
+    let list: Vec<String> = e.segments("마음먹었다")[0].candidates.iter().map(|c| c.text.clone()).collect();
+    let at = list.iter().position(|t| t == "決었다").unwrap();
+    assert_eq!(list[at + 1], "決ㅆ다", "{list:?}");
+    // The phrase list keeps the form with the tense in it.
+    assert!(e.convert("있었다").iter().any(|c| c.text == "有ㅆ었다"));
 }

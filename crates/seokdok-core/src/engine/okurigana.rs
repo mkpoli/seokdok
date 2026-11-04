@@ -17,10 +17,11 @@
 //! 基ㅣㄴ데 as 基인데, 我ㅣ as 我이).
 //!
 //! The past 았/었 right after Hanja is also written ㅆ, with the Hanja standing
-//! for the vowel too (在었다 as 在ㅆ다, 食었어요 as 食ㅆ어요).
+//! for the vowel too (在었다 as 在ㅆ다, 食었어요 as 食ㅆ어요). A word's list has it
+//! right after the form it spells; `read` takes such text by its dictionary form.
 //!
-//! The plural 들 is also written 等 or 們 (人들 as 人等, 人們). After a word that
-//! already ends in one of them (我等 우리), the form without 들 comes first.
+//! The plural 들 is also written 等, 們 or 達 (人들 as 人等, 人們, 人達). After a word
+//! that already ends in one of them (我等 우리), the form without 들 comes first.
 
 use super::{Candidate, Edge, Engine, Kind};
 use crate::conj::ending_surfaces;
@@ -119,17 +120,7 @@ impl Engine {
         *forms = out;
     }
 
-    /// Whether edge `e` keeps its other spellings beside its dictionary form.
-    pub(super) fn has_past_form(&self, comps: &[char], e: &Edge) -> bool {
-        let Kind::Verb { entry, .. } = e.kind else { return false };
-        let hanja = &self.natives[entry as usize].hanja;
-        !hanja.is_empty()
-            && self.render_dict(comps, e).first().is_some_and(|c| {
-                c.text.strip_prefix(hanja.as_str()).is_some_and(|r| r.starts_with(['았', '었']))
-            })
-    }
-
-    /// Add the 等 and 們 spellings of a plural 들 to the forms of edge `e`. A
+    /// Add the 等, 們 and 達 spellings of a plural 들 to the forms of edge `e`. A
     /// word that is already plural (我等 우리) puts the form without 들 first.
     pub(super) fn add_plural_forms(&self, e: &Edge, forms: &mut Vec<Candidate>) {
         let (particle, native) = match e.kind {
@@ -144,12 +135,12 @@ impl Engine {
             let head = c.text.strip_suffix(particle.as_str()).filter(|h| h.chars().next_back().is_some_and(is_han)).map(str::to_string);
             let with = |text: String| Candidate { text, note: c.note.clone() };
             match head {
-                Some(h) if native && h.ends_with(['等', '們']) => {
+                Some(h) if native && h.ends_with(['等', '們', '達']) => {
                     out.push(with(format!("{h}{rest}")));
                     out.push(c);
                 }
                 Some(h) => {
-                    let more = [with(format!("{h}等{rest}")), with(format!("{h}們{rest}"))];
+                    let more = ['等', '們', '達'].map(|m| with(format!("{h}{m}{rest}")));
                     out.push(c);
                     out.extend(more);
                 }
@@ -239,12 +230,6 @@ impl Engine {
         let mut add = |comps: Vec<char>, kind: Kind| {
             let edge = Edge { start: 0, end: comps.len(), cost: 0.0, kind };
             let surface = compose(&comps);
-            let mut past = self.render_dict_as(&comps, &edge, true);
-            let before = past.len();
-            self.add_past_forms(&edge, &mut past);
-            if past.len() > before {
-                out.extend(past.into_iter().filter(|c| c.text.contains('ㅆ')).map(|c| (c.text, surface.clone())));
-            }
             for c in self.okurigana(&comps, &edge, &[], false) {
                 out.push((c.text, surface.clone()));
             }

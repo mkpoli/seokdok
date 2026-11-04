@@ -149,7 +149,8 @@ final class KeyboardViewController: UIInputViewController {
     }
 
     /// A field whose content the system describes as private, on a keyboard
-    /// type that would otherwise convert.
+    /// type that would otherwise convert. Asked as a composition starts, since
+    /// a composition can still be open when the focus has moved on.
     private func fieldIsPrivate() -> Bool {
         guard let type = textDocumentProxy.textContentType ?? nil else { return false }
         let hidden: [UITextContentType] = [.password, .newPassword, .oneTimeCode, .username, .emailAddress, .URL, .telephoneNumber, .creditCardNumber]
@@ -162,7 +163,6 @@ final class KeyboardViewController: UIInputViewController {
     /// inserted into the new one. Returns whether the layout changed.
     @discardableResult
     private func updateLayout() -> Bool {
-        session.setPrivateField(fieldIsPrivate())
         let next = fieldLayout()
         guard next != layout else { return false }
         if marked != nil || !session.preedit().isEmpty {
@@ -223,7 +223,7 @@ final class KeyboardViewController: UIInputViewController {
         s.candidates = session.candidates()
         s.loading = !Session.ready
         s.learnMenu = learnMenu
-        s.learnOn = configDir() == nil ? Session.learn : nil
+        s.learnOn = hasFullAccess && AppGroup.containerURL != nil ? nil : Session.learn
         keys.render(s)
     }
 
@@ -241,6 +241,9 @@ extension KeyboardViewController: KeyboardViewDelegate {
             if shift == .once { shift = .off }
             refresh()
             return
+        }
+        if session.preedit().isEmpty {
+            session.setPrivateField(fieldIsPrivate())
         }
         if !session.key(Session.Key.letter, key, shift: shifted) {
             insert(String(shifted ? Character(key.uppercased()) : key))

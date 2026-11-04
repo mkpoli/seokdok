@@ -16,7 +16,7 @@ comments; the header line names the columns.
 | `kun-ja-weak.tsv` | weaker Japanese links, kept so no candidate is lost | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
 | `wikt-native.tsv` | Common native words that came out in Hangul: compounds of existing rows, or a 訓音 or JMdict link | English Wiktionary, libhangul, JMdict | CC BY-SA 4.0 |
-| `editorial-sino.tsv` | Words starting in Hangul with a Hanja part (두벌式), added by the editors | project editors | MIT |
+| `editorial-sino.tsv` | Words starting in Hangul with a Hanja part (두벌式), and the first candidate among homophones, set by the editors | project editors | MIT |
 | `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
 | `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
 | `etym.tsv` | Hanja spellings the files above lack, including words Sino-Korean only by origin (대충 大總, 재미 滋味, 김치 沉菜) | English Wiktionary (kaikki.org) | CC BY-SA 4.0 |

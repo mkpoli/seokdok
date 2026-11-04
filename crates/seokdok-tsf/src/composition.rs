@@ -2,7 +2,9 @@
 //! cancel the composition, style the segments, and drive the candidate
 //! window. Also `ITfCompositionSink`.
 
+use std::cell::Cell;
 use std::mem::ManuallyDrop;
+use std::rc::Rc;
 use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::OnceLock;
 use std::time::Instant;
@@ -22,8 +24,8 @@ use windows::Win32::UI::TextServices::{
 use crate::config::Surface;
 use crate::edit_session::run_sync;
 use crate::engine_host::HOST;
-use crate::session::{Attr, Effect, Run};
-use crate::surface::{at_boundary, choose, classify_end, commits_plainly, replays_after_drained_commit, undelivered, AtBoundary, End, Facts};
+use crate::session::{Attr, Effect, Mode, Run};
+use crate::surface::{at_boundary, choose, classify_end, commits_plainly, composes_as_interim, replays_after_drained_commit, undelivered, AtBoundary, End, Facts};
 use crate::text_service::TextService_Impl;
 
 /// This process refused a composition, so it gets the floating preedit.
@@ -98,15 +100,60 @@ unsafe fn set_single_selection(ctx: &ITfContext, ec: u32, range: &ITfRange) -> w
     result
 }
 
+/// Whether the selection is an interim character over the whole of `range`.
+///
+/// # Safety
+/// `ec` must be a valid edit cookie for `ctx` inside an edit session.
+unsafe fn interim_over(ctx: &ITfContext, ec: u32, range: &ITfRange) -> bool {
+    let mut selection = [TF_SELECTION::default()];
+    let mut fetched = 0;
+    if ctx.GetSelection(ec, TF_DEFAULT_SELECTION, &mut selection, &mut fetched).is_err() || fetched == 0 {
+        return false;
+    }
+    let is_interim = selection[0].style.fInterimChar.as_bool();
+    let Some(current) = ManuallyDrop::into_inner(std::mem::take(&mut selection[0].range)) else {
+        return false;
+    };
+    is_interim
+        && current.CompareStart(ec, range, TF_ANCHOR_START).is_ok_and(|c| c == 0)
+        && current.CompareEnd(ec, range, TF_ANCHOR_END).is_ok_and(|c| c == 0)
+}
+
+/// Put `text` in `range` with an interim character selected over it. Windows
+/// accepts that selection only on one character and keeps it over whatever
+/// replaces that character, so a longer text, an old syllable written with
+/// conjoining jamo, goes in through its first unit. False if the selection did
+/// not hold; the text is in `range` either way.
+///
+/// # Safety
+/// `ec` must be a valid read-write edit cookie for `ctx` inside an edit session.
+unsafe fn set_text_as_interim(ctx: &ITfContext, ec: u32, range: &ITfRange, text: &[u16]) -> windows::core::Result<bool> {
+    range.SetText(ec, 0, text)?;
+    if text.is_empty() {
+        return Ok(false);
+    }
+    if interim_over(ctx, ec, range) {
+        return Ok(true);
+    }
+    range.SetText(ec, 0, &text[..1])?;
+    let mut selection = TF_SELECTION {
+        range: ManuallyDrop::new(Some(range.clone())),
+        style: TF_SELECTIONSTYLE { ase: TF_AE_NONE, fInterimChar: true.into() },
+    };
+    let selected = ctx.SetSelection(ec, std::slice::from_ref(&selection));
+    ManuallyDrop::drop(&mut selection.range);
+    range.SetText(ec, 0, text)?;
+    Ok(selected.is_ok() && interim_over(ctx, ec, range))
+}
+
 /// The context's static flags.
 fn static_flags(context: &ITfContext) -> u32 {
     // SAFETY: context is a valid ITfContext.
     unsafe { context.GetStatus() }.map_or(0, |s| s.dwStaticFlags)
 }
 
-/// `TS_SS_TRANSITORY` alone does not tell whether a composition will hold.
-/// The system's IMM32 bridge sets it and ends each composition it is given,
-/// handing over the text as finished; Chromium and the console set it on text
+/// `TS_SS_TRANSITORY` alone does not tell how a composition is read. The
+/// system's IMM32 bridge sets it, and Chromium and the console set it on text
 /// stores of their own.
 fn is_transitory(context: &ITfContext) -> bool {
     static_flags(context) & TS_SS_TRANSITORY != 0
@@ -190,7 +237,7 @@ impl TextService_Impl {
 
     /// The surface of the composition in progress, or the one to start with.
     fn surface(&self, context: &ITfContext) -> Surface {
-        let through_imm32 = {
+        let (through_imm32, converts) = {
             let state = self.inner();
             if state.composition.is_some() {
                 return Surface::Inline;
@@ -198,12 +245,13 @@ impl TextService_Impl {
             if state.floating.is_some() {
                 return Surface::Floating;
             }
-            state.imm32_context == Some(context.as_raw() as usize)
+            (state.imm32_context == Some(context.as_raw() as usize), state.session.mode() != Mode::Hangul)
         };
         let flags = static_flags(context);
         let (surface, why) = choose(Facts {
             transitory: flags & TS_SS_TRANSITORY != 0,
             through_imm32,
+            converts,
             remembered: NEEDS_FLOATING.load(Ordering::Relaxed),
             forced: forced_surface(),
         });
@@ -299,6 +347,19 @@ impl TextService_Impl {
     /// Replace the composition text by `runs`, each with its display attribute.
     /// If the document will not hold it, the text moves to the floating preedit.
     fn set_preedit(&self, context: &ITfContext, runs: Vec<Run>) -> windows::core::Result<()> {
+        let transitory = is_transitory(context);
+        let interim = composes_as_interim(transitory, self.inner().imm32_context == Some(context.as_raw() as usize));
+        // The bridge shows one syllable; the ones before it go to the application.
+        let split = if interim { self.inner().session.finished_syllables() } else { None };
+        let finished: Vec<u16> = split.as_ref().map_or(Vec::new(), |(f, _)| f.encode_utf16().collect());
+        let typing = split.map(|(_, last)| last);
+        let all_runs = runs.clone();
+        let runs = match &typing {
+            Some(last) => vec![Run { text: last.clone(), attr: Attr::Input }],
+            None => runs,
+        };
+        let pushed_out = Rc::new(Cell::new(false));
+        let pushed_out_in_edit = Rc::clone(&pushed_out);
         let composer = self.composer(context)?;
         let text: Vec<u16> = runs.iter().flat_map(|r| r.text.encode_utf16()).collect();
         let atoms = self.inner().display_atoms;
@@ -314,7 +375,6 @@ impl TextService_Impl {
                 })
                 .collect()
         };
-        let transitory = is_transitory(context);
         let started = composer.current.is_none();
         let holds_text = !started && self.inner().drawn.iter().any(|r| !r.text.is_empty());
         let ended_before = {
@@ -338,8 +398,25 @@ impl TextService_Impl {
                     return Ok(Written::Vanished);
                 }
                 let write = || -> windows::core::Result<Option<(i32, i32)>> {
+                    if !finished.is_empty() {
+                        // Text pushed out of the composition is finished text.
+                        let range = comp.GetRange()?;
+                        range.SetText(ec, 0, &finished)?;
+                        ctx.GetProperty(&GUID_PROP_ATTRIBUTE)?.Clear(ec, &range)?;
+                        range.Collapse(ec, TF_ANCHOR_END)?;
+                        comp.ShiftStart(ec, &range)?;
+                        pushed_out_in_edit.set(true);
+                    }
                     let range = comp.GetRange()?;
-                    range.SetText(ec, 0, &text)?;
+                    let held = if interim {
+                        set_text_as_interim(&ctx, ec, &range, &text)?
+                    } else {
+                        range.SetText(ec, 0, &text)?;
+                        false
+                    };
+                    if interim && !held {
+                        crate::debug_log::log(|| "the interim selection did not hold".to_string());
+                    }
 
                     let prop = ctx.GetProperty(&GUID_PROP_ATTRIBUTE)?;
                     let mut anchor = None;
@@ -364,9 +441,11 @@ impl TextService_Impl {
                         }
                     }
 
-                    // Caret after the preedit.
-                    range.Collapse(ec, TF_ANCHOR_END)?;
-                    set_single_selection(&ctx, ec, &range)?;
+                    // Caret after the preedit, unless the interim selection stands for it.
+                    if !held {
+                        range.Collapse(ec, TF_ANCHOR_END)?;
+                        set_single_selection(&ctx, ec, &range)?;
+                    }
                     Ok(anchor)
                 };
                 match write() {
@@ -390,6 +469,11 @@ impl TextService_Impl {
             state.writing = false;
             state.compositions_ended != ended_before
         };
+        // Whatever failed after that point, the application has those syllables.
+        if let (Some(last), true, false) = (&typing, pushed_out.get(), ended) {
+            self.inner_mut().session.keep_typing(last);
+        }
+        let runs = if pushed_out.get() { runs } else { all_runs };
 
         // A store that cannot be written to right now (locked, nothing editable
         // focused) says nothing about compositions; the popup keeps the typing
@@ -452,12 +536,15 @@ impl TextService_Impl {
         self.start_over(context, replay)
     }
 
-    /// The composition was drained: float from now on and forget its text. With
-    /// `replay` the key being handled goes round again on the empty session,
-    /// so it adds only itself, or passes on to the application if it is not
-    /// input there.
+    /// The composition was drained: outside the IMM32 bridge, float from now on.
+    /// Forget its text. With `replay` the key being handled goes round again on
+    /// the empty session, so it adds only itself, or passes on to the application
+    /// if it is not input there.
     fn start_over(&self, context: &ITfContext, replay: bool) -> windows::core::Result<()> {
-        self.remember_floating("the composition's text vanished");
+        // The IMM32 bridge empties a composition when the application cancels it.
+        if self.inner().imm32_context != Some(context.as_raw() as usize) {
+            self.remember_floating("the composition's text vanished");
+        }
         let effects = {
             let mut state = self.inner_mut();
             state.composition = None;

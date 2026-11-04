@@ -21,9 +21,11 @@ pub struct Facts {
     pub transitory: bool,
     /// Keys reach the input method through IMM32, judged by `OnTestKeyDown`
     /// preceding `OnKeyDown`. An application calling `ITfKeystrokeMgr::TestKeyDown`
-    /// itself looks the same and floats without need, which costs nothing but
-    /// the inline display.
+    /// itself looks the same.
     pub through_imm32: bool,
+    /// The text being typed may still be converted, so all of it has to stay
+    /// composing.
+    pub converts: bool,
     /// This process already refused a composition.
     pub remembered: bool,
     /// The setting for this application.
@@ -38,11 +40,21 @@ pub fn choose(facts: Facts) -> (Surface, &'static str) {
         (Surface::Inline, "the document keeps its text")
     } else if facts.remembered {
         (Surface::Floating, "this process refused a composition")
-    } else if facts.through_imm32 {
-        (Surface::Floating, "keys arrive through IMM32")
+    } else if facts.through_imm32 && facts.converts {
+        (Surface::Floating, "the IMM32 bridge shows one syllable of a Korean composition")
     } else {
-        (Surface::Inline, "a transitory context with its own text store")
+        (Surface::Inline, "a transitory context")
     }
+}
+
+/// Whether a composition's text is selected as an interim character, the block
+/// cursor of Korean input, rather than followed by a caret. Under a Korean
+/// profile the system's IMM32 bridge ends a composition with a plain caret at
+/// once, and with an interim selection hands the application one syllable of
+/// it. Chromium and the console, with transitory text stores of their own, hold
+/// a composition without it.
+pub fn composes_as_interim(transitory: bool, through_imm32: bool) -> bool {
+    transitory && through_imm32
 }
 
 /// How a composition came to an end without the input method asking.
@@ -153,20 +165,33 @@ mod tests {
 
     #[test]
     fn a_document_that_keeps_text_is_inline() {
-        let f = Facts { transitory: false, through_imm32: true, remembered: true, forced: None };
+        let f = Facts { transitory: false, through_imm32: true, converts: true, remembered: true, forced: None };
         assert_eq!(choose(f).0, Surface::Inline);
     }
 
     #[test]
     fn a_transitory_context_is_inline_unless_something_speaks_against_it() {
         assert_eq!(choose(facts()).0, Surface::Inline);
-        assert_eq!(choose(Facts { through_imm32: true, ..facts() }).0, Surface::Floating);
         assert_eq!(choose(Facts { remembered: true, ..facts() }).0, Surface::Floating);
+        assert_eq!(choose(Facts { through_imm32: true, converts: true, ..facts() }).0, Surface::Floating);
+    }
+
+    #[test]
+    fn plain_hangul_composes_inline_through_imm32() {
+        assert_eq!(choose(Facts { through_imm32: true, converts: false, ..facts() }).0, Surface::Inline);
+        assert_eq!(choose(Facts { through_imm32: false, converts: true, ..facts() }).0, Surface::Inline);
+    }
+
+    #[test]
+    fn only_the_imm32_bridge_gets_an_interim_selection() {
+        assert!(composes_as_interim(true, true));
+        assert!(!composes_as_interim(true, false));
+        assert!(!composes_as_interim(false, true));
     }
 
     #[test]
     fn the_setting_wins() {
-        let f = Facts { through_imm32: true, remembered: true, forced: Some(Surface::Inline), ..facts() };
+        let f = Facts { through_imm32: true, converts: true, remembered: true, forced: Some(Surface::Inline), ..facts() };
         assert_eq!(choose(f).0, Surface::Inline);
         let f = Facts { transitory: false, forced: Some(Surface::Floating), ..facts() };
         assert_eq!(choose(f).0, Surface::Floating);

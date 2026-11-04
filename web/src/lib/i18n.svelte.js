@@ -225,7 +225,7 @@ const ko = {
       '{地球儀|지구본} {鍵|키}로 {釋讀|석독}을 {選|고르}ㅂ니다. Space로 {變換|변환}하고, {候補|후보}를 {押|눌러} {確定|확정}합니다.',
     ],
     macos: [
-      'Mac의 Xcode로 빌드하여 ~/Library/Input Methods에 {置|넣}고, {再|다시} 로그인합니다.',
+      'Mac의 Xcode로 빌드하여 ~/Library/Input Methods에 {置|넣}고, {再|다시} 로그인합니다. 빌드는 CI에서 {確認|확인}했으나 {實際|실제} {入力|입력} {環境|환경}에서는 {未|아직} {試|시험}하지 않았습니다.',
       '시스템 설정 › 키보드 › 입력 소스 › 편집…에서 +를 {押|눌러} 한국어의 {釋讀|석독}을 {加|더}합니다.',
       '메뉴 막대의 입력 메뉴에서 {釋讀|석독}을 {選|고르}ㅂ니다.',
     ],
@@ -471,7 +471,7 @@ const en = {
       'Pick 釋讀 with the globe key. Space converts; tap a candidate to confirm.',
     ],
     macos: [
-      'Build it with Xcode on a Mac, copy it to ~/Library/Input Methods and log in again.',
+      'Build it with Xcode on a Mac, copy it to ~/Library/Input Methods and log in again. CI builds it, but it has not been run as an input method yet.',
       'In System Settings › Keyboard › Input Sources › Edit…, press + and add 釋讀 under Korean.',
       'Pick 釋讀 in the input menu of the menu bar.',
     ],

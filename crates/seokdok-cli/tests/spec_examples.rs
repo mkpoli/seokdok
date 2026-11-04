@@ -624,3 +624,17 @@ fn the_past_is_also_written_with_ssang_siot() {
     // The phrase list keeps the form with the tense in it.
     assert!(e.convert("있었다").iter().any(|c| c.text == "有ㅆ었다"));
 }
+
+#[test]
+fn a_compound_of_nouns_offers_every_combination() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("옛한글")[0].text, "古ㅅ韓㐎");
+    let seg = e.segments("옛한글");
+    assert_eq!(seg.len(), 1, "one list");
+    for want in ["古ㅅ韓㐎", "古韓㐎", "古韓字", "古ㅅ韓字", "舊韓㐎", "옛韓㐎", "옛한글"] {
+        assert!(seg[0].candidates.iter().any(|c| c.text == want), "{want}: {:?}", seg[0].candidates.iter().map(|c| &c.text).collect::<Vec<_>>());
+    }
+    assert!(e.segments("옛한글을")[0].candidates.iter().any(|c| c.text == "古韓字을"));
+    // A verb in the run keeps its segments.
+    assert!(e.segments("사람이좋다").len() >= 2);
+}

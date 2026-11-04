@@ -18,7 +18,7 @@ const lines = (f) =>
     .split('\n')
     .filter((l) => l && !l.startsWith('#') && !l.startsWith('lemma\t') && !l.startsWith('reading\t'))
 
-const native = ['corpus.tsv', 'editorial.tsv', 'community.tsv', 'suggested.tsv', 'gloss.tsv', 'kun-ja.tsv', 'kun-ja-weak.tsv']
+const native = ['corpus.tsv', 'editorial.tsv', 'community.tsv', 'eonhae.tsv', 'suggested.tsv', 'gloss.tsv', 'kun-ja.tsv', 'kun-ja-weak.tsv']
   .flatMap((f) => lines(f).map((l) => l.split('\t').slice(0, 6).join('\t')))
 const sino = new Map()
 for (const f of ['editorial-sino.tsv', 'fusion.tsv', 'sino.tsv', 'etym.tsv', 'loanwords.tsv', 'hun.tsv']) {

@@ -1296,6 +1296,11 @@ impl Engine {
                 out.push(Candidate { text, note });
             }
         }
+        // Old letters the engine cannot read split the input into runs: the
+        // input as typed stays one choice for the whole phrase.
+        if input.chars().any(is_jamo) && !out.iter().any(|c| c.text == input) {
+            out.push(Candidate { text: input.to_string(), note: String::new() });
+        }
         match self.spaced_hun(input) {
             Some(hun) => self.with_hun(out, input, hun),
             None => out,

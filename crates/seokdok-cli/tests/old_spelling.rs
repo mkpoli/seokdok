@@ -353,6 +353,9 @@ fn a_letter_the_engine_cannot_read_leaves_the_rest_converting() {
         assert_eq!(segs.last().unwrap(), &[stray.to_string()]);
         assert!(segs[0].iter().any(|t| t == "愛"));
     }
+    // The input as typed stays a choice for the whole phrase.
+    let typed = format!("사랑{stray}");
+    assert!(texts(&e, &typed).0.iter().any(|t| *t == typed));
     // A medial with no modern letter (U+1176) in the middle.
     let odd = "\u{1100}\u{1176}";
     let whole = texts(&e, &format!("사랑{odd}사랑")).0;

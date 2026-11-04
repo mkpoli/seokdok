@@ -1184,24 +1184,92 @@ test('a button that commits, then a composition: the old text does not come back
   expect(p.el.value).toBe('\u200B글')
 })
 
-test('input during a conversion in flight waits its turn', async () => {
+/** A page whose conversion stays in flight until released. */
+function slowPage() {
   let release
   const slow = (t) => new Promise((r) => (release = () => r(realSegment(t))))
-  const m = new Ime(new wasm.Composer(), slow, realWhole)
+  const ime = new Ime(new wasm.Composer(), slow, realWhole)
   const el = { value: '', setSelectionRange() {} }
-  const s = new Sink(m, el)
-  const type = (c) => {
-    el.value += c
-    s.input()
+  const sink = new Sink(ime, el)
+  const type = (text) => {
+    for (const c of text) {
+      el.value += c
+      sink.input()
+    }
   }
-  for (const c of 'ㅇㅏㄴㄴㅕㅇ ㅎㅏ') type(c)
-  expect(m.busy).toBe(true)
-  expect(m.doc).toBe('')
-  release()
-  await tick()
-  await tick()
-  expect(m.doc).toBe('安寧 ')
-  expect(m.pre).toBe('하')
+  const done = async () => {
+    release()
+    await tick()
+    await tick()
+  }
+  return { ime, el, sink, type, done }
+}
+
+test('input during a conversion in flight waits its turn', async () => {
+  const p = slowPage()
+  p.type('ㅇㅏㄴㄴㅕㅇ ㅎㅏ')
+  expect(p.ime.busy).toBe(true)
+  expect(p.ime.doc).toBe('')
+  expect(p.el.value).toBe('​ㅎㅏ')
+  await p.done()
+  expect(p.ime.doc).toBe('安寧 ')
+  expect(p.ime.pre).toBe('하')
+})
+
+test('Latin letters during a conversion stay keys, one at a time', async () => {
+  const p = slowPage()
+  p.type('dkssud ab')
+  expect(p.el.value).toBe('​')
+  await p.done()
+  expect(p.ime.doc).toBe('安寧 ')
+  expect(p.ime.pre).toBe(physical('ab'))
+})
+
+test('A mode: text during a conversion goes in once', async () => {
+  const p = slowPage()
+  p.ime.toggleMode()
+  p.type('ㅇㅏㄴㄴㅕㅇ ab')
+  await p.done()
+  expect(p.ime.doc).toBe('安寧ab')
+})
+
+test('punctuation during a conversion goes in once', async () => {
+  const p = slowPage()
+  p.type('ㅇㅏㄴㄴㅕㅇ ..')
+  await p.done()
+  expect(p.ime.doc).toBe('安寧..')
+})
+
+test('a second word and a composition during a conversion: nothing lost', async () => {
+  const p = slowPage()
+  p.type('ㅇㅏㄴㄴㅕㅇ ')
+  // The next word is ended, spaced, and another one is begun, all in flight.
+  p.sink.compositionstart()
+  p.el.value += '글'
+  p.sink.input()
+  p.sink.compositionend()
+  p.type(' ')
+  p.sink.compositionstart()
+  p.el.value += '하'
+  p.sink.input()
+  p.el.value = p.el.value.slice(0, -1) + '한'
+  p.sink.input()
+  await p.done()
+  await p.done()
+  p.sink.compositionend()
+  expect(p.ime.doc).toBe('安寧 글 ')
+  expect(p.ime.pre).toBe('한')
+})
+
+test('backspace during a conversion keeps the mark, so the next press still fires', async () => {
+  const p = slowPage()
+  p.type('ㅇㅏㄴㄴㅕㅇ ')
+  p.el.value = ''
+  p.sink.input()
+  expect(p.el.value).toBe('​')
+  await p.done()
+  expect(p.ime.segs).toBe(null)
+  expect(p.ime.pre).toBe('안녕')
 })
 
 test('the textarea never empties, and the caret stays past the mark', () => {

@@ -55,7 +55,7 @@ export class Sink {
 
   /**
    * @param {import('./ime.svelte.js').Ime} ime
-   * @param {{ value: string, setSelectionRange: (a: number, b: number) => void }} el
+   * @param {HTMLTextAreaElement} el
    */
   constructor(ime, el) {
     this.ime = ime
@@ -76,10 +76,24 @@ export class Sink {
     return !(e.key === 'Backspace' && this.#units.length)
   }
 
+  /** Run `f` now, or in turn behind a conversion in flight. The textarea is
+   *  kept up to date at once; only the input method waits. */
+  #then(f) {
+    if (this.ime.busy) this.ime.later(f)
+    else f()
+  }
+
+  /** Nothing is held any more: go on from the preedit as it then stands. */
+  #rebase() {
+    this.#units = []
+    this.#then(() => {
+      this.#base = this.#shown = this.ime.pre
+    })
+  }
+
   /** Start over from the preedit as it is now. */
   reset() {
-    this.#units = []
-    this.#base = this.#shown = this.ime.pre
+    this.#rebase()
     if (this.#composing) this.#stale = [...this.el.value.replaceAll(MARK, '')].length
     else this.#write(MARK)
   }
@@ -107,8 +121,13 @@ export class Sink {
   /** @param {Unit[]} units */
   #fill(units) {
     this.#units = units
-    this.ime.retype(this.#base, units)
-    this.#shown = this.ime.pre
+    this.#then(() => {
+      const ime = this.ime
+      if (units.length && ime.segs) ime.commit()
+      if (ime.pre !== this.#shown) this.#base = ime.pre
+      ime.retype(this.#base, units)
+      this.#shown = ime.pre
+    })
   }
 
   #isKorean(u) {
@@ -120,23 +139,17 @@ export class Sink {
     // WebKit empties the composition and fills it again as it ends. The text
     // that counts is what stands at compositionend.
     if (e?.inputType === 'deleteCompositionText') return
-    const value = this.el.value
-    const composing = this.#composing
-    // During a conversion, each change waits its turn as it stands now.
-    if (this.ime.busy) this.ime.later(() => this.#changed(value, composing))
-    else this.#changed(value, composing)
-  }
-
-  /** @param {string} value @param {boolean} composing */
-  #changed(value, composing) {
     const ime = this.ime
+    const composing = this.#composing
+    const value = this.el.value
     const next = [...value.replaceAll(MARK, '')].slice(this.#stale)
     const prev = this.#units
     let at = 0
     while (at < next.length && at < prev.length && next[at] === prev[at].c) at++
     const removed = prev.length - at
     let added = next.slice(at)
-    const spent = ime.segs !== null || ime.pre !== this.#shown
+    // Something else moved the preedit on (a button, the on-screen keyboard).
+    const spent = !ime.busy && (ime.segs !== null || ime.pre !== this.#shown)
     if (spent) this.#units = []
     if (spent && composing) this.#stale += at
 
@@ -158,13 +171,10 @@ export class Sink {
 
     const kept = spent ? [] : prev.slice(0, at)
     if (!composing && added.length === 1 && added[0].length === 1 && !KOREAN.test(added[0])) {
-      if (!spent) this.#fill(kept)
+      if (kept.length !== prev.length && !spent) this.#fill(kept)
       ime.key({ key: added[0] })
-      this.#units = []
-      this.#base = ime.pre
+      this.#rebase()
     } else if (added.length) {
-      if (ime.segs) ime.commit()
-      if (spent) this.#base = ime.pre
       const finished = added.length > 1 && !(composing && at > 0 && !removed)
       this.#fill([...kept, ...added.map((c) => ({ c, finished }))])
     } else if (kept.length !== prev.length && !spent) {
@@ -175,13 +185,12 @@ export class Sink {
     if (!composing && this.#units.length && !this.#units.some((u) => this.#isKorean(u))) {
       const text = this.#units.map((u) => u.c).join('')
       this.#fill([])
-      ime.insertText(text)
-      this.#units = []
-      this.#base = ime.pre
+      this.#then(() => this.ime.insertText(text))
+      this.#rebase()
     }
 
     if (press) ime.key({ key: press === '\n' ? 'Enter' : ' ' })
     if (press || !this.#units.length) return this.reset()
-    if (!this.#composing) this.#write(MARK + this.#units.map((u) => u.c).join(''))
+    if (!composing) this.#write(MARK + this.#units.map((u) => u.c).join(''))
   }
 }

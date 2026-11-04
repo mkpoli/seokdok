@@ -156,6 +156,8 @@
   // Alt pressed and released on its own switches 韓 ↔ A, like a 한/영 key.
   let altAlone = false
   function onkeyup(e) {
+    // Ctrl+Home and the like moved the caret; what the keyboard types goes at the end.
+    typed.caretToEnd()
     if (e.key === 'Alt' && altAlone) {
       e.preventDefault()
       ime.toggleMode()

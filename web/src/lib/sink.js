@@ -99,7 +99,9 @@ export class Sink {
   }
 
   caretToEnd() {
-    this.el.setSelectionRange(this.el.value.length, this.el.value.length)
+    if (this.#composing) return
+    const end = this.el.value.length
+    if (this.el.selectionStart !== end || this.el.selectionEnd !== end) this.el.setSelectionRange(end, end)
   }
 
   compositionstart() {
@@ -113,8 +115,7 @@ export class Sink {
 
   #write(value) {
     this.#stale = 0
-    if (this.el.value === value) return
-    this.el.value = value
+    if (this.el.value !== value) this.el.value = value
     this.caretToEnd()
   }
 

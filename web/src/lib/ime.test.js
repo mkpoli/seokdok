@@ -1287,6 +1287,20 @@ test('a composition confirmed from outside while still open is not doubled', () 
   expect(p.el.value).toBe('​ㄱ')
 })
 
+test('the caret is put back at the end, but not during a composition', () => {
+  const calls = []
+  const m = realIme()
+  const el = { value: '', selectionStart: 0, selectionEnd: 0, setSelectionRange: (a) => calls.push(a) }
+  const s = new Sink(m, el)
+  el.selectionStart = el.selectionEnd = 0
+  calls.length = 0
+  s.caretToEnd()
+  expect(calls).toEqual([1])
+  s.compositionstart()
+  s.caretToEnd()
+  expect(calls).toEqual([1])
+})
+
 test('the textarea never empties, and the caret stays past the mark', () => {
   const p = page()
   const at = []

@@ -222,6 +222,24 @@ impl Session {
         self.composer.text()
     }
 
+    /// In plain Hangul, the syllables before the one being typed and that one,
+    /// for a surface that shows one syllable at a time. Once the front end has
+    /// put the finished ones in the document, it calls [`Session::keep_typing`].
+    pub fn finished_syllables(&self) -> Option<(String, String)> {
+        if self.mode() != Mode::Hangul || self.conv.is_some() {
+            return None;
+        }
+        let text = self.composer.text();
+        let last = *units(text).last()?;
+        let finished = text.strip_suffix(last)?;
+        (!finished.is_empty()).then(|| (finished.to_string(), last.to_string()))
+    }
+
+    /// The application has the text before `last`; compose only `last` from now on.
+    pub fn keep_typing(&mut self, last: &str) {
+        self.composer.set_text(last);
+    }
+
     /// Would [`Session::handle`] consume this key?
     pub fn eats(&self, key: Key) -> bool {
         !matches!(self.plan(key), None | Some(Act::CommitPass))
@@ -1062,6 +1080,31 @@ mod tests {
         let o = s.handle(Key::Space { shift: false }, &Stub(3));
         assert_eq!(commit_of(&o), None);
         assert_eq!(preedit_of(&o).unwrap()[0].text, "한1");
+    }
+
+    #[test]
+    fn plain_hangul_delivers_all_but_the_syllable_being_typed() {
+        let mut s = Session::new(Mode::Hangul, true);
+        assert_eq!(s.finished_syllables(), None);
+        for c in "eocn".chars() {
+            s.handle(letter(c), &Stub(3));
+        }
+        assert_eq!(s.buffer(), "대추");
+        assert_eq!(s.finished_syllables(), Some(("대".to_string(), "추".to_string())));
+        assert_eq!(s.buffer(), "대추");
+        s.keep_typing("추");
+        assert_eq!(s.finished_syllables(), None);
+        s.handle(letter('d'), &Stub(3));
+        assert_eq!(s.buffer(), "충");
+    }
+
+    #[test]
+    fn converting_modes_keep_every_syllable() {
+        let mut s = Session::new(Mode::Seokdok, true);
+        for c in "eocn".chars() {
+            s.handle(letter(c), &Stub(3));
+        }
+        assert_eq!(s.finished_syllables(), None);
     }
 
     #[test]

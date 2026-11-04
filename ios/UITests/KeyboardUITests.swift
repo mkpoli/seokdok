@@ -34,6 +34,20 @@ final class KeyboardUITests: XCTestCase {
             }
         }
 
+        /// Hold the letter for a while, for the screen recording.
+        func hold(_ ch: Character, seconds: TimeInterval) {
+            let w = (width - 6 - 54) / 10
+            var at = CGPoint.zero
+            if let c = Array("qwertyuiop").firstIndex(of: ch) {
+                at = CGPoint(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: 75)
+            } else if let c = Array("asdfghjkl").firstIndex(of: ch) {
+                at = CGPoint(x: 3 + 21 + CGFloat(c) * (w + 6) + w / 2, y: 129)
+            }
+            let top = height - 336
+            app.coordinate(withNormalizedOffset: CGVector(dx: at.x / width, dy: (top + at.y) / height)).press(forDuration: seconds)
+            usleep(300_000)
+        }
+
         func type(_ letters: String) {
             letters.forEach(letter)
         }
@@ -177,6 +191,49 @@ final class KeyboardUITests: XCTestCase {
         XCTAssertEqual(text(second), "", "the composition leaked into the next field")
         g.letter("d") // typed as Latin in the email field
         XCTAssertEqual(text(second), "d")
+    }
+
+    /// A held letter shows its pop-up; the recording and these frames show it.
+    /// The gaps between keys type, and a slide types where the finger lifts.
+    func testKeyPressFeedback() throws {
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
+        tapUntilTyped(field) { g.letter("d") }
+        g.hold("q", seconds: 1.5)
+        g.hold("g", seconds: 1.5)
+        g.hold("p", seconds: 1.5)
+        g.enter() // confirm
+        sleep(1)
+        let before = text(field)
+        // The gap between ㅏ (k) and ㅣ (l), in the letter row.
+        let w = (g.width - 6 - 54) / 10
+        g.tap(x: 3 + 21 + 7 * (w + 6) + w + 3, y: 129)
+        sleep(1)
+        XCTAssertGreaterThan(text(field).count, before.count, "a tap in the gap between two keys typed nothing")
+        g.enter()
+    }
+
+    /// The candidate bar, a held key and the drawer in dark mode.
+    func testDarkScreens() throws {
+        XCUIDevice.shared.appearance = .dark
+        defer { XCUIDevice.shared.appearance = .light }
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
+        tapUntilTyped(field) { g.letter("d") }
+        g.type("kssud")
+        sleep(1)
+        shot("composing-dark")
+        g.space()
+        sleep(1)
+        shot("candidates-dark")
+        g.tap(x: g.width - 25, y: g.barCenter)
+        sleep(1)
+        shot("drawer-dark")
+        g.tap(x: g.width - 22, y: 22)
+        sleep(1)
+        g.enter()
+        g.hold("g", seconds: 1.5)
+        g.enter()
     }
 
     /// The chevron opens every candidate over the keys, and a tap on one

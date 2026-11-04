@@ -86,6 +86,9 @@ class SeokdokService : InputMethodService(), KeyboardListener {
             session.reset()
             composing = false
         }
+        // A hardware keyboard may keep the input view hidden, so onStartInputView
+        // is not enough to pick up edited settings.
+        session.sync()
         val cls = attribute.inputType and InputType.TYPE_MASK_CLASS
         val variation = attribute.inputType and InputType.TYPE_MASK_VARIATION
         val numeric = cls == InputType.TYPE_CLASS_NUMBER || cls == InputType.TYPE_CLASS_PHONE || cls == InputType.TYPE_CLASS_DATETIME

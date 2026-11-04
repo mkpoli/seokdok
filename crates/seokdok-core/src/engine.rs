@@ -10,6 +10,7 @@ use crate::old_spelling::{ends_in_hanja, is_function_old, is_jamo, keep_typed_ta
 use crate::particles::{allowed, particles, Particle};
 use std::collections::{HashMap, HashSet};
 
+mod compound;
 mod mixed;
 mod okurigana;
 
@@ -393,14 +394,16 @@ const SHORT_COST: f32 = 2.5;
 const EDGE_COST: f32 = 1.0;
 /// One-character Sino-Korean suffixes, with the reading they attach by: a known
 /// Sino-Korean word and one of these make up a whole word (표시용 表示用, 현실적
-/// 現實的). Only suffixes with no common homophone of their own use: not 권 圈/權.
+/// 現實的). Only suffixes with no common homophone of their own use: not 권 圈/權,
+/// 형 型/兄/形, 성 性/城/姓, 식 式/食, 론 論/loan.
 const SUFFIX_COST: f32 = 1.0;
 const SINO_SUFFIXES: &[(&str, &str)] = &[
-    ("용", "用"), ("적", "的"), ("성", "性"), ("화", "化"), ("형", "型"), ("률", "率"), ("율", "率"), ("어", "語"), ("류", "類"), ("유", "類"),
-    ("식", "式"), ("론", "論"), ("학", "學"), ("법", "法"),
+    ("용", "用"), ("적", "的"), ("화", "化"), ("률", "率"), ("율", "率"), ("어", "語"), ("류", "類"), ("학", "學"), ("법", "法"),
 ];
+/// Words that end a sentence, where 용 is the chat's 요 (안녕용, 죄송용).
+const NOT_BEFORE_SUFFIX: &[&str] = &["안녕", "감사", "죄송", "미안", "축하", "부탁", "수고", "혹시", "역시", "물론", "당연", "사실", "지금", "내일", "오늘", "정말", "진짜", "아직", "가세", "사세", "아세"];
 /// How often the word before a suffix must be used.
-const SUFFIX_WORD_COUNT: u32 = 5;
+const SUFFIX_WORD_COUNT: u32 = 20;
 /// Added to a bare adnominal verb form that a whole noun also spells.
 const WHOLE_NOUN_PENALTY: f32 = 2.5;
 /// How close a noun must come to a bound noun with a particle (거+의) to replace it.
@@ -647,7 +650,8 @@ impl Engine {
         let mut after_word = vec![false; n + 1];
         for (q, items) in self.sino.prefixes(comps, 0) {
             let used = items.iter().any(|&i| self.sinos.count(i as usize) >= SUFFIX_WORD_COUNT);
-            after_word[q] = used && boundary(q) && crate::jamo::syllable_count(&comps[..q]) >= 2;
+            let plain = !NOT_BEFORE_SUFFIX.contains(&compose(&comps[..q]).as_str());
+            after_word[q] = used && plain && boundary(q) && crate::jamo::syllable_count(&comps[..q]) >= 2;
         }
         for s in 0..n {
             if !is_l(comps[s]) {
@@ -1489,6 +1493,7 @@ impl Engine {
             }
         }
         let hun = self.hun_candidates(run);
+        let no_hun = hun.is_empty();
         if hun.is_empty() {
             if full {
                 if segments.len() == old_seg.len() {
@@ -1510,6 +1515,28 @@ impl Engine {
             };
             segments = vec![Segment { reading: run.to_string(), candidates: self.with_hun(cands, run, hun.clone()) }];
             whole = self.with_hun(whole, run, hun);
+        }
+        if let Some((_, path)) = paths.first().filter(|_| full && no_hun) {
+            if let Some(list) = self.compound_list(&comps, &edges, path, &segments) {
+                // The analysis's first choice stays first, the old spelling keeps
+                // its place, and `convert` keeps its phrase readings ahead.
+                let mut listed: Vec<Candidate> = whole.first().cloned().into_iter().collect();
+                for c in list.iter().chain(whole.iter()) {
+                    if !listed.iter().any(|x| x.text == c.text) {
+                        listed.push(c.clone());
+                    }
+                }
+                if let Some(old) = &old_whole {
+                    listed.retain(|c| c.text != *old);
+                }
+                offer_old(&mut listed, old_whole.clone());
+                segments = vec![Segment { reading: run.to_string(), candidates: listed }];
+                for c in list {
+                    if !whole.iter().any(|x| x.text == c.text) {
+                        whole.push(c);
+                    }
+                }
+            }
         }
         // The literal input always stays selectable.
         let keep = self.options.max_candidates.max(2);

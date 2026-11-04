@@ -631,6 +631,10 @@ fn sino_suffixes_attach_to_sino_words() {
     for (input, want) in [("표시용", "表示用"), ("표시용으로", "表示用으로"), ("업무용", "業務用"), ("현실적", "現實的"), ("현실적으로", "現實的으로")] {
         assert_eq!(e.convert(input)[0].text, want, "{input}");
     }
+    // Homophones with their own use are not suffixes, and a greeting takes no suffix.
+    for (input, wrong) in [("친구형", "親舊型"), ("전주성", "全州性"), ("가정식", "家庭式"), ("은행론", "銀行論"), ("안녕용", "安寧用"), ("죄송용", "罪悚用"), ("가세용", "加勢用")] {
+        assert_ne!(e.convert(input)[0].text, wrong, "{input}");
+    }
     // 用 before 龍 alone too, and particles stay particles.
     let list: Vec<String> = e.convert("용").into_iter().map(|c| c.text).collect();
     let at = |t: &str| list.iter().position(|x| x == t);
@@ -638,4 +642,43 @@ fn sino_suffixes_attach_to_sino_words() {
     assert_eq!(e.convert("학교가")[0].text, "學校가");
     assert_eq!(e.convert("학생인")[0].text, "學生인");
     assert_eq!(e.convert("하세용")[0].text, "하세용");
+}
+
+#[test]
+fn a_compound_of_nouns_offers_every_combination() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("옛한글")[0].text, "古ㅅ韓㐎");
+    let seg = e.segments("옛한글");
+    assert_eq!(seg.len(), 1, "one list");
+    for want in ["古ㅅ韓㐎", "古韓㐎", "古韓字", "古ㅅ韓字", "舊韓㐎", "옛韓㐎", "옛한글"] {
+        assert!(seg[0].candidates.iter().any(|c| c.text == want), "{want}: {:?}", seg[0].candidates.iter().map(|c| &c.text).collect::<Vec<_>>());
+    }
+    assert!(e.segments("옛한글을")[0].candidates.iter().any(|c| c.text == "古韓字을"));
+    // Phrases keep their segments: a verb, a determiner, a pronoun or adverb, a
+    // particle in the middle, an unknown syllable.
+    for phrase in ["사람이좋다", "그사람", "두사람", "매우빨리", "오늘내가", "파일에한글", "뷁한글"] {
+        assert!(e.segments(phrase).len() >= 2, "{phrase}");
+    }
+    assert_eq!(e.segments("봄바람").len(), 1);
+    // The old spelling stays in the phrase list and in third place.
+    assert!(e.convert("친구시간을").iter().any(|c| c.text.ends_with("時間ᄋᆞᆯ")));
+    assert!(e.segments("친구시간을")[0].candidates.iter().position(|c| c.text.ends_with("時間ᄋᆞᆯ")).unwrap() <= 2);
+}
+
+#[test]
+fn finding_out_and_its_misspelling() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("찾아냈어요")[0].text, "尋出ㅆ어요");
+    assert_eq!(e.convert("찿아냈어요")[0].text, "尋出ㅆ어요");
+    assert!(offers(&e, "찾아냈어요", "探아出ㅆ어요"));
+    assert_eq!(e.convert("찿아")[0].text, "探아");
+}
+
+#[test]
+fn more_readings_from_the_chat_of_2026_11_04() {
+    let e = engine(Options::default());
+    for (input, want) in [("쥐락펴락", "握락伸락"), ("셈치고", "算打고"), ("곧", "直"), ("내려받기", "下受")] {
+        assert!(offers(&e, input, want), "{input} → {want}");
+    }
+    assert_eq!(e.convert("내려받았다")[0].text, "下려受았다");
 }

@@ -138,3 +138,90 @@ impl Engine {
         out
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use crate::engine::{Fragment, Options, Style};
+    use std::collections::HashSet;
+
+    /// Inflecting words from the dictionaries, regular and irregular; a file
+    /// named by `SEOKDOK_SWEEP_LEMMAS` (one lemma per line) adds more.
+    const LEMMAS: &str = "가깝다 마시다 바쁘다 쓰다 크다 아름답다 돕다 걷다 듣다 알다 살다 모르다 다르다 부르다 \
+        그렇다 가르치다 기다리다 어울리다 어렵다 쉽다 춥다 덥다 배우다 가지다 만나다 생각하다 먹다 읽다 \
+        보다 오다 주다 지내다 느끼다 사랑하다 고맙다 맛있다 필요하다 예쁘다 슬프다 아프다 기쁘다 나쁘다";
+
+    /// Call `f(written, typed word, dictionary forms)` for every variant of
+    /// every entry of `lemmas`.
+    fn variants(e: &Engine, lemmas: &HashSet<&str>, full: bool, f: &mut dyn FnMut(&str, &str, &[Candidate])) {
+        for (i, n) in e.natives.iter().enumerate() {
+            if !lemmas.contains(n.lemma.as_str()) || !n.pos.inflects() || !eligible(n) {
+                continue;
+            }
+            // Unless `full`: the hand-made entries, and every seventh ending.
+            if !full && n.source.rank() > 2 {
+                continue;
+            }
+            for (a, al) in n.allos.iter().enumerate() {
+                for (end, idx) in ending_surfaces(al.ctx).into_iter().step_by(if full { 1 } else { 7 }) {
+                    let comps = [al.comps.clone(), end].concat();
+                    let kind = Kind::Verb { entry: i as u32, allo: a as u16, ending: idx as u16 };
+                    let edge = Edge { start: 0, end: comps.len(), cost: 0.0, kind };
+                    let dict = e.render_dict(&comps, &edge);
+                    let word = compose(&comps);
+                    for c in e.okurigana(&comps, &edge, &dict, true) {
+                        f(&c.text, &word, &dict);
+                    }
+                }
+            }
+        }
+    }
+
+    #[test]
+    fn verb_variants_read_back_as_the_typed_word() {
+        use std::hash::{Hash, Hasher};
+        let dir = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+        let (mut e, _) = Engine::from_dir(&dir, Options::default()).expect("dict");
+        let mut lemmas: Vec<String> = LEMMAS.split_whitespace().map(String::from).collect();
+        if let Some(extra) = std::env::var_os("SEOKDOK_SWEEP_LEMMAS") {
+            lemmas.extend(std::fs::read_to_string(extra).expect("lemma list").split_whitespace().map(String::from));
+        }
+        let set: HashSet<&str> = lemmas.iter().map(String::as_str).collect();
+        let full = std::env::var_os("SEOKDOK_SWEEP_FULL").is_some();
+        let sets = [
+            Options::default(),
+            Options { style: Style::Morpheme, ..Options::default() },
+            Options { fragment: Fragment::Letter, ..Options::default() },
+            Options { coda_always: true, ..Options::default() },
+            Options { resyllabify: true, ..Options::default() },
+        ];
+        let mut first: Option<u64> = None;
+        let (mut checked, mut bad) = (0usize, Vec::new());
+        for o in sets {
+            e.options = o.clone();
+            let mut hash = std::collections::hash_map::DefaultHasher::new();
+            variants(&e, &set, full, &mut |written, word, dict| {
+                (written, word).hash(&mut hash);
+                checked += 1;
+                let part: String = written.chars().skip(1).collect();
+                // Syllables only, and the end of the typed word.
+                let ok = !part.is_empty()
+                    && part.chars().all(is_syllable)
+                    && word.ends_with(&part)
+                    && part.chars().count() < word.chars().count()
+                    && !dict.iter().any(|d| d.text == written);
+                if !ok && bad.len() < 20 {
+                    bad.push(format!("{written} for {word} ({o:?})"));
+                }
+            });
+            // The variants do not change with the display options.
+            match first {
+                None => first = Some(hash.finish()),
+                Some(f) => assert_eq!(f, hash.finish(), "variants differ with {o:?}"),
+            }
+        }
+        assert!(bad.is_empty(), "{bad:#?}");
+        assert!(checked > 500, "only {checked} variants checked");
+        eprintln!("checked {checked} variants of {} lemmas in 5 option sets", set.len());
+    }
+}

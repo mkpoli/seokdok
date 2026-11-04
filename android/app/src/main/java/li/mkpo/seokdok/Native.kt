@@ -27,10 +27,21 @@ object Native {
     const val TOGGLE = 15
     const val OTHER = 16
 
+    // Key states and modifier flags for modeKey, as in seokdok.h.
+    const val KEY_UP = 0
+    const val KEY_DOWN = 1
+    const val KEY_REPEAT = 2
+    const val MOD_CTRL = 1
+    const val MOD_SHIFT = 2
+    const val MOD_ALT = 4
+    const val MOD_SUPER = 8
+
     @JvmStatic external fun create(dictDir: String, configDir: String): Long
     @JvmStatic external fun free(handle: Long)
     @JvmStatic external fun sync(handle: Long)
     @JvmStatic external fun key(handle: Long, kind: Int, ch: Int, shift: Boolean): Boolean
+    /** Offer a key to the `[input.keys]` lists; [name] is null for a key they cannot name. */
+    @JvmStatic external fun modeKey(handle: Long, name: String?, mods: Int, state: Int): Boolean
     @JvmStatic external fun flush(handle: Long)
     @JvmStatic external fun reset(handle: Long)
     @JvmStatic external fun takeCommit(handle: Long): String?

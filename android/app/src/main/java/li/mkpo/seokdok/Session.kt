@@ -33,6 +33,10 @@ class Session {
         // Before attach the key is swallowed rather than typed as a raw letter.
         handle == 0L || Native.key(handle, kind, ch?.code ?: 0, shift)
 
+    /** Offer a hardware key to the `[input.keys]` lists; true when it was used. */
+    fun modeKey(name: String?, mods: Int, state: Int): Boolean =
+        handle != 0L && Native.modeKey(handle, name, mods, state)
+
     /** Commit whatever is being composed. */
     fun flush() {
         if (handle != 0L) Native.flush(handle)

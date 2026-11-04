@@ -15,6 +15,7 @@ import android.view.KeyEvent
 import android.view.View
 import android.view.inputmethod.EditorInfo
 import android.view.inputmethod.InputMethodManager
+import android.widget.Toast
 
 /**
  * The 釋讀 keyboard. Keys go to the Rust session; the text being composed
@@ -30,6 +31,10 @@ class SeokdokService : InputMethodService(), KeyboardListener {
     /** Password, number, e-mail and URL fields: keys go straight through. */
     private var passthrough = false
     private var lastShiftTap = 0L
+    /** Hardware keys whose press was used: their release goes no further. */
+    private val eatenKeys = HashSet<Int>()
+    /** The window is open only to show candidates to a hardware keyboard. */
+    private var candidatesForced = false
     /** The dictionaries are on disk and the engine has loaded them. */
     private val loaded: Boolean get() = session.attached && Session.ready
     private val timer = Handler(Looper.getMainLooper())
@@ -124,6 +129,85 @@ class SeokdokService : InputMethodService(), KeyboardListener {
             currentInputConnection?.finishComposingText()
             composing = false
             refresh()
+        }
+    }
+
+    // Hardware keyboard
+
+    /** With a hardware keyboard the window stays hidden except to show candidates. */
+    override fun onEvaluateInputViewShown(): Boolean = super.onEvaluateInputViewShown() || candidatesForced
+
+    override fun onKeyDown(keyCode: Int, event: KeyEvent): Boolean {
+        val ic = currentInputEditorInfo
+        if (passthrough || ic == null || ic.inputType == InputType.TYPE_NULL) return super.onKeyDown(keyCode, event)
+        val before = session.mode
+        val state = if (event.repeatCount > 0) Native.KEY_REPEAT else Native.KEY_DOWN
+        if (session.modeKey(HardwareKeys.name(keyCode), HardwareKeys.mods(event), state)) {
+            eatenKeys.add(keyCode)
+            hardwareRender(before)
+            return true
+        }
+        if (HardwareKeys.isModifier(keyCode)) return super.onKeyDown(keyCode, event)
+        if (event.isCtrlPressed || event.isAltPressed || event.isMetaPressed) {
+            // Shortcuts belong to the application; finish the composition first.
+            commitComposition()
+            return super.onKeyDown(keyCode, event)
+        }
+        val eaten = when (keyCode) {
+            KeyEvent.KEYCODE_SPACE -> feed(Native.SPACE, shift = event.isShiftPressed)
+            KeyEvent.KEYCODE_ENTER, KeyEvent.KEYCODE_NUMPAD_ENTER -> feed(Native.ENTER)
+            KeyEvent.KEYCODE_DEL -> feed(Native.BACKSPACE)
+            KeyEvent.KEYCODE_ESCAPE -> feed(Native.ESC)
+            KeyEvent.KEYCODE_TAB -> feed(Native.TAB, shift = event.isShiftPressed)
+            KeyEvent.KEYCODE_DPAD_LEFT -> feed(Native.LEFT, shift = event.isShiftPressed)
+            KeyEvent.KEYCODE_DPAD_RIGHT -> feed(Native.RIGHT, shift = event.isShiftPressed)
+            KeyEvent.KEYCODE_DPAD_UP -> feed(Native.UP)
+            KeyEvent.KEYCODE_DPAD_DOWN -> feed(Native.DOWN)
+            KeyEvent.KEYCODE_PAGE_UP -> feed(Native.PAGE_UP)
+            KeyEvent.KEYCODE_PAGE_DOWN -> feed(Native.PAGE_DOWN)
+            KeyEvent.KEYCODE_MOVE_HOME, KeyEvent.KEYCODE_MOVE_END, KeyEvent.KEYCODE_FORWARD_DEL -> feed(Native.OTHER)
+            in KeyEvent.KEYCODE_A..KeyEvent.KEYCODE_Z ->
+                // 두벌식 goes by key position, whatever the layout prints.
+                feed(Native.LETTER, 'a' + (keyCode - KeyEvent.KEYCODE_A), event.isShiftPressed)
+            else -> {
+                val c = event.unicodeChar
+                if (c == 0 || c < 0x20 || c > 0xFFFF) return super.onKeyDown(keyCode, event)
+                feed(Native.PRINTABLE, c.toChar(), event.isShiftPressed)
+            }
+        }
+        hardwareRender(before)
+        if (!eaten) return super.onKeyDown(keyCode, event)
+        eatenKeys.add(keyCode)
+        return true
+    }
+
+    override fun onKeyUp(keyCode: Int, event: KeyEvent): Boolean {
+        val before = session.mode
+        if (HardwareKeys.isModifier(keyCode) && !passthrough && session.modeKey(HardwareKeys.name(keyCode), 0, Native.KEY_UP)) {
+            hardwareRender(before)
+            return true
+        }
+        return eatenKeys.remove(keyCode) || super.onKeyUp(keyCode, event)
+    }
+
+    /** Draw after a hardware key: open the window for candidates, and name a new mode when it is hidden. */
+    private fun hardwareRender(modeBefore: Int) {
+        render()
+        val open = session.candidates() != null
+        if (open && !isInputViewShown) {
+            candidatesForced = true
+            if (Build.VERSION.SDK_INT >= 28) {
+                requestShowSelf(0)
+            } else {
+                @Suppress("DEPRECATION")
+                imm().showSoftInputFromInputMethod(window.window?.attributes?.token, 0)
+            }
+        } else if (!open && candidatesForced) {
+            candidatesForced = false
+            requestHideSelf(0)
+        }
+        if (session.mode != modeBefore && !isInputViewShown) {
+            Toast.makeText(this, resources.getStringArray(R.array.mode_labels)[session.mode], Toast.LENGTH_SHORT).show()
         }
     }
 

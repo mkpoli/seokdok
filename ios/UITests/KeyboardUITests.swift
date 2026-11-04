@@ -270,25 +270,21 @@ final class KeyboardUITests: XCTestCase {
         shot("learn-controls")
     }
 
-    /// The candidate bar, a held key and the drawer in dark mode.
+    /// The candidate bar, a held key and the drawer. The workflow runs this again
+    /// in dark mode.
     func testDarkScreens() throws {
-        // The look reaches an app launched after it is set, with one up already.
-        _ = launch(kind: "default").0
-        XCUIDevice.shared.appearance = .dark
-        defer { XCUIDevice.shared.appearance = .light }
-        sleep(2)
         let (app, field) = launch(kind: "default")
         let g = Geometry(app: app)
         tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
         g.type("kssud")
         sleep(1)
-        shot("composing-dark")
+        shot("look-composing")
         g.space()
         sleep(1)
-        shot("candidates-dark")
+        shot("look-candidates")
         g.tap(x: g.width - 25, y: g.barCenter)
         sleep(1)
-        shot("drawer-dark")
+        shot("look-drawer")
         g.tap(x: g.width - 22, y: 22)
         sleep(1)
         g.enter()

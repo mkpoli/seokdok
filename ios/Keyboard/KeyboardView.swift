@@ -129,7 +129,9 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         column.addArrangedSubview(keyPad)
 
         // The pad runs to the keyboard's edges so that its margins and the gap
-        // under the bar type too.
+        // under the bar type too. A nearly clear fill, because a keyboard gets
+        // no touches where it draws nothing.
+        keyPad.backgroundColor = UIColor(white: 1, alpha: 0.01)
         let keysColumn = UIStackView()
         keysColumn.axis = .vertical
         keysColumn.spacing = 12

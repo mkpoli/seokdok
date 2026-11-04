@@ -231,7 +231,7 @@ async function run(name) {
   const context = await browser.newContext({ ...spec.context, locale: 'ko-KR' })
   const page = await context.newPage()
   const cdp = spec.cdp ? await context.newCDPSession(page) : null
-  const results = []
+  let failed = 0
   const ready = async () => {
     try {
       await page.waitForFunction(() => !document.querySelector('#ime .loading'), null, { timeout: 60000, polling: 100 })
@@ -243,7 +243,9 @@ async function run(name) {
   await page.goto(url)
   await ready()
 
+  console.log(`\n${name} (${browser.version()})`)
   const attrs = await page.locator('#ime .sink').evaluate((el) => Object.fromEntries(['inputmode', 'enterkeyhint', 'autocapitalize', 'autocomplete', 'autocorrect', 'spellcheck'].map((a) => [a, el.getAttribute(a)])))
+  console.log('  textarea', JSON.stringify(attrs))
 
   for (const [title, check] of Object.entries(CHECKS)) {
     if (title.startsWith('Latin, real keys') && spec.mobile) continue // A phone has no such keys.
@@ -263,9 +265,10 @@ async function run(name) {
       await ready()
       await page.locator('#ime .sink').focus()
       await check(d, see, page)
-      results.push([title, 'ok'])
+      console.log(`  ok   ${title}`)
     } catch (e) {
-      results.push([title, 'FAIL ' + e.message.split('\n')[0]])
+      failed++
+      console.log(`  FAIL ${title}\n       ${e.message.split('\n')[0]}`)
     }
   }
 
@@ -283,20 +286,11 @@ async function run(name) {
   await d.compose(['ㅇ', '아'])
   await d.send('ㄴ')
   await d.del()
-  const trace = await page.evaluate(() => window.trace)
+  console.log('  events:', (await page.evaluate(() => window.trace)).join(' | '))
   await browser.close()
-  return { name, version: browser.version(), results, attrs, trace }
+  return failed
 }
 
 let failed = 0
-for (const name of names.length ? names : Object.keys(BROWSERS)) {
-  const { version, results, attrs, trace } = await run(name)
-  console.log(`\n${name} (${version})`)
-  console.log('  textarea', JSON.stringify(attrs))
-  for (const [title, result] of results) {
-    if (result !== 'ok') failed++
-    console.log(`  ${result === 'ok' ? 'ok  ' : 'FAIL'} ${title}${result === 'ok' ? '' : '\n       ' + result}`)
-  }
-  console.log('  events:', trace.join(' | '))
-}
+for (const name of names.length ? names : Object.keys(BROWSERS)) failed += await run(name)
 process.exit(failed ? 1 : 0)

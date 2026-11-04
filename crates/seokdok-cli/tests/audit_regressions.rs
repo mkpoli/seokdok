@@ -136,6 +136,13 @@ fn a_particle_that_is_also_a_word_converts_as_the_word() {
 }
 
 #[test]
+fn an_editorial_whole_word_beats_a_pronoun_with_a_particle() {
+    first(&[("저들", "彼等"), ("저만큼", "彼만큼"), ("저대로", "彼대로"), ("저처럼", "彼처럼")]);
+    // 저 with a particle that no editorial word spells stays the humble 自.
+    first(&[("저는", "自는"), ("저도", "自도"), ("저를", "自를"), ("저의", "自의"), ("저만", "自만")]);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "吾ㄹ")]);
 }

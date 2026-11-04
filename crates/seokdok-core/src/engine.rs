@@ -368,6 +368,8 @@ const EDGE_COST: f32 = 1.0;
 const WHOLE_NOUN_PENALTY: f32 = 2.5;
 /// How close a noun must come to a bound noun with a particle (거+의) to replace it.
 const BOUND_MARGIN: f32 = 0.5;
+/// Added to a pronoun plus particle that an editorial whole word also spells.
+const EDITORIAL_WORD_MARGIN: f32 = 2.5;
 /// A loanword kept in Hangul (loanwords.tsv); cheaper than its Hanja homophones.
 const LOAN_COST: f32 = 2.0;
 /// A particle typed alone, kept in Hangul.
@@ -748,7 +750,31 @@ impl Engine {
         self.alone_edges(comps, &mut edges);
         self.loan_edges(comps, &mut edges);
         self.prefer_whole_noun(comps, &mut edges);
+        self.prefer_editorial_word(comps, &mut edges);
         edges
+    }
+
+    /// A whole token that an editor entered as one word (저들 彼等, 저만큼 彼만큼)
+    /// beats the same letters read as a pronoun and a particle (自+들, 自+만큼),
+    /// which the pronoun's chat count would otherwise win.
+    fn prefer_editorial_word(&self, comps: &[char], edges: &mut [Edge]) {
+        let n = comps.len();
+        let word_cost = edges
+            .iter()
+            .filter(|e| e.start == 0 && e.end == n)
+            .filter_map(|e| match e.kind {
+                Kind::Nominal { entry, particle: None } if self.natives[entry as usize].source == Source::Editorial => Some(e.cost),
+                _ => None,
+            })
+            .fold(f32::INFINITY, f32::min);
+        for e in edges.iter_mut().filter(|e| e.start == 0 && e.end == n) {
+            if let Kind::Nominal { entry, particle: Some(_) } = e.kind {
+                let nat = &self.natives[entry as usize];
+                if nat.pos == Pos::Pron && nat.source != Source::Editorial && word_cost < e.cost + EDITORIAL_WORD_MARGIN {
+                    e.cost += EDITORIAL_WORD_MARGIN;
+                }
+            }
+        }
     }
 
     /// A particle or copula form typed on its own (에서, 까지, 는, 입니다) stays

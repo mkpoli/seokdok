@@ -28,6 +28,11 @@ class Session {
         if (handle != 0L) Native.sync(handle)
     }
 
+    /** The field asks not to be learned from. */
+    fun setPrivateField(privateField: Boolean) {
+        if (handle != 0L) Native.setPrivateField(handle, privateField)
+    }
+
     /** Feed a key; true when the session used it. */
     fun key(kind: Int, ch: Char? = null, shift: Boolean = false): Boolean =
         // Before attach the key is swallowed rather than typed as a raw letter.

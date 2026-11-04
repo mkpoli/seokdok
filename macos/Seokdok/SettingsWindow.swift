@@ -46,12 +46,18 @@ struct SettingsView: View {
         Form {
             Section("入力 / Input") {
                 Toggle("Space로 變換 / Space converts (off: Option-Return, F7, Tab)", isOn: $model.config.input.spaceConverts)
-                Toggle("Option 한 番으로 韓/A 轉換 / Tap Option to switch", isOn: $model.config.input.altToggles)
                 Toggle("옛한글 겹자모 (ㅅㄱ→ᄭ, ㅂㅇ→ㅸ) / Old Hangul clusters", isOn: $model.config.input.oldClusters)
                 Picker("候補 窓 / Candidates", selection: $model.config.input.candidateLayout) {
                     Text("縱 / Vertical").tag("vertical")
                     Text("橫 / Horizontal  (← → move)").tag("horizontal")
                 }
+            }
+            Section("鍵 / Keys") {
+                KeyListField(label: "韓 ↔ A / Korean ↔ Latin", keys: $model.config.input.keys.toggle)
+                KeyListField(label: "釋讀 ↔ 한글", keys: $model.config.input.keys.seokdokHangul)
+                KeyListField(label: "變換 / Convert", keys: $model.config.input.keys.convert)
+                Text("Comma-separated, such as Alt, F7, Alt+Enter. A modifier alone means tapping it. Other lists are in config.toml. Control-Space, Globe and Caps Lock are set in System Settings › Keyboard.")
+                    .foregroundStyle(.secondary)
             }
             Section("表記 / Spelling") {
                 Picker("文字 / Script", selection: $model.config.conversion.script) {
@@ -93,5 +99,29 @@ struct SettingsView: View {
         }
         .formStyle(.grouped)
         .frame(width: 560, height: 600)
+    }
+}
+
+/// A list of `[input.keys]` as comma-separated text. The text stays as typed,
+/// so a trailing comma survives until the next key name follows it.
+private struct KeyListField: View {
+    let label: String
+    @Binding var keys: [String]
+    @State private var text = ""
+
+    private static func parse(_ text: String) -> [String] {
+        text.split(separator: ",").map { $0.trimmingCharacters(in: .whitespaces) }.filter { !$0.isEmpty }
+    }
+
+    var body: some View {
+        TextField(label, text: $text)
+            .onAppear { text = keys.joined(separator: ", ") }
+            .onChange(of: text) { new in
+                let parsed = Self.parse(new)
+                if parsed != keys { keys = parsed }
+            }
+            .onChange(of: keys) { new in
+                if Self.parse(text) != new { text = new.joined(separator: ", ") }
+            }
     }
 }

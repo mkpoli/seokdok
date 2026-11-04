@@ -43,6 +43,10 @@
               <ol>
                 {#each steps(b.ol) as li}<li>{@html rich(li)}</li>{/each}
               </ol>
+            {:else if b.ul}
+              <ul>
+                {#each b.ul as li}<li>{@html rich(li)}</li>{/each}
+              </ul>
             {:else}
               <p>{@html rich(b.p)}</p>
             {/if}

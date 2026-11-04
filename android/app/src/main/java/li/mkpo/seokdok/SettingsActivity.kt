@@ -60,6 +60,12 @@ class SettingsActivity : Activity() {
         column.addView(toggle(R.string.space_converts, "input.space_converts"))
         column.addView(toggle(R.string.old_clusters, "input.old_clusters"))
 
+        column.addView(header(R.string.section_keys))
+        column.addView(body(getString(R.string.keys_help)))
+        column.addView(keyList(R.string.keys_toggle, "input.keys.toggle"))
+        column.addView(keyList(R.string.keys_flip, "input.keys.seokdok_hangul"))
+        column.addView(keyList(R.string.keys_convert, "input.keys.convert"))
+
         column.addView(header(R.string.section_conversion))
         column.addView(choice(R.string.script, R.array.script_labels, "conversion.script", listOf("seokdok", "sino_only", "hangul_only")))
         column.addView(choice(R.string.style, R.array.style_labels, "conversion.style", listOf("surface", "morpheme")))
@@ -181,6 +187,25 @@ class SettingsActivity : Activity() {
                 override fun afterTextChanged(s: Editable?) {
                     val n = s?.toString()?.toIntOrNull()?.takeIf { it >= 1 } ?: return
                     config.set(key, n)
+                    save()
+                }
+            })
+        })
+    }
+
+    /** One list of `[input.keys]` as comma-separated text. */
+    private fun keyList(label: Int, key: String) = LinearLayout(this).apply {
+        orientation = LinearLayout.VERTICAL
+        setPadding(0, dp(8), 0, dp(8))
+        addView(body(getString(label)))
+        addView(EditText(this@SettingsActivity).apply {
+            inputType = InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_NO_SUGGESTIONS
+            setText(config.list(key).joinToString(", "))
+            addTextChangedListener(object : TextWatcher {
+                override fun beforeTextChanged(s: CharSequence?, start: Int, count: Int, after: Int) {}
+                override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {}
+                override fun afterTextChanged(s: Editable?) {
+                    config.setList(key, s.toString().split(',').map { it.trim() }.filter { it.isNotEmpty() })
                     save()
                 }
             })

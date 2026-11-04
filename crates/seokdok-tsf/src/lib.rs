@@ -5,7 +5,7 @@
 //! the shared `seokdok-session` crate (also used by the Linux front end); the
 //! TSF glue here is compiled on Windows only.
 
-pub use seokdok_session::{config, engine_host, keys, session, surface};
+pub use seokdok_session::{config, engine_host, keys, mode_keys, session, surface};
 
 #[cfg(windows)]
 mod candidate_window;
@@ -29,6 +29,8 @@ mod debug_log;
 mod key_event_sink;
 #[cfg(windows)]
 mod lang_bar;
+#[cfg(windows)]
+mod mode_key_events;
 #[cfg(windows)]
 mod registry;
 #[cfg(windows)]

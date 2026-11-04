@@ -77,6 +77,31 @@ pick it with 入力 方法 고르기 (or hold the space bar while typing).
   shrink or grow the segment.
 - Password, e-mail, URL and number fields bypass the session.
 
+### Hardware keyboards
+
+Keys typed on a hardware keyboard go through the same session, and the window
+opens only while candidates are showing. These lists are `[input.keys]` in
+config.toml; the first three can be edited in the app:
+
+| List | Default | |
+|---|---|---|
+| `toggle` | 한/영, 半角/全角, Shift+Space | Korean ↔ Latin, back to whichever of 釋讀 and 한글 was last used |
+| `seokdok_hangul` | left Ctrl + left Alt tapped, Shift+한/영 | 釋讀 ↔ 한글 |
+| `convert` | 한자, 変換, F7 | convert |
+| `latin` | 無変換 | to Latin |
+| `korean` | 変換 | from Latin back to Korean |
+| `seokdok`, `hangul` | empty | straight to that mode |
+
+While 釋讀 is composing, Shift+Space stays a word break inside the composition
+and the previous candidate in a conversion. Otherwise it toggles.
+
+The system keeps some keys for itself. Android's window manager takes
+Ctrl+Space and the language-switch key for the hardware keyboard layout, so an
+input method never sees them. Samsung's One UI also lists Shift+Space and left
+Alt+Shift as language shortcuts, with the choice under the physical keyboard
+settings' “Change language shortcut”; turn Shift+Space off there for it to
+reach 釋讀, or use 한/영.
+
 ## Files
 
 - `app/src/main/java/li/mkpo/seokdok/`

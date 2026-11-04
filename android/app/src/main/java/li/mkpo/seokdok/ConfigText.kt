@@ -30,6 +30,14 @@ class ConfigText(text: String) {
 
     fun int(key: String): Int? = values[key]?.toIntOrNull()
 
+    /** A TOML array of strings. */
+    fun list(key: String): List<String> =
+        values[key]?.let { v -> Regex("\"([^\"]*)\"").findAll(v).map { it.groupValues[1] }.toList() } ?: emptyList()
+
+    fun setList(key: String, items: List<String>) {
+        values[key] = items.joinToString(", ", "[", "]") { "\"" + it.replace("\"", "").replace("\\", "") + "\"" }
+    }
+
     fun set(key: String, value: String) {
         values[key] = "\"" + value.replace("\\", "\\\\").replace("\"", "\\\"") + "\""
     }

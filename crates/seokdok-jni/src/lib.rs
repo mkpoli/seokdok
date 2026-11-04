@@ -112,6 +112,15 @@ pub extern "system" fn Java_li_mkpo_seokdok_Native_key(_: JNIEnv, _: JClass, h: 
     jbool(unsafe { ffi::seokdok_key(ime(h), kind, ch as u32, shift != JNI_FALSE) })
 }
 
+/// Offer a key to the `[input.keys]` lists (see `seokdok_mode_key`); `name` is
+/// null for a key they cannot name. True when it was used.
+#[no_mangle]
+pub extern "system" fn Java_li_mkpo_seokdok_Native_modeKey<'l>(mut env: JNIEnv<'l>, _: JClass<'l>, h: jlong, name: JString<'l>, mods: jint, state: jint) -> jboolean {
+    let name = get(&mut env, &name).and_then(|n| CString::new(n).ok());
+    let p = name.as_ref().map_or(ptr::null(), |c| c.as_ptr());
+    jbool(unsafe { ffi::seokdok_mode_key(ime(h), p, mods as u32, state) })
+}
+
 #[no_mangle]
 pub extern "system" fn Java_li_mkpo_seokdok_Native_flush(_: JNIEnv, _: JClass, h: jlong) {
     unsafe { ffi::seokdok_flush(ime(h)) }

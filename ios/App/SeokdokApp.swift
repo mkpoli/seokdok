@@ -138,9 +138,10 @@ enum Settings {
     /// their state when the signature grants no App Group.
     static let store = AppGroup.defaults ?? .standard
 
-    /// Write config.toml where the keyboard's session reads it. Keys left
-    /// out (alt_toggles) keep their defaults; the candidate bar is a row of
-    /// its own, so the layout stays vertical and ← → move between segments.
+    /// Write config.toml where the keyboard's session reads it. `[input.keys]`
+    /// is left out: a keyboard extension receives no hardware keys. The
+    /// candidate bar is a row of its own, so the layout stays vertical and
+    /// ← → move between segments.
     static func write() {
         guard let dir = AppGroup.containerURL else { return }
         let s = store

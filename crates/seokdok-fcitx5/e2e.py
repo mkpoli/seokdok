@@ -92,11 +92,88 @@ check("second space opens the list", len(first) > 1, True)
 type_("2")
 check("digit picks the second candidate", commits[-1:], first[1:2])
 
-# Alt tapped alone switches to Latin; letters then pass through.
-ic.ProcessKeyEvent(dbus.UInt32(0xffe9), dbus.UInt32(0), dbus.UInt32(0), False, dbus.UInt32(0))
-ic.ProcessKeyEvent(dbus.UInt32(0xffe9), dbus.UInt32(0), dbus.UInt32(8), True, dbus.UInt32(0))
-pump()
+# Keys by keysym, with their modifier state: Shift 1, Ctrl 4, Alt 8.
+def sym(keysym, state=0, release=False):
+    handled = ic.ProcessKeyEvent(dbus.UInt32(keysym), dbus.UInt32(0), dbus.UInt32(state), release, dbus.UInt32(0))
+    pump()
+    return bool(handled)
+
+ALT_L, ALT_R, CTRL_L, SHIFT_L, SPACE, F9 = 0xffe9, 0xffea, 0xffe3, 0xffe1, 0x20, 0xffc6
+
+# Left Alt tapped alone is the application's.
+sym(ALT_L)
+check("left Alt is not a mode key", sym(ALT_L, 8, True), False)
+
+# Shift typed with a letter does not end a composition.
+sym(SHIFT_L)
+check("Shift keeps the composition", preedit[0], "")
+type_("g")
+sym(SHIFT_L)
+sym(0x4b, 1)  # Shift+K
+sym(SHIFT_L, 1, True)
+check("Shift does not break the syllable", preedit[0] not in ("", "ㅎ"), True)
+key_commit = len(commits)
+type_("\n")
+check("Enter commits", len(commits), key_commit + 1)
+
+# F9 converts while composing, and the composing 釋讀 keeps Shift+Space.
+type_("rkt")
+check("F9 converts", sym(F9), True)
+check("F9 opens no list yet", len(cands[0]), 0)
+type_("\n")
+type_("rk")
+sym(SHIFT_L)
+check("Shift+Space is a word break while composing", sym(SPACE, 1), True)
+check("the word break stays in the composition", preedit[0].endswith(" "), True)
+sym(SHIFT_L, 1, True)
+type_("\n")
+
+# Left Ctrl + left Alt tapped: 釋讀 → 한글; Space then types instead of converting.
+sym(CTRL_L)
+sym(ALT_L, 4)
+check("the tap is eaten", sym(ALT_L, 12, True), True)
+sym(CTRL_L, 4, True)
+before = len(commits)
+type_("rk ")
+check("plain 한글 commits on Space", commits[-1:], ["가 "])
+check("one commit", len(commits), before + 1)
+# Back to 釋讀.
+sym(CTRL_L)
+sym(ALT_L, 4)
+sym(ALT_L, 12, True)
+sym(CTRL_L, 4, True)
+
+# Shift+Space with nothing composed: Korean ↔ Latin, and letters pass through.
+sym(SHIFT_L)
+check("Shift+Space toggles when idle", sym(SPACE, 1), True)
+sym(SHIFT_L, 1, True)
 check("latin passes keys through", key("g"), False)
+# Right Alt tapped alone comes back.
+sym(ALT_R)
+check("the Right Alt tap is eaten", sym(ALT_R, 8, True), True)
+check("back in Korean", key("g"), True)
+type_("\n")
+
+# The Hanja key reaches the engine while it is active, and converts.
+type_("gksmf")
+check("Hanja converts", sym(0xff34), True)
+check("Hanja shows the conversion", preedit[0], "天")
+type_("\n")
+
+# With two input methods in the group, fcitx5 itself takes the Hangul key.
+sym(0xff31)
+sym(0xff31, 0, True)
+check("fcitx5 switches away on Hangul", ctl.CurrentInputMethod(), "keyboard-us")
+sym(0xff31)
+sym(0xff31, 0, True)
+check("and back", ctl.CurrentInputMethod(), "seokdok")
+
+# AltGr is another keysym: it never switches.
+ISO_LEVEL3 = 0xfe03
+sym(ISO_LEVEL3)
+check("AltGr tap is not eaten", sym(ISO_LEVEL3, 128, True), False)
+check("still Korean", key("g"), True)
+type_("\n")
 
 print("all passed" if not failures else f"{failures} failed")
 sys.exit(1 if failures else 0)

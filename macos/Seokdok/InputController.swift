@@ -35,8 +35,6 @@ enum InputModes {
 @objc(SeokdokInputController)
 final class SeokdokInputController: IMKInputController {
     private let session = Session()
-    /// Option went down with nothing else since: a release switches modes.
-    private var optionAlone = false
     private var hasMarkedText = false
     /// The input source the system has selected, as far as this controller
     /// knows. The script setting never changes it.
@@ -120,42 +118,27 @@ final class SeokdokInputController: IMKInputController {
         }
     }
 
+    /// A modifier went down or up: taps in the `[input.keys]` lists fire here.
     private func flagsChanged(_ event: NSEvent, _ sender: Any?) -> Bool {
-        let code = Int(event.keyCode)
-        let flags = event.modifierFlags.intersection(.deviceIndependentFlagsMask).subtracting(.capsLock)
-        let isOption = code == kVK_Option || code == kVK_RightOption
-        if isOption && flags == .option {
-            optionAlone = true
-            return false
-        }
-        let tapped = isOption && optionAlone && !flags.contains(.option)
-        optionAlone = false
-        guard tapped, Session.altToggles else { return false }
-        session.key(Int32(SK_TOGGLE))
+        guard let change = KeyMap.modifierChange(of: event) else { return false }
+        let state = Int32(change.down ? SK_KEY_DOWN : SK_KEY_UP)
+        guard session.modeKey(change.name, mods: 0, state: state) else { return false }
         update(sender)
         return true
     }
 
     private func keyDown(_ event: NSEvent, _ sender: Any?) -> Bool {
-        optionAlone = false
+        let state = Int32(event.isARepeat ? SK_KEY_REPEAT : SK_KEY_DOWN)
+        if session.modeKey(KeyMap.name(for: event), mods: KeyMap.mods(of: event), state: state) {
+            update(sender)
+            return true
+        }
         switch KeyMap.action(for: event) {
         case .shortcut:
             // Shortcuts belong to the application; finish the composition first.
             session.flush()
             update(sender)
             return false
-        case .latin:
-            if session.mode != .latin {
-                session.mode = .latin
-                update(sender)
-            }
-            return true
-        case .hangul:
-            if session.mode == .latin {
-                session.key(Int32(SK_TOGGLE))
-                update(sender)
-            }
-            return true
         case let .key(kind, ch, shift):
             let eaten = session.key(kind, ch, shift: shift)
             update(sender)

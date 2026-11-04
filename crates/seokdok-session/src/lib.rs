@@ -7,5 +7,6 @@
 pub mod config;
 pub mod engine_host;
 pub mod keys;
+pub mod mode_keys;
 pub mod session;
 pub mod surface;

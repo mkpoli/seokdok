@@ -20,7 +20,29 @@ pub mod vk {
     pub const RIGHT: u16 = 0x27;
     pub const DOWN: u16 = 0x28;
     pub const DELETE: u16 = 0x2E;
+    pub const F1: u16 = 0x70;
     pub const F7: u16 = 0x76;
+    pub const F24: u16 = 0x87;
+    pub const LWIN: u16 = 0x5B;
+    pub const RWIN: u16 = 0x5C;
+    pub const SHIFT: u16 = 0x10;
+    pub const CONTROL: u16 = 0x11;
+    pub const MENU: u16 = 0x12;
+    pub const IME_ON: u16 = 0x16;
+    pub const IME_OFF: u16 = 0x1A;
+    pub const CONVERT: u16 = 0x1C;
+    pub const NONCONVERT: u16 = 0x1D;
+    pub const LSHIFT: u16 = 0xA0;
+    pub const RSHIFT: u16 = 0xA1;
+    pub const LCONTROL: u16 = 0xA2;
+    pub const RCONTROL: u16 = 0xA3;
+    pub const LMENU: u16 = 0xA4;
+    pub const RMENU: u16 = 0xA5;
+    /// カタカナ/ひらがな on a Japanese layout.
+    pub const OEM_COPY: u16 = 0xF2;
+    /// 半角/全角 on a Japanese layout, one code for each state.
+    pub const OEM_AUTO: u16 = 0xF3;
+    pub const OEM_ENLW: u16 = 0xF4;
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -40,15 +62,30 @@ pub enum Key {
     Down,
     PageUp,
     PageDown,
-    /// F7 or the Hanja key.
+    /// Convert the composition: a key from `convert` in `[input.keys]`.
     Convert,
-    /// The Han/Eng key, or Alt pressed and released alone.
+    /// Korean ↔ Latin.
     HangulToggle,
+    /// To Latin; quiet when already there.
+    ToLatin,
+    /// From Latin back to Korean; quiet when already Korean.
+    ToKorean,
+    /// 釋讀 ↔ 한글. From Latin, back to whichever was last in use.
+    FlipHangul,
+    /// To 釋讀.
+    ToSeokdok,
+    /// To 한글.
+    ToHangul,
     /// Another editing or navigation key (Home, End, Delete, ...).
     Other,
 }
 
 impl Key {
+    /// Does this key switch modes?
+    pub fn switches_mode(self) -> bool {
+        matches!(self, Key::HangulToggle | Key::ToLatin | Key::ToKorean | Key::FlipHangul | Key::ToSeokdok | Key::ToHangul)
+    }
+
     /// The character that selects a jamo in the 두벌식 layout.
     pub fn jamo_key(self) -> Option<char> {
         match self {
@@ -73,8 +110,6 @@ impl Key {
             vk::DOWN => Key::Down,
             vk::PRIOR => Key::PageUp,
             vk::NEXT => Key::PageDown,
-            vk::F7 | vk::HANJA => Key::Convert,
-            vk::HANGUL => Key::HangulToggle,
             vk::END | vk::HOME | vk::DELETE => Key::Other,
             _ => match printable {
                 Some(c) if c.is_ascii_graphic() => Key::Printable(c),
@@ -98,10 +133,12 @@ mod tests {
 
     #[test]
     fn named_keys() {
-        assert_eq!(Key::from_vk(vk::F7, false, None), Some(Key::Convert));
-        assert_eq!(Key::from_vk(vk::HANJA, false, None), Some(Key::Convert));
+        assert_eq!(Key::from_vk(vk::RETURN, false, None), Some(Key::Enter));
         assert_eq!(Key::from_vk(vk::SPACE, true, Some(' ')), Some(Key::Space { shift: true }));
-        assert_eq!(Key::from_vk(vk::HANGUL, false, None), Some(Key::HangulToggle));
+        // Mode keys go by the lists in `mode_keys`.
+        assert_eq!(Key::from_vk(vk::F7, false, None), None);
+        assert_eq!(Key::from_vk(vk::HANJA, false, None), None);
+        assert_eq!(Key::from_vk(vk::HANGUL, false, None), None);
     }
 
     #[test]

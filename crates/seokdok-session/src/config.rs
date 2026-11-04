@@ -11,6 +11,8 @@ use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
 use std::sync::RwLock;
 
+use crate::mode_keys::ModeKeys;
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum InputMode {
@@ -77,16 +79,16 @@ pub enum Layout {
 pub struct Input {
     pub default_mode: InputMode,
     /// Space converts the composition. When false, Space inserts a space and
-    /// only the Hanja key, F7 and Tab convert.
+    /// only the convert keys and Tab convert.
     pub space_converts: bool,
-    /// Alt pressed and released on its own switches 釋讀 ↔ Latin, like the
-    /// Han/Eng key.
-    pub alt_toggles: bool,
     /// Candidate window direction; horizontal lets ← → walk the candidates.
     pub candidate_layout: Layout,
     /// Modern letters typed in a row form old-Hangul clusters: ㅅ+ㄱ → ᄭ,
     /// ㅂ+ㅇ → ㅸ. The old letters on the Shift layer work either way.
     pub old_clusters: bool,
+    /// The keys that switch modes and convert, by what they do. Last, so
+    /// that it serializes after the plain values of this section.
+    pub keys: ModeKeys,
 }
 
 impl Default for Input {
@@ -94,9 +96,9 @@ impl Default for Input {
         Input {
             default_mode: InputMode::Seokdok,
             space_converts: true,
-            alt_toggles: true,
             candidate_layout: Layout::Vertical,
             old_clusters: false,
+            keys: ModeKeys::default(),
         }
     }
 }
@@ -252,10 +254,8 @@ impl Config {
 #   latin   = pass keys through
 default_mode = \"{mode}\"
 # Space converts the composition.  (true | false)
-# When false, Space inserts a space; the Hanja key, F7 and Tab convert.
+# When false, Space inserts a space; the convert keys below and Tab convert.
 space_converts = {space}
-# Alt pressed and released alone switches 釋讀 ↔ Latin, like Han/Eng.  (true | false)
-alt_toggles = {alt}
 # Candidate window direction.
 #   vertical   = a column
 #   horizontal = a row; ← → move through the candidates
@@ -264,6 +264,34 @@ candidate_layout = \"{layout}\"
 # ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ.  With this on, modern letters typed in a row also join into
 # old clusters: ㅅ ㄱ → ᄭ, ㅂ ㅇ → ㅸ, ㅎ ㅎ → ᅘ.  (true | false)
 old_clusters = {old}
+
+# The keys that switch modes and convert.  Each list holds keys, written
+#   Hangul Hanja Zenkaku Henkan Muhenkan Kana Eisu ImeOn ImeOff
+#   Space Enter Tab Esc F1..F24 and letters or digits,
+# after any of Ctrl+ Shift+ Alt+ (Option+) Super+ (Win+ Cmd+): Shift+Hangul.
+# Modifiers alone mean tapping them with no other key: RAlt, or LCtrl+LAlt.
+# They can name a side (LAlt RAlt LCtrl RCtrl LShift RShift) or not (Alt).
+# Entries that are not keys are ignored.  Lists left out keep their defaults
+# for this platform; an empty list [] turns that action off.
+# Keys the system takes first never arrive here: Ctrl+Space on macOS and
+# Android, Globe and Caps Lock on macOS when the system settings give them to
+# input sources, and the keys fcitx5 uses to switch when it has more than one
+# input method.
+[input.keys]
+# Korean ↔ Latin, back to whichever of 釋讀 and 한글 was last in use.
+toggle = {k_toggle}
+# To Latin.
+latin = {k_latin}
+# From Latin back to Korean.
+korean = {k_korean}
+# 釋讀 ↔ 한글.  From Latin, back to whichever was last in use.
+seokdok_hangul = {k_flip}
+# To 釋讀.
+seokdok = {k_seokdok}
+# To 한글.
+hangul = {k_hangul}
+# Convert the composition.
+convert = {k_convert}
 
 # Own words, phrases and rewrite rules: export them from
 # https://seokdok.mkpo.li/#custom and save the file as
@@ -307,8 +335,14 @@ max_candidates = {max}
 {composition}",
             mode = mode,
             space = self.input.space_converts,
-            alt = self.input.alt_toggles,
             old = self.input.old_clusters,
+            k_toggle = toml_list(&self.input.keys.toggle),
+            k_latin = toml_list(&self.input.keys.latin),
+            k_korean = toml_list(&self.input.keys.korean),
+            k_flip = toml_list(&self.input.keys.seokdok_hangul),
+            k_seokdok = toml_list(&self.input.keys.seokdok),
+            k_hangul = toml_list(&self.input.keys.hangul),
+            k_convert = toml_list(&self.input.keys.convert),
             layout = match self.input.candidate_layout {
                 Layout::Vertical => "vertical",
                 Layout::Horizontal => "horizontal",
@@ -340,6 +374,12 @@ max_candidates = {max}
         std::fs::write(&tmp, self.to_documented_toml())?;
         std::fs::rename(&tmp, path)
     }
+}
+
+/// A TOML array of strings on one line.
+fn toml_list(items: &[String]) -> String {
+    let quoted: Vec<String> = items.iter().map(|s| toml::Value::String(s.clone()).to_string()).collect();
+    format!("[{}]", quoted.join(", "))
 }
 
 static GLOBAL: RwLock<Option<Config>> = RwLock::new(None);
@@ -386,7 +426,7 @@ mod tests {
         assert_eq!(c.input.default_mode, InputMode::Latin);
         assert!(!c.input.space_converts);
         assert!(c.input.old_clusters);
-        assert!(c.input.alt_toggles);
+        assert_eq!(c.input.keys, ModeKeys::default());
         assert_eq!(c.conversion.style, StyleOpt::Morpheme);
         assert_eq!(c.conversion.fragment, FragmentOpt::Letter);
         assert!(c.conversion.coda_always && c.conversion.hada_kun && !c.conversion.resyllabify);
@@ -400,9 +440,17 @@ mod tests {
             input: Input {
                 default_mode: InputMode::Hangul,
                 space_converts: false,
-                alt_toggles: false,
                 candidate_layout: Layout::Horizontal,
                 old_clusters: true,
+                keys: ModeKeys {
+                    toggle: vec!["F12".into(), "Shift+Hangul".into()],
+                    latin: vec![],
+                    korean: vec!["Henkan".into()],
+                    seokdok_hangul: vec!["LCtrl+LAlt".into()],
+                    seokdok: vec!["Ctrl+1".into()],
+                    hangul: vec!["Ctrl+2".into()],
+                    convert: vec!["Hanja".into()],
+                },
             },
             conversion: Conversion {
                 style: StyleOpt::Morpheme,
@@ -427,6 +475,30 @@ mod tests {
         assert_eq!(Config::parse(&c.to_documented_toml()), c);
         let d = Config::default();
         assert_eq!(Config::parse(&d.to_documented_toml()), d);
+    }
+
+    #[test]
+    fn key_lists_override_one_at_a_time() {
+        let c = Config::parse("[input.keys]\ntoggle = [\"F12\"]\nconvert = []\n");
+        let d = ModeKeys::default();
+        assert_eq!(c.input.keys.toggle, ["F12"]);
+        assert!(c.input.keys.convert.is_empty());
+        assert_eq!(c.input.keys.latin, d.latin);
+        // The dotted form the Android settings screen writes.
+        let c = Config::parse("[input]\nkeys.toggle = [\"F12\", \"RAlt\"]\nspace_converts = false\n");
+        assert_eq!(c.input.keys.toggle, ["F12", "RAlt"]);
+        assert_eq!(c.input.keys.latin, d.latin);
+        assert!(!c.input.space_converts);
+        // The plain serializer the Android settings screen reads.
+        let text = toml::to_string(&non_default()).unwrap();
+        assert_eq!(Config::parse(&text), non_default());
+    }
+
+    #[test]
+    fn any_string_in_a_list_survives_the_file() {
+        let mut c = Config::default();
+        c.input.keys.toggle = vec!["bad\"entry\\".into(), "F12\n".into(), "\t한/영".into()];
+        assert_eq!(Config::parse(&c.to_documented_toml()), c);
     }
 
     #[test]

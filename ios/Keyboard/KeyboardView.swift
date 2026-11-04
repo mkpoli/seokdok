@@ -56,7 +56,8 @@ struct KeyboardState {
 final class KeyboardView: UIView, UIInputViewAudioFeedback {
     weak var delegate: KeyboardViewDelegate?
     /// The input-mode switch key, when the system asks for one.
-    private(set) var globe: UIButton?
+    private(set) var globe: KeyButton?
+    private var globeWidth: NSLayoutConstraint?
 
     private let strip = UIStackView()
     private let stripScroll = UIScrollView()
@@ -310,7 +311,8 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             g.accessibilityLabel = "Next keyboard"
             globe = g
             bottom.addArrangedSubview(g)
-            g.widthAnchor.constraint(equalToConstant: 40).isActive = true
+            globeWidth = g.widthAnchor.constraint(equalToConstant: 40)
+            globeWidth?.isActive = true
         }
         for i in 0..<2 {
             let k = KeyButton(title: "")
@@ -401,6 +403,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             buildPad(layout)
         } else if let g = globe, let bottom = bottomLine as? UIStackView {
             bottom.insertArrangedSubview(g, at: 1)
+            sizeGlobe(width: 40, height: 42)
         }
     }
 
@@ -443,10 +446,19 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         bottom.append(enter)
         let r = row(bottom)
         r.distribution = .fill
-        for v in bottom where v !== enter {
-            v.widthAnchor.constraint(equalToConstant: v === globe ? 50 : 70).isActive = true
+        for v in bottom where v !== enter && v !== globe {
+            v.widthAnchor.constraint(equalToConstant: 70).isActive = true
         }
+        sizeGlobe(width: 50, height: 50)
         pad.addArrangedSubview(r)
+    }
+
+    /// The globe is one button that moves between the letter row and the pad
+    /// row, so its two size constraints change with the row instead of new
+    /// ones piling up against them.
+    private func sizeGlobe(width: CGFloat, height: CGFloat) {
+        globeWidth?.constant = width
+        globe?.heightConstraint.constant = height
     }
 
     /// The text being composed. Tapping the Hangul converts it (in 釋讀
@@ -535,6 +547,8 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
 final class KeyButton: UIButton {
     private let hint = UILabel()
     private let accent: Bool
+    /// The key's height, changed in place when a row needs another.
+    private(set) var heightConstraint: NSLayoutConstraint!
 
     init(title: String? = nil, symbol: String? = nil, accent: Bool = false, height: CGFloat = 42) {
         self.accent = accent
@@ -554,7 +568,8 @@ final class KeyButton: UIButton {
             setImage(UIImage(systemName: symbol + ".fill"), for: .selected)
             tintColor = .label
         }
-        heightAnchor.constraint(equalToConstant: height).isActive = true
+        heightConstraint = heightAnchor.constraint(equalToConstant: height)
+        heightConstraint.isActive = true
         hint.font = OldHangul.font(ofSize: 11, weight: .medium)
         hint.textColor = .secondaryLabel
         hint.translatesAutoresizingMaskIntoConstraints = false

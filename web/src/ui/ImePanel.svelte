@@ -1,4 +1,5 @@
 <script>
+  import { onMount } from 'svelte'
   import { reveal } from '../lib/reveal.js'
   import { t, r, plain } from '../lib/i18n.svelte.js'
   import { engine, status } from '../lib/engine.svelte.js'
@@ -8,11 +9,17 @@
   import { PAGE } from '../lib/ime.svelte.js'
   import { chars } from '../lib/chars.js'
   import { input, output } from '../lib/custom.svelte.js'
+  import { Sink } from '../lib/sink.js'
 
   /** @type {{ ime: import('../lib/ime.svelte.js').Ime }} */
   let { ime } = $props()
 
   let sink = $state()
+  /** @type {Sink} */
+  let typed
+  onMount(() => {
+    typed = new Sink(ime, sink)
+  })
   let textEl = $state()
   let pos = $state({ left: 0, top: 0 })
 
@@ -163,7 +170,7 @@
       return
     }
     altAlone = false
-    if (e.isComposing || e.key === 'Process' || e.keyCode === 229) return
+    if (!typed.usable(e)) return
     const mod = e.ctrlKey || e.metaKey
     const k = e.key.toLowerCase()
     if (mod && !e.altKey && (k === 'z' || k === 'y')) {
@@ -185,33 +192,15 @@
     }
     if (ime.key({ key: e.key, repeat: e.repeat, shift: e.shiftKey, ctrl: e.ctrlKey, alt: e.altKey, meta: e.metaKey })) {
       e.preventDefault()
+      typed.reset()
     }
-  }
-
-  function oncompositionupdate(e) {
-    ime.osComposing = e.data ?? ''
-  }
-
-  function oncompositionend(e) {
-    ime.osComposing = ''
-    if (e.data) ime.insertText(e.data)
-    sink.value = ''
-  }
-
-  // Text that arrives without a composition (mobile keyboards, dictation).
-  function oninput(e) {
-    if (e.isComposing) return
-    const v = sink.value
-    sink.value = ''
-    if (!v) return
-    if (/[가-힣ㄱ-ㆎ]/.test(v)) ime.insertText(v)
-    else for (const c of v) ime.key({ key: c })
   }
 
   function onpaste(e) {
     e.preventDefault()
     const text = e.clipboardData?.getData('text') ?? ''
     if (text) ime.insertText(text)
+    typed.reset()
   }
 
   async function copy() {
@@ -235,7 +224,7 @@
   }
 
   const pct = $derived(Math.min(100, Math.round((status.loaded / status.total) * 100)))
-  const empty = $derived(!ime.doc && !ime.pre && !ime.segs && !ime.osComposing)
+  const empty = $derived(!ime.doc && !ime.pre && !ime.segs)
 </script>
 
 <section class="section" id="ime">
@@ -303,23 +292,29 @@
         class="sink"
         bind:this={sink}
         aria-label={plain(t().ime.title)}
+        inputmode="text"
+        enterkeyhint="enter"
         autocapitalize="off"
         autocomplete="off"
+        autocorrect="off"
         spellcheck="false"
         {onkeydown}
         {onkeyup}
-        {oncompositionupdate}
-        {oncompositionend}
-        {oninput}
+        oncompositionstart={() => typed.compositionstart()}
+        oncompositionend={() => typed.compositionend()}
+        oninput={(e) => typed.input(e)}
         {onpaste}
-        onfocus={() => (focused = true)}
+        onfocus={() => {
+          focused = true
+          typed.caretToEnd()
+        }}
         onblur={() => (focused = false)}
       ></textarea>
       <span class="mode" aria-live="polite" title={plain(ime.mode === 'hangul' ? t().ime.hangulTip : t().ime.asciiTip)}>{ime.mode === 'hangul' ? '韓' : 'A'}</span><div class="text" lang="ko" bind:this={textEl}>{#if empty}<span class="placeholder">{@html r(t().ime.placeholder)}</span>{/if}{#each pieces.head as pc}<span class="doc" class:selected={pc.selected} data-off={pc.off}>{#if showRuby}<Ruby text={pc.text} />{:else}{pc.text}{/if}</span>{/each}{#if ime.segs}{#each ime.segs as s, i}<span
               class="segment"
               class:focus={i === ime.focus}
               class:multi={s.candidates.length > 1}
-              data-seg={i}>{s.candidates[s.pick]?.text ?? s.reading}</span>{/each}{:else}<span class="pre">{ime.pre}{ime.osComposing}</span>{/if}{#if focused}{#key ime.cursor}<span class="caret" aria-hidden="true"></span>{/key}{/if}{#each pieces.tail as pc}<span class="doc" class:selected={pc.selected} data-off={pc.off}>{#if showRuby}<Ruby text={pc.text} />{:else}{pc.text}{/if}</span>{/each}</div>
+              data-seg={i}>{s.candidates[s.pick]?.text ?? s.reading}</span>{/each}{:else}<span class="pre">{ime.pre}</span>{/if}{#if focused}{#key ime.cursor}<span class="caret" aria-hidden="true"></span>{/key}{/if}{#each pieces.tail as pc}<span class="doc" class:selected={pc.selected} data-off={pc.off}>{#if showRuby}<Ruby text={pc.text} />{:else}{pc.text}{/if}</span>{/each}</div>
       {#if ime.segs && ime.current && ime.open}
         {@const start = ime.pageStart}
         {@const all = ime.current.candidates}

@@ -46,7 +46,7 @@ struct KeyboardState {
     var layout = Layout.standard
     var shift: Shift = .off
     var mode: Session.Mode = .seokdok
-    /// The strip shows the controls for what was learned.
+    /// The bar shows the controls for what was learned.
     var learnMenu = false
     /// `input.learn`, when this keyboard rather than the app decides it.
     var learnOn: Bool?
@@ -440,7 +440,7 @@ final class KeyboardView: UIView {
         layerKey.title = lettersShown ? "123" : (lastMode == .latin ? "ABC" : "가")
     }
 
-    /// Show the keyboard state: key labels, the strip and the candidate bar.
+    /// Show the keyboard state: key labels and the candidate bar.
     func render(_ s: KeyboardState) {
         lastMode = s.mode
         showLayout(s.layout)

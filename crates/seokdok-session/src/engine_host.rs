@@ -56,12 +56,14 @@ pub struct Host {
     engine: RwLock<Option<Arc<Engine>>>,
     /// Rewrite rules from custom.json, applied around the engine.
     custom: RwLock<Option<Arc<Custom>>>,
+    /// The options asked for last; a load in progress finishes with these.
+    options: RwLock<Option<Options>>,
     generation: AtomicU64,
 }
 
 impl Host {
     pub const fn new() -> Self {
-        Host { engine: RwLock::new(None), custom: RwLock::new(None), generation: AtomicU64::new(0) }
+        Host { engine: RwLock::new(None), custom: RwLock::new(None), options: RwLock::new(None), generation: AtomicU64::new(0) }
     }
 
     pub fn is_ready(&self) -> bool {
@@ -83,16 +85,47 @@ impl Host {
     /// superseded by a later one discards its result.
     pub fn start_load(&'static self, dict_dir: std::path::PathBuf, user_dir: Option<std::path::PathBuf>, options: Options) {
         let generation = self.generation.fetch_add(1, Ordering::SeqCst) + 1;
+        if let Ok(mut wanted) = self.options.write() {
+            *wanted = Some(options.clone());
+        }
         std::thread::spawn(move || {
             let custom = load_custom(user_dir.as_deref());
-            let (engine, _errors) = load_engine_with(&dict_dir, user_dir.as_deref(), custom.as_ref(), options);
+            let (mut engine, _errors) = load_engine_with(&dict_dir, user_dir.as_deref(), custom.as_ref(), options);
             if self.generation.load(Ordering::SeqCst) == generation {
                 if let Ok(mut g) = self.custom.write() {
                     *g = custom.map(Arc::new);
                 }
+                // Held across `set`, so `apply_options` cannot fall between.
+                let wanted = self.options.read();
+                if let Ok(Some(o)) = wanted.as_deref() {
+                    engine.options = o.clone();
+                }
                 self.set(engine);
             }
         });
+    }
+
+    /// Give the running engine `options` without reading the dictionaries
+    /// again. False when a conversion on another thread holds the engine and
+    /// it kept its old options: the caller then starts a load.
+    pub fn apply_options(&self, options: &Options) -> bool {
+        let Ok(mut wanted) = self.options.write() else { return false };
+        if wanted.as_ref() == Some(options) {
+            return true;
+        }
+        *wanted = Some(options.clone());
+        let Ok(mut engine) = self.engine.write() else { return false };
+        match engine.as_mut() {
+            // A load in progress picks the options up when it finishes.
+            None => true,
+            Some(arc) => match Arc::get_mut(arc) {
+                Some(e) => {
+                    e.options = options.clone();
+                    true
+                }
+                None => false,
+            },
+        }
     }
 }
 
@@ -184,6 +217,39 @@ mod tests {
         *host.custom.write().unwrap() = Some(Arc::new(custom));
         assert_eq!(host.segments("풀어읽기모임")[0].candidates[0].text, "釋讀會X");
         assert!(host.segments("하늘").iter().flat_map(|s| &s.candidates).all(|c| c.text != "天"));
+    }
+
+    #[test]
+    fn options_apply_to_a_running_engine() {
+        let build = |o: &Options| load_engine(&dict_dir(), None, o.clone()).0;
+        let host = Host::new();
+        host.set(build(&Options::default()));
+        for (o, word) in [
+            (Options { sino_only: true, ..Options::default() }, "하늘을 보다"),
+            (Options { old_ha: true, ..Options::default() }, "하고"),
+            (Options { hada_kun: true, ..Options::default() }, "안녕해요"),
+        ] {
+            let expected: Vec<String> = build(&o).convert(word).into_iter().map(|c| c.text).collect();
+            let whole = |host: &Host| -> Vec<String> { host.whole(word).into_iter().map(|c| c.text).collect() };
+            assert_ne!(expected, whole(&host), "{o:?} changes nothing for {word}");
+            assert!(host.apply_options(&o));
+            assert_eq!(whole(&host), expected);
+            assert!(host.apply_options(&Options::default()));
+        }
+    }
+
+    #[test]
+    fn options_wait_for_a_busy_engine_or_a_load() {
+        let host = Host::new();
+        let sino = Options { sino_only: true, ..Options::default() };
+        // Nothing loaded yet: the options wait for the load.
+        assert!(host.apply_options(&sino));
+        assert!(host.apply_options(&Options::default()));
+        host.set(load_engine(&dict_dir(), None, Options::default()).0);
+        // Another thread is converting: the caller is told to start a load.
+        let held = host.engine.read().unwrap().clone().unwrap();
+        assert!(!host.apply_options(&sino));
+        drop(held);
     }
 
     #[test]

@@ -415,4 +415,71 @@ final class KeyboardUITests: XCTestCase {
         shot("number-pad-globe")
         assertText(field, "12")
     }
+
+    // MARK: The app
+
+    /// Every screen of the app in English and Korean. The workflow runs this
+    /// again in dark mode.
+    func testSettingsScreens() throws {
+        do {
+            for language in ["en", "ko"] {
+                let app = XCUIApplication()
+                let name = "settings-\(language)"
+                app.launchArguments = ["-AppleLanguages", "(\(language))"]
+                app.launch()
+                XCTAssertTrue(app.cells["conversion"].waitForExistence(timeout: 10) || app.buttons["conversion"].waitForExistence(timeout: 5))
+                shot(name + "-root")
+                app.descendants(matching: .any)["conversion"].firstMatch.tap()
+                sleep(1)
+                shot(name + "-conversion")
+                app.swipeUp()
+                sleep(1)
+                shot(name + "-conversion-2")
+                app.navigationBars.buttons.firstMatch.tap()
+                sleep(1)
+                app.descendants(matching: .any)["typing"].firstMatch.tap()
+                sleep(1)
+                shot(name + "-typing")
+                app.terminate()
+
+                // With the keyboard not added yet.
+                app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleKeyboards", "(none)"]
+                app.launch()
+                XCTAssertTrue(app.descendants(matching: .any)["openSettings"].waitForExistence(timeout: 10))
+                shot(name + "-setup")
+                app.terminate()
+            }
+        }
+
+        // The link leads to this app's page in Settings.
+        let app = XCUIApplication()
+        app.launch()
+        let open = app.descendants(matching: .any)["openSettings"].firstMatch
+        XCTAssertTrue(open.waitForExistence(timeout: 10))
+        open.tap()
+        let settings = XCUIApplication(bundleIdentifier: "com.apple.Preferences")
+        _ = settings.wait(for: .runningForeground, timeout: 20)
+        sleep(10)
+        shot("settings-deep-link")
+        // The steps the app gives, followed in Settings itself.
+        settings.terminate()
+        settings.launch()
+        sleep(3)
+        settings.staticTexts["General"].firstMatch.tap()
+        sleep(1)
+        shot("settings-general")
+        settings.staticTexts["Keyboard"].firstMatch.tap()
+        sleep(2)
+        // The page and its first row are both called Keyboards.
+        settings.cells.containing(.staticText, identifier: "Keyboards").firstMatch.tap()
+        sleep(2)
+        shot("settings-keyboards")
+        let add = settings.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Add New Keyboard'")).firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 5), "the step the app gives is not in Settings")
+        add.tap()
+        sleep(2)
+        shot("settings-add-keyboard")
+        settings.terminate()
+        app.terminate()
+    }
 }

@@ -8,7 +8,8 @@
 pub use seokdok_session::{config, engine_host, keys, mode_keys, session, surface};
 
 #[cfg(windows)]
-mod candidate_window;
+#[doc(hidden)]
+pub mod candidate_window;
 #[cfg(windows)]
 mod compartment;
 mod composition;

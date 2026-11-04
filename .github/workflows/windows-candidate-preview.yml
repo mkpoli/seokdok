@@ -1,0 +1,75 @@
+name: Windows candidate window
+
+# Unit tests, then the candidate window rendered offscreen and live on a Windows
+# runner, kept as images. Only changes to the window itself start it.
+on:
+  pull_request:
+    paths:
+      - "crates/seokdok-tsf/src/candidate_window/**"
+      - "crates/seokdok-tsf/examples/candidate_preview.rs"
+      - ".github/workflows/windows-candidate-preview.yml"
+  workflow_dispatch:
+
+concurrency:
+  group: windows-candidate-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  preview:
+    runs-on: windows-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: windows-candidate
+
+      - name: Unit tests
+        run: cargo test -p seokdok-tsf
+
+      - name: Build
+        run: |
+          cargo build --release -p seokdok-tsf --example candidate_preview
+          Get-Item target/release/seokdok.dll | Select-Object Name, Length
+
+      - name: Offscreen, light and dark at 100% and 200%
+        run: target/release/examples/candidate_preview.exe offscreen target/candidate-preview
+
+      - name: Live window, following the system theme and accent
+        run: |
+          $personalize = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Themes\Personalize'
+          $accent = 'HKCU:\Software\Microsoft\Windows\CurrentVersion\Explorer\Accent'
+          New-Item -Force -Path $personalize -ErrorAction SilentlyContinue | Out-Null
+          New-Item -Force -Path $accent -ErrorAction SilentlyContinue | Out-Null
+          Set-ItemProperty $personalize AppsUseLightTheme 1 -Type DWord
+          target/release/examples/candidate_preview.exe real light target/candidate-preview
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Set-ItemProperty $personalize AppsUseLightTheme 0 -Type DWord
+          target/release/examples/candidate_preview.exe real dark target/candidate-preview
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          # An orange accent: Light3, Light2, Light1, accent, Dark1, Dark2, Dark3, other.
+          [byte[]]$orange = 0xFF,0xD9,0xB3,0, 0xFF,0xB0,0x70,0, 0xFF,0x90,0x40,0, 0xF7,0x63,0x0C,0, 0xC8,0x4E,0x06,0, 0x9A,0x3A,0x02,0, 0x6B,0x28,0x00,0, 0x00,0x78,0xD4,0
+          Set-ItemProperty $accent AccentPalette $orange -Type Binary
+          target/release/examples/candidate_preview.exe real accent target/candidate-preview
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Set-ItemProperty $personalize AppsUseLightTheme 1 -Type DWord
+          target/release/examples/candidate_preview.exe real accent-light target/candidate-preview
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Fallback to GDI
+        run: |
+          target/release/examples/candidate_preview.exe fallback target/candidate-preview
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Memory and timing
+        run: |
+          target/release/examples/candidate_preview.exe memory gdi
+          target/release/examples/candidate_preview.exe memory fluent
+
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: candidate-window-preview
+          path: target/candidate-preview
+          if-no-files-found: warn

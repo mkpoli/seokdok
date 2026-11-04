@@ -6,7 +6,7 @@
   import Keyboard from './Keyboard.svelte'
   import Ruby from './Ruby.svelte'
   import { PAGE } from '../lib/ime.svelte.js'
-  import { chars } from '../lib/chars.js'
+  import { chars, HANGUL } from '../lib/chars.js'
   import { input, output } from '../lib/custom.svelte.js'
 
   /** @type {{ ime: import('../lib/ime.svelte.js').Ime }} */
@@ -204,7 +204,7 @@
     const v = sink.value
     sink.value = ''
     if (!v) return
-    if (/[가-힣ㄱ-ㆎ]/.test(v)) ime.insertText(v)
+    if (HANGUL.test(v)) ime.insertText(v)
     else for (const c of v) ime.key({ key: c })
   }
 

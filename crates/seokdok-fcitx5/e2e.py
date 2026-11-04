@@ -4,6 +4,7 @@ Run inside a private bus with an isolated fcitx5 (see e2e.sh). Types romaja
 keys as a 두벌식 keyboard would, converts with Space, and checks what the
 client receives.
 """
+import os
 import sys
 import time
 
@@ -128,20 +129,51 @@ check("the word break stays in the composition", preedit[0].endswith(" "), True)
 sym(SHIFT_L, 1, True)
 type_("\n")
 
-# Left Ctrl + left Alt tapped: 釋讀 → 한글; Space then types instead of converting.
-sym(CTRL_L)
-sym(ALT_L, 4)
-check("the tap is eaten", sym(ALT_L, 12, True), True)
-sym(CTRL_L, 4, True)
+# Left Ctrl + left Alt tapped: 釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀.
+def rotate():
+    sym(CTRL_L)
+    sym(ALT_L, 4)
+    eaten = sym(ALT_L, 12, True)
+    sym(CTRL_L, 4, True)
+    return eaten
+
+
+def script():
+    path = os.path.join(os.environ["XDG_CONFIG_HOME"], "seokdok", "config.toml")
+    with open(path, encoding="utf8") as f:
+        return next(line.split('"')[1] for line in f if line.startswith("script ="))
+
+
+def converted(keys):
+    type_(keys + " ")
+    shown = preedit[0]
+    type_("\n")
+    return shown
+
+
+check("釋讀 converts the native word", converted("gksmf"), "天")
+type_("rk")
+check("the tap is eaten", rotate(), True)
+check("the tap commits the composition", commits[-1:], ["가"])
+check("the tap writes 國漢文混用", script(), "sino_only")
+check("國漢文混用 leaves the native word", converted("gksmf"), "하늘")
+rotate()
+check("the tap writes 韓㐎 專用", script(), "hangul_only")
 before = len(commits)
 type_("rk ")
-check("plain 한글 commits on Space", commits[-1:], ["가 "])
+check("韓㐎 專用 commits on Space", commits[-1:], ["가 "])
 check("one commit", len(commits), before + 1)
-# Back to 釋讀.
-sym(CTRL_L)
-sym(ALT_L, 4)
-sym(ALT_L, 12, True)
-sym(CTRL_L, 4, True)
+
+# Shift+Hangul does the same, from Latin too, and a held key rotates once.
+HANGUL = 0xff31
+sym(SHIFT_L)
+check("Shift+Hangul is eaten", sym(HANGUL, 1), True)
+check("Shift+Hangul writes 釋讀", script(), "seokdok")
+check("its repeat is eaten", sym(HANGUL, 1), True)
+check("its repeat does not rotate", script(), "seokdok")
+sym(HANGUL, 1, True)
+sym(SHIFT_L, 1, True)
+check("釋讀 again converts the native word", converted("gksmf"), "天")
 
 # Shift+Space with nothing composed: Korean ↔ Latin, and letters pass through.
 sym(SHIFT_L)

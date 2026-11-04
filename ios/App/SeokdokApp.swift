@@ -23,10 +23,17 @@ struct ContentView: View {
     @AppStorage("hadaKun", store: Settings.store) private var hadaKun = false
     @AppStorage("sinoOnly", store: Settings.store) private var sinoOnly = false
     @AppStorage("maxCandidates", store: Settings.store) private var maxCandidates = 12
+    @State private var trial = ""
+    @FocusState private var trialFocused: Bool
 
     var body: some View {
         NavigationStack {
             Form {
+                Section("試驗 · Try it") {
+                    TextField("여기에 입력 · Type here", text: $trial, axis: .vertical)
+                        .focused($trialFocused)
+                        .accessibilityIdentifier("trial")
+                }
                 Section("켜기 · Turn on") {
                     Text("설정 → 일반 → 키보드 → 키보드 → 새로운 키보드 추가 → 釋讀. 아래 設定을 쓰려면 「전체 접근 허용」을 켭니다. 켜지 않아도 기본 設定으로 動作합니다.")
                     Text("Settings → General → Keyboard → Keyboards → Add New Keyboard → 釋讀. Turn on Allow Full Access for the keyboard to use the settings below; without it the keyboard works with the defaults.")
@@ -37,6 +44,13 @@ struct ContentView: View {
                         }
                     }
                 }
+                if AppGroup.containerURL == nil {
+                    Section {
+                        Text("이 署名에는 共有 컨테이너가 없어 아래 設定이 키보드에 傳해지지 않습니다. 키보드는 基本 設定으로 動作합니다.")
+                        Text("This signature grants no shared container, so the settings below do not reach the keyboard. It runs on the defaults.")
+                            .foregroundStyle(.secondary)
+                    }
+                }
                 Section("入力 · Input") {
                     Picker("始作 모드 · Start in", selection: $defaultMode) {
                         Text("釋讀").tag("seokdok")
@@ -44,7 +58,10 @@ struct ContentView: View {
                         Text("A · Latin").tag("latin")
                     }
                     Toggle("Space로 變換 · Space converts", isOn: $spaceConverts)
-                    Toggle("옛한글 겹자모 · Old Hangul clusters (ㅅㄱ→ᄭ)", isOn: $oldClusters)
+                    Toggle(isOn: $oldClusters) {
+                        Text("옛한글 겹자모 · Old Hangul clusters (ㅅㄱ→ᄭ\u{1160})")
+                            .font(Font(OldHangul.font(ofSize: 17)))
+                    }
                 }
                 Section {
                     Toggle("國漢文混用 · Hanja for Sino-Korean words only", isOn: $sinoOnly)
@@ -79,21 +96,26 @@ struct ContentView: View {
             .onChange(of: hadaKun) { _ in Settings.write() }
             .onChange(of: sinoOnly) { _ in Settings.write() }
             .onChange(of: maxCandidates) { _ in Settings.write() }
-            .onAppear { Settings.write() }
+            .onAppear {
+                Settings.write()
+                // Launch argument for the simulator check: `-focusTrial YES`.
+                trialFocused = UserDefaults.standard.bool(forKey: "focusTrial")
+            }
         }
     }
 }
 
 enum Settings {
-    static let appGroup = "group.li.mkpo.seokdok"
-    static let store = UserDefaults(suiteName: appGroup)
+    /// Falls back to the app's own defaults, so the toggles still remember
+    /// their state when the signature grants no App Group.
+    static let store = AppGroup.defaults ?? .standard
 
     /// Write config.toml where the keyboard's session reads it. Keys left
     /// out (alt_toggles) keep their defaults; the candidate bar is a row of
     /// its own, so the layout stays vertical and ← → move between segments.
     static func write() {
-        guard let dir = FileManager.default.containerURL(forSecurityApplicationGroupIdentifier: appGroup),
-              let s = store else { return }
+        guard let dir = AppGroup.containerURL else { return }
+        let s = store
         func bool(_ key: String, _ fallback: Bool) -> Bool { s.object(forKey: key) as? Bool ?? fallback }
         func text(_ key: String, _ fallback: String) -> String { s.string(forKey: key) ?? fallback }
         let toml = """

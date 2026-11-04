@@ -8,8 +8,10 @@
 use seokdok_core::dubeolsik::Composer;
 use seokdok_core::jamo::{is_hangul, units};
 use seokdok_core::{Candidate, Segment};
+use std::sync::Arc;
 
 use crate::keys::Key;
+use crate::learned::Store;
 
 /// Candidates shown per page of the candidate window; digits 1-9 pick one.
 pub const PAGE_SIZE: usize = 9;
@@ -156,6 +158,10 @@ pub struct Session {
     conv: Option<Conv>,
     /// A Space conversion was confirmed: the next Hangul typed gets a space first.
     pending_break: bool,
+    /// What the person keeps picking; `None` when `input.learn` is off.
+    learned: Option<Arc<Store>>,
+    /// The field wants nothing remembered: a password, an address, a number.
+    private_field: bool,
 }
 
 impl Session {
@@ -170,6 +176,8 @@ impl Session {
             composer: Composer::new(),
             conv: None,
             pending_break: false,
+            learned: None,
+            private_field: false,
         }
     }
 
@@ -210,6 +218,23 @@ impl Session {
     /// Let modern letters form old-Hangul clusters (ㅅ+ㄱ → ᄭ, ㅂ+ㅇ → ㅸ).
     pub fn set_old_clusters(&mut self, v: bool) {
         self.composer.set_old(v);
+    }
+
+    /// The table of picks to rank by and add to; `None` for neither.
+    pub fn set_learned(&mut self, store: Option<Arc<Store>>) {
+        self.learned = store;
+    }
+
+    /// The field in focus is a password, e-mail, URL or number field, or asks
+    /// not to be learned from. In it the table is neither read nor added to.
+    /// A front end that keeps such fields from the session needs no call.
+    pub fn set_private_field(&mut self, private: bool) {
+        self.private_field = private;
+    }
+
+    /// The table, unless the field in focus rules it out.
+    fn learner(&self) -> Option<Arc<Store>> {
+        self.learned.as_ref().filter(|_| !self.private_field).cloned()
     }
 
     /// True while a composition exists.
@@ -475,6 +500,7 @@ impl Session {
         let mut text: String = done.iter().map(Seg::text).collect();
         let left: String = rest.iter().map(|s| s.reading.as_str()).collect();
         fx.push(Effect::Popup(None));
+        self.learn_from(done);
         if rest.is_empty() || !left.chars().any(is_hangul) {
             text.push_str(&rest.iter().map(Seg::text).collect::<String>());
             self.composer.clear();
@@ -491,6 +517,7 @@ impl Session {
     }
 
     fn resize(&mut self, conv: &dyn Converter, d: isize, fx: &mut Vec<Effect>) {
+        let learner = self.learner();
         let Some(c) = &mut self.conv else { return };
         let i = c.focus;
         let cur = units(&c.segs[i].reading);
@@ -507,6 +534,11 @@ impl Session {
         let mut fresh = vec![span(conv, &a)];
         if !b.is_empty() {
             fresh.push(span(conv, &b));
+        }
+        if let Some(l) = &learner {
+            for seg in &mut fresh {
+                l.rank(&seg.reading, &mut seg.cands);
+            }
         }
         let end = (i + 2).min(c.segs.len());
         c.segs.splice(i..end, fresh);
@@ -561,6 +593,7 @@ impl Session {
         let text = self.current_text();
         if let Some(c) = &self.conv {
             self.pending_break = c.spaced;
+            self.learn_from(&c.segs);
         }
         self.composer.clear();
         self.conv = None;
@@ -588,9 +621,21 @@ impl Session {
         if segs.is_empty() {
             return;
         }
+        if let Some(l) = self.learner() {
+            l.refresh();
+            segs = with_learned(&l, conv, segs);
+        }
         let focus = segs.iter().position(focusable).unwrap_or(0);
         self.conv = Some(Conv { segs, focus, open: false, spaced });
         self.push_view(fx);
+    }
+
+    /// These segments are being committed: tell the table what was chosen.
+    fn learn_from(&self, segs: &[Seg]) {
+        let Some(l) = self.learner() else { return };
+        for s in segs.iter().filter(|s| s.cands.len() > 1) {
+            l.commit(&s.reading, s.text(), s.sel == 0);
+        }
     }
 
     /// Emit the preedit and the candidate window for the converted state.
@@ -621,6 +666,54 @@ impl Session {
             horizontal: self.horizontal,
         }
     }
+}
+
+/// Put what was learned into a fresh conversion. An empty table, or a reading
+/// it does not hold, leaves the engine's segments exactly as they came.
+fn with_learned(l: &Store, conv: &dyn Converter, segs: Vec<Seg>) -> Vec<Seg> {
+    if l.is_empty() {
+        return segs;
+    }
+    let readings: Vec<&str> = segs.iter().map(|s| s.reading.as_str()).collect();
+    let joins = l.joins(&readings);
+    let mut out = Vec::with_capacity(segs.len());
+    let mut at = 0;
+    for run in &joins {
+        out.extend_from_slice(&segs[at..run.start]);
+        let joined: String = readings[run.clone()].concat();
+        let mut seg = span(conv, &joined);
+        if l.rank(&joined, &mut seg.cands) {
+            out.push(seg);
+        } else {
+            // The learned form is not on offer now, so the segments stay apart.
+            out.extend_from_slice(&segs[run.clone()]);
+        }
+        at = run.end;
+    }
+    out.extend_from_slice(&segs[at..]);
+    for i in 0..out.len() {
+        if is_fragment(&out, i) {
+            continue;
+        }
+        let seg = &mut out[i];
+        if l.promotes(&seg.reading) && !l.rank(&seg.reading, &mut seg.cands) {
+            // A segment's list can be cut short; the whole list may hold it.
+            let mut full = span(conv, &seg.reading);
+            if l.rank(&seg.reading, &mut full.cands) {
+                *seg = full;
+            }
+        }
+    }
+    out
+}
+
+/// A piece of a longer run of Hangul that the engine left in Hangul: the 나 of
+/// 나봐요 or 나올겁니다. It is the rest of a word the engine did not recognise,
+/// and a form learned for the word 나 would cut it.
+fn is_fragment(segs: &[Seg], i: usize) -> bool {
+    let joins_before = i > 0 && segs[i - 1].reading.chars().last().is_some_and(is_hangul);
+    let joins_after = segs.get(i + 1).is_some_and(|s| s.reading.chars().next().is_some_and(is_hangul));
+    (joins_before || joins_after) && segs[i].cands.first().is_some_and(|c| c.text == segs[i].reading)
 }
 
 /// A segment for exactly this span of the input.
@@ -717,6 +810,352 @@ mod tests {
 
     fn seokdok() -> Session {
         Session::new(Mode::Seokdok, true)
+    }
+
+    /// A session over a table in memory.
+    fn learning(store: &Arc<Store>) -> Session {
+        let mut s = seokdok();
+        s.set_learned(Some(store.clone()));
+        s
+    }
+
+    /// Type 한, convert, and return the first conversion's text with the session.
+    fn converted_han(s: &mut Session) -> String {
+        type_str(s, "gks");
+        let o = s.handle(Key::Space { shift: false }, &Stub(3));
+        preedit_of(&o).unwrap().iter().map(|r| r.text.as_str()).collect()
+    }
+
+    /// Convert 한, step to candidate `n` (0-based) and commit it with Enter.
+    fn commit_candidate(s: &mut Session, n: usize) -> String {
+        converted_han(s);
+        for _ in 0..n {
+            s.handle(Key::Down, &Stub(3));
+        }
+        let o = s.handle(Key::Enter, &Stub(3));
+        commit_of(&o).unwrap().trim_start().to_string()
+    }
+
+    #[test]
+    fn a_form_picked_twice_comes_first_and_one_pick_changes_nothing() {
+        let store = Store::open(None);
+        let mut s = learning(&store);
+        assert_eq!(commit_candidate(&mut s, 2), "한3");
+        s.reset();
+        assert_eq!(converted_han(&mut s), "한1", "one pick changed the order");
+        s.reset();
+        assert_eq!(commit_candidate(&mut s, 2), "한3");
+        s.reset();
+        assert_eq!(converted_han(&mut s), "한3");
+        // The whole list is still there, with the pick in front.
+        let o = s.handle(Key::Down, &Stub(3));
+        let items: Vec<String> = popup_of(&o).unwrap().unwrap().items.into_iter().map(|i| i.0).collect();
+        assert_eq!(items, ["한3", "한1", "한2"]);
+    }
+
+    #[test]
+    fn digits_and_a_flush_count_as_picks_and_cancelling_does_not() {
+        let store = Store::open(None);
+        let mut s = learning(&store);
+        converted_han(&mut s);
+        s.handle(Key::Space { shift: false }, &Stub(3));
+        s.handle(Key::Printable('2'), &Stub(3));
+        assert!(!store.promotes("한"));
+        s.reset();
+        converted_han(&mut s);
+        s.handle(Key::Down, &Stub(3));
+        s.flush();
+        assert!(store.promotes("한"));
+
+        let store = Store::open(None);
+        let mut s = learning(&store);
+        for _ in 0..3 {
+            converted_han(&mut s);
+            s.handle(Key::Down, &Stub(3));
+            s.handle(Key::Esc, &Stub(3));
+            s.handle(Key::Esc, &Stub(3));
+            s.reset();
+        }
+        assert!(store.is_empty());
+    }
+
+    #[test]
+    fn taking_the_first_candidate_of_an_unpicked_reading_stores_nothing() {
+        let store = Store::open(None);
+        let mut s = learning(&store);
+        assert_eq!(commit_candidate(&mut s, 0), "한1");
+        assert!(store.is_empty());
+    }
+
+    #[test]
+    fn a_pick_counts_for_its_own_segment_only() {
+        let store = Store::open(None);
+        let mut s = learning(&store);
+        for _ in 0..2 {
+            s.composer = Composer::from_text("가 나");
+            s.handle(Key::Space { shift: false }, &Stub(3));
+            s.handle(Key::Right { shift: false }, &Stub(3));
+            s.handle(Key::Down, &Stub(3));
+            let o = s.handle(Key::Enter, &Stub(3));
+            assert_eq!(commit_of(&o).unwrap(), "가1 나2");
+            s.reset();
+        }
+        s.composer = Composer::from_text("가 나");
+        let o = s.handle(Key::Space { shift: false }, &Stub(3));
+        let all: String = preedit_of(&o).unwrap().iter().map(|r| r.text.as_str()).collect();
+        assert_eq!(all, "가1 나2");
+    }
+
+    #[test]
+    fn a_span_learned_by_resizing_comes_back_as_one_and_leaves_longer_words() {
+        // Segments of one syllable; a span of several has a word of its own.
+        struct Syllables;
+        impl Converter for Syllables {
+            fn segments(&self, input: &str) -> Vec<Segment> {
+                input
+                    .chars()
+                    .map(|c| Segment {
+                        reading: c.to_string(),
+                        candidates: vec![
+                            Candidate { text: format!("{c}1"), note: String::new() },
+                            Candidate { text: format!("{c}2"), note: String::new() },
+                        ],
+                    })
+                    .collect()
+            }
+            fn whole(&self, input: &str) -> Vec<Candidate> {
+                vec![
+                    Candidate { text: format!("whole-{input}"), note: String::new() },
+                    Candidate { text: format!("word-{input}"), note: String::new() },
+                ]
+            }
+        }
+        let c = Syllables;
+        let store = Store::open(None);
+        let mut s = learning(&store);
+        for _ in 0..2 {
+            s.composer = Composer::from_text("한가");
+            s.handle(Key::Space { shift: false }, &c);
+            s.handle(Key::Right { shift: true }, &c);
+            s.handle(Key::Down, &c);
+            let o = s.handle(Key::Enter, &c);
+            assert_eq!(commit_of(&o).unwrap(), "word-한가");
+            s.reset();
+        }
+        // The two segments now join, with the pick first.
+        s.composer = Composer::from_text("한가");
+        let o = s.handle(Key::Space { shift: false }, &c);
+        assert_eq!(preedit_of(&o).unwrap().iter().map(|r| r.text.as_str()).collect::<Vec<_>>(), ["word-한가"]);
+        s.reset();
+        // Other readings do not.
+        s.composer = Composer::from_text("한나");
+        let o = s.handle(Key::Space { shift: false }, &c);
+        assert_eq!(preedit_of(&o).unwrap().iter().map(|r| r.text.as_str()).collect::<Vec<_>>(), ["한1", "나1"]);
+        s.reset();
+        // A segment that merely contains the reading stays as it is.
+        struct OneWord;
+        impl Converter for OneWord {
+            fn segments(&self, input: &str) -> Vec<Segment> {
+                vec![Segment {
+                    reading: input.into(),
+                    candidates: vec![
+                        Candidate { text: format!("{input}1"), note: String::new() },
+                        Candidate { text: format!("word-한가"), note: String::new() },
+                    ],
+                }]
+            }
+        }
+        s.composer = Composer::from_text("한가위");
+        let o = s.handle(Key::Space { shift: false }, &OneWord);
+        assert_eq!(preedit_of(&o).unwrap()[0].text, "한가위1");
+    }
+
+    #[test]
+    fn a_piece_the_engine_left_in_hangul_inside_a_run_stays_as_it_is() {
+        // 나봐요 comes as 나 (in Hangul) and 봐요; 나 나 as two words.
+        struct Run;
+        impl Converter for Run {
+            fn segments(&self, input: &str) -> Vec<Segment> {
+                let cands = |t: &[&str]| t.iter().map(|x| Candidate { text: x.to_string(), note: String::new() }).collect();
+                match input {
+                    "나봐요" => vec![
+                        Segment { reading: "나".into(), candidates: cands(&["나", "吾", "我"]) },
+                        Segment { reading: "봐요".into(), candidates: cands(&["見요"]) },
+                    ],
+                    "봐요나" => vec![
+                        Segment { reading: "봐요".into(), candidates: cands(&["見요"]) },
+                        Segment { reading: "나".into(), candidates: cands(&["吾", "我"]) },
+                    ],
+                    "나 봐요" => vec![
+                        Segment { reading: "나".into(), candidates: cands(&["나", "吾", "我"]) },
+                        Segment { reading: " ".into(), candidates: cands(&[" "]) },
+                        Segment { reading: "봐요".into(), candidates: cands(&["見요"]) },
+                    ],
+                    _ => vec![Segment { reading: input.into(), candidates: cands(&["나", "吾", "我"]) }],
+                }
+            }
+        }
+        let store = Store::open(None);
+        store.commit("나", "我", false);
+        store.commit("나", "我", false);
+        let mut s = learning(&store);
+        let show = |s: &mut Session, text: &str| -> String {
+            s.composer = Composer::from_text(text);
+            let o = s.handle(Key::Space { shift: false }, &Run);
+            let shown = preedit_of(&o).unwrap().iter().map(|r| r.text.as_str()).collect();
+            s.reset();
+            shown
+        };
+        assert_eq!(show(&mut s, "나봐요"), "나見요");
+        // Alone in its word, and where the engine converts it, the pick counts.
+        assert_eq!(show(&mut s, "나"), "我");
+        assert_eq!(show(&mut s, "나 봐요"), "我 見요");
+        assert_eq!(show(&mut s, "봐요나"), "見요我");
+    }
+
+    #[test]
+    fn a_form_cut_from_the_segments_list_is_fetched_from_the_whole_list() {
+        // The segment offers one candidate; the span lists more.
+        struct Short;
+        impl Converter for Short {
+            fn segments(&self, input: &str) -> Vec<Segment> {
+                vec![Segment { reading: input.into(), candidates: vec![Candidate { text: "a".into(), note: String::new() }] }]
+            }
+            fn whole(&self, _: &str) -> Vec<Candidate> {
+                vec![Candidate { text: "a".into(), note: String::new() }, Candidate { text: "b".into(), note: String::new() }]
+            }
+        }
+        let store = Store::open(None);
+        store.commit("한", "b", false);
+        store.commit("한", "b", false);
+        let mut s = learning(&store);
+        s.composer = Composer::from_text("한");
+        let o = s.handle(Key::Space { shift: false }, &Short);
+        assert_eq!(preedit_of(&o).unwrap()[0].text, "b");
+    }
+
+    #[test]
+    fn a_private_field_neither_learns_nor_ranks() {
+        let store = Store::open(None);
+        let mut s = learning(&store);
+        s.set_private_field(true);
+        for _ in 0..3 {
+            assert_eq!(commit_candidate(&mut s, 1), "한2");
+            s.reset();
+        }
+        assert!(store.is_empty(), "a private field learned");
+
+        s.set_private_field(false);
+        for _ in 0..2 {
+            commit_candidate(&mut s, 1);
+            s.reset();
+        }
+        assert_eq!(converted_han(&mut s), "한2");
+        s.reset();
+        s.set_private_field(true);
+        assert_eq!(converted_han(&mut s), "한1");
+        let before = store.len();
+        s.handle(Key::Down, &Stub(3));
+        s.handle(Key::Enter, &Stub(3));
+        assert_eq!(store.len(), before);
+    }
+
+    #[test]
+    fn a_field_the_front_end_bypasses_never_reaches_the_table() {
+        // Latin mode is how the session itself passes keys on.
+        let store = Store::open(None);
+        let mut s = Session::new(Mode::Latin, true);
+        s.set_learned(Some(store.clone()));
+        for ch in "gks".chars() {
+            assert!(!s.handle(letter(ch), &Stub(3)).eaten);
+        }
+        assert!(!s.handle(Key::Enter, &Stub(3)).eaten);
+        assert!(store.is_empty());
+        // Plain Hangul commits with no candidates to learn from.
+        let mut s = Session::new(Mode::Hangul, true);
+        s.set_learned(Some(store.clone()));
+        type_str(&mut s, "gks");
+        s.handle(Key::Enter, &Stub(3));
+        assert!(store.is_empty());
+    }
+
+    #[test]
+    fn off_means_no_table_at_all() {
+        let store = Store::open(None);
+        store.commit("한", "한2", false);
+        store.commit("한", "한2", false);
+        let mut s = learning(&store);
+        s.set_learned(None);
+        assert_eq!(converted_han(&mut s), "한1");
+        s.handle(Key::Down, &Stub(3));
+        s.handle(Key::Down, &Stub(3));
+        s.handle(Key::Enter, &Stub(3));
+        assert_eq!(store.len(), 1);
+    }
+
+    #[test]
+    fn forgetting_restores_the_default_order_at_once() {
+        let store = Store::open(None);
+        let mut s = learning(&store);
+        for _ in 0..2 {
+            commit_candidate(&mut s, 1);
+            s.reset();
+        }
+        assert_eq!(converted_han(&mut s), "한2");
+        s.reset();
+        store.forget().unwrap();
+        assert_eq!(converted_han(&mut s), "한1");
+    }
+
+    #[test]
+    fn an_empty_table_changes_no_view_of_any_session() {
+        let store = Store::open(None);
+        for text in ["한", "가 나", "_b c", "한글 가나"] {
+            let run = |learner: Option<Arc<Store>>| {
+                let mut s = seokdok();
+                s.set_learned(learner);
+                s.composer = Composer::from_text(text);
+                let mut out = vec![s.handle(Key::Space { shift: false }, &Stub(3))];
+                out.push(s.handle(Key::Down, &Stub(3)));
+                out.push(s.handle(Key::Up, &Stub(3)));
+                out
+            };
+            assert_eq!(run(Some(store.clone())), run(None), "{text}");
+        }
+    }
+
+    #[test]
+    fn the_real_engine_learns_a_homophone_and_keeps_longer_words() {
+        let c = real_engine();
+        let store = Store::open(None);
+        let mut s = learning(&store);
+        let convert = |s: &mut Session, text: &str| -> String {
+            s.composer = Composer::from_text(text);
+            let o = s.handle(Key::Space { shift: false }, &c);
+            preedit_of(&o).unwrap().iter().map(|r| r.text.as_str()).collect()
+        };
+        let default = convert(&mut s, "나");
+        s.reset();
+        let longer = convert(&mut s, "나라");
+        s.reset();
+        assert_ne!(default, "我", "pick another homophone for this test");
+        for _ in 0..2 {
+            convert(&mut s, "나");
+            let mut steps = 0;
+            loop {
+                let o = s.handle(Key::Down, &c);
+                steps += 1;
+                if preedit_of(&o).unwrap()[0].text == "我" {
+                    break;
+                }
+                assert!(steps < 200, "我 is not a candidate of 나");
+            }
+            s.handle(Key::Enter, &c);
+            s.reset();
+        }
+        assert_eq!(convert(&mut s, "나"), "我");
+        s.reset();
+        assert_eq!(convert(&mut s, "나라"), longer);
     }
 
     #[test]

@@ -110,6 +110,10 @@ pub struct Input {
     /// Modern letters typed in a row form old-Hangul clusters: ㅅ+ㄱ → ᄭ,
     /// ㅂ+ㅇ → ㅸ. The old letters on the Shift layer work either way.
     pub old_clusters: bool,
+    /// A form picked repeatedly for a reading comes first for that reading.
+    /// What was learned stays in `learned.tsv` beside config.toml; off, it is
+    /// neither used nor added to, and stays until it is forgotten.
+    pub learn: bool,
     /// The keys that switch modes and convert, by what they do. Last, so
     /// that it serializes after the plain values of this section.
     pub keys: ModeKeys,
@@ -122,6 +126,7 @@ impl Default for Input {
             space_converts: true,
             candidate_layout: Layout::Vertical,
             old_clusters: false,
+            learn: true,
             keys: ModeKeys::default(),
         }
     }
@@ -184,7 +189,7 @@ pub struct Config {
 }
 
 impl Config {
-    /// The folder holding config.toml and custom.json: $SEOKDOK_CONFIG_DIR
+    /// The folder holding config.toml, custom.json and learned.tsv: $SEOKDOK_CONFIG_DIR
     /// when set (the iOS app and keyboard share an App Group container),
     /// else %APPDATA%\seokdok on Windows, ~/Library/Application
     /// Support/seokdok on macOS, and $XDG_CONFIG_HOME/seokdok or
@@ -333,6 +338,12 @@ candidate_layout = \"{layout}\"
 # ᄼ ᄾ ᅎ ᅐ ᅔ ᅕ.  With this on, modern letters typed in a row also join into
 # old clusters: ㅅ ㄱ → ᄭ, ㅂ ㅇ → ㅸ, ㅎ ㅎ → ᅘ.  (true | false)
 old_clusters = {old}
+# Put a spelling you keep picking first for that reading: two picks of one
+# candidate, and the most recent such choice wins.  (true | false)
+# The picks stay on this device in learned.tsv beside this file; nothing is
+# sent anywhere.  Delete learned.tsv, or use the settings window's button, to
+# forget them.
+learn = {learn}
 
 # The keys that switch modes and convert.  Each list holds keys, written
 #   Hangul Hanja Zenkaku Henkan Muhenkan Kana Eisu ImeOn ImeOff
@@ -427,6 +438,7 @@ menu_items = {menu_items}
             mode = mode,
             space = self.input.space_converts,
             old = self.input.old_clusters,
+            learn = self.input.learn,
             k_toggle = toml_list(&self.input.keys.toggle),
             k_latin = toml_list(&self.input.keys.latin),
             k_korean = toml_list(&self.input.keys.korean),
@@ -478,12 +490,12 @@ fn toml_list(items: &[String]) -> String {
 
 /// What tells one version of the file from another without reading it.
 #[derive(Debug, Clone, Copy, PartialEq)]
-struct FileStamp {
+pub(crate) struct FileStamp {
     modified: Option<SystemTime>,
     len: u64,
 }
 
-fn stamp_of(path: &Path) -> Option<FileStamp> {
+pub(crate) fn stamp_of(path: &Path) -> Option<FileStamp> {
     let m = std::fs::metadata(path).ok()?;
     Some(FileStamp { modified: m.modified().ok(), len: m.len() })
 }
@@ -575,6 +587,7 @@ mod tests {
         assert_eq!(c.input.default_mode, InputMode::Latin);
         assert!(!c.input.space_converts);
         assert!(c.input.old_clusters);
+        assert!(c.input.learn, "a file without the key learns");
         assert_eq!(c.input.keys, ModeKeys::default());
         assert_eq!(c.conversion.style, StyleOpt::Morpheme);
         assert_eq!(c.conversion.fragment, FragmentOpt::Letter);
@@ -594,6 +607,7 @@ mod tests {
                 space_converts: false,
                 candidate_layout: Layout::Horizontal,
                 old_clusters: true,
+                learn: false,
                 keys: ModeKeys {
                     toggle: vec!["F12".into(), "Shift+Hangul".into()],
                     latin: vec![],

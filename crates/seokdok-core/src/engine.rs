@@ -721,6 +721,12 @@ impl Engine {
     }
 
     fn render_dict(&self, comps: &[char], e: &Edge) -> Vec<Candidate> {
+        self.render_dict_as(comps, e, !self.options.sino_only)
+    }
+
+    /// [`Engine::render_dict`], with 訓讀 words in Hanja (`kun`) or in Hangul.
+    /// The reader needs the Hanja whatever the conversion mode.
+    fn render_dict_as(&self, comps: &[char], e: &Edge, kun: bool) -> Vec<Candidate> {
         let slice = &comps[e.start..e.end];
         let raw = || Candidate { text: compose(slice), note: String::new() };
         match &e.kind {
@@ -735,7 +741,7 @@ impl Engine {
             }
             Kind::Nominal { entry, particle } => {
                 let n = &self.natives[*entry as usize];
-                if n.hanja.is_empty() || self.options.sino_only {
+                if n.hanja.is_empty() || !kun {
                     return vec![raw()];
                 }
                 let mut t = n.hanja.clone();
@@ -747,7 +753,7 @@ impl Engine {
             }
             Kind::Verb { entry, allo, ending } => {
                 let n = &self.natives[*entry as usize];
-                if n.hanja.is_empty() || self.options.sino_only {
+                if n.hanja.is_empty() || !kun {
                     return vec![raw()];
                 }
                 let al = &n.allos[*allo as usize];
@@ -1080,21 +1086,21 @@ impl Engine {
                         kind: Kind::Verb { entry: i as u32, allo: a as u16, ending: idx as u16 },
                     };
                     let surface = compose(&comps);
-                    for c in self.render_dict(&comps, &edge) {
+                    for c in self.render_dict_as(&comps, &edge, true) {
                         out.push((c.text, surface.clone()));
                     }
                 }
             }
         } else {
             let base = Edge { start: 0, end: n.stem.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: None } };
-            out.push((self.render_dict(&n.stem, &base)[0].text.clone(), compose(&n.stem)));
+            out.push((self.render_dict_as(&n.stem, &base, true)[0].text.clone(), compose(&n.stem)));
             let pron = matches!(n.pos, Pos::Pron | Pos::Bound);
             let last = *n.stem.last().unwrap();
             for (pi, p) in self.particles.iter().enumerate() {
                 if allowed(p.cond, last, pron) {
                     let comps = [n.stem.clone(), p.comps.clone()].concat();
                     let e = Edge { start: 0, end: comps.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: Some(pi as u16) } };
-                    out.push((self.render_dict(&comps, &e)[0].text.clone(), compose(&comps)));
+                    out.push((self.render_dict_as(&comps, &e, true)[0].text.clone(), compose(&comps)));
                 }
             }
         }
@@ -1427,6 +1433,13 @@ lemma\twritten\tpos\tclass\tsource\tcount
         assert_eq!(e.read("規則을 讀었다"), "규칙을 읽었다");
         assert_eq!(e.read("自ㄴ 在ㅆ으면 好겠어요"), "전 있으면 好겠어요");
         assert_eq!(e.read("安寧爲요"), "안녕해요");
+    }
+
+    #[test]
+    fn read_back_ignores_the_conversion_mode() {
+        let e = eng(Options { sino_only: true, ..Options::default() });
+        assert_eq!(e.read("天을 見ㅆ다"), "하늘을 봤다");
+        assert_eq!(e.read("初음 來신 事ㅅ을 歡迎"), "처음 오신 것을 환영");
     }
 
     #[test]

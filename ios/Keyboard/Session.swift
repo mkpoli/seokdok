@@ -64,6 +64,16 @@ final class Session {
         }
     }
 
+    /// `conversion.script`: 0 釋讀, 1 國漢文混用, 2 韓㐎 專用.
+    static var script: Int32 {
+        seokdok_script()
+    }
+
+    /// The mode key: 釋 → 混 → 한 → A → 釋; what is being composed is committed.
+    func modeControl() {
+        seokdok_mode_control(ime)
+    }
+
     /// Re-read the settings.
     func sync() {
         seokdok_sync(ime)

@@ -11,7 +11,8 @@ use windows::Win32::UI::TextServices::{ITfContext, ITfKeyEventSink_Impl};
 use crate::engine_host::HOST;
 use crate::keys::Key;
 use crate::mode_key_events;
-use crate::session::Effect;
+use crate::script_cycle;
+use crate::session::{Effect, Output};
 use crate::text_service::TextService_Impl;
 
 thread_local! {
@@ -130,13 +131,33 @@ impl TextService_Impl {
         }
     }
 
+    /// What the session does with this key. The rotation of the script writes
+    /// config.toml first; a file that does not parse leaves everything alone.
+    fn handle_key(&self, key: Key) -> Output {
+        if key != Key::CycleScript {
+            return self.inner_mut().session.handle(key, &HOST);
+        }
+        let rotated = script_cycle::rotate(&mut self.inner_mut().session, &HOST);
+        match rotated {
+            Ok(r) => {
+                crate::dll::apply_engine_options();
+                self.inner().mode.set_script(r.config.conversion.script);
+                Output { eaten: true, effects: r.effects }
+            }
+            Err(e) => {
+                crate::debug_log::log(|| format!("script rotation: config.toml left as it is: {e}"));
+                Output { eaten: true, effects: Vec::new() }
+            }
+        }
+    }
+
     /// With no document in focus there is nothing to edit, but a mode key
     /// still switches. True when the key was used.
     fn switch_without_document(&self, key: Key) -> bool {
         if !key.switches_mode() {
             return false;
         }
-        self.inner_mut().session.handle(key, &HOST);
+        self.handle_key(key);
         self.show_mode();
         true
     }
@@ -243,11 +264,8 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         };
         // Release the borrow before touching the document: TSF calls back
         // into this object during edit sessions.
-        let output = {
-            let mut state = self.inner_mut();
-            state.current_key = Some(key);
-            state.session.handle(key, &HOST)
-        };
+        self.inner_mut().current_key = Some(key);
+        let output = self.handle_key(key);
         crate::debug_log::log(|| format!("OnKeyDown vk={:#x} lparam={:#x} eaten={} effects={:?} ctx={:?}", wparam.0, lparam.0, output.eaten, output.effects, windows::core::Interface::as_raw(context)));
         if key.switches_mode() || matches!(key, Key::Enter | Key::Printable('1'..='9')) && output.effects.iter().any(|e| matches!(e, Effect::Commit(_))) {
             COMMITTED_BY.with(|c| c.set(Some((wparam.0 & 0xFFFF) as u16)));
@@ -293,7 +311,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         let Some(context) = pic.as_ref() else {
             return Ok(self.switch_without_document(key).into());
         };
-        let output = self.inner_mut().session.handle(key, &HOST);
+        let output = self.handle_key(key);
         self.show_mode();
         let _ = self.apply(context, output.effects);
         // Eating the key-up keeps Alt from opening the window menu.

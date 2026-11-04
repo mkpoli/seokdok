@@ -56,6 +56,10 @@ final class Session {
     }
 
     /// Commit whatever is being composed.
+    func setPrivateField(_ privateField: Bool) {
+        seokdok_set_private_field(ime, privateField)
+    }
+
     func flush() {
         seokdok_flush(ime)
     }
@@ -124,6 +128,12 @@ enum ConfigFile {
         return json.withCString { seokdok_config_save_json($0) }
     }
 
+    /// Delete learned.tsv and what this process holds of it; false when it stays.
+    @discardableResult
+    static func forgetPicks() -> Bool {
+        seokdok_learned_forget()
+    }
+
     /// The folder holding config.toml and custom.json.
     static var directory: URL? {
         guard let p = seokdok_config_dir() else { return nil }
@@ -151,6 +161,7 @@ struct Config: Codable, Equatable {
         var spaceConverts = true
         var candidateLayout = "vertical"
         var oldClusters = false
+        var learn = true
         var keys = Keys()
     }
 

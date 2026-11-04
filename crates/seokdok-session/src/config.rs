@@ -5,7 +5,7 @@
 //! The file and the settings dialog edit the same [`Config`]. Every field has
 //! a default, so a partial or malformed file still loads.
 
-use seokdok_core::{Fragment, Options, Style};
+use seokdok_core::{Fragment, Itda, Options, Style};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -46,6 +46,18 @@ pub enum Script {
     SinoOnly,
     /// 韓㐎 專用: Hangul only, nothing is converted.
     HangulOnly,
+}
+
+/// The spelling of 있다 listed first. The values are the file's own.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+pub enum ItdaOpt {
+    #[default]
+    #[serde(rename = "有")]
+    Yu,
+    #[serde(rename = "在")]
+    Jae,
+    #[serde(rename = "在ㅆ")]
+    JaeCoda,
 }
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
@@ -111,6 +123,7 @@ pub struct Conversion {
     pub coda_always: bool,
     pub resyllabify: bool,
     pub hada_kun: bool,
+    pub itda: ItdaOpt,
     pub old_ha: bool,
     pub script: Script,
     pub max_candidates: usize,
@@ -125,6 +138,7 @@ impl Default for Conversion {
             coda_always: o.coda_always,
             resyllabify: o.resyllabify,
             hada_kun: o.hada_kun,
+            itda: ItdaOpt::Yu,
             old_ha: o.old_ha,
             script: if o.sino_only { Script::SinoOnly } else { Script::Seokdok },
             max_candidates: o.max_candidates,
@@ -183,6 +197,11 @@ impl Config {
             coda_always: c.coda_always,
             resyllabify: c.resyllabify,
             hada_kun: c.hada_kun,
+            itda: match c.itda {
+                ItdaOpt::Yu => Itda::Yu,
+                ItdaOpt::Jae => Itda::Jae,
+                ItdaOpt::JaeCoda => Itda::JaeCoda,
+            },
             old_ha: c.old_ha,
             sino_only: c.script == Script::SinoOnly,
             max_candidates: c.max_candidates.max(1),
@@ -225,6 +244,11 @@ impl Config {
         let fragment = match c.fragment {
             FragmentOpt::Absorb => "absorb",
             FragmentOpt::Letter => "letter",
+        };
+        let itda = match c.itda {
+            ItdaOpt::Yu => "有",
+            ItdaOpt::Jae => "在",
+            ItdaOpt::JaeCoda => "在ㅆ",
         };
         let composition: String = self
             .composition
@@ -312,6 +336,11 @@ coda_always = {coda}
 resyllabify = {resyl}
 # Prefer 爲 for the light verb 하다.  (true | false)
 hada_kun = {hada}
+# The spelling of 있다 listed first; the others stay offered.
+#   有   = 有다
+#   在   = 在다, past 在었다
+#   在ㅆ = 在ㅆ다
+itda = \"{itda}\"
 # Put the old spelling of 하 first and the modern one behind it: 하고 gives
 # ᄒᆞ고 then 하고, 追加할까요 gives 追加ᄒᆞᆯ까요 first.  Only 하 한 할 함 합 해
 # change (ᄒᆞ ᄒᆞᆫ ᄒᆞᆯ ᄒᆞᆷ ᄒᆞᆸ ᄒᆡ).  (true | false)
@@ -352,6 +381,7 @@ max_candidates = {max}
             coda = c.coda_always,
             resyl = c.resyllabify,
             hada = c.hada_kun,
+            itda = itda,
             old_ha = c.old_ha,
             script = script,
             max = c.max_candidates,
@@ -421,7 +451,7 @@ mod tests {
         // What ios/App/SeokdokApp.swift writes; missing keys keep defaults.
         let c = Config::parse(
             "[input]\ndefault_mode = \"latin\"\nspace_converts = false\ncandidate_layout = \"vertical\"\nold_clusters = true\n\n\
-             [conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = false\nhada_kun = true\nold_ha = true\nscript = \"sino_only\"\nmax_candidates = 20\n",
+             [conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = false\nhada_kun = true\nitda = \"在\"\nold_ha = true\nscript = \"sino_only\"\nmax_candidates = 20\n",
         );
         assert_eq!(c.input.default_mode, InputMode::Latin);
         assert!(!c.input.space_converts);
@@ -431,6 +461,9 @@ mod tests {
         assert_eq!(c.conversion.fragment, FragmentOpt::Letter);
         assert!(c.conversion.coda_always && c.conversion.hada_kun && !c.conversion.resyllabify);
         assert!(c.conversion.old_ha);
+        assert_eq!(c.conversion.itda, ItdaOpt::Jae);
+        assert_eq!(c.engine_options().itda, Itda::Jae);
+        assert_eq!(Config::default().engine_options().itda, Itda::Yu);
         assert_eq!(c.conversion.script, Script::SinoOnly);
         assert_eq!(c.conversion.max_candidates, 20);
     }
@@ -458,6 +491,7 @@ mod tests {
                 coda_always: true,
                 resyllabify: true,
                 hada_kun: true,
+                itda: ItdaOpt::JaeCoda,
                 old_ha: true,
                 script: Script::HangulOnly,
                 max_candidates: 5,

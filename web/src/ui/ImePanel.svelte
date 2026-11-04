@@ -687,11 +687,9 @@
   .help .hints {
     position: absolute;
     left: 0;
-    bottom: calc(100% + 6px);
+    top: calc(100% + 6px);
     z-index: 10;
     width: min(560px, 86vw);
-    max-height: 70vh;
-    overflow-y: auto;
     padding: var(--s-3) var(--s-4);
     border: 1px solid var(--c-border);
     border-radius: var(--r-2);

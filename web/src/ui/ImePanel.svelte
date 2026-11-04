@@ -61,6 +61,12 @@
     return range ? offsetOf(range.startContainer, range.startOffset) : null
   }
 
+  // A tap on a segment moves to it, or opens the list of the focused one.
+  function onsegment(e) {
+    const seg = e.target.closest?.('[data-seg]')
+    if (seg) ime.tapSegment(Number(seg.dataset.seg))
+  }
+
   // A drag selects; a click places the caret. Readings (ruby) add text the
   // offsets cannot see, so with them on a click goes to the end.
   function onmouseup(e) {
@@ -301,7 +307,7 @@
       </details>
     </div>
 
-    <div class="editor" class:focused role="presentation" {onmouseup} {ondblclick}>
+    <div class="editor" class:focused role="presentation" {onmouseup} {ondblclick} onclick={onsegment}>
       <textarea
         class="sink"
         bind:this={sink}
@@ -354,6 +360,15 @@
         </div>
       {/if}
     </div>
+
+    {#if ime.segs && ime.manySegments}
+      <div class="seg-nav" role="group" aria-label={plain(t().ime.segments)}>
+        <button class="btn" data-size="sm" aria-label={plain(t().ime.segPrev)} onmousedown={(e) => e.preventDefault()} onclick={() => ime.move(-1)}>◂</button>
+        <button class="btn" data-size="sm" aria-label={plain(t().ime.segNext)} onmousedown={(e) => e.preventDefault()} onclick={() => ime.move(1)}>▸</button>
+        <button class="btn" data-size="sm" onmousedown={(e) => e.preventDefault()} onclick={() => ime.tapSegment(ime.focus)}>{@html r(t().ime.segList)}</button>
+        <button class="btn" data-size="sm" onmousedown={(e) => e.preventDefault()} onclick={() => ime.commit()}>{@html r(t().ime.commit)}</button>
+      </div>
+    {/if}
 
     {#if ime.segs && ime.current && !ime.open}
       <p class="note">{@html noteHtml(ime.current.candidates[ime.current.pick]?.note ?? '')}</p>
@@ -623,6 +638,12 @@
   .count {
     flex: none;
     font-variant-numeric: tabular-nums;
+  }
+  .seg-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-2);
+    margin-top: var(--s-3);
   }
   .note {
     min-height: 1.5em;

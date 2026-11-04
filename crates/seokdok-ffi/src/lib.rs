@@ -433,6 +433,21 @@ pub unsafe extern "C" fn seokdok_list_selected(ime: *mut Ime) -> usize {
     (*ime).list.as_ref().map_or(0, |l| l.selected)
 }
 
+/// Whether the focused segment can shorten or lengthen by a syllable.
+///
+/// # Safety
+/// `ime` is a live session; out pointers are NULL or writable.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_list_can_resize(ime: *mut Ime, shorten: *mut bool, lengthen: *mut bool) {
+    let Some(l) = (*ime).list.as_ref() else { return };
+    if !shorten.is_null() {
+        *shorten = l.can_shorten;
+    }
+    if !lengthen.is_null() {
+        *lengthen = l.can_lengthen;
+    }
+}
+
 /// Choose candidate `i` of the list and confirm through the focused segment.
 ///
 /// # Safety
@@ -874,6 +889,10 @@ mod tests {
             let i = (0..n).find(|&i| at(i).0 == "安寧").unwrap();
             assert_eq!(at(i).1, "音", "the mark alone: the reading is what was typed");
             assert_eq!(seokdok_list_selected(ime), 0);
+            let (mut shorter, mut longer) = (false, true);
+            seokdok_list_can_resize(ime, &mut shorter, &mut longer);
+            assert!(shorter, "two syllables");
+            assert!(!longer, "nothing follows");
             seokdok_list_pick(ime, i);
             let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
             assert_eq!(c, " 安寧", "after the word break the earlier Space conversion owes");

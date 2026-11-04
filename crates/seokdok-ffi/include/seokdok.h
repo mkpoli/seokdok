@@ -39,6 +39,7 @@ void seokdok_popup_info(Ime *ime, size_t *selected, size_t *position, size_t *to
 size_t seokdok_list_len(Ime *ime);
 const char *seokdok_list_item(Ime *ime, size_t i, const char **reading);
 size_t seokdok_list_selected(Ime *ime);
+void seokdok_list_can_resize(Ime *ime, bool *shorten, bool *lengthen);
 void seokdok_list_pick(Ime *ime, size_t i);
 int32_t seokdok_mode(Ime *ime);
 void seokdok_set_mode(Ime *ime, int32_t mode);

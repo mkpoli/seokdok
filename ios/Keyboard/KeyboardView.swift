@@ -42,7 +42,7 @@ struct KeyboardState {
     var layout = Layout.standard
     var shift: Shift = .off
     var mode: Session.Mode = .seokdok
-    /// The strip shows the controls for what was learned.
+    /// The bar shows the controls for what was learned.
     var learnMenu = false
     /// `input.learn`, when this keyboard rather than the app decides it.
     var learnOn: Bool?
@@ -56,19 +56,15 @@ struct KeyboardState {
     enum Shift { case off, once, locked }
 }
 
-/// The keyboard: a strip with the text being composed (tap the Hangul to
-/// convert it, a converted segment to focus it),
-/// the candidate bar, and 두벌식 keys with the Shift layer in each key's
-/// corner. A symbols layer replaces the letters.
+/// The keyboard: one candidate bar and 두벌식 keys with the Shift layer in each
+/// key's corner. A symbols layer replaces the letters. The bar's chevron opens
+/// a drawer with every candidate and the composition's segments.
 final class KeyboardView: UIView, UIInputViewAudioFeedback {
     weak var delegate: KeyboardViewDelegate?
     /// The input-mode switch key, when the system asks for one.
     private(set) var globe: KeyButton?
     private var globeWidth: NSLayoutConstraint?
 
-    private let strip = UIStackView()
-    private let stripScroll = UIScrollView()
-    private let resizeKeys = UIStackView()
     private let bar = UIStackView()
     private let barScroll = CandidateScroll()
     private let barEnd = UIStackView()
@@ -76,13 +72,14 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private let more = BarButton(symbol: "chevron.down", label: "More candidates")
     private let drawer = CandidateDrawer()
     private var drawerOpen = false
+    private var shownRuns: [Session.Run] = []
+    private var barMessage: UIView?
     /// Everything the drawer covers.
     private let column = UIStackView()
     private let keysArea = UIStackView()
     private let letters = UIStackView()
     private let symbols = UIStackView()
     private let pad = UIStackView()
-    private var stripRow: UIView!
     private var barRow: UIView!
     private var bottomLine: UIView!
     private var extraKeys: [KeyButton] = []
@@ -99,6 +96,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private var enterKey: KeyButton!
     private var repeatTimer: Timer?
 
+    private static let padKeyHeight: CGFloat = 46.8
     private static let rows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
     /// Two pages of symbols, three rows each, as on the system keyboard.
     private static let symbolRows: [[String]] = [
@@ -113,28 +111,24 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         backgroundColor = .clear
 
         column.axis = .vertical
-        column.spacing = 6
+        column.spacing = 12
         column.translatesAutoresizingMaskIntoConstraints = false
         addSubview(column)
         NSLayoutConstraint.activate([
             column.leadingAnchor.constraint(equalTo: leadingAnchor, constant: 3),
             column.trailingAnchor.constraint(equalTo: trailingAnchor, constant: -3),
-            column.topAnchor.constraint(equalTo: topAnchor, constant: 2),
-            column.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
+            column.topAnchor.constraint(equalTo: topAnchor),
+            column.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -3),
         ])
 
-        stripRow = scrolling(strip, in: stripScroll, trailing: resizeKeys, height: 26)
-        barRow = scrolling(bar, in: barScroll, trailing: barEnd, height: 44)
-        column.addArrangedSubview(stripRow)
+        barRow = scrolling(bar, in: barScroll, trailing: barEnd, height: 45)
         column.addArrangedSubview(barRow)
-        column.setCustomSpacing(8, after: barRow)
-        resizeKeys.addArrangedSubview(smallKey("−", label: "Shorter segment") { $0.resize(-1) })
-        resizeKeys.addArrangedSubview(smallKey("+", label: "Longer segment") { $0.resize(1) })
+        column.setCustomSpacing(9, after: barRow)
 
         letters.axis = .vertical
-        letters.spacing = 10
+        letters.spacing = 12
         symbols.axis = .vertical
-        symbols.spacing = 10
+        symbols.spacing = 12
         keysArea.axis = .vertical
         keysArea.addArrangedSubview(letters)
         keysArea.addArrangedSubview(symbols)
@@ -144,14 +138,25 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         symbols.isHidden = true
         bottomLine = bottomRow(needsGlobe)
         column.addArrangedSubview(bottomLine)
-        // The pad layouts replace the strip, the bars and the keys; five rows
-        // of 50 with 7 between fill the 278 the column has.
+        // The pad layouts replace the bar and the keys; five rows with 6
+        // between fill the 258 the column has.
         pad.axis = .vertical
-        pad.spacing = 7
+        pad.spacing = 6
         pad.isHidden = true
         column.addArrangedSubview(pad)
         barEnd.addArrangedSubview(more)
         more.isHidden = true
+        let divider = UIView()
+        divider.backgroundColor = .separator
+        divider.isUserInteractionEnabled = false
+        divider.translatesAutoresizingMaskIntoConstraints = false
+        more.addSubview(divider)
+        NSLayoutConstraint.activate([
+            divider.leadingAnchor.constraint(equalTo: more.leadingAnchor),
+            divider.centerYAnchor.constraint(equalTo: more.centerYAnchor),
+            divider.widthAnchor.constraint(equalToConstant: 1 / UIScreen.main.scale),
+            divider.heightAnchor.constraint(equalToConstant: 28),
+        ])
         more.addAction(UIAction { [weak self] _ in
             UIDevice.current.playInputClick()
             self?.setDrawer(open: true)
@@ -160,6 +165,8 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             self?.setDrawer(open: false)
             self?.tap { $0.pick(i) }
         }
+        drawer.onFocus = { [weak self] run in self?.tap { $0.focus(run: run) } }
+        drawer.onResize = { [weak self] step in self?.tap { $0.resize(step) } }
         drawer.close.addAction(UIAction { [weak self] _ in
             UIDevice.current.playInputClick()
             self?.setDrawer(open: false)
@@ -185,7 +192,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         if open, let c = shownCandidates {
             drawer.isHidden = false
             drawer.alpha = 0
-            drawer.show(c)
+            drawer.show(c, runs: shownRuns)
         }
         UIView.animate(withDuration: Self.drawerDuration, delay: 0, options: [.curveEaseInOut, .beginFromCurrentState]) {
             self.drawer.alpha = open ? 1 : 0
@@ -228,21 +235,6 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         return row
     }
 
-    private func smallKey(_ title: String, label: String, _ act: @escaping (KeyboardViewDelegate) -> Void) -> UIButton {
-        let b = UIButton(type: .system)
-        b.setTitle(title, for: .normal)
-        b.titleLabel?.font = .systemFont(ofSize: 20, weight: .medium)
-        b.tintColor = .label
-        b.accessibilityLabel = label
-        b.widthAnchor.constraint(equalToConstant: 34).isActive = true
-        b.addAction(UIAction { [weak self] _ in
-            guard let self, let d = self.delegate else { return }
-            UIDevice.current.playInputClick()
-            act(d)
-        }, for: .touchUpInside)
-        return b
-    }
-
     private func buildLetters() {
         for (r, row) in Self.rows.enumerated() {
             var keys: [UIView] = []
@@ -258,7 +250,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
                 shiftKey.addAction(UIAction { [weak self] _ in self?.tap { $0.toggleShift() } }, for: .touchDown)
                 keys = [shiftKey!] + keys + [backspaceKey()]
             }
-            letters.addArrangedSubview(line(keys, inset: r == 1 ? 18 : 0, edgeKeys: r == 2))
+            letters.addArrangedSubview(line(keys, inset: r == 1 ? 21 : 0, edgeKeys: r == 2))
         }
     }
 
@@ -303,16 +295,16 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private func line(_ keys: [UIView], inset: CGFloat, edgeKeys: Bool) -> UIView {
         let row = UIStackView()
         row.axis = .horizontal
-        row.spacing = 5
+        row.spacing = 6
         if edgeKeys, let first = keys.first, let last = keys.last {
             let middle = UIStackView(arrangedSubviews: Array(keys.dropFirst().dropLast()))
             middle.axis = .horizontal
-            middle.spacing = 5
+            middle.spacing = 6
             middle.distribution = .fillEqually
             [first, middle, last].forEach(row.addArrangedSubview)
-            first.widthAnchor.constraint(equalToConstant: 46).isActive = true
-            last.widthAnchor.constraint(equalToConstant: 46).isActive = true
-            row.spacing = 10
+            first.widthAnchor.constraint(equalToConstant: 45).isActive = true
+            last.widthAnchor.constraint(equalToConstant: 45).isActive = true
+            row.spacing = 15
         } else {
             row.distribution = .fillEqually
             keys.forEach(row.addArrangedSubview)
@@ -349,7 +341,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private func bottomRow(_ needsGlobe: Bool) -> UIView {
         let bottom = UIStackView()
         bottom.axis = .horizontal
-        bottom.spacing = 5
+        bottom.spacing = 6
         layerKey = KeyButton(title: "123")
         layerKey.addAction(UIAction { [weak self] _ in
             guard let self else { return }
@@ -391,7 +383,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         spaceKey.addAction(UIAction { [weak self] _ in self?.tap { $0.space() } }, for: .touchUpInside)
         enterKey = KeyButton(title: "改行", accent: true)
         enterKey.addAction(UIAction { [weak self] _ in self?.tap { $0.enter() } }, for: .touchUpInside)
-        enterKey.widthAnchor.constraint(equalToConstant: 84).isActive = true
+        enterKey.widthAnchor.constraint(equalToConstant: 94).isActive = true
         for k in [modeKey!, spaceKey!, enterKey!] {
             bottom.addArrangedSubview(k)
         }
@@ -416,7 +408,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         layerKey.setTitle(lettersShown ? "123" : (lastMode == .latin ? "ABC" : "가"), for: .normal)
     }
 
-    /// Show the keyboard state: key labels, the strip and the candidate bar.
+    /// Show the keyboard state: key labels and the candidate bar.
     func render(_ s: KeyboardState) {
         lastMode = s.mode
         showLayout(s.layout)
@@ -440,18 +432,17 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         let converts = s.composing && s.mode == .seokdok && (s.spaceConverts || s.candidates != nil)
         spaceKey.setTitle(converts ? "變換" : "띄어쓰기", for: .normal)
         enterKey.setTitle(s.composing ? "確定" : "改行", for: .normal)
-        showStrip(s)
+        shownRuns = s.runs
         showBar(s)
     }
 
     /// Switch between the Hangul keyboard, the Latin one for ASCII fields and
-    /// the number pads. A field that cannot take Hangul has no strip, mode key
-    /// or candidates.
+    /// the number pads. A field that cannot take Hangul has no mode key or
+    /// candidates.
     private func showLayout(_ layout: Layout) {
         guard layout != shownLayout else { return }
         shownLayout = layout
         let pads = layout.isPad
-        stripRow.isHidden = pads
         barRow.isHidden = pads
         keysArea.isHidden = pads
         bottomLine.isHidden = pads
@@ -482,7 +473,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             return r
         }
         func key(_ ch: Character) -> KeyButton {
-            let k = KeyButton(title: String(ch), height: 50)
+            let k = KeyButton(title: String(ch), height: Self.padKeyHeight)
             k.titleLabel?.font = .systemFont(ofSize: 24, weight: .regular)
             k.addAction(UIAction { [weak self] _ in self?.tap { $0.symbol(ch) } }, for: .touchUpInside)
             return k
@@ -494,17 +485,17 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         case .phone:
             pad.addArrangedSubview(row(["*", "0", "#"].map { key($0) }))
         case .decimal:
-            pad.addArrangedSubview(row([key(Character(Locale.current.decimalSeparator ?? ".")), key("0"), backspaceKey(height: 50)]))
+            pad.addArrangedSubview(row([key(Character(Locale.current.decimalSeparator ?? ".")), key("0"), backspaceKey(height: Self.padKeyHeight)]))
         default:
-            pad.addArrangedSubview(row([UIView(), key("0"), backspaceKey(height: 50)]))
+            pad.addArrangedSubview(row([UIView(), key("0"), backspaceKey(height: Self.padKeyHeight)]))
         }
         var bottom: [UIView] = []
         if let g = globe { bottom.append(g) }
         if layout == .phone {
             bottom.append(key("+"))
-            bottom.append(backspaceKey(height: 50))
+            bottom.append(backspaceKey(height: Self.padKeyHeight))
         }
-        let enter = KeyButton(title: "改行", accent: true, height: 50)
+        let enter = KeyButton(title: "改行", accent: true, height: Self.padKeyHeight)
         enter.addAction(UIAction { [weak self] _ in self?.tap { $0.enter() } }, for: .touchUpInside)
         bottom.append(enter)
         let r = row(bottom)
@@ -512,7 +503,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         for v in bottom where v !== enter && v !== globe {
             v.widthAnchor.constraint(equalToConstant: 70).isActive = true
         }
-        sizeGlobe(width: 50, height: 50)
+        sizeGlobe(width: 50, height: Self.padKeyHeight)
         pad.addArrangedSubview(r)
     }
 
@@ -524,65 +515,43 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         globe?.heightConstraint.constant = height
     }
 
-    /// The text being composed. Tapping the Hangul converts it (in 釋讀
-    /// mode); tapping a converted segment focuses it.
-    private func showStrip(_ s: KeyboardState) {
-        strip.arrangedSubviews.forEach { $0.removeFromSuperview() }
-        let converted = s.runs.contains { $0.attr != 0 }
-        resizeKeys.isHidden = !converted
-        if s.learnMenu && s.runs.isEmpty {
-            func control(_ title: String, _ act: @escaping (KeyboardViewDelegate) -> Void) {
-                let b = UIButton(type: .system)
-                b.setTitle(title, for: .normal)
-                b.titleLabel?.font = .systemFont(ofSize: 14)
-                b.addAction(UIAction { [weak self] _ in self?.tap(act) }, for: .touchUpInside)
-                strip.addArrangedSubview(b)
-            }
-            if let on = s.learnOn {
-                control(on ? "學習 끄기 · Stop learning" : "學習 켜기 · Learn picks") { $0.setLearn(!on) }
-            }
-            control("고른 것 잊기 · Forget picks") { $0.forgetPicks() }
-            return
-        }
-        if s.runs.isEmpty {
-            let label = UILabel()
-            label.font = .systemFont(ofSize: 14)
-            label.textColor = .secondaryLabel
-            label.text = s.loading ? "辭典 讀는 中…" : nil
-            strip.addArrangedSubview(label)
-            return
-        }
-        for (i, run) in s.runs.enumerated() {
-            let b = UIButton(type: .system)
-            b.setTitle(run.text, for: .normal)
-            b.titleLabel?.font = OldHangul.font(ofSize: 16)
-            b.tintColor = run.attr == 0 ? .secondaryLabel : .label
-            b.backgroundColor = run.attr == 2 ? UIColor.systemBlue.withAlphaComponent(0.22) : .clear
-            b.layer.cornerRadius = 4
-            b.isUserInteractionEnabled = run.attr != 0 || s.mode == .seokdok
-            b.addAction(UIAction { [weak self] _ in
-                self?.tap { run.attr == 0 ? $0.convert() : $0.focus(run: i) }
-            }, for: .touchUpInside)
-            strip.addArrangedSubview(b)
-        }
-    }
-
-    /// The focused segment's candidates, each with its short reading beside
-    /// it. The cells stay while only the selection moves.
+    /// The bar: the focused segment's candidates, or while nothing is
+    /// converted the Hangul being typed, which a tap converts, or the note that
+    /// the dictionaries are loading.
     private func showBar(_ s: KeyboardState) {
-        guard s.candidates != shownCandidates else { return }
-        let old = shownCandidates
-        shownCandidates = s.candidates
+        barMessage?.removeFromSuperview()
+        barMessage = nil
         guard let c = s.candidates else {
+            shownCandidates = nil
             bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
             more.isHidden = true
             setDrawer(open: false)
+            if s.learnMenu && s.runs.isEmpty {
+                showLearnControls(s)
+            } else if s.mode == .seokdok, let input = s.runs.first(where: { $0.attr == 0 }) {
+                let cell = CandidateCell(.init(text: input.text, reading: ""))
+                cell.heightAnchor.constraint(equalToConstant: 36).isActive = true
+                cell.accessibilityHint = "Convert"
+                cell.addAction(UIAction { [weak self] _ in self?.tap { $0.convert() } }, for: .touchUpInside)
+                bar.addArrangedSubview(cell)
+                barMessage = cell
+            } else if s.loading {
+                let label = UILabel()
+                label.font = .systemFont(ofSize: 14)
+                label.textColor = .secondaryLabel
+                label.text = "辭典 讀는 中…"
+                bar.addArrangedSubview(label)
+                barMessage = label
+            }
             return
         }
         more.isHidden = false
         if drawerOpen {
-            drawer.show(c)
+            drawer.show(c, runs: s.runs)
         }
+        guard c != shownCandidates else { return }
+        let old = shownCandidates
+        shownCandidates = c
         if old?.items != c.items {
             bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
             for (i, item) in c.items.enumerated() {
@@ -601,6 +570,22 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             let v = bar.arrangedSubviews[c.selected]
             barScroll.scrollRectToVisible(v.convert(v.bounds, to: barScroll), animated: false)
         }
+    }
+
+    /// Held 釋 key: what was learned can be switched off and cleared here,
+    /// because a keyboard without Full Access is out of the app's reach.
+    private func showLearnControls(_ s: KeyboardState) {
+        let korean = Locale.preferredLanguages.first?.hasPrefix("ko") == true
+        func control(_ title: String, _ act: @escaping (KeyboardViewDelegate) -> Void) {
+            let cell = CandidateCell(.init(text: title, reading: ""))
+            cell.heightAnchor.constraint(equalToConstant: 36).isActive = true
+            cell.addAction(UIAction { [weak self] _ in self?.tap(act) }, for: .touchUpInside)
+            bar.addArrangedSubview(cell)
+        }
+        if let on = s.learnOn {
+            control(on ? (korean ? "學習 끄기" : "Stop learning") : (korean ? "學習 켜기" : "Learn picks")) { $0.setLearn(!on) }
+        }
+        control(korean ? "고른 것 잊기" : "Forget picks") { $0.forgetPicks() }
     }
 
     /// An initial-only jamo (ᄼ) needs a vowel filler to show on its own.

@@ -22,6 +22,8 @@ final class Session {
         /// Every candidate of the focused segment.
         let items: [Item]
         let selected: Int
+        let canShorten: Bool
+        let canLengthen: Bool
     }
 
     /// Input modes, as numbered by `seokdok_mode`.
@@ -136,7 +138,9 @@ final class Session {
             let text = String(cString: p)
             items.append(.init(text: text, reading: reading.map { String(cString: $0) } ?? ""))
         }
-        return Candidates(items: items, selected: seokdok_list_selected(ime))
+        var shorten = false, lengthen = false
+        seokdok_list_can_resize(ime, &shorten, &lengthen)
+        return Candidates(items: items, selected: seokdok_list_selected(ime), canShorten: shorten, canLengthen: lengthen)
     }
 
     /// Choose candidate `index` and confirm through the focused segment.

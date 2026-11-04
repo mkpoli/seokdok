@@ -36,12 +36,23 @@ final class BarButton: UIControl {
 }
 
 /// Every candidate at once, covering the keys: a scrolling grid whose cells
-/// are as wide as their text, as on Apple's Chinese keyboard. Cells exist only
-/// while it is open.
+/// are as wide as their text, as on Apple's Chinese keyboard. Above it are the
+/// composition's segments, and beside it the keys to shorten or lengthen the
+/// focused one. Cells exist only while it is open.
 final class CandidateDrawer: UIView {
     var onPick: ((Int) -> Void)?
+    var onFocus: ((Int) -> Void)?
+    var onResize: ((Int) -> Void)?
     let close = BarButton(symbol: "chevron.up", label: "Fewer candidates")
 
+    private let shorter = BarButton(symbol: "minus", label: "Shorter segment")
+    private let longer = BarButton(symbol: "plus", label: "Longer segment")
+    private let segmentScroll = CandidateScroll()
+    private let segments = UIStackView()
+    private var shownRuns: [String] = []
+    private var shownFocus = -1
+    private var segmentHeight: NSLayoutConstraint!
+    private let segmentLine = UIView()
     private let scroll = CandidateScroll()
     private var cells: [CandidateCell] = []
     private var lines: [UIView] = []
@@ -50,6 +61,7 @@ final class CandidateDrawer: UIView {
 
     private static let rowHeight: CGFloat = 44
     private static let columns: CGFloat = 5
+    private static let margin: CGFloat = 3
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -57,16 +69,49 @@ final class CandidateDrawer: UIView {
         scroll.showsVerticalScrollIndicator = false
         scroll.translatesAutoresizingMaskIntoConstraints = false
         close.translatesAutoresizingMaskIntoConstraints = false
-        addSubview(scroll)
-        addSubview(close)
+        segmentScroll.showsHorizontalScrollIndicator = false
+        segmentScroll.translatesAutoresizingMaskIntoConstraints = false
+        segments.axis = .horizontal
+        segments.alignment = .center
+        segments.translatesAutoresizingMaskIntoConstraints = false
+        segmentScroll.addSubview(segments)
+        shorter.translatesAutoresizingMaskIntoConstraints = false
+        longer.translatesAutoresizingMaskIntoConstraints = false
+        shorter.addAction(UIAction { [weak self] _ in self?.onResize?(-1) }, for: .touchUpInside)
+        longer.addAction(UIAction { [weak self] _ in self?.onResize?(1) }, for: .touchUpInside)
+        segmentLine.backgroundColor = .separator
+        segmentLine.isHidden = true
+        segmentLine.translatesAutoresizingMaskIntoConstraints = false
+        let line = segmentLine
+        [segmentScroll, line, scroll, close, shorter, longer].forEach(addSubview)
+        segmentHeight = segmentScroll.heightAnchor.constraint(equalToConstant: 0)
         NSLayoutConstraint.activate([
-            scroll.topAnchor.constraint(equalTo: topAnchor),
+            segmentScroll.topAnchor.constraint(equalTo: topAnchor),
+            segmentScroll.leadingAnchor.constraint(equalTo: leadingAnchor),
+            segmentScroll.trailingAnchor.constraint(equalTo: close.leadingAnchor),
+            segmentHeight,
+            segments.leadingAnchor.constraint(equalTo: segmentScroll.contentLayoutGuide.leadingAnchor, constant: 6),
+            segments.trailingAnchor.constraint(equalTo: segmentScroll.contentLayoutGuide.trailingAnchor, constant: -6),
+            segments.topAnchor.constraint(equalTo: segmentScroll.contentLayoutGuide.topAnchor),
+            segments.bottomAnchor.constraint(equalTo: segmentScroll.contentLayoutGuide.bottomAnchor),
+            segments.heightAnchor.constraint(equalTo: segmentScroll.frameLayoutGuide.heightAnchor),
+            line.topAnchor.constraint(equalTo: segmentScroll.bottomAnchor),
+            line.leadingAnchor.constraint(equalTo: leadingAnchor),
+            line.trailingAnchor.constraint(equalTo: close.leadingAnchor),
+            line.heightAnchor.constraint(equalToConstant: 1 / UIScreen.main.scale),
+            scroll.topAnchor.constraint(equalTo: line.bottomAnchor),
             scroll.bottomAnchor.constraint(equalTo: bottomAnchor),
             scroll.leadingAnchor.constraint(equalTo: leadingAnchor),
             scroll.trailingAnchor.constraint(equalTo: close.leadingAnchor),
             close.trailingAnchor.constraint(equalTo: trailingAnchor),
             close.topAnchor.constraint(equalTo: topAnchor),
             close.heightAnchor.constraint(equalToConstant: Self.rowHeight),
+            shorter.trailingAnchor.constraint(equalTo: trailingAnchor),
+            shorter.topAnchor.constraint(equalTo: close.bottomAnchor),
+            shorter.heightAnchor.constraint(equalToConstant: Self.rowHeight),
+            longer.trailingAnchor.constraint(equalTo: trailingAnchor),
+            longer.topAnchor.constraint(equalTo: shorter.bottomAnchor),
+            longer.heightAnchor.constraint(equalToConstant: Self.rowHeight),
         ])
     }
 
@@ -75,9 +120,12 @@ final class CandidateDrawer: UIView {
     }
 
     /// Show this list; the cells stay when only the selection moved.
-    func show(_ list: Session.Candidates) {
+    func show(_ list: Session.Candidates, runs: [Session.Run]) {
+        showSegments(runs)
+        shorter.isEnabled = list.canShorten
+        longer.isEnabled = list.canLengthen
         if list.items != shown {
-            clear()
+            clearGrid()
             shown = list.items
             cells = list.items.enumerated().map { i, item in
                 let cell = CandidateCell(item)
@@ -97,8 +145,35 @@ final class CandidateDrawer: UIView {
         }
     }
 
+    private func showSegments(_ runs: [Session.Run]) {
+        let texts = runs.map(\.text)
+        let focus = runs.firstIndex { $0.attr == 2 } ?? -1
+        guard texts != shownRuns || focus != shownFocus else { return }
+        shownRuns = texts
+        shownFocus = focus
+        // With one segment there is nothing to choose between, and the grid
+        // takes the row.
+        segmentHeight.constant = texts.count > 1 ? Self.rowHeight : 0
+        segmentLine.isHidden = texts.count <= 1
+        segments.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        for (i, text) in texts.enumerated() {
+            let cell = CandidateCell(.init(text: text, reading: ""))
+            cell.isSelected = i == focus
+            cell.heightAnchor.constraint(equalToConstant: Self.rowHeight - 8).isActive = true
+            cell.addAction(UIAction { [weak self] _ in self?.onFocus?(i) }, for: .touchUpInside)
+            segments.addArrangedSubview(cell)
+        }
+    }
+
     /// Free the cells while closed.
     func clear() {
+        segments.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        shownRuns = []
+        shownFocus = -1
+        clearGrid()
+    }
+
+    private func clearGrid() {
         cells.forEach { $0.removeFromSuperview() }
         cells = []
         lines.forEach { $0.removeFromSuperview() }
@@ -118,12 +193,13 @@ final class CandidateDrawer: UIView {
     /// the last row stays as it is.
     private func layoutGrid(width: CGFloat) {
         guard width > 0 else { return }
-        let minimum = width / Self.columns
+        let inner = width - Self.margin
+        let minimum = inner / Self.columns
         var rows: [[(cell: CandidateCell, width: CGFloat)]] = [[]]
         var used: CGFloat = 0
         for cell in cells {
-            let w = min(width, max(minimum, cell.naturalWidth))
-            if used + w > width, !rows[rows.count - 1].isEmpty {
+            let w = min(inner, max(minimum, cell.naturalWidth))
+            if used + w > inner, !rows[rows.count - 1].isEmpty {
                 rows.append([])
                 used = 0
             }
@@ -134,8 +210,8 @@ final class CandidateDrawer: UIView {
         lines = []
         for (r, row) in rows.enumerated() {
             let total = row.reduce(0) { $0 + $1.width }
-            let extra = r < rows.count - 1 ? (width - total) / CGFloat(max(row.count, 1)) : 0
-            var x: CGFloat = 0
+            let extra = r < rows.count - 1 ? (inner - total) / CGFloat(max(row.count, 1)) : 0
+            var x = Self.margin
             let y = CGFloat(r) * Self.rowHeight
             for (cell, w) in row {
                 cell.frame = CGRect(x: x, y: y + 4, width: w + extra, height: Self.rowHeight - 8)
@@ -172,12 +248,14 @@ final class CandidateScroll: UIScrollView {
 final class CandidateCell: UIControl {
     private let label = UILabel()
     private static let inset: CGFloat = 9
+    /// A key's colour, as on the system keyboard's candidate bar.
+    private static let selectedFill = UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.42, alpha: 1) : .white }
 
     init(_ item: Session.Candidates.Item) {
         super.init(frame: .zero)
         layer.cornerRadius = 6
         let text = NSMutableAttributedString(string: item.text, attributes: [
-            .font: OldHangul.font(ofSize: 19),
+            .font: OldHangul.font(ofSize: 20),
             .foregroundColor: UIColor.label,
         ])
         if !item.reading.isEmpty {
@@ -221,6 +299,6 @@ final class CandidateCell: UIControl {
     private func refill() {
         backgroundColor = isHighlighted
             ? UIColor.label.withAlphaComponent(0.14)
-            : isSelected ? UIColor.systemBlue.withAlphaComponent(0.18) : .clear
+            : isSelected ? Self.selectedFill : .clear
     }
 }

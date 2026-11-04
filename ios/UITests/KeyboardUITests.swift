@@ -4,17 +4,65 @@ import XCTest
 /// tapping screen positions: a keyboard's keys live in another process. The
 /// simulator must have 釋讀 as its only enabled keyboard
 /// (.github/workflows/ios.yml sets that up). The positions fit iPhone 16-sized
-/// screens in portrait.
+/// screens in portrait; `Geometry` holds them.
 final class KeyboardUITests: XCTestCase {
-    private enum Key {
-        static let d = CGVector(dx: 274.0 / 920, dy: 0.771) // ㅇ
-        static let k = CGVector(dx: 738.0 / 920, dy: 0.771) // ㅏ
-        static let s = CGVector(dx: 180.0 / 920, dy: 0.771) // ㄴ
-        static let u = CGVector(dx: 598.0 / 920, dy: 0.7115) // ㅕ
-        static let f = CGVector(dx: 367.0 / 920, dy: 0.771) // ㄹ
-        static let r = CGVector(dx: 321.0 / 920, dy: 0.7115) // ㄱ
-        static let space = CGVector(dx: 474.0 / 920, dy: 0.8855)
-        static let enter = CGVector(dx: 816.0 / 920, dy: 0.8855)
+    /// Keys by point offsets from the top of the keyboard, which is 261 pt high
+    /// with its top 336 pt above the bottom of an iPhone 16-sized window. The
+    /// bar is 45 pt, and key rows are 54 pt apart from y 54; letter keys have 6
+    /// between. Pad rows are 52.8 pt apart in three columns with 6 between.
+    private struct Geometry {
+        let app: XCUIApplication
+        var width: CGFloat { app.windows.firstMatch.frame.width }
+        var height: CGFloat { app.windows.firstMatch.frame.height }
+
+        func tap(x: CGFloat, y: CGFloat) {
+            let top = height - 336
+            app.coordinate(withNormalizedOffset: CGVector(dx: x / width, dy: (top + y) / height)).tap()
+            usleep(400_000)
+        }
+
+        /// A letter by the QWERTY key that types it.
+        func letter(_ ch: Character) {
+            let w = (width - 6 - 54) / 10
+            if let c = Array("qwertyuiop").firstIndex(of: ch) {
+                tap(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: 75)
+            } else if let c = Array("asdfghjkl").firstIndex(of: ch) {
+                tap(x: 3 + 21 + CGFloat(c) * (w + 6) + w / 2, y: 129)
+            } else if let c = Array("zxcvbnm").firstIndex(of: ch) {
+                let m = (width - 6 - 90 - 30 - 36) / 7
+                tap(x: 3 + 45 + 15 + CGFloat(c) * (m + 6) + m / 2, y: 183)
+            }
+        }
+
+        func type(_ letters: String) {
+            letters.forEach(letter)
+        }
+
+        func delete() {
+            tap(x: width - 3 - 22.5, y: 183)
+        }
+
+        func space() {
+            tap(x: width / 2, y: 237)
+        }
+
+        func enter() {
+            tap(x: width - 3 - 47, y: 237)
+        }
+
+        /// Of the bottom row, with 123 and no mode key: an email field's @ and .
+        func emailExtra(_ i: Int) {
+            tap(x: 3 + 46 + 6 + 20 + CGFloat(i) * 46, y: 237)
+        }
+
+        /// The vertical centre of the candidate bar.
+        var barCenter: CGFloat { 22 }
+
+        /// Pad key in column `c` (0-2) of row `r` (0-3 the grid, 4 the bottom row).
+        func pad(_ r: Int, _ c: Int) {
+            let w = (width - 6 - 12) / 3
+            tap(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: CGFloat(r) * 52.8 + 23.4)
+        }
     }
 
     private func shot(_ name: String) {
@@ -37,19 +85,14 @@ final class KeyboardUITests: XCTestCase {
         sleep(15)
         shot("keyboard")
 
-        func tap(_ key: CGVector) {
-            app.coordinate(withNormalizedOffset: key).tap()
-            usleep(300_000)
-        }
+        let g = Geometry(app: app)
         // 안녕, then Space to convert.
-        for key in [Key.d, Key.k, Key.s, Key.s, Key.u, Key.d] {
-            tap(key)
-        }
+        g.type("dkssud")
         shot("composing")
-        tap(Key.space)
+        g.space()
         sleep(1)
         shot("candidates")
-        tap(Key.enter)
+        g.enter()
         sleep(1)
         shot("confirmed")
 
@@ -57,44 +100,11 @@ final class KeyboardUITests: XCTestCase {
         XCTAssertTrue(value.contains("安寧"), "field holds \(value)")
 
         // 갈 has candidates told apart by their dictionary words.
-        for key in [Key.r, Key.k, Key.f, Key.space] {
-            tap(key)
-        }
+        g.type("rkf")
+        g.space()
         sleep(1)
         shot("readings")
-        tap(Key.enter)
-    }
-
-    // MARK: Keyboard types
-    //
-    // Keys of the pad layouts and the email layout, by point offsets from the
-    // top of the keyboard. The keyboard is 284 pt high and its top sits 359 pt
-    // above the bottom of an iPhone 16-sized window. Pad rows are 50 pt with 7
-    // between, in three columns with 6 between, 3 pt in from each side.
-
-    private struct Geometry {
-        let app: XCUIApplication
-        var width: CGFloat { app.windows.firstMatch.frame.width }
-        var height: CGFloat { app.windows.firstMatch.frame.height }
-
-        func tap(x: CGFloat, y: CGFloat) {
-            let top = height - 359
-            app.coordinate(withNormalizedOffset: CGVector(dx: x / width, dy: (top + y) / height)).tap()
-            usleep(400_000)
-        }
-
-        /// The vertical centre of the candidate bar.
-        var barCenter: CGFloat { 56 }
-        /// Delete, at the end of the third letter row.
-        func delete() {
-            tap(x: width - 3 - 23, y: 211)
-        }
-
-        /// Pad key in column `c` (0-2) of row `r` (0-3 the grid, 4 the bottom row).
-        func pad(_ r: Int, _ c: Int) {
-            let w = (width - 6 - 12) / 3
-            tap(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: 2 + CGFloat(r) * 57 + 25)
-        }
+        g.enter()
     }
 
     private func launch(kind: String, second: String? = nil) -> (XCUIApplication, XCUIElement) {
@@ -166,12 +176,10 @@ final class KeyboardUITests: XCTestCase {
     func testEmailFieldTypesLatinWithoutConverting() throws {
         let (app, field) = launch(kind: "email")
         let g = Geometry(app: app)
-        let d = g.width * 274 / 920
-        let k = g.width * 738 / 920
-        tapUntilTyped(field, delete: { g.delete() }) { g.tap(x: d, y: 159) }
-        g.tap(x: 74, y: 259) // @
-        g.tap(x: k, y: 159)
-        g.tap(x: 119, y: 259) // .
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
+        g.emailExtra(0) // @
+        g.letter("k")
+        g.emailExtra(1) // .
         shot("email")
         assertText(field, "d@k.")
     }
@@ -181,16 +189,14 @@ final class KeyboardUITests: XCTestCase {
         let (app, field) = launch(kind: "default", second: "email")
         let second = app.descendants(matching: .any)["trial2"]
         let g = Geometry(app: app)
-        let w = (g.width - 6 - 45) / 10
-        let r = 3 + 3 * (w + 5) + w / 2 // ㄱ
-        tapUntilTyped(field, delete: { g.delete() }) { g.tap(x: r, y: 107) }
-        g.tap(x: g.width * 738 / 920, y: 159) // ㅏ
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("r") } // ㄱ
+        g.letter("k") // ㅏ
         assertText(field, "가")
         second.tap()
         sleep(2)
         shot("switched-field")
         assertText(second, "", "the composition leaked into the next field")
-        g.tap(x: g.width * 274 / 920, y: 159) // d, typed as Latin in the email field
+        g.letter("d") // typed as Latin in the email field
         assertText(second, "d")
     }
 
@@ -199,13 +205,11 @@ final class KeyboardUITests: XCTestCase {
     func testDrawerOpensAndPicks() throws {
         let (app, field) = launch(kind: "default")
         let g = Geometry(app: app)
-        tapUntilTyped(field, delete: { g.delete() }) { g.tap(x: g.width * 274 / 920, y: 159) } // ㅇ
-        for x: CGFloat in [738, 180, 180, 598, 274] {
-            g.tap(x: g.width * x / 920, y: x == 598 ? 107 : 159) // ㅏ ㄴ ㄴ ㅕ ㅇ
-        }
-        g.tap(x: g.width * 474 / 920, y: 259) // Space
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
+        g.type("kssud")
+        g.space()
         sleep(1)
-        g.tap(x: g.width - 25, y: 56)
+        g.tap(x: g.width - 25, y: g.barCenter)
         usleep(100_000)
         shot("drawer-opening")
         sleep(1)
@@ -213,9 +217,10 @@ final class KeyboardUITests: XCTestCase {
         g.tap(x: g.width - 22, y: 22) // closes
         sleep(1)
         shot("drawer-closed")
-        g.tap(x: g.width - 25, y: 56)
+        shot("drawer-reopened")
+        g.tap(x: g.width - 25, y: g.barCenter)
         sleep(1)
-        g.tap(x: 40, y: 66) // the second row's first candidate
+        g.tap(x: 40, y: 66) // the grid's second row, first candidate
         sleep(1)
         shot("drawer-picked")
         let value = text(field)
@@ -231,18 +236,41 @@ final class KeyboardUITests: XCTestCase {
         let (app, field) = launch(kind: "default", second: "default")
         let second = app.descendants(matching: .any)["trial2"]
         let g = Geometry(app: app)
-        let w = (g.width - 6 - 45) / 10
-        let r = 3 + 3 * (w + 5) + w / 2 // ㄱ
-        tapUntilTyped(field, delete: { g.delete() }) { g.tap(x: r, y: 107) }
-        g.tap(x: g.width * 738 / 920, y: 159) // ㅏ
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("r") } // ㄱ
+        g.letter("k") // ㅏ
         assertText(field, "가")
         second.tap()
-        g.tap(x: g.width * 180 / 920, y: 159) // ㄴ, at once
-        g.tap(x: g.width * 738 / 920, y: 159) // ㅏ
+        g.letter("s") // ㄴ, at once
+        g.letter("k") // ㅏ
         sleep(1)
         shot("switched-same-layout")
         assertText(field, "가", "the first field changed")
         assertText(second, "나", "the second field lost or gained text")
+    }
+
+    /// A longer composition shows its segments in the drawer, and the − and +
+    /// beside the grid change the focused one.
+    func testDrawerResizesSegments() throws {
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
+        g.type("kssudgktpdy")
+        g.space()
+        sleep(1)
+        let converted = text(field)
+        g.tap(x: g.width - 25, y: g.barCenter)
+        sleep(1)
+        shot("drawer-segments")
+        g.tap(x: g.width - 22, y: 66) // shorter
+        sleep(1)
+        shot("drawer-segments-shorter")
+        XCTAssertNotEqual(text(field), "", "resizing lost the composition")
+        g.tap(x: g.width - 22, y: 110) // longer
+        sleep(1)
+        assertText(field, converted, "lengthening did not undo shortening")
+        g.tap(x: g.width - 22, y: 22) // closes
+        sleep(1)
+        g.enter()
     }
 
     /// With the keyboard's own globe shown (the workflow forces it on in

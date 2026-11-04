@@ -24,6 +24,10 @@ pub struct CandidateList {
     pub items: Vec<(String, String)>,
     /// Index of the selected candidate within `items`.
     pub selected: usize,
+    /// Whether the focused segment can give up a syllable, or take one from
+    /// the next.
+    pub can_shorten: bool,
+    pub can_lengthen: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Default)]
@@ -563,7 +567,12 @@ impl Session {
         let seg = &c.segs[c.focus];
         let brief = crate::brief::brief_notes(&seg.reading, seg.cands.iter().map(|k| k.note.as_str()));
         let items = seg.cands.iter().zip(brief).map(|(k, b)| (k.text.clone(), b)).collect();
-        Some(CandidateList { items, selected: seg.sel })
+        Some(CandidateList {
+            items,
+            selected: seg.sel,
+            can_shorten: units(&seg.reading).len() > 1,
+            can_lengthen: c.segs.get(c.focus + 1).is_some(),
+        })
     }
 
     /// Choose candidate `index` of [`Session::candidate_list`] and confirm the
@@ -1932,6 +1941,8 @@ mod tests {
         let list = s.candidate_list().unwrap();
         assert_eq!(list.items.len(), PAGE_SIZE + 3);
         assert_eq!(list.items[0].1, "", "a reading the input says is not repeated");
+        assert!(!list.can_shorten, "one syllable");
+        assert!(!list.can_lengthen, "no next segment");
         assert_eq!(s.pick_candidate(99), vec![], "an index past the end does nothing");
         let fx = s.pick_candidate(PAGE_SIZE + 2);
         assert!(fx.contains(&Effect::Commit(format!("가{}", PAGE_SIZE + 2))), "{fx:?}");

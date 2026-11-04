@@ -1,6 +1,7 @@
 //! 訓讀 readings attested in historical books (dict/eonhae.tsv), with the
 //! shipped dictionaries.
 
+use seokdok_core::dict::parse_native;
 use seokdok_core::{Engine, Options};
 use std::path::{Path, PathBuf};
 
@@ -70,13 +71,23 @@ fn loanwords_and_particles_stay_as_they_were() {
 }
 
 #[test]
+fn the_tier_sits_between_community_and_suggested() {
+    let cost = |source: &str, count: &str| parse_native(&["낱말", "語", "noun", "", source, count]).unwrap().cost;
+    assert!(cost("community", "") < cost("eonhae", ""));
+    assert!(cost("eonhae", "") < cost("suggested", ""));
+    // A chat count moves a row as it moves a suggested one, and more uses rank higher.
+    assert_eq!(cost("eonhae", "137"), cost("suggested", "137"));
+    assert!(cost("eonhae", "3") < cost("eonhae", "1"));
+}
+
+#[test]
 fn every_row_says_where_to_check_it() {
     let rows = rows();
     assert!(rows.len() > 500);
     let mut primer = 0;
     for r in &rows {
         assert_eq!(r[4], "eonhae", "{r:?}");
-        assert!(r[5].is_empty(), "the file carries no chat counts until attest.py runs: {r:?}");
+        assert!(r[5].is_empty() || r[5].parse::<u32>().is_ok(), "the count is blank or a number: {r:?}");
         if r[6].starts_with("primer: ") {
             primer += 1;
             // Book year, page or folio: entry.

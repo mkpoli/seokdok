@@ -168,8 +168,8 @@ fn native_cost(source: Source, count: u32) -> f32 {
         // Gloss entries share characters with better entries, so their
         // credited counts are noisy: never rank them above the community tier.
         Source::Suggested => attested.max(2.5),
-        // Behind a hand-made spelling of the word, however often the chat uses this one.
-        Source::Eonhae => attested.clamp(3.05, base),
+        // Ranks by the chat's count as Suggested does; the earlier file wins a tie.
+        Source::Eonhae => attested.max(2.5),
         Source::Gloss | Source::Japanese | Source::Lexicon => attested.max(3.0),
         Source::JapaneseWeak => attested.max(4.0),
         _ => attested.min(base),

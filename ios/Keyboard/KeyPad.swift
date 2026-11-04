@@ -37,6 +37,7 @@ final class Key: UIView {
         didSet { refill() }
     }
 
+<<<<<<< HEAD
     /// The labels go while the keyboard is a trackpad.
     var isDimmed = false {
         didSet {
@@ -48,6 +49,9 @@ final class Key: UIView {
     }
 
     /// Instant going down; a short fade coming back, as on the system keyboard.
+=======
+    /// Instant going down; a short fade coming back, whose length is our choice.
+>>>>>>> feat/ios-key-press
     var isPressed = false {
         didSet {
             guard isPressed != oldValue else { return }
@@ -177,8 +181,9 @@ final class Key: UIView {
     }
 }
 
-/// Sizes and colours of the keys, taken from the system keyboard on the same
-/// simulator (see ios/README.md).
+/// Sizes and colours of the keys. The key height and both fills are measured
+/// from the system keyboard's screenshots on an iOS 18.5 simulator; the corner
+/// radius and font sizes are our choice.
 enum KeyMetrics {
     static let keyHeight: CGFloat = 42
     static let corner: CGFloat = 5
@@ -221,11 +226,11 @@ final class GlobeKey: UIButton {
     }
 }
 
-/// All keys of the keyboard, tracked in one place, as the system keyboard
-/// feels: a touch belongs to the nearest key, so the gaps between keys type
-/// too; a finger sliding across letters moves the preview along and types where
-/// it lifts; and a new touch types the letter still held, so fast two-thumb
-/// typing stays in order.
+/// All keys of the keyboard, tracked in one place: a touch belongs to the
+/// nearest key, so the gaps between keys type too (the system keyboard's key
+/// frames touch as well); a finger sliding across letters moves the preview
+/// along and types where it lifts; and a new touch types the letter still held,
+/// so fast two-thumb typing stays in order.
 final class KeyPad: UIView {
     /// The key being previewed; nil when none is.
     var onPreview: ((Key?) -> Void)?
@@ -246,13 +251,17 @@ final class KeyPad: UIView {
     private var tracks: [ObjectIdentifier: Track] = [:]
     private var previewing: Key?
     private var repeatTimer: Timer?
+<<<<<<< HEAD
     private var holdTimer: Timer?
     /// The touch steering the caret, and what it has moved short of a character.
     private var cursorTouch: ObjectIdentifier?
     private var cursorX: CGFloat = 0
+=======
+    /// How far a finger may stray from a function key; our choice.
+>>>>>>> feat/ios-key-press
     private static let slop: CGFloat = 40
-    /// As long as the system's own: half a second, and a finger's small drag
-    /// moving one character at a time.
+    /// Our choices: the half second follows Hamster's default, and 8 pt per
+    /// character was set by eye.
     private static let cursorHold: TimeInterval = 0.5
     private static let cursorStep: CGFloat = 8
 

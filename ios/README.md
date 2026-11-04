@@ -142,8 +142,8 @@ turned off.
 - `Keyboard/KeyboardView.swift`: the candidate bar, the 두벌식 and symbol layers.
 - `Keyboard/KeyPad.swift`: the key caps, the touch tracking of all keys (a touch
   belongs to the nearest key, a slide moves along the letters, a new touch types
-  the letter still held) and the pop-up preview. Sizes and colours are read from
-  the system keyboard on the same simulator.
+  the letter still held) and the pop-up preview. The key height and fills are
+  measured from the system keyboard on an iOS 18.5 simulator.
 - `Keyboard/CandidateDrawer.swift`: the candidate cells and the grid that opens
   over the keys.
 - `App/SeokdokApp.swift`: a field to try the keyboard, how to enable it, and

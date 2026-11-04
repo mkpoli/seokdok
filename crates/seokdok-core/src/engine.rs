@@ -272,6 +272,9 @@ impl SinoTable {
     fn cost(&self, i: usize) -> f32 {
         self.entries[i].cost
     }
+    fn count(&self, i: usize) -> u32 {
+        self.entries[i].count
+    }
     fn len(&self) -> usize {
         self.entries.len()
     }
@@ -368,6 +371,11 @@ const EDGE_COST: f32 = 1.0;
 const WHOLE_NOUN_PENALTY: f32 = 2.5;
 /// How close a noun must come to a bound noun with a particle (거+의) to replace it.
 const BOUND_MARGIN: f32 = 0.5;
+/// Endings that run on into a bound noun or conjunction, as the final morpheme's label.
+const TAIL_ENDINGS: &[&str] = &[
+    "듯", "는듯", "다란", "는거", "는건", "는것", "고는", "고도", "고만", "냐고", "지마", "지만요", "(으)ㄴ듯", "(으)ㄴ거",
+    "(으)ㄴ건", "(으)ㄴ것", "(으)ㄹ지도", "(으)ㄹ수도", "(으)ㄹ때", "(으)나", "(으)려나",
+];
 /// Added to a pronoun plus particle that an editorial whole word also spells.
 const EDITORIAL_WORD_MARGIN: f32 = 2.5;
 /// A loanword kept in Hangul (loanwords.tsv); cheaper than its Hanja homophones.
@@ -751,7 +759,42 @@ impl Engine {
         self.loan_edges(comps, &mut edges);
         self.prefer_whole_noun(comps, &mut edges);
         self.prefer_editorial_word(comps, &mut edges);
+        self.prefer_word_over_tail(comps, &mut edges);
         edges
+    }
+
+    /// Endings that end in a bound noun or a conjunction (는거, ㄴ듯, 고도, ㄹ때,
+    /// 나) turn up inside words: 근거 is 根據, not 書+ㄴ거, and 바다란 is 海+란.
+    /// A whole token that a dictionary noun or Sino-Korean word spells, alone or
+    /// with a particle, keeps its place over those verb forms.
+    fn prefer_word_over_tail(&self, comps: &[char], edges: &mut [Edge]) {
+        let n = comps.len();
+        if n == 0 || crate::jamo::syllable_count(comps) > 3 {
+            return;
+        }
+        let word_cost = edges
+            .iter()
+            .filter(|e| e.start == 0 && e.end == n)
+            .filter(|e| match e.kind {
+                Kind::Nominal { entry, .. } => {
+                    let nat = &self.natives[entry as usize];
+                    matches!(nat.source, Source::Community | Source::Corpus | Source::Editorial) && matches!(nat.pos, Pos::Noun | Pos::Pron | Pos::Num | Pos::Adv)
+                }
+                Kind::Sino { entry, .. } => self.sinos.count(entry as usize) > 0,
+                _ => false,
+            })
+            .map(|e| e.cost)
+            .fold(f32::INFINITY, f32::min);
+        for e in edges.iter_mut().filter(|e| e.start == 0 && e.end == n) {
+            if let Kind::Verb { ending, .. } = e.kind {
+                if ending != BARE && word_cost < e.cost + WHOLE_NOUN_PENALTY {
+                    let label = ending_label(ending as usize);
+                    if TAIL_ENDINGS.contains(&label.rsplit('+').next().unwrap_or("")) {
+                        e.cost += WHOLE_NOUN_PENALTY;
+                    }
+                }
+            }
+        }
     }
 
     /// A whole token that an editor entered as one word (저들 彼等, 저만큼 彼만큼)

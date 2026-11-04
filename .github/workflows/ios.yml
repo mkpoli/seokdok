@@ -125,6 +125,7 @@ jobs:
       # for one test, then fail on any Auto Layout conflict the extension
       # logged during the run.
       - name: UI test with the keyboard's own globe key
+        if: always()
         working-directory: ios
         run: |
           xcrun simctl spawn "$UDID" defaults write li.mkpo.seokdok.keyboard forceGlobe -bool YES

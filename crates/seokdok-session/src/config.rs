@@ -22,6 +22,19 @@ pub enum InputMode {
     Latin,
 }
 
+/// What the input method writes.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum Script {
+    /// 釋讀: Hanja for 音讀 and 訓讀 words.
+    #[default]
+    Seokdok,
+    /// 國漢文混用: Hanja for 音讀 words only, native words stay in Hangul.
+    SinoOnly,
+    /// 韓㐎 專用: Hangul only, nothing is converted.
+    HangulOnly,
+}
+
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub enum StyleOpt {
@@ -85,7 +98,7 @@ pub struct Conversion {
     pub coda_always: bool,
     pub resyllabify: bool,
     pub hada_kun: bool,
-    pub sino_only: bool,
+    pub script: Script,
     pub max_candidates: usize,
 }
 
@@ -98,7 +111,7 @@ impl Default for Conversion {
             coda_always: o.coda_always,
             resyllabify: o.resyllabify,
             hada_kun: o.hada_kun,
-            sino_only: o.sino_only,
+            script: if o.sino_only { Script::SinoOnly } else { Script::Seokdok },
             max_candidates: o.max_candidates,
         }
     }
@@ -152,7 +165,7 @@ impl Config {
             coda_always: c.coda_always,
             resyllabify: c.resyllabify,
             hada_kun: c.hada_kun,
-            sino_only: c.sino_only,
+            sino_only: c.script == Script::SinoOnly,
             max_candidates: c.max_candidates.max(1),
         }
     }
@@ -181,6 +194,11 @@ impl Config {
             InputMode::Latin => "latin",
         };
         let c = &self.conversion;
+        let script = match c.script {
+            Script::Seokdok => "seokdok",
+            Script::SinoOnly => "sino_only",
+            Script::HangulOnly => "hangul_only",
+        };
         let style = match c.style {
             StyleOpt::Surface => "surface",
             StyleOpt::Morpheme => "morpheme",
@@ -238,8 +256,12 @@ coda_always = {coda}
 resyllabify = {resyl}
 # Prefer 爲 for the light verb 하다.  (true | false)
 hada_kun = {hada}
-# 國漢文混用: Hanja for 音讀 words only, native words stay in Hangul.  (true | false)
-sino_only = {sino}
+# What is written.
+#   seokdok     = 釋讀: Hanja for 音讀 and 訓讀 words
+#   sino_only   = 國漢文混用: Hanja for 音讀 words only, native words stay in Hangul
+#   hangul_only = 韓㐎 專用: Hangul only; nothing is converted, Space types a
+#                 space and Enter commits
+script = \"{script}\"
 # Maximum number of whole-phrase candidates.  (integer, 1 or more)
 max_candidates = {max}
 ",
@@ -256,7 +278,7 @@ max_candidates = {max}
             coda = c.coda_always,
             resyl = c.resyllabify,
             hada = c.hada_kun,
-            sino = c.sino_only,
+            script = script,
             max = c.max_candidates,
         )
     }
@@ -317,7 +339,7 @@ mod tests {
         // What ios/App/SeokdokApp.swift writes; missing keys keep defaults.
         let c = Config::parse(
             "[input]\ndefault_mode = \"latin\"\nspace_converts = false\ncandidate_layout = \"vertical\"\nold_clusters = true\n\n\
-             [conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = false\nhada_kun = true\nsino_only = true\nmax_candidates = 20\n",
+             [conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = false\nhada_kun = true\nscript = \"sino_only\"\nmax_candidates = 20\n",
         );
         assert_eq!(c.input.default_mode, InputMode::Latin);
         assert!(!c.input.space_converts);
@@ -325,7 +347,8 @@ mod tests {
         assert!(c.input.alt_toggles);
         assert_eq!(c.conversion.style, StyleOpt::Morpheme);
         assert_eq!(c.conversion.fragment, FragmentOpt::Letter);
-        assert!(c.conversion.coda_always && c.conversion.hada_kun && !c.conversion.resyllabify && c.conversion.sino_only);
+        assert!(c.conversion.coda_always && c.conversion.hada_kun && !c.conversion.resyllabify);
+        assert_eq!(c.conversion.script, Script::SinoOnly);
         assert_eq!(c.conversion.max_candidates, 20);
     }
 
@@ -344,7 +367,7 @@ mod tests {
                 coda_always: true,
                 resyllabify: true,
                 hada_kun: true,
-                sino_only: true,
+                script: Script::HangulOnly,
                 max_candidates: 5,
             },
         }
@@ -372,8 +395,11 @@ mod tests {
         let o = non_default().engine_options();
         assert_eq!(o.style, Style::Morpheme);
         assert_eq!(o.fragment, Fragment::Letter);
-        assert!(o.coda_always && o.resyllabify && o.hada_kun && o.sino_only);
+        assert!(o.coda_always && o.resyllabify && o.hada_kun && !o.sino_only);
         assert_eq!(o.max_candidates, 5);
+        let mut sino = non_default();
+        sino.conversion.script = Script::SinoOnly;
+        assert!(sino.engine_options().sino_only);
         let d = Config::default().engine_options();
         assert_eq!(d.style, Style::Surface);
         assert_eq!(d.max_candidates, Options::default().max_candidates);

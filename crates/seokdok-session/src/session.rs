@@ -133,6 +133,8 @@ enum Act {
     /// Close the candidate window, keeping the conversion.
     CloseWindow,
     ToggleLatin,
+    /// Commit the composition and leave the key to the application.
+    CommitPass,
     Noop,
 }
 
@@ -142,6 +144,8 @@ pub struct Session {
     /// Mode to return to from Latin.
     hangul_mode: Mode,
     space_converts: bool,
+    /// 韓㐎 專用: nothing is converted, so the converting mode does not exist.
+    hangul_only: bool,
     /// Candidate window in a row; ← → then walk the candidates.
     horizontal: bool,
     composer: Composer,
@@ -157,6 +161,7 @@ impl Session {
             mode,
             hangul_mode,
             space_converts,
+            hangul_only: false,
             horizontal: false,
             composer: Composer::new(),
             conv: None,
@@ -164,12 +169,34 @@ impl Session {
         }
     }
 
+    /// The mode in effect: the requested one, except that 韓㐎 專用 turns
+    /// 釋讀 into plain Hangul.
     pub fn mode(&self) -> Mode {
-        self.mode
+        if self.hangul_only && self.mode == Mode::Seokdok {
+            Mode::Hangul
+        } else {
+            self.mode
+        }
     }
 
     pub fn set_space_converts(&mut self, v: bool) {
         self.space_converts = v;
+    }
+
+    /// 韓㐎 專用: nothing is converted. The requested mode is kept, so turning
+    /// it off brings conversion back. A composition or conversion in progress
+    /// is committed as it stands.
+    pub fn set_hangul_only(&mut self, v: bool) -> Vec<Effect> {
+        let mut fx = Vec::new();
+        if v == self.hangul_only {
+            return fx;
+        }
+        if self.is_composing() {
+            fx.push(Effect::Commit(self.take_text()));
+            fx.push(Effect::Popup(None));
+        }
+        self.hangul_only = v;
+        fx
     }
 
     pub fn set_horizontal(&mut self, v: bool) {
@@ -193,7 +220,14 @@ impl Session {
 
     /// Would [`Session::handle`] consume this key?
     pub fn eats(&self, key: Key) -> bool {
-        self.plan(key).is_some()
+        !matches!(self.plan(key), None | Some(Act::CommitPass))
+    }
+
+    /// Does this key commit the composition and then go to the application?
+    /// The front end must apply the effects of [`Session::handle`] before it
+    /// passes the key on.
+    pub fn commits_then_passes(&self, key: Key) -> bool {
+        self.plan(key) == Some(Act::CommitPass)
     }
 
     fn plan(&self, key: Key) -> Option<Act> {
@@ -243,7 +277,7 @@ impl Session {
                 _ => None,
             };
         }
-        let converts = self.mode == Mode::Seokdok;
+        let converts = self.mode() == Mode::Seokdok;
         Some(match key {
             Key::Letter { .. } => Act::Insert(jamo.unwrap()),
             Key::Space { shift: false } if converts && self.space_converts => Act::Convert(true),
@@ -256,15 +290,11 @@ impl Session {
             Key::Esc => Act::Cancel,
             Key::Backspace => Act::Backspace,
             Key::Tab { .. } | Key::Down | Key::Convert if converts => Act::Convert(false),
-            Key::Tab { .. }
-            | Key::Down
-            | Key::Convert
-            | Key::Up
-            | Key::Left { .. }
-            | Key::Right { .. }
-            | Key::PageUp
-            | Key::PageDown
-            | Key::Other => Act::Noop,
+            Key::Tab { .. } | Key::Down | Key::Convert => Act::Noop,
+            // A plain keyboard: the composition is final, the key then acts
+            // on the text as usual.
+            Key::Up | Key::Left { .. } | Key::Right { .. } | Key::PageUp | Key::PageDown | Key::Other if !converts => Act::CommitPass,
+            Key::Up | Key::Left { .. } | Key::Right { .. } | Key::PageUp | Key::PageDown | Key::Other => Act::Noop,
             Key::HangulToggle => unreachable!(),
         })
     }
@@ -303,6 +333,10 @@ impl Session {
                 fx.push(Effect::Cancel);
             }
             Act::Convert(spaced) => self.convert(conv, spaced, &mut fx),
+            Act::CommitPass => {
+                fx.push(Effect::Commit(self.take_text()));
+                fx.push(Effect::Popup(None));
+            }
             Act::CommitWith(c) => {
                 let mut text = self.take_text();
                 text.extend(c);
@@ -388,7 +422,7 @@ impl Session {
                 fx.extend(self.set_mode(next));
             }
         }
-        Output { eaten: true, effects: fx }
+        Output { eaten: act != Act::CommitPass, effects: fx }
     }
 
     /// Confirm the segments up to the focused one; the rest stay converting.
@@ -932,7 +966,7 @@ mod tests {
     fn hangul_mode_never_converts() {
         let mut s = Session::new(Mode::Hangul, true);
         type_str(&mut s, "gks");
-        for k in [Key::Convert, Key::Tab { shift: false }, Key::Down, Key::Left { shift: false }, Key::Other] {
+        for k in [Key::Convert, Key::Tab { shift: false }, Key::Down] {
             let o = s.handle(k, &Stub(3));
             assert!(o.eaten && o.effects.is_empty(), "{k:?}");
         }
@@ -945,6 +979,131 @@ mod tests {
         let o = s.handle(Key::Enter, &Stub(3));
         assert_eq!(commit_of(&o).unwrap(), "가");
         assert!(!s.eats(Key::Enter));
+    }
+
+    fn hangul_only() -> Session {
+        let mut s = Session::new(Mode::Seokdok, true);
+        s.set_hangul_only(true);
+        s
+    }
+
+    #[test]
+    fn hangul_only_reports_hangul_and_keeps_the_requested_mode() {
+        let mut s = hangul_only();
+        assert_eq!(s.mode(), Mode::Hangul);
+        assert!(s.set_mode(Mode::Seokdok).is_empty());
+        assert_eq!(s.mode(), Mode::Hangul);
+        s.handle(Key::HangulToggle, &Stub(3));
+        assert_eq!(s.mode(), Mode::Latin);
+        s.handle(Key::HangulToggle, &Stub(3));
+        assert_eq!(s.mode(), Mode::Hangul);
+        s.set_hangul_only(false);
+        assert_eq!(s.mode(), Mode::Seokdok);
+        // Latin stays Latin through the setting and returns to 釋讀 afterwards.
+        s.set_hangul_only(true);
+        s.handle(Key::HangulToggle, &Stub(3));
+        s.set_hangul_only(false);
+        assert_eq!(s.mode(), Mode::Latin);
+        s.handle(Key::HangulToggle, &Stub(3));
+        assert_eq!(s.mode(), Mode::Seokdok);
+        // A session that asked for plain Hangul stays there.
+        let mut h = Session::new(Mode::Hangul, true);
+        h.set_hangul_only(true);
+        h.set_hangul_only(false);
+        assert_eq!(h.mode(), Mode::Hangul);
+    }
+
+    #[test]
+    fn turning_hangul_only_off_converts_again() {
+        // Windows: the session starts in 釋讀, the setting is on at activation,
+        // then the user chooses 釋讀 in the settings.
+        let mut s = Session::new(Mode::Seokdok, true);
+        s.set_hangul_only(true);
+        s.set_hangul_only(false);
+        type_str(&mut s, "gks");
+        let o = s.handle(Key::Space { shift: false }, &Stub(3));
+        assert_eq!(commit_of(&o), None);
+        assert_eq!(preedit_of(&o).unwrap()[0].text, "한1");
+    }
+
+    #[test]
+    fn hangul_only_flushes_a_composition_or_conversion() {
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        s.handle(Key::Space { shift: false }, &Stub(3));
+        s.handle(Key::Down, &Stub(3));
+        let fx = s.set_hangul_only(true);
+        assert_eq!(fx[0], Effect::Commit("한2".into()));
+        assert_eq!(fx[1], Effect::Popup(None));
+        assert!(!s.is_composing());
+        assert!(s.set_hangul_only(true).is_empty());
+        type_str(&mut s, "rk");
+        let fx = s.set_hangul_only(false);
+        assert_eq!(fx[0], Effect::Commit("가".into()));
+    }
+
+    #[test]
+    fn a_plain_keyboard_commits_before_navigation_keys() {
+        for mut s in [Session::new(Mode::Hangul, true), hangul_only()] {
+            for k in [
+                Key::Left { shift: false },
+                Key::Right { shift: true },
+                Key::Up,
+                Key::PageUp,
+                Key::PageDown,
+                Key::Other,
+            ] {
+                type_str(&mut s, "gks");
+                assert!(!s.eats(k) && s.commits_then_passes(k), "{k:?}");
+                let o = s.handle(k, &Stub(3));
+                assert!(!o.eaten, "{k:?}");
+                assert_eq!(commit_of(&o).unwrap(), "한", "{k:?}");
+                assert!(!s.is_composing());
+                // Nothing composing: the key is not touched.
+                assert!(!s.commits_then_passes(k));
+            }
+        }
+        // 釋讀 keeps its own navigation.
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        assert!(s.eats(Key::Left { shift: false }) && !s.commits_then_passes(Key::Left { shift: false }));
+    }
+
+    #[test]
+    fn hangul_only_types_old_hangul_and_commits_on_space_and_enter() {
+        let mut s = hangul_only();
+        s.set_old_clusters(true);
+        type_str(&mut s, "dkssud");
+        let o = s.handle(Key::Space { shift: false }, &Stub(3));
+        assert_eq!(commit_of(&o).unwrap(), "안녕 ");
+        assert!(!matches!(popup_of(&o), Some(Some(_))));
+        assert!(!s.is_composing());
+        type_str(&mut s, "rk");
+        for k in [Key::Convert, Key::Tab { shift: false }, Key::Down] {
+            let o = s.handle(k, &Stub(3));
+            assert!(o.eaten && o.effects.is_empty(), "{k:?}");
+        }
+        let o = s.handle(Key::Space { shift: true }, &Stub(3));
+        assert_eq!(commit_of(&o).unwrap(), "가 ");
+        type_str(&mut s, "rk");
+        let o = s.handle(Key::Enter, &Stub(3));
+        assert_eq!(commit_of(&o).unwrap(), "가");
+        assert!(!s.eats(Key::Space { shift: false }));
+        assert!(!s.eats(Key::Enter));
+        // Old letters stay available: Shift+D is ㆁ.
+        let o = s.handle(Key::Letter { ch: 'd', shift: true }, &Stub(3));
+        assert_eq!(preedit_of(&o).unwrap()[0].text, "ㆁ");
+    }
+
+    #[test]
+    fn hangul_only_ignores_space_converts() {
+        for space_converts in [true, false] {
+            let mut s = Session::new(Mode::Seokdok, space_converts);
+            s.set_hangul_only(true);
+            type_str(&mut s, "gks");
+            let o = s.handle(Key::Space { shift: false }, &Stub(3));
+            assert_eq!(commit_of(&o).unwrap(), "한 ");
+        }
     }
 
     #[test]

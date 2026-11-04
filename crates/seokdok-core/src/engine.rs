@@ -914,8 +914,16 @@ impl Engine {
                     .map(|(i, x)| (x.cost, i))
                     .collect();
                 alts.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
+                // Dictionary forms of every reading first, then the constructed ones.
                 let mut cands: Vec<Candidate> = Vec::new();
-                for (_, i) in alts {
+                for &(_, i) in &alts {
+                    for c in self.render_dict(&comps, &edges[i]) {
+                        if !cands.iter().any(|x| x.text == c.text) {
+                            cands.push(c);
+                        }
+                    }
+                }
+                for &(_, i) in &alts {
                     for c in self.render(&comps, &edges[i]) {
                         if !cands.iter().any(|x| x.text == c.text) {
                             cands.push(c);

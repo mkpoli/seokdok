@@ -120,7 +120,7 @@
     const pre = ime.pre
     const ready = status.ready
     clearTimeout(timer)
-    if (!pre || ime.segs || !ready) {
+    if (!pre || ime.segs || ime.hangulOnly || !ready) {
       preview = ''
       return
     }
@@ -131,6 +131,7 @@
   })
 
   $effect(() => {
+    ime.setHangulOnly(options.script === 'hangul')
     ime.spaceMode = options.spaceMode
     ime.layout = options.layout
     ime.composer.setOld(options.oldClusters)
@@ -257,6 +258,14 @@
         <div class="opts-body card">
           <fieldset>
             <legend>{@html r(t().options.input)}</legend>
+            <div class="row" title={plain(t().options.scriptTip)}>
+              <span>{@html r(t().options.script)}</span>
+              <div class="seg" role="group" aria-label={plain(t().options.script)}>
+                <button aria-pressed={options.script === 'seokdok'} onclick={() => (options.script = 'seokdok')}>{@html r(t().options.seokdokSide)}</button>
+                <button aria-pressed={options.script === 'sino'} onclick={() => (options.script = 'sino')}>{@html r(t().options.sinoSwitch)}</button>
+                <button aria-pressed={options.script === 'hangul'} onclick={() => (options.script = 'hangul')}>{@html r(t().options.hangulSwitch)}</button>
+              </div>
+            </div>
             <div class="row" title={plain(t().options.layoutTip)}>
               <span>{@html r(t().options.layout)}</span>
               <div class="seg" role="group" aria-label={plain(t().options.layout)}>

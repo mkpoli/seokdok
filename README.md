@@ -8,7 +8,7 @@ An input method for 釋讀, the Korean spelling played with in 釋讀會 (풀어
 옛한글로 양심을 적다       → 古ㅅ韓㐎로 良心을 記다
 ```
 
-In 國漢文混用 mode only Sino-Korean words become Hanja: 선생님께서 공부하셨다 → 先生님께서 工夫하셨다. The spelling rules and their options are in [docs/orthography.md](docs/orthography.md).
+In 國漢文混用 mode only Sino-Korean words become Hanja: 선생님께서 공부하셨다 → 先生님께서 工夫하셨다. In 韓㐎 專用 mode nothing is converted: 두벌식 typing with old Hangul, Space types a space, Enter commits, and there is no candidate window. The `script` setting in config.toml (`seokdok`, `sino_only`, `hangul_only`) picks among the three. The spelling rules and their options are in [docs/orthography.md](docs/orthography.md).
 
 ## Install
 
@@ -16,7 +16,7 @@ Downloads are on [seokdok.mkpo.li/#install](https://seokdok.mkpo.li/#install).
 
 - **Windows**: run the setup, then pick 釋讀 with Win+Space.
 - **Linux**: unpack the tarball and run `install.sh` (per user, no sudo), restart fcitx5 and add 釋讀 in fcitx5-configtool.
-- **iOS, macOS, Android**: the sources are in `ios/`, `macos/` and `android/`. None of them has been built or released yet.
+- **iOS, macOS, Android**: the sources are in `ios/`, `macos/` and `android/`. None of them is released. CI builds iOS and macOS; the macOS build also converts 안녕 to 安寧 through the Rust library, but the input method has not been run on a Mac yet.
 
 Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc cancels. A character with many homophones can be typed by its gloss: 살찔비, 비살찔 or 살찔 비 offer 肥. Settings live in `config.toml`: `%APPDATA%\seokdok\` on Windows, `~/Library/Application Support/seokdok/` on macOS, `~/.config/seokdok/` elsewhere. Your own rules and words go in `custom.json` beside it; the Customize section of the site exports one.
 

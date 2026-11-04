@@ -1361,3 +1361,20 @@ test('pasted Hanja is left as it is in 韓㐎 專用', async () => {
   m.commit()
   expect(m.doc).toBe('天을 良心')
 })
+
+test('touch: a tap moves between segments and opens the focused one', async () => {
+  const p = page()
+  p.ime.segs = [
+    { reading: '하늘', candidates: [{ text: '天' }, { text: '乾' }], pick: 0 },
+    { reading: '바다', candidates: [{ text: '海' }, { text: '洋' }], pick: 0 },
+  ]
+  p.ime.focus = 0
+  expect(p.ime.manySegments).toBe(true)
+  p.ime.tapSegment(1)
+  expect(p.ime.focus).toBe(1)
+  expect(p.ime.open).toBe(false)
+  p.ime.tapSegment(1)
+  expect(p.ime.open).toBe(true)
+  p.ime.tapSegment(5)
+  expect(p.ime.focus).toBe(1)
+})

@@ -2,14 +2,14 @@
   "version": "0.1.0",
   "windows": {
     "file": "seokdok-0.1.0-x86_64-windows-setup.exe",
-    "size": 8525148
+    "size": 8529554
   },
   "linux": {
     "file": "seokdok-0.1.0-x86_64-linux-fcitx5.tar.gz",
-    "size": 8161546
+    "size": 8164315
   },
   "android": {
     "file": "seokdok-0.1.0-android.apk",
-    "size": 16195799
+    "size": 16235507
   }
 }

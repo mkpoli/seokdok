@@ -185,6 +185,13 @@ impl Composer {
         key.chars().next().is_some_and(|c| self.inner.input(c))
     }
 
+    /// Feed one compatibility jamo as a Hangul keyboard sends it. Returns false
+    /// when the character is not one.
+    #[wasm_bindgen(js_name = inputLetter)]
+    pub fn input_letter(&mut self, letter: &str) -> bool {
+        letter.chars().next().is_some_and(|c| self.inner.input_letter(c))
+    }
+
     /// Append a non-letter character (space, punctuation).
     #[wasm_bindgen(js_name = pushLiteral)]
     pub fn push_literal(&mut self, s: &str) {

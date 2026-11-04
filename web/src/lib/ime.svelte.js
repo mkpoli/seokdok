@@ -31,6 +31,8 @@ import { chars, splitsChar, HANGUL, WORD } from './chars.js'
 // punctuation confirm without one. With spaceMode 'space', Space types a
 // space and Tab, ↓ or the convert key convert.
 
+import { JAMO, OLD_RUN, syllables } from './sink.js'
+
 /** @typedef {{ text: string, note: string }} Candidate */
 /** @typedef {{ reading: string, candidates: Candidate[], pick: number }} Seg */
 
@@ -51,8 +53,6 @@ export class Ime {
   layout = $state('vertical')
   /** Hangul being composed. */
   pre = $state('')
-  /** Text the reader's own IME is still composing. */
-  osComposing = $state('')
   /** @type {Seg[] | null} */
   segs = $state(null)
   focus = $state(0)
@@ -83,7 +83,16 @@ export class Ime {
   #queue = []
 
   #drain() {
-    while (this.#queue.length && !this.busy) this.key(this.#queue.shift())
+    while (this.#queue.length && !this.busy) {
+      const next = this.#queue.shift()
+      if (typeof next === 'function') next()
+      else this.key(next)
+    }
+  }
+
+  /** Run `f` once the conversion in flight is done, in turn with queued keys. */
+  later(f) {
+    this.#queue.push(f)
   }
 
   get before() {
@@ -407,12 +416,61 @@ export class Ime {
     this.mode = this.mode === 'hangul' ? 'ascii' : 'hangul'
   }
 
-  /** Text from the reader's own IME (composition end, paste). */
+  /** Finished text (paste, dictation): Hangul waits in the preedit to convert,
+   *  other text goes straight in, unless a preedit is open to take it. */
   insertText(s) {
     if (this.segs) this.commit()
-    if (this.#wordBreak && !this.pre && WORD.test(s)) this.#space()
+    const brk = this.#wordBreak
     this.#wordBreak = false
-    this.composer.setText(this.pre + s)
+    if (!this.pre && !WORD.test(s)) return this.#insert(s)
+    if (brk && !this.pre) this.#space()
+    this.#pushText(s)
+    this.#tidy()
+  }
+
+  /**
+   * Recompose the preedit: `base`, then what the reader's keyboard holds, each
+   * lone jamo or 두벌식 letter through the composer and finished text as it is.
+   * @param {string} base
+   * @param {import('./sink.js').Unit[]} units
+   */
+  retype(base, units) {
+    if (this.#wordBreak && !base && units.some((u) => HANGUL.test(u.c) || this.#isKey(u))) {
+      this.#space()
+      this.#wordBreak = false
+    }
+    this.composer.setText(base)
+    let text = ''
+    for (const u of units) {
+      if (u.finished || !(JAMO.test(u.c) || this.#isKey(u))) {
+        text += u.c
+        continue
+      }
+      this.#pushText(text)
+      text = ''
+      if (this.#isKey(u)) this.composer.input(u.c)
+      else if (!this.composer.inputLetter(u.c)) this.composer.pushLiteral(u.c)
+    }
+    this.#pushText(text)
+    this.#tidy()
+  }
+
+  /** @param {import('./sink.js').Unit} u */
+  #isKey(u) {
+    return !u.finished && this.mode === 'hangul' && /^[a-zA-Z]$/.test(u.c)
+  }
+
+  #pushText(s) {
+    s.split(OLD_RUN).forEach((part, i) => {
+      if (i % 2) for (const c of part) this.composer.inputLetter(c) || this.composer.pushLiteral(c)
+      else if (part) this.composer.pushLiteral(part)
+    })
+  }
+
+  #tidy() {
+    const text = this.composer.text()
+    const tidy = syllables(text)
+    if (tidy !== text) this.composer.setText(tidy)
     this.#sync()
   }
 

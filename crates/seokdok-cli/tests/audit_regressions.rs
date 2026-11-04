@@ -1,0 +1,52 @@
+//! First candidates fixed by the spelling audit, with the shipped dictionaries.
+//! Each case names the input and the text of the first candidate.
+
+use seokdok_core::{Engine, Options};
+use std::path::Path;
+
+fn engine() -> Engine {
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+    Engine::from_dir(&dir, Options::default()).expect("dict").0
+}
+
+/// Every input's first candidate must equal the wanted text.
+fn first(cases: &[(&str, &str)]) {
+    let e = engine();
+    let wrong: Vec<String> = cases
+        .iter()
+        .filter_map(|(input, want)| {
+            let got = e.convert(input).into_iter().next().map(|c| c.text).unwrap_or_default();
+            (got != *want).then(|| format!("{input}: want {want}, got {got}"))
+        })
+        .collect();
+    assert!(wrong.is_empty(), "first candidates differ:\n{}", wrong.join("\n"));
+}
+
+#[test]
+fn copula_after_a_vowel_final_noun() {
+    first(&[
+        ("하늘입니다", "天입니다"), ("학생입니다", "學生입니다"), ("하늘이다", "天이다"), ("학생이니까", "學生이니까"),
+        ("학생이었다", "學生이었다"), ("사전이라면", "辭典이라면"), ("학생인데", "學生인데"), ("하늘일까요", "天일까요"),
+        ("하나이다", "一이다"), ("견해입니다", "見解입니다"), ("표기입니다", "表記입니다"),
+    ]);
+}
+
+#[test]
+fn postposition_chains() {
+    first(&[
+        ("하늘에서만", "天에서만"), ("하늘까지만", "天까지만"), ("사전께서는", "辭典께서는"), ("자신께서는", "自身께서는"),
+        ("사전과의", "辭典과의"), ("하늘이라니", "天이라니"), ("학생이래요", "學生이래요"), ("사전이라서는", "辭典이라서는"),
+        ("일본에서만", "日本에서만"), ("일본만의", "日本만의"),
+    ]);
+}
+
+#[test]
+fn copula_does_not_follow_an_adverb_or_a_lone_pronoun() {
+    // 아니+라니 is 아니다+라니; 나이+다 is a word, not 나+이다.
+    first(&[("아니라니", "아니라니"), ("나이다", "年다"), ("저입니다", "彼人ㅂ니다")]);
+}
+
+#[test]
+fn contractions_stay() {
+    first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "吾ㄹ")]);
+}

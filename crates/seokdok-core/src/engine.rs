@@ -583,9 +583,12 @@ impl Engine {
                             let p = &self.particles[pi as usize];
                             allowed(p.cond, comps[q - 1], false) && is_l(p.comps[0])
                         });
+                        // A single syllable before a copula (나+이다) is more often a
+                        // word that ends in it (나이+다) than an unknown word.
+                        let lone_copula = crate::jamo::syllable_count(&comps[..q]) == 1 && pis.iter().all(|&pi| self.particles[pi as usize].full_copula());
                         if ok {
                             let k = crate::jamo::syllable_count(&comps[..q]) as f32;
-                            edges.push(Edge { start: 0, end: n, cost: RAW_COST + 2.5 * (k - 1.0) + 0.4, kind: Kind::Raw });
+                            edges.push(Edge { start: 0, end: n, cost: RAW_COST + 2.5 * (k - 1.0) + 0.4 + if lone_copula { 2.5 } else { 0.0 }, kind: Kind::Raw });
                         }
                     }
                 }
@@ -656,11 +659,19 @@ impl Engine {
                         }
                         for &pi in pis {
                             let p = &self.particles[pi as usize];
+                            // The copula follows nouns, pronouns and numbers, not
+                            // adverbs (아니+라니 is 아니다+라니; 무어+ㄴ가 contracts), and a one-syllable
+                            // pronoun with 이다 is rarer than a word that ends
+                            // in it (나이+다).
+                            if p.copular && !is_t(p.comps[0]) && matches!(entry.pos, Pos::Adv | Pos::Det | Pos::Interj) {
+                                continue;
+                            }
+                            let lone_pron = if p.full_copula() && entry.pos == Pos::Pron && crate::jamo::syllable_count(&entry.stem) == 1 { 5.0 } else { 0.0 };
                             if allowed(p.cond, comps[q - 1], pron) {
                                 edges.push(Edge {
                                     start: s,
                                     end: r,
-                                    cost: base + 0.2 + mid(r) + weak(p),
+                                    cost: base + 0.2 + mid(r) + weak(p) + lone_pron,
                                     kind: Kind::Nominal { entry: i, particle: Some(pi) },
                                 });
                             }

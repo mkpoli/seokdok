@@ -31,6 +31,7 @@
     <string name="coda_always">받침 늘 쓰기 · Always write the final consonant</string>
     <string name="resyllabify">連音 · Move a final consonant onto a following ㅇ</string>
     <string name="hada_kun">하다를 爲로 · Prefer 爲 for 하다</string>
+    <string name="itda">있다의 表記 · Spelling of 있다</string>
     <string name="old_ha">하 → ᄒᆞ 優先 · Old spelling of 하 first (하고 → ᄒᆞ고)</string>
     <string name="max_candidates">候補 數 · Phrase candidates</string>
 
@@ -59,6 +60,11 @@
     <string-array name="style_labels">
         <item>表音式 · Surface (見ㅆ다)</item>
         <item>形態式 · Morpheme (見았다)</item>
+    </string-array>
+    <string-array name="itda_labels">
+        <item>有다</item>
+        <item>在다</item>
+        <item>在ㅆ다</item>
     </string-array>
     <string-array name="fragment_labels">
         <item>漢字가 머금음 · Absorb (見라)</item>

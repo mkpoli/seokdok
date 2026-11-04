@@ -213,6 +213,14 @@ The reader (釋讀文 → 한글) reads these forms back: 超ㅜ is 너무, 初�
 form that is also a dictionary form of another word is read as that word:
 何게 is 어드럭하게, 言ㅁ is 말함 and 初ㅁ is 숫함.
 
+### 6.6 있다
+
+있다 has three common spellings, 有다, 在다 and 在ㅆ다, listed in that order.
+The `itda` option puts 在다 or 在ㅆ다 first, and the others stay listed. Under
+`在` the past is 在었다, with 在ㅆ다 right behind it, and under `在ㅆ` it is
+在ㅆ었다. `coda_always` still writes the consonant, so `在` then gives 在ㅆ다. All
+three read back as 있다.
+
 ## 7. Options summary
 
 | Option | Values | Default | Effect |
@@ -222,6 +230,7 @@ form that is also a dictionary form of another word is read as that word:
 | `coda_always` | true, false | false | §5 |
 | `resyllabify` | true, false | false | §5 |
 | `hada_kun` | true, false | false | §6.4 |
+| `itda` | 有, 在, 在ㅆ | 有 | §6.6 |
 | `old_ha` | true, false | false | §8.1 |
 
 Whatever the options, the input method lists the other spellings as

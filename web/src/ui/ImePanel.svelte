@@ -284,6 +284,12 @@
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.codaAlways} />{@html r(t().options.coda)}</label>
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.resyllabify} />{@html r(t().options.resyllabify)}</label>
             <label class="ui-field"><input class="ui-check" type="checkbox" bind:checked={options.hadaKun} />{@html r(t().options.hada)}</label>
+            <div class="pair" role="radiogroup" aria-label={plain(t().options.itda)} title={plain(t().options.itdaTip)}>
+              <span>{@html r(t().options.itda)}</span>
+              {#each [['有', '有다'], ['在', '在다'], ['在ㅆ', '在ㅆ다']] as [value, label]}
+                <label class="ui-field"><input class="ui-radio" type="radio" bind:group={options.itda} {value} />{label}</label>
+              {/each}
+            </div>
             <label class="ui-field" title={plain(t().options.oldHaTip)}><input class="ui-check" type="checkbox" bind:checked={options.oldHa} />{@html r(t().options.oldHa)}</label>
           </fieldset>
         </div>
@@ -651,6 +657,7 @@
   }
   .opts-body .pair {
     display: flex;
+    align-items: center;
     flex-wrap: wrap;
     gap: var(--s-1) var(--s-4);
   }

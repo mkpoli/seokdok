@@ -21,6 +21,7 @@ struct ContentView: View {
     @AppStorage("codaAlways", store: Settings.store) private var codaAlways = false
     @AppStorage("resyllabify", store: Settings.store) private var resyllabify = false
     @AppStorage("hadaKun", store: Settings.store) private var hadaKun = false
+    @AppStorage("itda", store: Settings.store) private var itda = "有"
     @AppStorage("oldHa", store: Settings.store) private var oldHa = false
     @AppStorage("script", store: Settings.store) private var script = "seokdok"
     @AppStorage("maxCandidates", store: Settings.store) private var maxCandidates = 12
@@ -103,6 +104,11 @@ struct ContentView: View {
                     Toggle("받침 늘 적기 · Always write the final consonant", isOn: $codaAlways)
                     Toggle("連音 · Carry a final consonant to a following ㅇ", isOn: $resyllabify)
                     Toggle("하다 → 爲 · Prefer 爲 for 하다", isOn: $hadaKun)
+                    Picker("있다의 表記 · Spelling of 있다", selection: $itda) {
+                        Text("有다").tag("有")
+                        Text("在다").tag("在")
+                        Text("在ㅆ다").tag("在ㅆ")
+                    }
                     Toggle("하 → ᄒᆞ 優先 · Old spelling of 하 first (하고 → ᄒᆞ고)", isOn: $oldHa)
                     Stepper("候補 數 · Candidates: \(maxCandidates)", value: $maxCandidates, in: 1...50)
                 } header: {
@@ -121,6 +127,7 @@ struct ContentView: View {
             .onChange(of: codaAlways) { _ in Settings.write() }
             .onChange(of: resyllabify) { _ in Settings.write() }
             .onChange(of: hadaKun) { _ in Settings.write() }
+            .onChange(of: itda) { _ in Settings.write() }
             .onChange(of: oldHa) { _ in Settings.write() }
             .onChange(of: script) { _ in Settings.write() }
             .onChange(of: maxCandidates) { _ in Settings.write() }
@@ -160,6 +167,7 @@ enum Settings {
         coda_always = \(bool("codaAlways", false))
         resyllabify = \(bool("resyllabify", false))
         hada_kun = \(bool("hadaKun", false))
+        itda = "\(text("itda", "有"))"
         old_ha = \(bool("oldHa", false))
         script = "\(text("script", "seokdok"))"
         max_candidates = \(s.object(forKey: "maxCandidates") as? Int ?? 12)

@@ -80,9 +80,10 @@ final class KeyboardUITests: XCTestCase {
         }
     }
 
-    private func launch(kind: String) -> (XCUIApplication, XCUIElement) {
+    private func launch(kind: String, second: String? = nil) -> (XCUIApplication, XCUIElement) {
         let app = XCUIApplication()
         app.launchArguments = ["-focusTrial", "YES", "-trialKind", kind]
+        if let second { app.launchArguments += ["-trialKind2", second] }
         app.launch()
         let field = app.descendants(matching: .any)["trial"]
         XCTAssertTrue(field.waitForExistence(timeout: 10))
@@ -139,5 +140,34 @@ final class KeyboardUITests: XCTestCase {
         g.tap(x: 119, y: 259) // .
         shot("email")
         XCTAssertEqual(text(field), "d@k.")
+    }
+
+    /// Hangul pending in one field must not be written into the next field.
+    func testComposingThenFocusingAnotherFieldWritesNothingThere() throws {
+        let (app, field) = launch(kind: "default", second: "email")
+        let second = app.descendants(matching: .any)["trial2"]
+        let g = Geometry(app: app)
+        let w = (g.width - 6 - 45) / 10
+        let r = 3 + 3 * (w + 5) + w / 2 // ㄱ
+        tapUntilTyped(field) { g.tap(x: r, y: 107) }
+        g.tap(x: g.width * 738 / 920, y: 159) // ㅏ
+        XCTAssertEqual(text(field), "가")
+        second.tap()
+        sleep(2)
+        shot("switched-field")
+        XCTAssertEqual(text(second), "", "the composition leaked into the next field")
+        g.tap(x: g.width * 274 / 920, y: 159) // d, typed as Latin in the email field
+        XCTAssertEqual(text(second), "d")
+    }
+
+    /// With the keyboard's own globe shown (the workflow forces it on in
+    /// Debug builds), the pad still lays out and types.
+    func testNumberPadWithGlobeKey() throws {
+        let (app, field) = launch(kind: "number")
+        let g = Geometry(app: app)
+        tapUntilTyped(field) { g.pad(0, 0) }
+        g.pad(0, 1)
+        shot("number-pad-globe")
+        XCTAssertEqual(text(field), "12")
     }
 }

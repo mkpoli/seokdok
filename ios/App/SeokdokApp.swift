@@ -24,12 +24,14 @@ struct ContentView: View {
     @AppStorage("script", store: Settings.store) private var script = "seokdok"
     @AppStorage("maxCandidates", store: Settings.store) private var maxCandidates = 12
     @State private var trial = ""
+    @State private var trial2 = ""
     @FocusState private var trialFocused: Bool
 
-    /// Launch argument for the simulator check: `-trialKind number` (also
-    /// decimal, phone, email, url) gives the try-it field that keyboard type.
-    private static var trialKeyboard: UIKeyboardType {
-        switch UserDefaults.standard.string(forKey: "trialKind") {
+    /// Launch arguments for the simulator check: `-trialKind number` (also
+    /// decimal, phone, email, url) gives the try-it field that keyboard type,
+    /// and `-trialKind2` adds a second field of the given type below it.
+    private static func keyboard(_ argument: String) -> UIKeyboardType {
+        switch UserDefaults.standard.string(forKey: argument) {
         case "number": return .numberPad
         case "decimal": return .decimalPad
         case "phone": return .phonePad
@@ -45,8 +47,13 @@ struct ContentView: View {
                 Section("試驗 · Try it") {
                     TextField("여기에 입력 · Type here", text: $trial, axis: .vertical)
                         .focused($trialFocused)
-                        .keyboardType(Self.trialKeyboard)
+                        .keyboardType(Self.keyboard("trialKind"))
                         .accessibilityIdentifier("trial")
+                    if UserDefaults.standard.string(forKey: "trialKind2") != nil {
+                        TextField("2", text: $trial2)
+                            .keyboardType(Self.keyboard("trialKind2"))
+                            .accessibilityIdentifier("trial2")
+                    }
                 }
                 Section("켜기 · Turn on") {
                     Text("설정 → 일반 → 키보드 → 키보드 → 새로운 키보드 추가 → 釋讀. 아래 設定을 쓰려면 「전체 접근 허용」을 켭니다. 켜지 않아도 기본 設定으로 動作합니다.")

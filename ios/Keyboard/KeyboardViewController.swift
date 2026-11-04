@@ -15,13 +15,24 @@ final class KeyboardViewController: UIInputViewController {
     /// What the focused field asks for; only `.standard` converts.
     private var layout = Layout.standard
 
+    /// The simulator shows the system's own globe, so the keyboard asks for
+    /// none of its own. A Debug build can be made to show one for the UI
+    /// tests: `defaults write li.mkpo.seokdok.keyboard forceGlobe -bool YES`.
+    private static var forcedGlobe: Bool {
+        #if DEBUG
+        return UserDefaults.standard.bool(forKey: "forceGlobe")
+        #else
+        return false
+        #endif
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         let dict = Bundle.main.bundleURL.appendingPathComponent("dict").path
         Session.setConfigDir(configDir())
         session = Session(dictDir: dict)
 
-        keys = KeyboardView(globe: needsInputModeSwitchKey)
+        keys = KeyboardView(globe: needsInputModeSwitchKey || Self.forcedGlobe)
         keys.delegate = self
         keys.translatesAutoresizingMaskIntoConstraints = false
         view.addSubview(keys)

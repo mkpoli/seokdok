@@ -29,7 +29,12 @@ final class SettingsModel: ObservableObject {
     @Published var config = ConfigFile.load() {
         didSet {
             if config != oldValue {
-                ConfigFile.save(config)
+                // Unless chosen here, the script stays what the chord left in the file.
+                var saved = config
+                if saved.conversion.script == oldValue.conversion.script {
+                    saved.conversion.script = ConfigFile.load().conversion.script
+                }
+                ConfigFile.save(saved)
             }
         }
     }

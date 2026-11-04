@@ -600,7 +600,9 @@ impl Engine {
                         // of an unknown word (나라 ≠ 吾+라).
                         // The honorific suffix 님 attaches to any noun (해님, 달님), and
                         // a determiner always precedes one (옛한글, 첫사랑).
-                        let inside = if q == n || comps[q..].starts_with(&NIM) || entry.pos == Pos::Det {
+                        // The bound noun 수 runs straight into 있다 and 없다 when typed
+                        // without a space (수있다, 볼수없었던).
+                        let inside = if q == n || comps[q..].starts_with(&NIM) || entry.pos == Pos::Det || is_su_before_existence(entry, &comps[q..]) {
                             0.0
                         } else if crate::jamo::syllable_count(&entry.stem) == 1 {
                             5.0
@@ -910,6 +912,14 @@ impl Engine {
                     }
                 }
                 segments.push(Segment { reading: compose(&comps[e.start..e.end]), candidates: cands });
+            }
+        }
+        // One word still offers the phrase readings: 수없다 is 數없다 or 手無다.
+        if let [one] = segments.as_mut_slice() {
+            for c in &whole {
+                if !one.candidates.iter().any(|x| x.text == c.text) {
+                    one.candidates.push(c.clone());
+                }
             }
         }
         let hun = self.hun_candidates(run);
@@ -1236,6 +1246,10 @@ impl Engine {
 fn simple_coda(stem: &[char]) -> bool {
     let k = stem.iter().rev().take_while(|&&c| is_t(c)).count();
     k == 1
+}
+
+fn is_su_before_existence(entry: &Native, rest: &[char]) -> bool {
+    entry.pos == Pos::Bound && entry.lemma == "수" && ["있", "없"].iter().any(|w| rest.starts_with(&decompose(w)))
 }
 
 /// The notes of a candidate's pieces. A piece that makes up the whole

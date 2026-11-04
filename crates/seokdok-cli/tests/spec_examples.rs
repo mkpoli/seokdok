@@ -266,3 +266,10 @@ fn the_group_reads_as_its_own_name() {
     assert_eq!(e.convert("석독회")[0].text, "釋讀會");
     assert_eq!(e.read("釋讀"), "석독");
 }
+
+#[test]
+fn compound_verbs_take_the_meaning_of_each_part() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("내려받기")[0].text, "下려受기");
+    assert_eq!(e.convert("내보내거나")[0].text, "出보내거나");
+}

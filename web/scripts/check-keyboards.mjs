@@ -85,7 +85,7 @@ function driver(page, spec, cdp) {
       sink().evaluate((el, text) => {
         const clipboardData = new DataTransfer()
         clipboardData.setData('text', text)
-        el.dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData }))
+        el.dispatchEvent(new ClipboardEvent('paste', { bubbles: true, cancelable: true, clipboardData, dataType: 'text/plain', data: text }))
       }, text),
   }
 }
@@ -213,14 +213,15 @@ const CHECKS = {
     await see({ doc: '😀hello', pre: '' })
   },
   'A mode: Latin stays, Korean still composes': async (d, see, page) => {
-    await page.locator('#ime .toolbar .seg button').nth(1).click()
+    await page.locator('#ime .toolbar .seg button').nth(1).evaluate((b) => b.click())
     await page.locator('#ime .sink').focus()
     await d.send('hi')
     await see({ doc: 'hi' })
-    await d.compose(['ㅎ', '하', '한'])
-    await see({ pre: '한', doc: 'hi' })
+    await d.compose(['ㅇ', '아', '안'])
+    await d.compose(['ㄴ', '녀', '녕'])
+    await see({ pre: '안녕', doc: 'hi' })
     await d.send(' ')
-    await see({ segs: ['韓'], doc: 'hi' })
+    await see({ segs: ['安寧'], doc: 'hi' })
   },
 }
 
@@ -231,17 +232,21 @@ async function run(name) {
   const page = await context.newPage()
   const cdp = spec.cdp ? await context.newCDPSession(page) : null
   const results = []
+  const ready = async () => {
+    try {
+      await page.waitForFunction(() => !document.querySelector('#ime .loading'), null, { timeout: 60000, polling: 100 })
+    } catch {
+      const loading = await page.locator('#ime .loading').evaluate((l) => `${l.textContent} ${l.title}`)
+      throw new Error(`the engine did not load: ${loading}`)
+    }
+  }
   await page.goto(url)
-  await page.locator('#ime .sink').scrollIntoViewIfNeeded()
-  await page.waitForFunction(() => !document.querySelector('#ime .loading'), null, { timeout: 60000 })
+  await ready()
 
   const attrs = await page.locator('#ime .sink').evaluate((el) => Object.fromEntries(['inputmode', 'enterkeyhint', 'autocapitalize', 'autocomplete', 'autocorrect', 'spellcheck'].map((a) => [a, el.getAttribute(a)])))
 
   for (const [title, check] of Object.entries(CHECKS)) {
     if (title.startsWith('Latin, real keys') && spec.mobile) continue // A phone has no such keys.
-    await page.reload()
-    await page.waitForFunction(() => !document.querySelector('#ime .loading'), null, { timeout: 60000 })
-    await page.locator('#ime .sink').focus()
     const d = driver(page, spec, cdp)
     const see = async (want) => {
       const ok = (s) => Object.entries(want).every(([k, v]) => (k === 'one' ? [...new Intl.Segmenter('ko', { granularity: 'grapheme' }).segment(s.pre)].length === 1 : JSON.stringify(s[k]) === JSON.stringify(v)))
@@ -254,6 +259,9 @@ async function run(name) {
       throw new Error(`want ${JSON.stringify(want)}, page shows ${JSON.stringify(s)}`)
     }
     try {
+      await page.reload()
+      await ready()
+      await page.locator('#ime .sink').focus()
       await check(d, see, page)
       results.push([title, 'ok'])
     } catch (e) {

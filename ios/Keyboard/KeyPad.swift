@@ -254,16 +254,13 @@ final class KeyPad: UIView {
     private var tracks: [ObjectIdentifier: Track] = [:]
     private var previewing: Key?
     private var repeatTimer: Timer?
-<<<<<<< HEAD
     private var holdTimer: Timer?
     /// The touch steering the caret, and what it has moved short of a character.
     private var cursorTouch: ObjectIdentifier?
     private var cursorX: CGFloat = 0
-=======
     /// How far from a key a touch still belongs to it: wider than the widest
     /// gap between keys, narrower than a blank cell of the number pad. Our choice.
     private static let reach: CGFloat = 16
->>>>>>> feat/ios-key-press
     /// How far a finger may stray from a function key; our choice.
     private static let slop: CGFloat = 40
     /// The system keyboard's trackpad began about 0.6 s into a held press and
@@ -318,13 +315,9 @@ final class KeyPad: UIView {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-<<<<<<< HEAD
         // Other fingers do nothing while one steers the caret.
         guard cursorTouch == nil else { return }
-        for touch in touches {
-=======
         for touch in touches.sorted(by: { $0.timestamp < $1.timestamp }) {
->>>>>>> feat/ios-key-press
             rollOver()
             guard let k = key(at: touch.location(in: self)) else { continue }
             let id = ObjectIdentifier(touch)

@@ -15,8 +15,8 @@ import android.view.ViewConfiguration
 
 /**
  * One key: the main label and an optional corner hint (the other Shift
- * layer). A key fires on release; with [repeats] it fires
- * on press and keeps firing while held; [onLong] replaces the release when
+ * layer), larger and darker when it is an old letter. A key fires on release;
+ * with [repeats] it fires on press and keeps firing while held; [onLong] replaces the release when
  * the key is held.
  */
 class KeyView(context: Context, private val style: Style = Style.LETTER) : View(context) {
@@ -93,7 +93,10 @@ class KeyView(context: Context, private val style: Style = Style.LETTER) : View(
         canvas.drawText(main, rect.centerX(), y, mainPaint)
 
         hint?.let {
-            hintPaint.color = context.getColor(R.color.key_hint)
+            val old = isOld(it)
+            hintPaint.color = context.getColor(if (old) R.color.key_text else R.color.key_hint)
+            hintPaint.textSize = sp(if (old) 14f else 11f)
+            hintPaint.typeface = if (old) Typeface.DEFAULT_BOLD else Typeface.DEFAULT
             canvas.drawText(it, rect.right - 4 * density, rect.top - hintPaint.ascent() + 1 * density, hintPaint)
         }
     }
@@ -144,5 +147,10 @@ class KeyView(context: Context, private val style: Style = Style.LETTER) : View(
 
     private companion object {
         const val REPEAT_MS = 50L
+
+        fun isOld(letter: String): Boolean {
+            val c = letter.firstOrNull() ?: return false
+            return c in "ㆍㅿㆁㆆ" || c in '\u1100'..'\u115F'
+        }
     }
 }

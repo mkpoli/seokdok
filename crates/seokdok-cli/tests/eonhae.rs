@@ -119,6 +119,16 @@ fn a_gloss_from_namu_wiki_cites_its_page_and_licence() {
 }
 
 #[test]
+fn a_rare_primer_character_leaves_the_usual_one_first() {
+    let e = engine();
+    // 新增類合 adds 毫 and 筐; the modern 訓音 are 터럭 발, 바구니 람.
+    assert_eq!(candidates(&e, "터럭")[0], "髮");
+    assert_eq!(candidates(&e, "머리터럭")[0], "頭髮");
+    assert_eq!(candidates(&e, "바구니")[0], "籃");
+    assert!(candidates(&e, "바구니").iter().any(|c| c == "筐"));
+}
+
+#[test]
 fn no_row_repeats_a_hand_made_pair() {
     let mut hand = std::collections::HashSet::new();
     for f in ["corpus.tsv", "editorial.tsv", "community.tsv"] {

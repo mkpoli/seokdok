@@ -102,7 +102,6 @@ impl TextService_Impl {
         crate::config::ensure_file();
         let cfg = crate::config::reload();
         let mode = match cfg.input.default_mode {
-            InputMode::Seokdok if cfg.conversion.script == crate::config::Script::HangulOnly => Mode::Hangul,
             InputMode::Seokdok => Mode::Seokdok,
             InputMode::Hangul => Mode::Hangul,
             InputMode::Latin => Mode::Latin,

@@ -90,7 +90,8 @@ impl Ime {
         self.session.set_space_converts(cfg.input.space_converts);
         self.session.set_horizontal(cfg.input.candidate_layout == Layout::Horizontal);
         self.session.set_old_clusters(cfg.input.old_clusters);
-        self.session.set_hangul_only(cfg.conversion.script == Script::HangulOnly);
+        let fx = self.session.set_hangul_only(cfg.conversion.script == Script::HangulOnly);
+        self.apply(fx);
         let key = (self.dict_dir.clone(), format!("{:?}", cfg.conversion));
         let mut loaded = LOADED.lock().unwrap_or_else(|e| e.into_inner());
         if loaded.as_ref() != Some(&key) || !HOST.started() {

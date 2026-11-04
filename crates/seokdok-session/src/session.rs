@@ -144,8 +144,6 @@ pub struct Session {
     space_converts: bool,
     /// 韓㐎 專用: nothing is converted, so the converting mode does not exist.
     hangul_only: bool,
-    /// The Hangul-side mode to go back to when 韓㐎 專用 is turned off.
-    mode_before_hangul_only: Mode,
     /// Candidate window in a row; ← → then walk the candidates.
     horizontal: bool,
     composer: Composer,
@@ -162,7 +160,6 @@ impl Session {
             hangul_mode,
             space_converts,
             hangul_only: false,
-            mode_before_hangul_only: hangul_mode,
             horizontal: false,
             composer: Composer::new(),
             conv: None,
@@ -170,36 +167,34 @@ impl Session {
         }
     }
 
+    /// The mode in effect: the requested one, except that 韓㐎 專用 turns
+    /// 釋讀 into plain Hangul.
     pub fn mode(&self) -> Mode {
-        self.mode
+        if self.hangul_only && self.mode == Mode::Seokdok {
+            Mode::Hangul
+        } else {
+            self.mode
+        }
     }
 
     pub fn set_space_converts(&mut self, v: bool) {
         self.space_converts = v;
     }
 
-    /// 韓㐎 專用: type Hangul and never convert. Space inserts a space and
-    /// Enter commits; the 釋讀 mode becomes the plain Hangul mode.
-    /// Turning it off restores the mode it replaced.
-    pub fn set_hangul_only(&mut self, v: bool) {
+    /// 韓㐎 專用: nothing is converted. The requested mode is kept, so turning
+    /// it off brings conversion back. A composition or conversion in progress
+    /// is committed as it stands.
+    pub fn set_hangul_only(&mut self, v: bool) -> Vec<Effect> {
+        let mut fx = Vec::new();
         if v == self.hangul_only {
-            return;
+            return fx;
+        }
+        if self.is_composing() {
+            fx.push(Effect::Commit(self.take_text()));
+            fx.push(Effect::Popup(None));
         }
         self.hangul_only = v;
-        if v {
-            self.mode_before_hangul_only = self.hangul_mode;
-            self.mode = self.allowed(self.mode);
-            self.hangul_mode = self.allowed(self.hangul_mode);
-        } else {
-            self.hangul_mode = self.mode_before_hangul_only;
-            if self.mode == Mode::Hangul {
-                self.mode = self.hangul_mode;
-            }
-        }
-    }
-
-    fn allowed(&self, mode: Mode) -> Mode {
-        if self.hangul_only && mode == Mode::Seokdok { Mode::Hangul } else { mode }
+        fx
     }
 
     pub fn set_horizontal(&mut self, v: bool) {
@@ -273,7 +268,7 @@ impl Session {
                 _ => None,
             };
         }
-        let converts = self.mode == Mode::Seokdok;
+        let converts = self.mode() == Mode::Seokdok;
         Some(match key {
             Key::Letter { .. } => Act::Insert(jamo.unwrap()),
             Key::Space { shift: false } if converts && self.space_converts => Act::Convert(true),
@@ -485,7 +480,6 @@ impl Session {
 
     /// Switch mode, committing any composition as it stands.
     pub fn set_mode(&mut self, mode: Mode) -> Vec<Effect> {
-        let mode = self.allowed(mode);
         let mut fx = Vec::new();
         if self.is_composing() {
             fx.push(Effect::Commit(self.take_text()));
@@ -985,7 +979,7 @@ mod tests {
     }
 
     #[test]
-    fn hangul_only_has_no_converting_mode() {
+    fn hangul_only_reports_hangul_and_keeps_the_requested_mode() {
         let mut s = hangul_only();
         assert_eq!(s.mode(), Mode::Hangul);
         assert!(s.set_mode(Mode::Seokdok).is_empty());
@@ -996,19 +990,34 @@ mod tests {
         assert_eq!(s.mode(), Mode::Hangul);
         s.set_hangul_only(false);
         assert_eq!(s.mode(), Mode::Seokdok);
-        // The toggle from Latin returns to it as well.
+        // Latin stays Latin through the setting and returns to 釋讀 afterwards.
         s.set_hangul_only(true);
         s.handle(Key::HangulToggle, &Stub(3));
-        assert_eq!(s.mode(), Mode::Latin);
         s.set_hangul_only(false);
         assert_eq!(s.mode(), Mode::Latin);
         s.handle(Key::HangulToggle, &Stub(3));
         assert_eq!(s.mode(), Mode::Seokdok);
-        // A session that started in plain Hangul stays there.
+        // A session that asked for plain Hangul stays there.
         let mut h = Session::new(Mode::Hangul, true);
         h.set_hangul_only(true);
         h.set_hangul_only(false);
         assert_eq!(h.mode(), Mode::Hangul);
+    }
+
+    #[test]
+    fn hangul_only_flushes_a_composition_or_conversion() {
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        s.handle(Key::Space { shift: false }, &Stub(3));
+        s.handle(Key::Down, &Stub(3));
+        let fx = s.set_hangul_only(true);
+        assert_eq!(fx[0], Effect::Commit("한2".into()));
+        assert_eq!(fx[1], Effect::Popup(None));
+        assert!(!s.is_composing());
+        assert!(s.set_hangul_only(true).is_empty());
+        type_str(&mut s, "rk");
+        let fx = s.set_hangul_only(false);
+        assert_eq!(fx[0], Effect::Commit("가".into()));
     }
 
     #[test]

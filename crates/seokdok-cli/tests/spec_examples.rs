@@ -754,3 +754,12 @@ fn to_recite_is_not_to_tell() {
     assert_eq!(e.convert("읊고")[0].text, "吟고");
     assert!(offers(&e, "읊다", "詠다"));
 }
+
+#[test]
+fn place_words_with_their_particle() {
+    let e = engine(Options::default());
+    for (input, want) in [("전에", "前에"), ("밑에", "下에"), ("곁에", "傍에"), ("맘에", "心에")] {
+        assert_eq!(e.convert(input)[0].text, want, "{input}");
+    }
+    assert!(offers(&e, "전에", "전에"));
+}

@@ -65,7 +65,9 @@ pick it with 入力 方法 고르기 (or hold the space bar while typing).
   - `SeokdokService.kt`: keys → session → composing text, commits, strip.
   - `KeyboardView.kt`, `KeyView.kt`: the candidate strip and the keys.
   - `Files.kt`: copies the dictionaries from the assets to
-    `filesDir/dict` on first run and after each update; settings live in
+    `filesDir/dict` on first run and after each update, on a background
+    thread (the strip shows 辭典 讀는 中… and keys wait until it is done);
+    settings live in
     `filesDir/config`.
   - `SettingsActivity.kt`, `ConfigText.kt`: the settings, written as
     `config.toml` through the session's own writer

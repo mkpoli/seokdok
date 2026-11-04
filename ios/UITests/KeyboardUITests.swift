@@ -184,13 +184,11 @@ final class KeyboardUITests: XCTestCase {
     func testDrawerOpensAndPicks() throws {
         let (app, field) = launch(kind: "default")
         let g = Geometry(app: app)
-        tapUntilTyped(field) { g.tap(x: g.width * 274 / 920, y: 159) } // ㅇ
-        for x: CGFloat in [738, 180, 180, 598, 274] {
-            g.tap(x: g.width * x / 920, y: x == 598 ? 107 : 159) // ㅏ ㄴ ㄴ ㅕ ㅇ
-        }
-        g.tap(x: g.width * 474 / 920, y: 259) // Space
+        tapUntilTyped(field) { g.letter("d") }
+        g.type("kssud")
+        g.space()
         sleep(1)
-        g.tap(x: g.width - 25, y: 56)
+        g.tap(x: g.width - 25, y: g.barCenter)
         usleep(100_000)
         shot("drawer-opening")
         sleep(1)
@@ -198,9 +196,10 @@ final class KeyboardUITests: XCTestCase {
         g.tap(x: g.width - 22, y: 22) // closes
         sleep(1)
         shot("drawer-closed")
-        g.tap(x: g.width - 25, y: 56)
+        shot("drawer-reopened")
+        g.tap(x: g.width - 25, y: g.barCenter)
         sleep(1)
-        g.tap(x: 40, y: 66) // the second row's first candidate
+        g.tap(x: 40, y: 110) // the grid's second row, first candidate
         sleep(1)
         shot("drawer-picked")
         let value = text(field)

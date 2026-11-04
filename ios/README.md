@@ -33,9 +33,11 @@ steps use Sideloadly on Windows.
    the app extensions: removing them removes the keyboard.
 6. On the iPhone, open Settings → General → VPN & Device Management, tap your
    Apple ID and trust it.
-7. Open Settings → General → Keyboard → Keyboards → Add New Keyboard → 釋讀.
-   Allow Full Access only to use the app's settings (see below).
-8. Open the 釋讀 app, tap the Try it field, and hold the globe key to pick 釋讀.
+7. Open Settings → General → Keyboard → Keyboards → Add New Keyboard → 釋讀, or
+   use the app's Open Settings link (Apple offers no public link to the
+   Keyboards list itself). Allow Full Access for key clicks and the app's
+   settings (see below).
+8. Open the 釋讀 app, tap the Try It field, and hold the globe key to pick 釋讀.
 
 With a free Apple ID the app stops working after 7 days: repeat step 5 with
 the same Apple ID. Apple also allows 3 sideloaded apps at once and 10 App IDs
@@ -133,8 +135,9 @@ turned off.
   text changes outside the keyboard.
 - `Keyboard/KeyboardView.swift`: the strip, the candidate bar, the 두벌식
   and symbol layers.
-- `App/SeokdokApp.swift`: a field to try the keyboard, how to enable it, and
-  the settings.
+- `App/SeokdokApp.swift`: how to add the keyboard, a field to try it, and the
+  settings, laid out as in Settings with labels in the system's language. The
+  wording follows the Windows settings app.
 - `Shared/AppGroup.swift`: finds the App Group the signature grants.
 - `Shared/OldHangul.swift`, `Shared/OldHangul.otf`: old Hangul glyphs for the
   keyboard's own labels, which iOS fonts lack. Text sent to other apps shows

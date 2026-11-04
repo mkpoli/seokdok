@@ -55,6 +55,54 @@ final class KeyboardUITests: XCTestCase {
         XCTAssertTrue(value.contains("安寧"), "field holds \(value)")
     }
 
+    // MARK: The app
+
+    /// Every screen of the app in light and dark, English and Korean.
+    func testSettingsScreens() throws {
+        for (look, appearance) in [("light", XCUIDevice.Appearance.light), ("dark", .dark)] {
+            XCUIDevice.shared.appearance = appearance
+            for language in ["en", "ko"] {
+                let app = XCUIApplication()
+                let name = "settings-\(language)-\(look)"
+                app.launchArguments = ["-AppleLanguages", "(\(language))"]
+                app.launch()
+                XCTAssertTrue(app.cells["conversion"].waitForExistence(timeout: 10) || app.buttons["conversion"].waitForExistence(timeout: 5))
+                shot(name + "-root")
+                app.descendants(matching: .any)["conversion"].firstMatch.tap()
+                sleep(1)
+                shot(name + "-conversion")
+                app.swipeUp()
+                sleep(1)
+                shot(name + "-conversion-2")
+                app.navigationBars.buttons.firstMatch.tap()
+                sleep(1)
+                app.descendants(matching: .any)["typing"].firstMatch.tap()
+                sleep(1)
+                shot(name + "-typing")
+                app.terminate()
+
+                // With the keyboard not added yet.
+                app.launchArguments = ["-AppleLanguages", "(\(language))", "-AppleKeyboards", "(none)"]
+                app.launch()
+                XCTAssertTrue(app.descendants(matching: .any)["openSettings"].waitForExistence(timeout: 10))
+                shot(name + "-setup")
+                app.terminate()
+            }
+        }
+        XCUIDevice.shared.appearance = .light
+
+        // The link leads to this app's page in Settings.
+        let app = XCUIApplication()
+        app.launch()
+        let open = app.descendants(matching: .any)["openSettings"].firstMatch
+        XCTAssertTrue(open.waitForExistence(timeout: 10))
+        open.tap()
+        sleep(3)
+        shot("settings-deep-link")
+        XCUIApplication(bundleIdentifier: "com.apple.Preferences").terminate()
+        app.terminate()
+    }
+
     // MARK: Keyboard types
     //
     // Keys of the pad layouts and the email layout, by point offsets from the

@@ -198,8 +198,8 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         render(KeyboardState())
     }
 
-    /// Open or close the drawer over the keys, on the curve the system uses
-    /// for its keyboard's own drawer.
+    /// Open or close the drawer over the keys. The cross-fade and its length
+    /// are our choice.
     private func setDrawer(open: Bool) {
         guard open != drawerOpen else { return }
         drawerOpen = open

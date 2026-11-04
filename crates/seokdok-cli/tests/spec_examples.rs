@@ -773,3 +773,12 @@ fn the_common_word_leads_its_homophones() {
     assert!(offers(&e, "음성", "陰城"));
     assert!(offers(&e, "고령", "高靈"));
 }
+
+#[test]
+fn i_is_wo_first() {
+    let e = engine(Options::default());
+    for (input, want) in [("나", "我"), ("내", "我ㅣ"), ("내가", "我ㅣ가"), ("나는", "我는"), ("난", "我ㄴ")] {
+        assert_eq!(e.convert(input)[0].text, want, "{input}");
+    }
+    assert!(offers(&e, "나", "吾"));
+}

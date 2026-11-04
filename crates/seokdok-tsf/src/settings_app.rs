@@ -2,9 +2,10 @@
 //! the input indicator's menu and the Options button of the language settings.
 //!
 //! The DLL runs inside whatever application is being typed in, so the app is
-//! its own process: it inherits nothing from the host and outlives it, and this
-//! code never touches the window focus. A settings change reaches the host
-//! through config.toml, at its next key.
+//! its own process: it inherits no handles and outlives the host, and this code
+//! never touches the window focus. It does take the host's environment and
+//! rights, as any child process does. A settings change reaches the host through
+//! config.toml, at its next key.
 
 use std::os::windows::ffi::OsStrExt;
 use std::path::{Path, PathBuf};
@@ -77,7 +78,7 @@ pub fn open() {
 
 fn report() {
     crate::lock_module();
-    std::thread::spawn(|| {
+    let shown = std::thread::Builder::new().spawn(|| {
         // SAFETY: no pointers; asks for the language of the user interface.
         let korean = unsafe { GetUserDefaultUILanguage() } & 0x3ff == KOREAN;
         let (title, text) = if korean {
@@ -90,4 +91,7 @@ fn report() {
         unsafe { MessageBoxW(None, PCWSTR(text.as_ptr()), PCWSTR(title.as_ptr()), MB_OK | MB_ICONWARNING) };
         crate::unlock_module();
     });
+    if shown.is_err() {
+        crate::unlock_module();
+    }
 }

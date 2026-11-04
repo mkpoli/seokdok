@@ -38,8 +38,11 @@ final class SeokdokInputController: IMKInputController {
     /// Option went down with nothing else since: a release switches modes.
     private var optionAlone = false
     private var hasMarkedText = false
-    /// The mode last shown in the input menu.
+    /// The input source the system has selected, as far as this controller
+    /// knows. The script setting never changes it.
     private var shownMode: Session.Mode?
+    /// The last source that was not Latin: where the Han/Eng toggle returns.
+    private var lastSource: Session.Mode = .seokdok
 
     private static let notFound = NSRange(location: NSNotFound, length: 0)
 
@@ -54,6 +57,7 @@ final class SeokdokInputController: IMKInputController {
         if let mode = InputModes.selected() {
             session.mode = mode
             shownMode = mode
+            if mode != .latin { lastSource = mode }
         }
         hasMarkedText = false
     }
@@ -91,6 +95,7 @@ final class SeokdokInputController: IMKInputController {
         defer { super.setValue(value, forTag: tag, client: sender) }
         guard let id = value as? String, let mode = InputModes.mode(id) else { return }
         shownMode = mode
+        if mode != .latin { lastSource = mode }
         if session.mode != mode {
             session.mode = mode
             update(sender)
@@ -222,18 +227,25 @@ final class SeokdokInputController: IMKInputController {
             CandidateWindow.shared.hide()
         }
 
-        let mode = session.mode
-        if mode != shownMode {
-            shownMode = mode
-            client.selectMode(InputModes.id(mode))
+        let source = inputSource(for: session.mode)
+        if source != shownMode {
+            shownMode = source
+            if source != .latin { lastSource = source }
+            client.selectMode(InputModes.id(source))
         }
+    }
+
+    /// The input source that shows `mode`. With 韓㐎 專用 the session reports
+    /// Hangul for 釋讀 as well, and the source the user picked stays.
+    private func inputSource(for mode: Session.Mode) -> Session.Mode {
+        mode == .hangul && Session.hangulOnly && lastSource == .seokdok ? .seokdok : mode
     }
 
     // MARK: Menu
 
     override func menu() -> NSMenu! {
         let menu = NSMenu()
-        let current = session.mode
+        let current = shownMode ?? session.mode
         let items: [(String, Selector, Session.Mode)] = [
             ("釋讀 Seokdok", #selector(selectSeokdok(_:)), .seokdok),
             ("한글 Hangul", #selector(selectHangul(_:)), .hangul),
@@ -256,6 +268,7 @@ final class SeokdokInputController: IMKInputController {
     @objc private func selectLatin(_ sender: Any?) { choose(.latin) }
 
     private func choose(_ mode: Session.Mode) {
+        if mode != .latin { lastSource = mode }
         session.mode = mode
         update(nil)
     }

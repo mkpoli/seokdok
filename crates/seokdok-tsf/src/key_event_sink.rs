@@ -80,14 +80,17 @@ impl TextService_Impl {
         let cfg = crate::config::current();
         let (requested, effects) = {
             let mut state = self.inner_mut();
+            let hangul_only = cfg.conversion.script == crate::config::Script::HangulOnly;
+            state.mode.set_hangul_only(hangul_only);
+            let mut effects = state.session.set_hangul_only(hangul_only);
             state.session.set_space_converts(cfg.input.space_converts);
             state.session.set_horizontal(cfg.input.candidate_layout == crate::config::Layout::Horizontal);
             state.session.set_old_clusters(cfg.input.old_clusters);
             let requested = state.mode.take_request();
-            let effects = requested.map(|m| state.session.set_mode(m)).unwrap_or_default();
+            effects.extend(requested.map(|m| state.session.set_mode(m)).unwrap_or_default());
             (requested, effects)
         };
-        if requested.is_some() {
+        if requested.is_some() || !effects.is_empty() {
             let _ = self.apply(context, effects);
         }
     }
@@ -114,7 +117,10 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         if let Some(context) = pic.as_ref() {
             self.sync(context);
         }
-        let eats = self.inner().session.eats(key);
+        let eats = {
+            let state = self.inner();
+            state.session.eats(key) || state.session.commits_then_passes(key)
+        };
         crate::debug_log::log(|| format!("OnTestKeyDown vk={:#x} eats={eats} ctx={:?}", wparam.0, pic.as_ref().map(|c| windows::core::Interface::as_raw(c))));
         Ok(eats.into())
     }
@@ -155,6 +161,10 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             COMMITTED_BY.with(|c| c.set(Some((wparam.0 & 0xFFFF) as u16)));
         }
         if !output.eaten {
+            // A plain keyboard commits its composition before the key goes on.
+            if !output.effects.is_empty() {
+                let _ = self.apply(context, output.effects);
+            }
             return Ok(false.into());
         }
         {

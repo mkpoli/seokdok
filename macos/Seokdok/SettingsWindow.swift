@@ -54,6 +54,11 @@ struct SettingsView: View {
                 }
             }
             Section("表記 / Spelling") {
+                Picker("文字 / Script", selection: $model.config.conversion.script) {
+                    Text("釋讀 / Seokdok").tag("seokdok")
+                    Text("國漢文混用 / Hanja for Sino-Korean words only").tag("sino_only")
+                    Text("韓㐎 專用 / Hangul only, no conversion").tag("hangul_only")
+                }
                 Picker("送韓字 / Style", selection: $model.config.conversion.style) {
                     Text("表音式 / Surface  (見ㅆ다)").tag("surface")
                     Text("形態式 / Morpheme  (見았다)").tag("morpheme")
@@ -65,7 +70,6 @@ struct SettingsView: View {
                 Toggle("末音添記 늘 / Always write the final consonant  (有ㅆ다)", isOn: $model.config.conversion.codaAlways)
                 Toggle("받침 넘기기 / Resyllabify  (在쓰면)", isOn: $model.config.conversion.resyllabify)
                 Toggle("하다를 爲로 / Prefer 爲 for 하다", isOn: $model.config.conversion.hadaKun)
-                Toggle("國漢文混用 · Hanja for Sino-Korean words only", isOn: $model.config.conversion.sinoOnly)
                 Stepper(value: $model.config.conversion.maxCandidates, in: 1...99) {
                     Text("最大 候補 數 / Max candidates: \(model.config.conversion.maxCandidates)")
                 }

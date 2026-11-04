@@ -1,7 +1,6 @@
-//! `ITfThreadMgrEventSink`: a focus change hides the candidate window; the
-//! document ends the composition itself.
+//! `ITfThreadMgrEventSink`: a focus change ends what is being composed.
 
-use windows::core::Ref;
+use windows::core::{Interface, Ref};
 use windows::Win32::UI::TextServices::{ITfContext, ITfDocumentMgr, ITfThreadMgrEventSink_Impl};
 
 use crate::text_service::TextService_Impl;
@@ -17,10 +16,12 @@ impl ITfThreadMgrEventSink_Impl for TextService_Impl {
 
     fn OnSetFocus(
         &self,
-        _pdimfocus: Ref<'_, ITfDocumentMgr>,
-        _pdimprevfocus: Ref<'_, ITfDocumentMgr>,
+        pdimfocus: Ref<'_, ITfDocumentMgr>,
+        pdimprevfocus: Ref<'_, ITfDocumentMgr>,
     ) -> windows::core::Result<()> {
-        self.hide_popup();
+        if pdimfocus.as_ref().map(Interface::as_raw) != pdimprevfocus.as_ref().map(Interface::as_raw) {
+            self.end_at_boundary("the focus moved");
+        }
         Ok(())
     }
 

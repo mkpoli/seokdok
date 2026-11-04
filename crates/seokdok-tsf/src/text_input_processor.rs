@@ -59,6 +59,7 @@ impl ITfTextInputProcessor_Impl for TextService_Impl {
         state.composition = None;
         state.drawn.clear();
         state.imm32_context = None;
+        state.typing_context = None;
         state.candidate_window = None;
         state.category_mgr = None;
         state.display_atoms = [0; 3];

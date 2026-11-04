@@ -8,7 +8,7 @@ use std::sync::OnceLock;
 use std::time::Instant;
 
 use windows::core::{IUnknownImpl, Interface, Ref};
-use windows::Win32::Foundation::RECT;
+use windows::Win32::Foundation::{E_FAIL, RECT};
 use windows::Win32::System::Variant::{
     VARIANT, VARIANT_0, VARIANT_0_0, VARIANT_0_0_0, VT_I4,
 };
@@ -195,6 +195,58 @@ impl TextService_Impl {
         });
         crate::debug_log::log(|| format!("surface {surface:?}: {why} (static flags {flags:#x})"));
         surface
+    }
+
+    /// A key arrived in `context`: if the text so far was typed elsewhere, that
+    /// composition is over.
+    pub(crate) fn note_typing_context(&self, context: &ITfContext) {
+        let moved = self.inner().typing_context.as_ref().is_some_and(|c| c.as_raw() != context.as_raw());
+        if moved {
+            self.end_at_boundary("the context changed");
+        }
+        self.inner_mut().typing_context = Some(context.clone());
+    }
+
+    /// Focus or the context moved: what is being composed belongs to the
+    /// document it was typed in. It is committed there, and whatever happens to
+    /// that nothing of it stays in the session to continue in the next field.
+    pub(crate) fn end_at_boundary(&self, why: &str) {
+        let (effects, typed_in) = {
+            let mut state = self.inner_mut();
+            (state.session.flush(), state.typing_context.take())
+        };
+        if !effects.is_empty() {
+            let delivered = match &typed_in {
+                Some(context) => self.apply(context, effects),
+                None => Err(E_FAIL.into()),
+            };
+            match delivered {
+                Ok(()) => crate::debug_log::log(|| format!("boundary: {why}: committed where it was typed")),
+                Err(e) => crate::debug_log::log(|| format!("boundary: {why}: could not commit, dropped: {e:?}")),
+            }
+        }
+        {
+            let mut state = self.inner_mut();
+            state.session.reset();
+            state.composition = None;
+            state.anchor = None;
+            state.drawn.clear();
+            state.floating = None;
+            state.popup = None;
+            state.first_write_at = None;
+        }
+        self.redraw();
+    }
+
+    /// The focused context is no longer the one typed in.
+    fn focus_left_typing_context(&self) -> bool {
+        let (manager, typed_in) = {
+            let state = self.inner();
+            (state.thread_mgr.clone(), state.typing_context.as_ref().map(|c| c.as_raw()))
+        };
+        // SAFETY: manager is the valid thread manager; the calls only read.
+        let focused = manager.and_then(|m| unsafe { m.GetFocus().and_then(|d| d.GetTop()) }.ok());
+        focused.map(|c| c.as_raw()) != typed_in
     }
 
     /// Float this process from now on.
@@ -531,7 +583,7 @@ impl ITfCompositionSink_Impl for TextService_Impl {
         _ecwrite: u32,
         _pcomposition: Ref<'_, ITfComposition>,
     ) -> windows::core::Result<()> {
-        let end = {
+        {
             let mut state = self.inner_mut();
             state.compositions_ended += 1;
             if state.ending {
@@ -539,10 +591,14 @@ impl ITfCompositionSink_Impl for TextService_Impl {
                 state.composition = None;
                 return Ok(());
             }
+        }
+        let focus_moved = self.focus_left_typing_context();
+        let end = {
+            let state = self.inner();
             let since_first_write = state.first_write_at.map(|t| t.elapsed());
-            classify_end(state.composition_transitory, state.writing, since_first_write)
+            classify_end(state.composition_transitory, focus_moved, state.writing, since_first_write)
         };
-        crate::debug_log::log(|| format!("OnCompositionTerminated: {end:?}"));
+        crate::debug_log::log(|| format!("OnCompositionTerminated: {end:?} focus_moved={focus_moved}"));
         if let End::Refused { in_edit } = end {
             if self.inner_mut().refusals.refused(in_edit) {
                 self.remember_floating("the document ended a composition just written");

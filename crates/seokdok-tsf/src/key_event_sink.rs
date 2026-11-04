@@ -125,6 +125,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             return Ok(false.into());
         };
         if let Some(context) = pic.as_ref() {
+            self.note_typing_context(context);
             self.sync(context);
         }
         let eats = {
@@ -163,6 +164,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         let Some(context) = pic.as_ref() else {
             return Ok(false.into());
         };
+        self.note_typing_context(context);
         self.sync(context);
         // Release the borrow before touching the document: TSF calls back
         // into this object during edit sessions.
@@ -213,6 +215,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         let Some(context) = pic.as_ref() else {
             return Ok(false.into());
         };
+        self.note_typing_context(context);
         self.sync(context);
         let output = self.inner_mut().session.handle(Key::HangulToggle, &HOST);
         {

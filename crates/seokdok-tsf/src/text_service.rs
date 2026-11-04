@@ -9,7 +9,7 @@ use std::time::Instant;
 
 use windows::core::implement;
 use windows::Win32::UI::TextServices::{
-    ITfCategoryMgr, ITfComposition, ITfCompositionSink, ITfDisplayAttributeProvider,
+    ITfCategoryMgr, ITfComposition, ITfCompositionSink, ITfContext, ITfDisplayAttributeProvider,
     ITfFnConfigure, ITfFunction, ITfFunctionProvider, ITfKeyEventSink, ITfLangBarItem,
     ITfTextInputProcessor, ITfTextInputProcessorEx, ITfThreadMgr, ITfThreadMgrEventSink,
     TF_INVALID_COOKIE,
@@ -48,6 +48,8 @@ pub struct TextServiceState {
     pub drawn: Vec<Run>,
     /// The open composition's context says `TS_SS_TRANSITORY`.
     pub composition_transitory: bool,
+    /// The context the session's text was typed in.
+    pub typing_context: Option<ITfContext>,
     /// The key being handled, to replay on what is left if the text so far
     /// turns out to have reached the application.
     pub current_key: Option<Key>,
@@ -81,6 +83,7 @@ impl Default for TextServiceState {
             imm32_context: None,
             drawn: Vec::new(),
             composition_transitory: false,
+            typing_context: None,
             current_key: None,
             writing: false,
             ending: false,

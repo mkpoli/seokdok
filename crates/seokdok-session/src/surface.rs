@@ -54,11 +54,13 @@ pub enum End {
     Refused { in_edit: bool },
 }
 
-/// Classify an end the input method did not ask for. `since_first_write` is the
-/// time since the composition's first write, `None` once it has taken a second:
-/// a document that accepted a second write did not refuse the composition.
-pub fn classify_end(transitory: bool, in_edit: bool, since_first_write: Option<Duration>) -> End {
-    if !transitory {
+/// Classify an end the input method did not ask for. `focus_moved`: the focused
+/// context is no longer the one typed in, which explains the end whatever the
+/// timing. `since_first_write` is the time since the composition's first write,
+/// `None` once it has taken a second: a document that accepted a second write
+/// did not refuse the composition.
+pub fn classify_end(transitory: bool, focus_moved: bool, in_edit: bool, since_first_write: Option<Duration>) -> End {
+    if !transitory || focus_moved {
         End::Ordinary
     } else if in_edit {
         End::Refused { in_edit: true }
@@ -131,11 +133,18 @@ mod tests {
     fn an_end_counts_as_a_refusal_only_in_a_transitory_context_right_after_the_first_write() {
         let soon = Some(Duration::from_millis(1));
         let later = Some(Duration::from_millis(400));
-        assert_eq!(classify_end(true, true, soon), End::Refused { in_edit: true });
-        assert_eq!(classify_end(true, false, soon), End::Refused { in_edit: false });
-        assert_eq!(classify_end(true, false, later), End::Ordinary);
-        assert_eq!(classify_end(true, false, None), End::Ordinary);
-        assert_eq!(classify_end(false, true, soon), End::Ordinary);
+        assert_eq!(classify_end(true, false, true, soon), End::Refused { in_edit: true });
+        assert_eq!(classify_end(true, false, false, soon), End::Refused { in_edit: false });
+        assert_eq!(classify_end(true, false, false, later), End::Ordinary);
+        assert_eq!(classify_end(true, false, false, None), End::Ordinary);
+        assert_eq!(classify_end(false, false, true, soon), End::Ordinary);
+    }
+
+    #[test]
+    fn a_moved_focus_is_never_a_refusal() {
+        let soon = Some(Duration::from_millis(1));
+        assert_eq!(classify_end(true, true, true, soon), End::Ordinary);
+        assert_eq!(classify_end(true, true, false, soon), End::Ordinary);
     }
 
     #[test]

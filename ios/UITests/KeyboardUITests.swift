@@ -342,6 +342,23 @@ final class KeyboardUITests: XCTestCase {
         XCTAssertFalse(value.isEmpty)
         XCTAssertNotEqual(value, "安寧", "the first candidate came out, not the tapped one")
         XCTAssertNotEqual(value, "안녕")
+    /// Two default fields: Hangul pending in the first must stay there, and
+    /// the keys tapped right after focusing the second compose in it with
+    /// nothing lost.
+    func testSwitchingBetweenSameLayoutFieldsKeepsEachCompositionApart() throws {
+        let (app, field) = launch(kind: "default", second: "default")
+        let second = app.descendants(matching: .any)["trial2"]
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("r") } // ㄱ
+        g.letter("k") // ㅏ
+        assertText(field, "가")
+        second.tap()
+        g.letter("s") // ㄴ, at once
+        g.letter("k") // ㅏ
+        sleep(1)
+        shot("switched-same-layout")
+        assertText(field, "가", "the first field changed")
+        assertText(second, "나", "the second field lost or gained text")
     }
 
     /// A longer composition shows its segments in the drawer, and the − and +

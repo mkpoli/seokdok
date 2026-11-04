@@ -1,6 +1,6 @@
 //! Settings entry point: `ITfFunctionProvider` + `ITfFnConfigure` so the
 //! "Options" button next to seokdok in the Windows language settings opens the
-//! settings dialog.
+//! settings app.
 //!
 //! The system finds it by QI-ing the activated TIP object and calling
 //! `GetFunction(_, IID_ITfFnConfigure)` then `ITfFnConfigure::Show`.
@@ -47,12 +47,11 @@ impl ITfFunctionProvider_Impl for TextService_Impl {
 impl ITfFnConfigure_Impl for TextService_Impl {
     fn Show(
         &self,
-        hwndparent: HWND,
+        _hwndparent: HWND,
         _langid: u16,
         _rguidprofile: *const GUID,
     ) -> windows::core::Result<()> {
-        // Open the native settings dialog (bound to config.toml).
-        crate::settings_dialog::show(hwndparent);
+        crate::settings_app::open();
         Ok(())
     }
 }

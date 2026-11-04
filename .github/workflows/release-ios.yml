@@ -1,0 +1,113 @@
+name: Release iOS
+
+# Archives the app signed through an App Store Connect API key (Xcode creates
+# and downloads the certificate and profiles) and uploads the build to
+# TestFlight. Without the secrets, the job is skipped.
+on:
+  push:
+    tags: ["v*"]
+    branches: ["ci/release*"]
+  workflow_dispatch:
+
+concurrency:
+  group: release-ios-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      ready: ${{ steps.check.outputs.ready }}
+    steps:
+      - id: check
+        env:
+          KEY: ${{ secrets.ASC_KEY_P8 }}
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          if [ -n "$KEY" ] && [ -n "$KEY_ID" ] && [ -n "$ISSUER" ] && [ -n "$TEAM" ]; then
+            echo "ready=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "ready=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::ASC_KEY_P8, ASC_KEY_ID, ASC_ISSUER_ID or APPLE_TEAM_ID is not set; nothing is signed or uploaded."
+          fi
+
+  testflight:
+    needs: check
+    if: needs.check.outputs.ready == 'true'
+    runs-on: macos-15
+    timeout-minutes: 60
+    env:
+      KEY_PATH: ${{ runner.temp }}/AuthKey.p8
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust targets
+        run: rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ios
+
+      - name: Rust library (SeokdokCore.xcframework)
+        run: ios/build-rust.sh
+
+      - name: Xcode project
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen
+          cd ios && xcodegen
+
+      - name: API key
+        env:
+          KEY: ${{ secrets.ASC_KEY_P8 }}
+        run: printf '%s\n' "$KEY" > "$KEY_PATH"
+
+      # The build number is the run number, which only grows; the version
+      # comes from the tag when there is one.
+      - name: Archive
+        working-directory: ios
+        env:
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          version_args=()
+          case "$GITHUB_REF" in refs/tags/v*) version_args+=("MARKETING_VERSION=${GITHUB_REF_NAME#v}") ;; esac
+          xcodebuild -quiet archive -project Seokdok.xcodeproj -scheme Seokdok \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -archivePath build/Seokdok.xcarchive \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER" \
+            CODE_SIGN_STYLE=Automatic DEVELOPMENT_TEAM="$TEAM" \
+            CURRENT_PROJECT_VERSION="$GITHUB_RUN_NUMBER" "${version_args[@]}"
+
+      # destination=upload sends the build to App Store Connect itself.
+      - name: Export and upload to TestFlight
+        working-directory: ios
+        env:
+          KEY_ID: ${{ secrets.ASC_KEY_ID }}
+          ISSUER: ${{ secrets.ASC_ISSUER_ID }}
+          TEAM: ${{ secrets.APPLE_TEAM_ID }}
+        run: |
+          cat > build/ExportOptions.plist <<PLIST
+          <?xml version="1.0" encoding="UTF-8"?>
+          <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+          <plist version="1.0">
+          <dict>
+            <key>method</key><string>app-store-connect</string>
+            <key>destination</key><string>upload</string>
+            <key>teamID</key><string>$TEAM</string>
+            <key>signingStyle</key><string>automatic</string>
+            <key>uploadSymbols</key><true/>
+          </dict>
+          </plist>
+          PLIST
+          xcodebuild -exportArchive -archivePath build/Seokdok.xcarchive \
+            -exportOptionsPlist build/ExportOptions.plist -exportPath build/export \
+            -allowProvisioningUpdates \
+            -authenticationKeyPath "$KEY_PATH" -authenticationKeyID "$KEY_ID" -authenticationKeyIssuerID "$ISSUER"
+
+      - name: Remove the API key
+        if: always()
+        run: rm -f "$KEY_PATH"

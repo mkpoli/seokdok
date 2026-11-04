@@ -83,6 +83,7 @@ jobs:
           export SEOKDOK_KEYSTORE="$RUNNER_TEMP/seokdok.jks"
           gradle assembleRelease --stacktrace
           rm -f "$SEOKDOK_KEYSTORE"
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk
 
       - uses: actions/upload-artifact@v7
         if: steps.key.outputs.signed == 'true'

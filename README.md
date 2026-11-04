@@ -8,7 +8,7 @@ An input method for 釋讀, the Korean spelling played with in 釋讀會 (풀어
 옛한글로 양심을 적다       → 古ㅅ韓㐎로 良心을 記다
 ```
 
-In 國漢文混用 mode only Sino-Korean words become Hanja: 선생님께서 공부하셨다 → 先生님께서 工夫하셨다. In 韓㐎 專用 mode nothing is converted: 두벌식 typing with old Hangul, Space types a space, Enter commits, and there is no candidate window. The `script` setting in config.toml (`seokdok`, `sino_only`, `hangul_only`) picks among the three. The spelling rules and their options are in [docs/orthography.md](docs/orthography.md).
+In 國漢文混用 mode only Sino-Korean words become Hanja: 선생님께서 공부하셨다 → 先生님께서 工夫하셨다. In 韓㐎 專用 mode nothing is converted: 두벌식 typing with old Hangul, Space types a space, Enter commits, and there is no candidate window. The `script` setting in config.toml (`seokdok`, `sino_only`, `hangul_only`) picks among the three. The spelling rules and their options are in [docs/orthography.md](docs/orthography.md). Old Hangul such as ᄉᆞ랑 is accepted as input, and ᄒᆞ, ᄂᆞᆫ and ᄅᆞᆯ are offered after Hanja (追加ᄒᆞᆯ까요); see [§8](docs/orthography.md#8-old-spellings).
 
 ## Install
 
@@ -16,7 +16,8 @@ Downloads are on [seokdok.mkpo.li/#install](https://seokdok.mkpo.li/#install).
 
 - **Windows**: run the setup, then pick 釋讀 with Win+Space.
 - **Linux**: unpack the tarball and run `install.sh` (per user, no sudo), restart fcitx5 and add 釋讀 in fcitx5-configtool.
-- **iOS, macOS, Android**: the sources are in `ios/`, `macos/` and `android/`. None of them is released. CI builds iOS and macOS; the macOS build also converts 안녕 to 安寧 through the Rust library, but the input method has not been run on a Mac yet.
+- **Android**: download the APK, allow installing from unknown sources when asked, open the 釋讀 app, turn the keyboard on and pick it as the input method. The APK is built by `.github/workflows/android.yml`; see [android/README.md](android/README.md).
+- **iOS, macOS**: the sources are in `ios/` and `macos/`. Neither is released. CI builds iOS and macOS; the macOS build also converts 안녕 to 安寧 through the Rust library, but the input method has not been run on a Mac yet.
 
 Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc cancels. A character with many homophones can be typed by its gloss: 살찔비, 비살찔 or 살찔 비 offer 肥. Settings live in `config.toml`: `%APPDATA%\seokdok\` on Windows, `~/Library/Application Support/seokdok/` on macOS, `~/.config/seokdok/` elsewhere. Your own rules and words go in `custom.json` beside it; the Customize section of the site exports one.
 
@@ -29,7 +30,7 @@ cargo run --release -p seokdok-cli -- read 天을 見ㅆ다
 cargo run --release -p seokdok-cli -- add 즐기다 樂기다 verb
 ```
 
-`convert` lists whole-phrase candidates, `segments` the best segmentation with alternatives for each part, `read` reads 釋讀 back into Hangul (하늘을 봤다), and `add` appends a word to `dict/user.tsv`. Options: `--sino` (國漢文混用), `--morpheme` (形態式: 見았다), `--letter` (leftover vowels as letters: 見ㅏ라), `--coda` (末音添記 everywhere), `--resyllabify` (在쓰면), `--hada` (爲 for 하다).
+`convert` lists whole-phrase candidates, `segments` the best segmentation with alternatives for each part, `read` reads 釋讀 back into Hangul (하늘을 봤다), and `add` appends a word to `dict/user.tsv`. Options: `--sino` (國漢文混用), `--morpheme` (形態式: 見았다), `--letter` (leftover vowels as letters: 見ㅏ라), `--coda` (末音添記 everywhere), `--resyllabify` (在쓰면), `--hada` (爲 for 하다), `--old-ha` (ᄒᆞ before 하).
 
 ## Layout
 
@@ -52,7 +53,7 @@ cargo test --workspace --exclude seokdok-tsf
 cd web && bun install && bun run build && bun test src
 ```
 
-`bun run build` builds the WASM package, packs the dictionaries and builds the site. `bun run deploy` publishes it to Cloudflare, and `bun run release` packages the Windows and Linux input methods into `web/public/downloads/` (not committed).
+`bun run build` builds the WASM package, packs the dictionaries and builds the site. `bun run deploy` publishes it to Cloudflare, and `bun run release` packages the Windows and Linux input methods, with the Android APK from the latest Android workflow run, into `web/public/downloads/` (not committed).
 
 ```sh
 uv run tools/extract_telegram.py <telegram-export-dir> data/private/telegram.jsonl

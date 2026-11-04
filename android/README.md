@@ -41,6 +41,25 @@ cargo ndk --platform 26 -t arm64-v8a -t armeabi-v7a -t x86_64 \
   -o android/app/build/generated/seokdok/jniLibs/debug build --release -p seokdok-jni
 ```
 
+## Release APK
+
+`.github/workflows/android.yml` builds a release APK signed with the project
+key when the repository has three secrets, and the debug APK otherwise (always
+for pull requests):
+
+| Secret | Content |
+| --- | --- |
+| `ANDROID_KEYSTORE_BASE64` | the keystore file, base64 |
+| `ANDROID_KEYSTORE_PASSWORD` | keystore password |
+| `ANDROID_KEY_ALIAS` | key alias |
+
+The signed APK is the artifact `seokdok-release-apk`; `web/scripts/release.sh`
+downloads it into the site's downloads. Locally, `assembleRelease` reads the
+same values from `SEOKDOK_KEYSTORE` (path), `SEOKDOK_KEYSTORE_PASSWORD` and
+`SEOKDOK_KEY_ALIAS`; without `SEOKDOK_KEYSTORE` it produces an unsigned APK that cannot be installed. Keep the keystore outside
+the repository and back it up: an update must be signed with the same key as
+the installed version.
+
 ## Turn it on
 
 Open 釋讀 from the launcher, tap 키보드 設定 열기 and enable 釋讀, then
@@ -83,5 +102,9 @@ for `aarch64-linux-android`, `armv7-linux-androideabi` and
 (`java -Xcheck:jni`) through a Java mirror of `Native.kt`: typing, converting,
 the candidate page, picking, committing, Latin mode, and reading and writing
 config.toml. The APK builds on GitHub Actions
-(`.github/workflows/android.yml`, artifact `seokdok-debug-apk`). Nothing has
-run on a device yet.
+(`.github/workflows/android.yml`, artifacts `seokdok-debug-apk` and
+`seokdok-release-apk`). The debug APK was installed on a BlueStacks instance (Android 9, x86_64) and driven
+through the soft keyboard with `adb shell input tap`: 안녕 + Space gives 安寧,
+수있다 gives 手有다 with candidate lists for each segment, the Shift layer types
+ㅿ ㆁ ㆆ ㆍ, and 韓㐎 專用 leaves Hangul unconverted. It has not run on a phone, on
+arm64, or in a release build.

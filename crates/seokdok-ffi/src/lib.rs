@@ -459,6 +459,40 @@ mod tests {
     }
 
     #[test]
+    fn old_hangul_stays_whole_through_the_c_interface() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+        let c = CString::new(dict.to_str().unwrap()).unwrap();
+        let run = |ime: *mut Ime, i: usize| unsafe { CStr::from_ptr(seokdok_preedit_run(ime, i, std::ptr::null_mut())).to_str().unwrap().to_string() };
+        let holl = "\u{1112}\u{119E}\u{11AF}";
+        unsafe {
+            let ime = seokdok_new(c.as_ptr());
+            for _ in 0..200 {
+                if HOST.is_ready() {
+                    break;
+                }
+                std::thread::sleep(std::time::Duration::from_millis(50));
+            }
+            // ᄒᆞᆯ까요 on 두벌식, ㆍ on Shift+K.
+            for (k, shift) in [('g', false), ('k', true), ('f', false), ('R', true), ('k', false), ('d', false), ('y', false)] {
+                assert!(seokdok_key(ime, SK_LETTER, k as u32, shift));
+            }
+            assert_eq!(run(ime, 0), format!("{holl}까요"));
+            assert!(seokdok_key(ime, SK_CONVERT, 0, false));
+            // The whole run is one segment; shrink it down to the old syllable.
+            assert!(seokdok_key(ime, SK_LEFT, 0, true));
+            assert!(seokdok_key(ime, SK_LEFT, 0, true));
+            assert_eq!(seokdok_preedit_len(ime), 2);
+            assert!(seokdok_key(ime, SK_BACKSPACE, 0, false));
+            assert_eq!(run(ime, 0), format!("{holl}까요"));
+            assert!(seokdok_key(ime, SK_ENTER, 0, false));
+            let c = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
+            assert_eq!(c, format!("{holl}까요"));
+            seokdok_free(ime);
+        }
+    }
+
+    #[test]
     fn hangul_only_setting_never_converts() {
         let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
         let dir = std::env::temp_dir().join(format!("seokdok-ffi-hangul-{}", std::process::id()));

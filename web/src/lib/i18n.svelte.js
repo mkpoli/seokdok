@@ -78,6 +78,8 @@ const ko = {
     coda: '{末音添記|말음첨기} 늘 {書|쓰}기 (有ㅆ다)',
     resyllabify: '받침 {移|넘기}기 (在쓰면)',
     hada: '하다를 爲로 (安寧爲세요)',
+    oldHa: '하 → ᄒᆞ {優先|우선}',
+    oldHaTip: '하·한·할·함·합·해의 {古|예}ㅅ{韓㐎|한글} {表記|표기}(ᄒᆞ ᄒᆞᆫ ᄒᆞᆯ ᄒᆞᆷ ᄒᆞᆸ ᄒᆡ)를 {現代|현대} {表記|표기}보다 {先|먼저} {置|둡}니다. 하고 → ᄒᆞ고, 追加할까요 → 追加ᄒᆞᆯ까요. {解|끄}면 {現代|현대} {表記|표기} {後|뒤}에 {置|둡}니다.',
   },
   convert: {
     eyebrow: '{變換|변환}',
@@ -205,7 +207,7 @@ const ko = {
   install: {
     eyebrow: '{設置|설치}',
     title: '{自己|제} 컴퓨터에서 {書|쓰}기',
-    lede: '{此|이} {頁|쪽}과 {同|같}은 엔진과 {辭典|사전}을 {用|쓰}는 {入力器|입력기}입니다. Windows와 Linux(fcitx5)를 {支援|지원}합니다.',
+    lede: '{此|이} {頁|쪽}과 {同|같}은 엔진과 {辭典|사전}을 {用|쓰}는 {入力器|입력기}입니다. Windows, Linux(fcitx5), Android를 {支援|지원}합니다.',
     download: '{下|내}려{受|받}기',
     windows: [
       '{下|내}려{受|받}은 {設置|설치} 파일을 {實行|실행}합니다. {管理者|관리자} {權限|권한}을 {求|구}합니다.',
@@ -215,7 +217,7 @@ const ko = {
       '{壓縮|압축}을 {解|풀}고 install.sh를 {實行|실행}합니다. sudo {無|없}이 {此|이} {使用者|사용자}에게만 {設置|설치}합니다.',
       'fcitx5를 {再|다시} {始作|시작}하고, fcitx5-configtool에서 「Only Show Current Language」를 {解除|해제}한 {後|뒤} {釋讀|석독}을 {加|더}합니다.',
     ],
-    more: 'iOS · macOS · Android',
+    more: 'iOS · macOS',
     moreNote: '{未|아직} {配布|배포}{前|전}입니다. 소스에서 {直接|직접} 빌드하여 {試|시험}해 {見|볼} {手|수} {有|있}습니다.',
     source: '소스와 {案內|안내}',
     ios: [
@@ -229,9 +231,9 @@ const ko = {
       '메뉴 막대의 입력 메뉴에서 {釋讀|석독}을 {選|고르}ㅂ니다.',
     ],
     android: [
-      'Android Studio나 Gradle로 APK를 빌드하여 {設置|설치}합니다.',
-      '{釋讀|석독} 앱에서 키보드를 {有效化|유효화}하고, {入力器|입력기}로 {選|고르}ㅂ니다.',
-      'Space로 {變換|변환}하고, {候補|후보}를 {押|눌러} {確定|확정}합니다.',
+      '{下|내}려{受|받}은 APK를 엽니다. 「출처를 알 수 없는 앱」 {設置|설치}를 {許容|허용}하라는 {案內|안내}가 나오면, APK를 연 브라우저나 파일 앱에 {許容|허용}합니다.',
+      '{設置|설치}한 뒤 {釋讀|석독} 앱을 엽니다. 「키보드 設定 열기」에서 {釋讀|석독}을 켭니다.',
+      '글을 쓰는 곳에서 「入力 方法 고르기」나 키보드의 ⇆ 키로 {釋讀|석독}을 {選|고르}ㅂ니다. Space로 {變換|변환}하고, {候補|후보}를 {押|눌러} {確定|확정}합니다.',
     ],
     system: '{全|모든} {使用者|사용자}에게:',
     remove: '{削除|삭제}:',
@@ -324,6 +326,8 @@ const en = {
     coda: 'Always write the final consonant (有ㅆ다)',
     resyllabify: 'Carry it to the next syllable (在쓰면)',
     hada: '爲 for 하다 (安寧爲세요)',
+    oldHa: '하 → ᄒᆞ first',
+    oldHaTip: 'Puts the old spelling of 하 한 할 함 합 해 (ᄒᆞ ᄒᆞᆫ ᄒᆞᆯ ᄒᆞᆷ ᄒᆞᆸ ᄒᆡ) before the modern one: 하고 → ᄒᆞ고, 追加할까요 → 追加ᄒᆞᆯ까요. Off, the old spelling is offered after the modern one.',
   },
   convert: {
     eyebrow: 'Convert',
@@ -451,7 +455,7 @@ const en = {
   install: {
     eyebrow: 'Install',
     title: 'Type it on your own computer',
-    lede: 'A system input method with the same engine and dictionaries as this page, for Windows and for Linux (fcitx5).',
+    lede: 'A system input method with the same engine and dictionaries as this page, for Windows, Linux (fcitx5) and Android.',
     download: 'Download',
     windows: [
       'Run the downloaded setup. It asks for administrator rights.',
@@ -461,7 +465,7 @@ const en = {
       'Unpack and run install.sh. It installs for your user only, without sudo.',
       'Restart fcitx5, then add 釋讀 in fcitx5-configtool (untick “Only Show Current Language” to find it).',
     ],
-    more: 'iOS · macOS · Android',
+    more: 'iOS · macOS',
     moreNote: 'Not released yet. You can build them from source and try them.',
     source: 'Source and guide',
     ios: [
@@ -475,9 +479,9 @@ const en = {
       'Pick 釋讀 in the input menu of the menu bar.',
     ],
     android: [
-      'Build the APK with Android Studio or Gradle and install it.',
-      'Enable the keyboard from the 釋讀 app and choose it as your input method.',
-      'Space converts; tap a candidate to confirm.',
+      'Open the downloaded APK. If Android asks to allow installing apps from unknown sources, allow it for the browser or file manager you opened the APK from.',
+      'After installing, open the 釋讀 app and use “Keyboard settings” to turn 釋讀 on.',
+      'Where you type, pick 釋讀 with “Choose input method” or the ⇆ key on the keyboard. Space converts; tap a candidate to confirm.',
     ],
     system: 'For all users:',
     remove: 'Uninstall:',

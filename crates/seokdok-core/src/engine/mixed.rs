@@ -166,7 +166,7 @@ impl Engine {
     /// Candidates of a reading, dictionary forms before constructed ones: the
     /// alternatives of its one word, or the phrase readings of several.
     fn reading_candidates(&self, reading: &str) -> Vec<Candidate> {
-        let segs = self.segments_plain(reading);
+        let segs = self.segments_unmixed(reading);
         let words: Vec<usize> = (0..segs.len()).filter(|&i| segs[i].reading.chars().any(is_syllable)).collect();
         match words.as_slice() {
             [] => Vec::new(),
@@ -179,7 +179,7 @@ impl Engine {
                     .map(|c| Candidate { text: format!("{pre}{}{post}", c.text), note: c.note.clone() })
                     .collect()
             }
-            _ => self.convert_plain(reading),
+            _ => self.convert_unmixed(reading),
         }
     }
 }

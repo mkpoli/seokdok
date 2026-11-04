@@ -238,7 +238,8 @@ fn open_syllable(buf: &str) -> Option<(usize, Syl)> {
             start = j;
         }
     }
-    let valid = (!s.l.is_empty() || !s.v.is_empty()) && (s.t.is_empty() || !s.v.is_empty());
+    // A final belongs to a syllable only with both an initial and a medial.
+    let valid = (!s.l.is_empty() || !s.v.is_empty()) && (s.t.is_empty() || (!s.l.is_empty() && !s.v.is_empty()));
     valid.then_some((start, s))
 }
 
@@ -408,6 +409,19 @@ mod tests {
             }
         }
         c.text().to_string()
+    }
+
+    #[test]
+    fn a_stray_final_is_not_swallowed() {
+        for head in ["\u{119E}", "\u{D7B0}", "\u{115F}\u{119E}"] {
+            let text = format!("{head}\u{11AF}");
+            let mut c = Composer::from_text(&text);
+            c.input('r');
+            assert_eq!(c.text(), format!("{text}ㄱ"));
+            let mut c = Composer::from_text(&text);
+            c.backspace();
+            assert_eq!(c.text(), head);
+        }
     }
 
     #[test]

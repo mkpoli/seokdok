@@ -15,6 +15,7 @@ use seokdok_session::config::{self, Config, InputMode, Layout, Script};
 use seokdok_core::custom::Custom;
 use seokdok_session::engine_host::HOST;
 use seokdok_session::keys::Key;
+use seokdok_session::learned;
 use seokdok_session::mode_keys::{Chord, KeyName, ModeKeyboard};
 use seokdok_session::script_cycle;
 use seokdok_session::session::{Attr, Effect, Mode, Popup, Run, Session};
@@ -102,6 +103,7 @@ impl Ime {
         self.session.set_space_converts(cfg.input.space_converts);
         self.session.set_horizontal(cfg.input.candidate_layout == Layout::Horizontal);
         self.session.set_old_clusters(cfg.input.old_clusters);
+        self.session.set_learned(learned::shared(cfg.input.learn));
         self.keyboard.set_keys(&cfg.input.keys);
         self.keyboard.reset();
         let fx = self.session.set_hangul_only(cfg.conversion.script == Script::HangulOnly);
@@ -204,6 +206,40 @@ pub unsafe extern "C" fn seokdok_free(ime: *mut Ime) {
 #[no_mangle]
 pub unsafe extern "C" fn seokdok_sync(ime: *mut Ime) {
     (*ime).sync();
+}
+
+/// Say whether the field in focus is a password, e-mail, URL or number field,
+/// or asks not to be learned from: in one, the picks in `learned.tsv` are
+/// neither used nor added to. A front end that keeps such fields from the
+/// session need not call this.
+///
+/// # Safety
+/// `ime` is a live session.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_set_private_field(ime: *mut Ime, private_field: bool) {
+    (*ime).session.set_private_field(private_field);
+}
+
+/// Forget what was picked: delete `learned.tsv` beside config.toml and empty
+/// the table in memory. Other processes notice at their next conversion. False
+/// when the file could not be deleted.
+#[no_mangle]
+pub extern "C" fn seokdok_learned_forget() -> bool {
+    Config::user_dir().is_none_or(|dir| learned::forget(&dir).is_ok())
+}
+
+/// Whether `input.learn` is on.
+#[no_mangle]
+pub extern "C" fn seokdok_learn() -> bool {
+    config::current().input.learn
+}
+
+/// Turn `input.learn` on or off in config.toml. Sessions pick the change up on
+/// their next [`seokdok_sync`]. False when the file could not be written, or
+/// does not parse and was left alone.
+#[no_mangle]
+pub extern "C" fn seokdok_set_learn(on: bool) -> bool {
+    config::update(|c| c.input.learn = on).is_ok()
 }
 
 /// Feed one key press. Returns true when the key was used.
@@ -648,9 +684,111 @@ mod tests {
     /// The tests share the process environment and the cached settings.
     static SERIAL: Mutex<()> = Mutex::new(());
 
+    /// Point the settings and `learned.tsv` at a new temporary folder, for as
+    /// long as this lives.
+    struct TempConfig(PathBuf);
+
+    impl TempConfig {
+        fn new(name: &str) -> Self {
+            let dir = std::env::temp_dir().join(format!("seokdok-ffi-{name}-{}", std::process::id()));
+            let _ = std::fs::remove_dir_all(&dir);
+            std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+            config::reload();
+            TempConfig(dir)
+        }
+    }
+
+    impl Drop for TempConfig {
+        fn drop(&mut self) {
+            std::env::remove_var("SEOKDOK_CONFIG_DIR");
+            config::reload();
+            let _ = std::fs::remove_dir_all(&self.0);
+        }
+    }
+
+    /// Type `keys`, convert, step `steps` candidates on and confirm; the text.
+    unsafe fn pick_nth(ime: *mut Ime, keys: &str, steps: usize) -> String {
+        for k in keys.chars() {
+            assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
+        }
+        assert!(seokdok_key(ime, SK_SPACE, 0, false));
+        for _ in 0..steps {
+            assert!(seokdok_key(ime, SK_DOWN, 0, false));
+        }
+        assert!(seokdok_key(ime, SK_ENTER, 0, false));
+        let text = CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string();
+        seokdok_reset(ime);
+        text.trim_start().to_string()
+    }
+
+    fn wait_for_engine() {
+        for _ in 0..400 {
+            if HOST.is_ready() {
+                return;
+            }
+            std::thread::sleep(std::time::Duration::from_millis(50));
+        }
+        panic!("the engine did not load");
+    }
+
+    #[test]
+    fn picks_are_learned_forgotten_and_kept_out_of_private_fields() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let temp = TempConfig::new("learn");
+        let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+        let c = CString::new(dict.to_str().unwrap()).unwrap();
+        unsafe {
+            let ime = seokdok_new(c.as_ptr());
+            wait_for_engine();
+            // 나: the first candidate, then two picks of the third form.
+            let first = pick_nth(ime, "sk", 0);
+            let other = pick_nth(ime, "sk", 2);
+            assert_ne!(first, other);
+
+            // In a private field nothing counts, and nothing shows.
+            seokdok_set_private_field(ime, true);
+            assert_eq!(pick_nth(ime, "sk", 2), other);
+            assert_eq!(pick_nth(ime, "sk", 0), first);
+            seokdok_set_private_field(ime, false);
+
+            // Taking the usual form outside one clears the earlier pick.
+            assert_eq!(pick_nth(ime, "sk", 0), first);
+            pick_nth(ime, "sk", 2);
+            assert_eq!(pick_nth(ime, "sk", 0), first, "one pick put it first");
+            pick_nth(ime, "sk", 2);
+            assert_eq!(pick_nth(ime, "sk", 0), first, "the usual form cleared that pick too");
+            pick_nth(ime, "sk", 2);
+            pick_nth(ime, "sk", 2);
+            assert_eq!(pick_nth(ime, "sk", 0), other, "two picks put it first");
+
+            // A session in another field shares the table; the file is on disk.
+            let second = seokdok_new(c.as_ptr());
+            assert_eq!(pick_nth(second, "sk", 0), other);
+            let _ = seokdok_session::learned::shared(true).unwrap().save_now();
+            let path = temp.0.join(learned::FILE_NAME);
+            assert!(std::fs::read_to_string(&path).unwrap().contains(&other));
+
+            assert!(seokdok_learned_forget());
+            assert!(!path.exists());
+            assert_eq!(pick_nth(ime, "sk", 0), first);
+
+            // Off: nothing is used or added.
+            let json = CString::new(r#"{"input":{"learn":false}}"#).unwrap();
+            assert!(seokdok_config_save_json(json.as_ptr()));
+            seokdok_sync(ime);
+            pick_nth(ime, "sk", 2);
+            pick_nth(ime, "sk", 2);
+            assert_eq!(pick_nth(ime, "sk", 0), first);
+            assert!(!path.exists());
+            seokdok_free(second);
+            seokdok_free(ime);
+        }
+    }
+
     #[test]
     fn typing_and_converting_through_the_c_interface() {
         let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let _temp = TempConfig::new("typing");
         let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
         let c = CString::new(dict.to_str().unwrap()).unwrap();
         unsafe {
@@ -746,6 +884,7 @@ mod tests {
     #[test]
     fn old_hangul_stays_whole_through_the_c_interface() {
         let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let _temp = TempConfig::new("old");
         let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
         let c = CString::new(dict.to_str().unwrap()).unwrap();
         let run = |ime: *mut Ime, i: usize| unsafe { CStr::from_ptr(seokdok_preedit_run(ime, i, std::ptr::null_mut())).to_str().unwrap().to_string() };

@@ -65,6 +65,8 @@ export class Ime {
   /** Key last pressed, for the on-screen keyboard. */
   lastKey = $state('')
   busy = $state(false)
+  /** What the reader keeps picking (lib/learned.js); null when learning is off. */
+  learner = null
 
   /**
    * @param {object} composer 두벌식 buffer (wasm Composer)
@@ -261,7 +263,7 @@ export class Ime {
     this.busy = true
     try {
       const text = this.pre
-      const segs = await this.#wholeChars(await this.segment(text))
+      const segs = await this.#withLearned(await this.#wholeChars(await this.segment(text)))
       // 韓㐎 專用 may have been turned on, or the text committed, meanwhile.
       if (this.hangulOnly || this.pre !== text) return false
       this.segs = segs.map((s) => ({ ...s, pick: 0 }))
@@ -287,8 +289,51 @@ export class Ime {
     return out
   }
 
+  /** Put what was learned into a fresh conversion, as the native session does.
+   *  An empty table, or a reading it does not hold, changes nothing. */
+  async #withLearned(segs) {
+    const l = this.learner
+    if (!l || l.empty) return segs
+    const out = []
+    let at = 0
+    for (const [start, end] of l.joins(segs.map((s) => s.reading))) {
+      out.push(...segs.slice(at, start))
+      const reading = segs.slice(start, end).map((s) => s.reading).join('')
+      const candidates = await this.#span(reading)
+      if (l.rank(reading, candidates)) out.push({ reading, candidates })
+      else out.push(...segs.slice(start, end))
+      at = end
+    }
+    out.push(...segs.slice(at))
+    for (const [i, s] of out.entries()) {
+      if (this.#isFragment(out, i) || !l.promotes(s.reading) || l.rank(s.reading, s.candidates)) continue
+      // A segment's list can be cut short; the whole list may hold the form.
+      const full = await this.#span(s.reading)
+      if (l.rank(s.reading, full)) s.candidates = full
+    }
+    return out
+  }
+
+  /** A piece of a longer run of Hangul that the engine left in Hangul: the 나 of
+   *  나봐요. It is the rest of a word the engine did not recognise, and a form
+   *  learned for the word 나 would cut it. */
+  #isFragment(segs, i) {
+    const before = i > 0 && HANGUL.test(chars(segs[i - 1].reading).at(-1) ?? '')
+    const after = i + 1 < segs.length && HANGUL.test(chars(segs[i + 1].reading)[0] ?? '')
+    return (before || after) && segs[i].candidates[0]?.text === segs[i].reading
+  }
+
+  /** These segments are being committed: tell the table what was chosen. */
+  #learn(segs) {
+    if (!this.learner) return
+    for (const s of segs) {
+      if (s.candidates.length > 1) this.learner.commit(s.reading, s.candidates[s.pick]?.text ?? s.reading, s.pick === 0)
+    }
+  }
+
   /** Confirm everything. */
   commit() {
+    if (this.segs) this.#learn(this.segs)
     if (this.segs) this.#wordBreak = this.#spaced
     this.#insert(this.segs ? this.converted : this.pre, 'commit')
     this.segs = null
@@ -302,6 +347,7 @@ export class Ime {
     if (!this.segs) return
     const done = this.segs.slice(0, i + 1)
     const rest = this.segs.slice(i + 1)
+    this.#learn(done)
     this.#insert(done.map((s) => s.candidates[s.pick]?.text ?? s.reading).join(''), 'commit')
     this.open = false
     const left = rest.map((s) => s.reading).join('')
@@ -399,6 +445,8 @@ export class Ime {
     try {
       const [ca, cb] = await Promise.all([this.#span(a.join('')), b.length ? this.#span(b.join('')) : null])
       if (this.segs !== segs) return
+      this.learner?.rank(a.join(''), ca)
+      if (cb) this.learner?.rank(b.join(''), cb)
       const fresh = [{ reading: a.join(''), candidates: ca, pick: 0 }]
       if (cb) fresh.push({ reading: b.join(''), candidates: cb, pick: 0 })
       this.segs = [...segs.slice(0, i), ...fresh, ...segs.slice(i + 2)]

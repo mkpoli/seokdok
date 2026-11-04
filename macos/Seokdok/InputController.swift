@@ -112,6 +112,8 @@ final class SeokdokInputController: IMKInputController {
         case .flagsChanged:
             return flagsChanged(event, sender)
         case .keyDown:
+            // The one kind of private field a macOS input method can tell.
+            session.setPrivateField(IsSecureEventInputEnabled())
             return keyDown(event, sender)
         default:
             return false

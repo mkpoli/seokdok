@@ -314,6 +314,8 @@ private struct TypingPage: View {
     @AppStorage("defaultMode", store: Settings.store) private var defaultMode = "seokdok"
     @AppStorage("spaceConverts", store: Settings.store) private var spaceConverts = true
     @AppStorage("oldClusters", store: Settings.store) private var oldClusters = false
+    @AppStorage("learn", store: Settings.store) private var learn = true
+    @State private var forgotten = false
 
     var body: some View {
         List {
@@ -335,6 +337,22 @@ private struct TypingPage: View {
                 example: "하늘을 + Space → 天을 · 하늘을␣"
             ) {
                 Toggle(L("Space로 變換", "Space converts"), isOn: $spaceConverts)
+            }
+
+            SettingGroup(
+                about: L("두 번 고른 候補가 그 읽기의 첫 候補가 됩니다. 고른 낱말은 이 iPhone의 learned.tsv에만 남습니다.", "A candidate picked twice comes first for that reading. The words stay on this iPhone in learned.tsv.")
+            ) {
+                Toggle(L("자주 고른 候補 먼저", "Put candidates you keep picking first"), isOn: $learn)
+            }
+
+            SettingGroup(
+                about: L("learned.tsv를 지웁니다. 끈 뒤에도 파일은 지울 때까지 남습니다. 전체 접근 없이 쓸 때는 키보드의 釋 키를 길게 눌러 지웁니다.", "Deletes learned.tsv. Turning learning off keeps the file until you delete it. Without Full Access, hold the keyboard's 釋 key to clear it.")
+            ) {
+                Button(forgotten ? L("지웠습니다", "Forgotten") : L("고른 것 잊기", "Forget what I picked")) {
+                    Settings.forgetPicks()
+                    forgotten = true
+                }
+                .disabled(forgotten)
             }
 
             SettingGroup(example: "ㅅ, ㄱ, ㅏ → ㅅ가 · \u{112D}\u{1161}") {
@@ -364,6 +382,17 @@ enum Settings {
     /// their state when the signature grants no App Group.
     static let store = AppGroup.defaults ?? .standard
 
+    /// Delete learned.tsv from the shared folder, with any temporary file a
+    /// crash left. The keyboard notices at its next conversion.
+    static func forgetPicks() {
+        guard let dir = AppGroup.containerURL else { return }
+        let manager = FileManager.default
+        for name in (try? manager.contentsOfDirectory(atPath: dir.path)) ?? []
+        where name == "learned.tsv" || (name.hasPrefix("learned.tsv.") && name.hasSuffix(".tmp")) {
+            try? manager.removeItem(at: dir.appendingPathComponent(name))
+        }
+    }
+
     /// Write config.toml where the keyboard's session reads it. `[input.keys]`
     /// is left out: a keyboard extension receives no hardware keys. The
     /// candidate bar is a row of its own, so the layout stays vertical and
@@ -379,6 +408,7 @@ enum Settings {
         space_converts = \(bool("spaceConverts", true))
         candidate_layout = "vertical"
         old_clusters = \(bool("oldClusters", false))
+        learn = \(bool("learn", true))
 
         [conversion]
         style = "\(text("style", "surface"))"

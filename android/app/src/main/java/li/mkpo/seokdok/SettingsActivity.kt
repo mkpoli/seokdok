@@ -62,6 +62,12 @@ class SettingsActivity : Activity() {
         column.addView(choice(R.string.default_mode, R.array.mode_labels, "input.default_mode", listOf("seokdok", "hangul", "latin")))
         column.addView(toggle(R.string.space_converts, "input.space_converts"))
         column.addView(toggle(R.string.old_clusters, "input.old_clusters"))
+        column.addView(toggle(R.string.learn, "input.learn"))
+        column.addView(body(getString(R.string.learn_help)))
+        column.addView(button(R.string.learn_forget) {
+            val done = if (Native.forgetLearned(configDir.path)) R.string.learn_forgotten else R.string.saved_failed
+            Toast.makeText(this, done, Toast.LENGTH_SHORT).show()
+        })
 
         column.addView(header(R.string.section_keys))
         column.addView(body(getString(R.string.keys_help)))

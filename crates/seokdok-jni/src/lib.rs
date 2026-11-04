@@ -16,6 +16,7 @@ use seokdok_ffi as ffi;
 use seokdok_ffi::Ime;
 use seokdok_session::config::{self, Config};
 use seokdok_session::engine_host::HOST;
+use seokdok_session::learned;
 
 fn ime(h: jlong) -> *mut Ime {
     h as *mut Ime
@@ -104,6 +105,21 @@ pub extern "system" fn Java_li_mkpo_seokdok_Native_free(_: JNIEnv, _: JClass, h:
 #[no_mangle]
 pub extern "system" fn Java_li_mkpo_seokdok_Native_sync(_: JNIEnv, _: JClass, h: jlong) {
     unsafe { ffi::seokdok_sync(ime(h)) }
+}
+
+/// The field asks not to be learned from (see `seokdok_set_private_field`).
+#[no_mangle]
+pub extern "system" fn Java_li_mkpo_seokdok_Native_setPrivateField(_: JNIEnv, _: JClass, h: jlong, private_field: jboolean) {
+    unsafe { ffi::seokdok_set_private_field(ime(h), private_field != JNI_FALSE) }
+}
+
+/// Forget what was picked: `dir/learned.tsv` and this process's table. The
+/// settings screen can run before the keyboard has set the config folder, so
+/// it names the folder. False when the file could not be deleted.
+#[no_mangle]
+pub extern "system" fn Java_li_mkpo_seokdok_Native_forgetLearned<'l>(mut env: JNIEnv<'l>, _: JClass<'l>, dir: JString<'l>) -> jboolean {
+    let Some(dir) = get(&mut env, &dir) else { return JNI_FALSE };
+    jbool(learned::forget(Path::new(&dir)).is_ok())
 }
 
 /// Feed a key (`kind` is one of the SK_* values); true when it was used.

@@ -1,5 +1,6 @@
 import init from '../pkg/seokdok.js'
 import { mount } from 'svelte'
+import './fonts.js'
 import './app.css'
 import App from './App.svelte'
 import { engineReady } from './lib/engine.svelte.js'

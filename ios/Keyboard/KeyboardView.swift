@@ -543,7 +543,8 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     }
 }
 
-/// A key: the main label and an optional corner hint.
+/// A key: the main label and an optional corner hint, larger and darker when
+/// the hint is an old letter.
 final class KeyButton: UIButton {
     private let hint = UILabel()
     private let accent: Bool
@@ -587,5 +588,13 @@ final class KeyButton: UIButton {
     func set(main: String, hint text: String?) {
         setTitle(main, for: .normal)
         hint.text = text
+        let old = text.map(Self.isOld) ?? false
+        hint.font = OldHangul.font(ofSize: old ? 14 : 11, weight: old ? .bold : .medium)
+        hint.textColor = old ? .label : .secondaryLabel
+    }
+
+    private static func isOld(_ letter: String) -> Bool {
+        guard let v = letter.unicodeScalars.first?.value else { return false }
+        return "ㆍㅿㆁㆆ".unicodeScalars.contains { $0.value == v } || (0x1100...0x115F).contains(v)
     }
 }

@@ -201,9 +201,10 @@ and none of them is a dictionary entry or counted as one. They are
 | 오히려 | 尙려, 尙히려, 尙ㅕ, 尙 |
 
 A one-syllable word has the letter and the Hanja alone (我ㅏ, 我). An
-inflected stem keeps its ending and, when the stem covered by the Hanja has two
-syllables or more, keeps its last syllable or everything after its first:
-가까웠다 is 近웠다 or 近까웠다, and 가깝고 is 近고 or 近깝고.
+inflected word, when the Hanja stand for two syllables or more, writes the
+word's own syllables after the Hanja, from the last covered one or from the
+second: 가까웠다 is 近웠다 or 近까웠다, 가깝고 is 近고 or 近깝고, and 마셔라 is
+飮라 or 飮셔라. These forms are the same whatever the style options.
 
 The reader (釋讀文 → 한글) reads these forms back: 超ㅜ is 너무, 初ㅁ에 is
 처음에, 近까웠다 is 가까웠다. It reads the Hanja alone by sound, as 超 = 초. A

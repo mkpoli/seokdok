@@ -8,8 +8,9 @@
 //! Nouns, adverbs and pronouns whose Hanja is a single character get, in this
 //! order: the last syllable (何게), every syllable but the first (何떻게), the
 //! last letter alone (何ㅔ) and the Hanja alone (何). Inflected stems keep
-//! their ending and, from two syllables up, keep the last syllable or the
-//! rest of the stem after the first: 近웠다 also reads 近까웠다. Particles
+//! their ending and, when the Hanja stand for two syllables or more, write the
+//! typed word's own syllables from the last covered one, or from the second,
+//! after the Hanja: 近웠다 also reads 近까웠다, 飮ㄴ also reads 飮신. Particles
 //! follow whichever form is chosen.
 
 use super::{Candidate, Edge, Engine, Kind};
@@ -42,14 +43,15 @@ fn last_letter(comps: &[char]) -> Vec<char> {
 
 impl Engine {
     /// The 送韓字 variants of an edge whose dictionary forms are `dict`, new
-    /// texts only, in the order of the module docs. `hanja_only` adds the
-    /// form with the Hanja alone (nouns); [`Engine::read`] leaves it out and
-    /// keeps reading such forms as 音讀.
-    pub(super) fn okurigana(&self, e: &Edge, dict: &[Candidate], hanja_only: bool) -> Vec<Candidate> {
+    /// texts only, in the order of the module docs. `comps` is the whole
+    /// input the edge lies in. `hanja_only` adds the form with the Hanja
+    /// alone (nouns); [`Engine::read`] leaves it out and keeps reading such
+    /// forms as 音讀. The result does not depend on the style options.
+    pub(super) fn okurigana(&self, comps: &[char], e: &Edge, dict: &[Candidate], hanja_only: bool) -> Vec<Candidate> {
         let (n, tails): (&Native, Vec<String>) = match &e.kind {
             Kind::Nominal { entry, particle } => {
                 let n = &self.natives[*entry as usize];
-                if !eligible(n) || self.options.sino_only {
+                if !eligible(n) {
                     return Vec::new();
                 }
                 let p: &[char] = particle.map_or(&[], |p| &self.particles[p as usize].comps);
@@ -68,7 +70,7 @@ impl Engine {
             }
             Kind::Verb { entry, allo, .. } => {
                 let n = &self.natives[*entry as usize];
-                if !eligible(n) || self.options.sino_only {
+                if !eligible(n) {
                     return Vec::new();
                 }
                 let al = &n.allos[*allo as usize];
@@ -78,16 +80,16 @@ impl Engine {
                     Tail::Partial if al.comps.starts_with(&n.stem[..n.cover]) => &n.stem[..n.cover],
                     _ => return Vec::new(),
                 };
-                let stem: Vec<char> = compose(covered).chars().collect();
-                if stem.len() < 2 || !stem.iter().all(|&c| is_syllable(c)) {
+                // The Hanja stand for the first `m` syllables of the word. What
+                // follows them is a tail of the typed word's own syllables, so
+                // the variant reads back as the word: the syllables from the
+                // last covered one on (飮셔라), or from the second on.
+                let m = covered.iter().filter(|&&c| is_l(c)).count();
+                let word: Vec<char> = compose(&comps[e.start..e.end]).chars().collect();
+                if m < 2 || word.len() < m || !word.iter().all(|&c| is_syllable(c)) {
                     return Vec::new();
                 }
-                // Put the kept syllables right after the Hanja of the first form.
-                let Some(rest) = dict.first().and_then(|c| c.text.strip_prefix(n.hanja.as_str())) else {
-                    return Vec::new();
-                };
-                let ks = [stem[stem.len() - 1..].iter().collect::<String>(), stem[1..].iter().collect()];
-                (n, ks.into_iter().map(|k| format!("{k}{rest}")).collect())
+                (n, [m - 1, 1].iter().map(|&from| word[from..].iter().collect()).collect())
             }
             _ => return Vec::new(),
         };
@@ -112,9 +114,8 @@ impl Engine {
         }
         let mut add = |comps: Vec<char>, kind: Kind| {
             let edge = Edge { start: 0, end: comps.len(), cost: 0.0, kind };
-            let dict = self.render_dict(&comps, &edge);
             let surface = compose(&comps);
-            for c in self.okurigana(&edge, &dict, false) {
+            for c in self.okurigana(&comps, &edge, &[], false) {
                 out.push((c.text, surface.clone()));
             }
         };

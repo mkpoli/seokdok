@@ -172,7 +172,7 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         std::fs::write(
             dir.join("custom.json"),
-            r#"{"format":"seokdok-custom","phrases":[{"reading":"석독회","text":"釋讀會X"}],"words":[],
+            r#"{"format":"seokdok-custom","phrases":[{"reading":"풀어읽기모임","text":"釋讀會X"}],"words":[],
               "rules":[{"on":true,"stage":"output","mode":"xform","regex":false,"pattern":"天","replace":"乾"}]}"#,
         )
         .unwrap();
@@ -182,7 +182,7 @@ mod tests {
         let host = Host::new();
         host.set(engine);
         *host.custom.write().unwrap() = Some(Arc::new(custom));
-        assert_eq!(host.segments("석독회")[0].candidates[0].text, "釋讀會X");
+        assert_eq!(host.segments("풀어읽기모임")[0].candidates[0].text, "釋讀會X");
         assert!(host.segments("하늘").iter().flat_map(|s| &s.candidates).all(|c| c.text != "天"));
     }
 

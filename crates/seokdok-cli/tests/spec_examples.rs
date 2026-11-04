@@ -256,3 +256,13 @@ fn demonstratives_of_place_side_and_time() {
     // 여기다 and its forms are the verb.
     assert!(offers(&e, "여기다", "思다"));
 }
+
+#[test]
+fn the_group_reads_as_its_own_name() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("풀어읽기모임")[0].text, "釋讀會");
+    assert_eq!(e.read("釋讀會"), "풀어읽기모임");
+    assert_eq!(e.read("釋讀會의"), "풀어읽기모임의");
+    assert_eq!(e.convert("석독회")[0].text, "釋讀會");
+    assert_eq!(e.read("釋讀"), "석독");
+}

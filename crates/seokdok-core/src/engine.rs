@@ -973,10 +973,12 @@ impl Engine {
     }
 
     /// The dictionary's written forms of an edge, then the other 末音添記
-    /// choices for the same word (see [`Engine::okurigana`]).
+    /// choices for the same word (see [`Engine::okurigana`]), and the plural's
+    /// spellings with Hanja.
     fn render(&self, comps: &[char], e: &Edge) -> Vec<Candidate> {
         let mut out = self.render_dict(comps, e);
         if !self.options.sino_only {
+            self.add_plural_forms(e, &mut out);
             let more = self.okurigana(comps, e, &out, true);
             out.extend(more);
         }
@@ -1386,7 +1388,7 @@ impl Engine {
                     matches!(e.kind, Kind::Nominal { entry, .. } if crate::jamo::syllable_count(&self.natives[entry as usize].stem) == 1)
                 };
                 for &(_, i) in &alts {
-                    let forms = if one_syllable(&edges[i]) { self.render(&comps, &edges[i]) } else { self.render_dict(&comps, &edges[i]) };
+                    let forms = if one_syllable(&edges[i]) || self.is_plural(&edges[i]) { self.render(&comps, &edges[i]) } else { self.render_dict(&comps, &edges[i]) };
                     for c in forms {
                         if !cands.iter().any(|x| x.text == c.text) {
                             cands.push(c);
@@ -1746,6 +1748,12 @@ impl Engine {
     /// 訓讀 entry for the rest, whichever costs less.
     fn read_token(&self, han: &str, tail: &str) -> String {
         let r = self.reverse();
+        // The plural 들 written 等 or 們, after a word that does not end so itself.
+        if let Some(head) = han.strip_suffix(['等', '們']).filter(|h| !h.is_empty()) {
+            if !r.sino.contains_key(han) && !r.native.contains_key(han) && self.is_particle_tail(tail) {
+                return self.read_token(head, &format!("들{tail}"));
+            }
+        }
         let (sino, sc) = self.read_sino(han);
         let plain = self.is_particle_tail(tail) || r.light.contains(tail);
         let mut best = (sc + if plain { 0.0 } else { 4.0 }, format!("{sino}{tail}"));

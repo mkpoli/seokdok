@@ -552,3 +552,36 @@ fn i_after_hanja_is_also_written_as_a_syllable() {
     assert_eq!(e.read("脚이"), "각이");
 }
 
+#[test]
+fn the_plural_is_also_written_with_hanja() {
+    let e = engine(Options::default());
+    for (input, first, more) in [
+        ("사람들", "人들", ["人等", "人們"]),
+        ("사람들은", "人들은", ["人等은", "人們은"]),
+        ("학생들", "學生들", ["學生等", "學生們"]),
+        ("친구들이", "親舊들이", ["親舊等이", "親舊們이"]),
+    ] {
+        assert_eq!(e.convert(input)[0].text, first, "{input}");
+        for want in more {
+            assert!(offers(&e, input, want), "{input} → {want}");
+            assert!(e.segments(input).iter().any(|s| s.candidates.iter().any(|c| c.text == want)), "{input} → {want}");
+        }
+    }
+    // A word that is already plural comes first without a second one.
+    assert_eq!(e.convert("우리들")[0].text, "我等");
+    assert_eq!(e.convert("너희들")[0].text, "汝等");
+    assert!(offers(&e, "우리들", "我等들"));
+    // 들 of the verb 들다 and of a word's own last syllable is left alone.
+    assert!(!offers(&e, "손들어", "手等어"));
+    assert!(!offers(&e, "아들", "子等"));
+    assert!(!offers(&e, "물들이", "染等이"));
+    // 平等 is not plural, and other words stay in the list.
+    assert_eq!(e.convert("평등들")[0].text, "平等들");
+    assert!(offers(&e, "길들이", "馴"));
+    assert!(offers(&e, "뎌들", "伊들"));
+    // Reading back.
+    for (written, reading) in [("學生等", "학생들"), ("學生們은", "학생들은"), ("平等", "평등")] {
+        assert_eq!(e.read(written), reading, "{written}");
+    }
+    assert_eq!(e.read("人等은"), e.read("人들은"));
+}

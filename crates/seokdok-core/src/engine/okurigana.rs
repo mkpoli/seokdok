@@ -15,6 +15,9 @@
 //!
 //! A ㅣ standing after Hanja is also written as a syllable (基ㅣ니 as 基이니,
 //! 基ㅣㄴ데 as 基인데, 我ㅣ as 我이).
+//!
+//! The plural 들 is also written 等 or 們 (人들 as 人等, 人們). After a word that
+//! already ends in one of them (我等 우리), the form without 들 comes first.
 
 use super::{Candidate, Edge, Engine, Kind};
 use crate::conj::ending_surfaces;
@@ -93,6 +96,42 @@ pub(super) fn add_i_spellings(list: &mut Vec<Candidate>) {
 }
 
 impl Engine {
+    /// Add the 等 and 們 spellings of a plural 들 to the forms of edge `e`. A
+    /// word that is already plural (我等 우리) puts the form without 들 first.
+    pub(super) fn add_plural_forms(&self, e: &Edge, forms: &mut Vec<Candidate>) {
+        let (particle, native) = match e.kind {
+            Kind::Nominal { particle: Some(p), .. } => (p, true),
+            Kind::Sino { particle: Some(p), .. } => (p, false),
+            _ => return,
+        };
+        let particle = compose(&self.particles[particle as usize].comps);
+        let Some(rest) = particle.strip_prefix('들') else { return };
+        let mut out = Vec::with_capacity(forms.len() + 2);
+        for c in forms.drain(..) {
+            let head = c.text.strip_suffix(particle.as_str()).filter(|h| h.chars().next_back().is_some_and(is_han)).map(str::to_string);
+            let with = |text: String| Candidate { text, note: c.note.clone() };
+            match head {
+                Some(h) if native && h.ends_with(['等', '們']) => {
+                    out.push(with(format!("{h}{rest}")));
+                    out.push(c);
+                }
+                Some(h) => {
+                    let more = [with(format!("{h}等{rest}")), with(format!("{h}們{rest}"))];
+                    out.push(c);
+                    out.extend(more);
+                }
+                None => out.push(c),
+            }
+        }
+        *forms = out;
+    }
+
+    /// Whether edge `e` is a word with the plural 들.
+    pub(super) fn is_plural(&self, e: &Edge) -> bool {
+        let (Kind::Nominal { particle: Some(p), .. } | Kind::Sino { particle: Some(p), .. }) = e.kind else { return false };
+        self.particles[p as usize].comps.starts_with(&crate::jamo::decompose("들"))
+    }
+
     /// The 末音添記 variants of an edge whose dictionary forms are `dict`, new
     /// texts only, in the order of the module docs. `comps` is the whole
     /// input the edge lies in. `hanja_only` adds the form with the Hanja

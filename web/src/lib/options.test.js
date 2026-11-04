@@ -35,6 +35,15 @@ test('the site switch leaves 韓㐎 專用 alone when it turns 國漢文混用 o
   expect(options.script).toBe('sino')
 })
 
+test('the 있다 setting starts at 有 and drops a stored value it does not know', async () => {
+  expect(DEFAULTS.itda).toBe('有')
+  for (const [stored, want] of [['在', '在'], ['在ㅆ', '在ㅆ'], ['x', '有']]) {
+    globalThis.localStorage = { getItem: () => JSON.stringify({ itda: stored }), setItem() {} }
+    const mod = await import(`./options.svelte.js?itda=${stored}`)
+    expect(mod.options.itda).toBe(want)
+  }
+})
+
 test('the 하 → ᄒᆞ setting is off by default and remembered', () => {
   expect(DEFAULTS.oldHa).toBe(false)
   expect(options.oldHa).toBe(false)

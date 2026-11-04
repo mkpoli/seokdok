@@ -10,7 +10,7 @@
 //! ```
 
 use seokdok_core::dubeolsik;
-use seokdok_core::{Engine as Core, Fragment, Options, Style};
+use seokdok_core::{Engine as Core, Fragment, Itda, Options, Style};
 use serde_json::{json, Value};
 use wasm_bindgen::prelude::*;
 
@@ -76,7 +76,8 @@ impl Engine {
     }
 
     /// Set options from a JSON object: `{ style: "surface"|"morpheme",
-    /// fragment: "absorb"|"letter", codaAlways, resyllabify, hadaKun, oldHa,
+    /// fragment: "absorb"|"letter", codaAlways, resyllabify, hadaKun,
+    /// itda: "有"|"在"|"在ㅆ", oldHa,
     /// sinoOnly, maxCandidates }`. Missing keys keep their value.
     #[wasm_bindgen(js_name = setOptions)]
     pub fn set_options(&mut self, json: &str) -> Result<(), JsError> {
@@ -96,6 +97,13 @@ impl Engine {
         }
         if let Some(b) = v.get("hadaKun").and_then(Value::as_bool) {
             o.hada_kun = b;
+        }
+        if let Some(s) = v.get("itda").and_then(Value::as_str) {
+            o.itda = match s {
+                "在" => Itda::Jae,
+                "在ㅆ" => Itda::JaeCoda,
+                _ => Itda::Yu,
+            };
         }
         if let Some(b) = v.get("oldHa").and_then(Value::as_bool) {
             o.old_ha = b;

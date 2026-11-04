@@ -38,6 +38,16 @@ test('the 하 → ᄒᆞ setting is labelled in both languages', () => {
   expect(plain(t().options.oldHa)).toBe('하 → \u1112\u119e 우선')
 })
 
+test('the 있다 setting is labelled in both languages', () => {
+  for (const lang of ['ko', 'en']) {
+    setLang(lang)
+    expect(plain(t().options.itda)).toContain('있다')
+    for (const key of ['itda', 'itdaTip']) expect(plain(t().options[key])).not.toMatch(/[{}|]/)
+  }
+  setLang('ko')
+  expect(plain(t().options.itda)).toBe('있다의 표기')
+})
+
 test('a final or vowel jamo after a mark joins the reading', () => {
   expect(reading('{古|예}ㅅ{韓㐎|한글}')).toBe('옛한글')
   expect(reading('{不|안}ㅎ았다')).toBe('않았다')

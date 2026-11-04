@@ -21,7 +21,7 @@ final class KeyboardViewController: UIInputViewController {
     private var checkGeneration = 0
     /// What the focused field asks for; only `.standard` converts.
     private var layout = Layout.standard
-    /// A long press on the mode key opened the strip's controls for what was
+    /// A long press on the mode key opened the bar's controls for what was
     /// learned. Without Full Access the app cannot reach this keyboard's files.
     private var learnMenu = false
 
@@ -206,7 +206,7 @@ final class KeyboardViewController: UIInputViewController {
         return true
     }
 
-    /// Until the dictionaries load, the strip says so; refresh once they have.
+    /// Until the dictionaries load, the bar says so; refresh once they have.
     private func waitForDictionaries() {
         guard !Session.ready, loadTimer == nil else { return }
         loadTimer = Timer.scheduledTimer(withTimeInterval: 0.25, repeats: true) { [weak self] t in

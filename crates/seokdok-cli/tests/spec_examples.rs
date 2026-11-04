@@ -273,3 +273,26 @@ fn compound_verbs_take_the_meaning_of_each_part() {
     assert_eq!(e.convert("내려받기")[0].text, "下려受기");
     assert_eq!(e.convert("내보내거나")[0].text, "出보내거나");
 }
+
+#[test]
+fn interrogatives_in_hanja() {
+    let e = engine(Options::default());
+    for (input, first) in [
+        ("왜", "何故"), ("누구", "誰"), ("누가", "誰가"), ("언제", "何時"), ("어디", "何處"), ("어디서", "何處서"),
+        ("무엇", "何엇"), ("뭐", "何ㅓ"), ("어떻게", "何떻게"), ("어떤", "何떤"), ("어느", "何느"), ("무슨", "何슨"),
+        ("어찌", "何찌"), ("얼마", "幾何"), ("얼마나", "幾何나"), ("어쩌죠", "何쩌죠"), ("어떡하죠", "何떡하죠"), ("뭐야", "何ㅓ야"), ("몇", "幾"),
+    ] {
+        assert_eq!(e.convert(input)[0].text, first, "{input}");
+    }
+    for (input, other) in [
+        ("왜", "何以"), ("왜", "胡"), ("어디", "何所"), ("어떻게", "如何"), ("어찌", "奈何"), ("얼마나", "何마나"), ("얼마나", "幾나"),
+        ("어째서", "何故"), ("어째서", "何째서"), ("누구", "孰"), ("언제", "何日"), ("무엇", "何物"),
+    ] {
+        assert!(offers(&e, input, other), "{input} → {other}");
+    }
+    assert_eq!(e.convert("왜요")[0].text, "何故요");
+    assert_eq!(e.convert("언제쯤")[0].text, "何時쯤");
+    assert_eq!(e.convert("누굴")[0].text, "誰ㄹ");
+    assert_eq!(e.convert("이에요")[0].text, "乃요");
+    assert_eq!(e.read("何故"), "왜");
+}

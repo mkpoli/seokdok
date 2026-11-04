@@ -1134,28 +1134,28 @@ mod tests {
             let o = s.handle(Key::Space { shift: false }, &c);
             preedit_of(&o).unwrap().iter().map(|r| r.text.as_str()).collect()
         };
-        let default = convert(&mut s, "나");
+        let default = convert(&mut s, "하늘");
         s.reset();
-        let longer = convert(&mut s, "나라");
+        let longer = convert(&mut s, "하늘색");
         s.reset();
-        assert_ne!(default, "我", "pick another homophone for this test");
+        assert_ne!(default, "乾", "pick another homophone for this test");
         for _ in 0..2 {
-            convert(&mut s, "나");
+            convert(&mut s, "하늘");
             let mut steps = 0;
             loop {
                 let o = s.handle(Key::Down, &c);
                 steps += 1;
-                if preedit_of(&o).unwrap()[0].text == "我" {
+                if preedit_of(&o).unwrap()[0].text == "乾" {
                     break;
                 }
-                assert!(steps < 200, "我 is not a candidate of 나");
+                assert!(steps < 200, "乾 is not a candidate of 하늘");
             }
             s.handle(Key::Enter, &c);
             s.reset();
         }
-        assert_eq!(convert(&mut s, "나"), "我");
+        assert_eq!(convert(&mut s, "하늘"), "乾");
         s.reset();
-        assert_eq!(convert(&mut s, "나라"), longer);
+        assert_eq!(convert(&mut s, "하늘색"), longer);
     }
 
     #[test]

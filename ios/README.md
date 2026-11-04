@@ -95,6 +95,16 @@ after changing `project.yml`.
 - The mode key cycles 釋 (convert to 釋讀) → 한 (Hangul only) → A (Latin).
 - 123 opens digits and punctuation, #+= the second page.
 
+A hardware keyboard does not reach this keyboard. A custom keyboard is an
+extension, and overriding `pressesBegan` in its `UIInputViewController` has
+been reported not to be called
+([Apple Developer Forums, 2020](https://developer.apple.com/forums/thread/650883);
+no reply there, and Apple's documentation does not state it). So the 한/영, 한자
+and other mode keys of the other front ends do nothing here. On an iPad,
+Control-Space, or the Switch Keyboard key on a Magic Keyboard, moves between
+the installed keyboards
+([iPad User Guide](https://support.apple.com/guide/ipad/switch-between-keyboards-ipaddd28d7ed/ipados)).
+
 ## Settings and Full Access
 
 The app writes its settings as `config.toml` (the format of

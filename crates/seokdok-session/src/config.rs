@@ -546,8 +546,9 @@ pub fn refresh() -> bool {
 static CUSTOM_STAMP: RwLock<Option<Option<FileStamp>>> = RwLock::new(None);
 
 /// Whether custom.json changed since the last look, as [`refresh`] does for
-/// config.toml. The first look only takes note: the engine reads the file as it
-/// loads. Its timestamp and length only, so this can run at every key.
+/// config.toml. Look just before loading the engine, which reads the file: the
+/// first look only takes note. Its timestamp and length only, so this can run
+/// at every key.
 pub fn custom_changed() -> bool {
     let stamp = Config::user_dir().and_then(|d| stamp_of(&d.join("custom.json")));
     if let Ok(g) = CUSTOM_STAMP.read() {

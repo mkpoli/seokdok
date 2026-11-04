@@ -56,6 +56,8 @@ pub(crate) fn dll_dir() -> Option<PathBuf> {
 pub(crate) fn load_engine() {
     let Some(dir) = dll_dir() else { return };
     let options = crate::config::current().engine_options();
+    // What the load reads from here on is what later looks compare with.
+    crate::config::custom_changed();
     crate::engine_host::HOST.start_load(dir.join("dict"), crate::config::Config::user_dir(), options);
 }
 

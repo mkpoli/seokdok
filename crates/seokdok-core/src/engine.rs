@@ -1039,15 +1039,6 @@ impl Engine {
                 let e = &edges[ei];
                 let tail = after_hanja && n == 0;
                 let light = matches!(&e.kind, Kind::Verb { entry, .. } if self.natives[*entry as usize].lemma == "하다");
-                let r = &best[n];
-                let v = old_variant(r.iter().map(|c| c.text.as_str()), light, tail, false);
-                any |= v.is_some();
-                pieces.push(v.unwrap_or_else(|| r[0].text.clone()));
-                if ha {
-                    let h = old_variant(r.iter().map(|c| c.text.as_str()), light, tail, true);
-                    ha_any |= h.is_some();
-                    ha_pieces.push(h.unwrap_or_else(|| r[0].text.clone()));
-                }
                 let mut alts: Vec<(f32, usize)> = edges
                     .iter()
                     .enumerate()
@@ -1071,9 +1062,18 @@ impl Engine {
                         }
                     }
                 }
-                old_seg.push(old_variant(cands.iter().map(|c| c.text.as_str()), light, tail, false));
+                // The same alternatives serve the segment and the phrase, so
+                // `convert` and `segments` offer the same spelling: under
+                // `hada_kun` the Hangul 하고 behind 爲고 still gives ᄒᆞ고.
+                let v = old_variant(cands.iter().map(|c| c.text.as_str()), light, tail, false);
+                any |= v.is_some();
+                pieces.push(v.clone().unwrap_or_else(|| best[n][0].text.clone()));
+                old_seg.push(v);
                 if ha {
-                    ha_seg.push(old_variant(cands.iter().map(|c| c.text.as_str()), light, tail, true));
+                    let h = old_variant(cands.iter().map(|c| c.text.as_str()), light, tail, true);
+                    ha_any |= h.is_some();
+                    ha_pieces.push(h.clone().unwrap_or_else(|| best[n][0].text.clone()));
+                    ha_seg.push(h);
                 }
                 segments.push(Segment { reading: compose(&comps[e.start..e.end]), candidates: cands });
             }

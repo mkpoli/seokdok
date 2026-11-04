@@ -178,3 +178,20 @@ fn no_jamo_makes_the_engine_panic() {
         }
     }
 }
+
+#[test]
+fn hada_kun_still_offers_the_old_spelling_in_convert_and_segments() {
+    let ha_go = format!("{HA}고");
+    let e = engine(Options { hada_kun: true, ..Options::default() });
+    let (whole, segs) = texts(&e, "하고");
+    assert_eq!(whole[0], "爲고");
+    assert_eq!(segs[0][0], "爲고");
+    assert_eq!(whole.iter().position(|t| *t == ha_go), segs[0].iter().position(|t| *t == ha_go));
+    assert_eq!(whole.iter().position(|t| *t == ha_go), Some(2));
+    // With old_ha as well, both APIs put it first.
+    let e = engine(Options { hada_kun: true, old_ha: true, ..Options::default() });
+    let (whole, segs) = texts(&e, "하고");
+    assert_eq!(whole[0], ha_go);
+    assert_eq!(segs[0][0], ha_go);
+    assert_eq!(texts(&e, "추가할까요").0[0], format!("追加{HAL}까요"));
+}

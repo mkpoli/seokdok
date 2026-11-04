@@ -170,4 +170,25 @@ final class KeyboardUITests: XCTestCase {
         shot("number-pad-globe")
         XCTAssertEqual(text(field), "12")
     }
+
+    /// Two default fields: Hangul pending in the first must stay there, and
+    /// the keys tapped right after focusing the second compose in it with
+    /// nothing lost.
+    func testSwitchingBetweenSameLayoutFieldsKeepsEachCompositionApart() throws {
+        let (app, field) = launch(kind: "default", second: "default")
+        let second = app.descendants(matching: .any)["trial2"]
+        let g = Geometry(app: app)
+        let w = (g.width - 6 - 45) / 10
+        let r = 3 + 3 * (w + 5) + w / 2 // ㄱ
+        tapUntilTyped(field) { g.tap(x: r, y: 107) }
+        g.tap(x: g.width * 738 / 920, y: 159) // ㅏ
+        XCTAssertEqual(text(field), "가")
+        second.tap()
+        g.tap(x: g.width * 180 / 920, y: 159) // ㄴ, at once
+        g.tap(x: g.width * 738 / 920, y: 159) // ㅏ
+        sleep(1)
+        shot("switched-same-layout")
+        XCTAssertEqual(text(field), "가", "the first field changed")
+        XCTAssertEqual(text(second), "나", "the second field lost or gained text")
+    }
 }

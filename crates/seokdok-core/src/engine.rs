@@ -267,8 +267,10 @@ struct SinoTable {
 }
 
 struct SinoEntry {
-    reading: (u32, u16),
-    hanja: (u32, u16),
+    /// Where the reading starts in `text`; the Hanja follow it directly.
+    at: u32,
+    reading_len: u16,
+    hanja_len: u16,
     cost: f32,
     /// Counts summed over the files, to break ties between the readings of
     /// one Hanja word (sino.tsv credits the chat count to each reading).
@@ -277,22 +279,19 @@ struct SinoEntry {
 
 impl SinoTable {
     fn push(&mut self, reading: &str, hanja: &str, cost: f32, count: u32) {
-        let mut put = |s: &str| {
-            let at = self.text.len() as u32;
-            self.text.push_str(s);
-            (at, s.len() as u16)
-        };
-        let (reading, hanja) = (put(reading), put(hanja));
-        self.entries.push(SinoEntry { reading, hanja, cost, count });
-    }
-    fn str(&self, (at, len): (u32, u16)) -> &str {
-        &self.text[at as usize..at as usize + len as usize]
+        let at = self.text.len() as u32;
+        self.text.push_str(reading);
+        self.text.push_str(hanja);
+        self.entries.push(SinoEntry { at, reading_len: reading.len() as u16, hanja_len: hanja.len() as u16, cost, count });
     }
     fn reading(&self, i: usize) -> &str {
-        self.str(self.entries[i].reading)
+        let e = &self.entries[i];
+        &self.text[e.at as usize..e.at as usize + e.reading_len as usize]
     }
     fn hanja(&self, i: usize) -> &str {
-        self.str(self.entries[i].hanja)
+        let e = &self.entries[i];
+        let start = e.at as usize + e.reading_len as usize;
+        &self.text[start..start + e.hanja_len as usize]
     }
     fn cost(&self, i: usize) -> f32 {
         self.entries[i].cost

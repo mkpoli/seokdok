@@ -700,6 +700,10 @@ impl Engine {
                     }
                     // Pronouns and bound nouns contract with a following particle:
                     // 저는 → 전, 거+이 → 게, 할 수는 → 할 순.
+                    // Interjections stand alone: 안 不 takes no particle, 안에 is 內에.
+                    if entry.pos == Pos::Interj {
+                        continue;
+                    }
                     let pron = matches!(entry.pos, Pos::Pron | Pos::Bound);
                     for (r, pis) in self.particle_trie.prefixes(comps, q) {
                         if !boundary(r) {

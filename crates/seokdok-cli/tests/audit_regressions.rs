@@ -148,7 +148,7 @@ fn endings_the_chat_runs_into_the_next_word() {
         ("그런듯", "然ㄴ듯"), ("있다란", "有다란"), ("재밌는거", "滋味ㅆ는거"), ("같은거", "如은거"), ("말고는", "勿고는"),
         ("먹고도", "食고도"), ("있을지도", "有을지도"), ("만드는건", "作는건"), ("잠시만요", "暫時만요"), ("적었을때", "記었을때"),
         ("같으나", "如으나"), ("없으려나", "無으려나"), ("먹냐고", "食냐고"), ("보지마", "見지마"), ("그럴지도", "然ㄹ지도"),
-        ("그럴수도", "然ㄹ수도"), ("모르겠지만요", "不知겠지만요"), ("읽는것", "讀는것"), ("괜찮은듯", "可은듯"),
+        ("그럴수도", "然ㄹ수도"), ("모르겠지만요", "不知겠지만요"), ("읽는것", "讀는것"), ("괜찮은듯", "不空然은듯"),
         ("있는데요", "有는데요"),
     ]);
     // The same letters inside a word stay that word.
@@ -198,4 +198,15 @@ fn context_decides_between_a_verb_and_a_noun_or_particle() {
 #[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "吾ㄹ")]);
+}
+
+#[test]
+fn an_is_negation_on_its_own() {
+    let e = engine();
+    assert_eq!(e.convert("안 돼요")[0].text, "不 成요");
+    assert_eq!(e.convert("안")[0].text, "不");
+    assert!(e.convert("안").iter().chain(e.segments("안")[0].candidates.iter()).any(|c| c.text == "內"));
+    // With a particle it is still the inside of something.
+    assert_eq!(e.convert("안에")[0].text, "內에");
+    assert_eq!(e.convert("무언가")[0].text, "何ㄴ가");
 }

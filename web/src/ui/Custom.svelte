@@ -154,7 +154,7 @@
         {#each custom.phrases as ph, i (i)}
           <li class="row" class:off={ph.on === false}>
             <label class="ui-field"><input class="ui-switch" type="checkbox" role="switch" checked={ph.on !== false} onchange={(e) => (ph.on = e.currentTarget.checked)} aria-label={plain(t().custom.on)} /></label>
-            <input class="ui-input" bind:value={ph.reading} placeholder="석독회" aria-label={plain(t().custom.reading)} lang="ko" />
+            <input class="ui-input" bind:value={ph.reading} placeholder="풀어읽기모임" aria-label={plain(t().custom.reading)} lang="ko" />
             <span class="arrow" aria-hidden="true">→</span>
             <input class="ui-input" bind:value={ph.text} placeholder="釋讀會" aria-label={plain(t().custom.text)} lang="ko" />
             <span class="tools"><button class="icon del" onclick={() => custom.phrases.splice(i, 1)} aria-label={plain(t().custom.remove)}>×</button></span>

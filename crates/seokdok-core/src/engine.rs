@@ -1307,7 +1307,7 @@ lemma\twritten\tpos\tclass\tsource\tcount
 저\t自\tpron\t\tcorpus\t
 나\t我\tpron\t\tcorpus\t
 ";
-    const SINO: &str = "reading\thanja\tcount\tsource\n안녕\t安寧\t\t\n규칙\t規則\t\t\n석독회\t釋讀會\t\t\n환영\t歡迎\t\t\n";
+    const SINO: &str = "reading\thanja\tcount\tsource\n안녕\t安寧\t\t\n규칙\t規則\t\t\n풀어읽기모임\t釋讀會\t\t\n환영\t歡迎\t\t\n";
 
     fn eng(o: Options) -> Engine {
         let (e, errs) = Engine::new(&[("t", NATIVE)], &[("t", SINO)], o);

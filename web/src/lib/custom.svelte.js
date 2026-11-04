@@ -2,7 +2,7 @@
 import { compile, rewriteInput, rewriteOutput } from './rules.js'
 
 /**
- * phrases: fixed text for a reading, like RIME's custom_phrase (석독회 → 釋讀會)
+ * phrases: fixed text for a reading, like RIME's custom_phrase (풀어읽기모임 → 釋讀會)
  * words:   訓讀 entries that inflect (짓다 → 作다), in dict/user.tsv form
  * rules:   rewrite rules, see rules.js
  */

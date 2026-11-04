@@ -105,6 +105,22 @@ jobs:
           sleep 8
           xcrun simctl io "$UDID" screenshot shots/number-pad-dark.png
 
+      # App Store rule 4.4.1: the keyboard must remain functional without
+      # Full Access. Rebuild the extension with the key off and run the same
+      # test.
+      - name: UI test with Full Access off
+        working-directory: ios
+        run: |
+          xcrun simctl ui "$UDID" appearance light
+          plutil -replace NSExtension.NSExtensionAttributes.RequestsOpenAccess -bool NO Keyboard/Info.plist
+          mkdir -p shots/no-full-access
+          TEST_RUNNER_SHOTS="$PWD/shots/no-full-access" xcodebuild -quiet test -project Seokdok.xcodeproj -scheme Seokdok \
+            -destination "id=$UDID" -derivedDataPath build
+          flag=$(plutil -extract NSExtension.NSExtensionAttributes.RequestsOpenAccess raw \
+            build/Build/Products/Debug-iphonesimulator/Seokdok.app/PlugIns/SeokdokKeyboard.appex/Info.plist)
+          echo "RequestsOpenAccess in the tested extension: $flag"
+          test "$flag" = false
+
       - uses: actions/upload-artifact@v4
         if: always()
         with:

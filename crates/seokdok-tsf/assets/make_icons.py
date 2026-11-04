@@ -2,7 +2,6 @@
 
     uv run --with pillow crates/seokdok-tsf/assets/make_icons.py [FONT.ttc]
 
-icon.ico         profile icon (釋)
 mode_seokdok.ico language-bar icon, conversion mode (釋)
 mode_hangul.ico  language-bar icon, plain Hangul mode (한)
 mode_latn.ico    language-bar icon, Latin mode (A)
@@ -20,7 +19,6 @@ FONT = sys.argv[1] if len(sys.argv) > 1 else str(
 SIZES = [16, 20, 24, 32, 48, 64, 256]
 
 ICONS = {
-    "icon.ico": ("釋", (31, 78, 140)),
     "mode_seokdok.ico": ("釋", (31, 78, 140)),
     "mode_hangul.ico": ("한", (40, 120, 110)),
     "mode_latn.ico": ("A", (90, 90, 96)),

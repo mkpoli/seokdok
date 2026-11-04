@@ -9,16 +9,8 @@ root="$PWD"
 version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name=="seokdok-tsf") | .version')
 cargo xwin build --release --target x86_64-pc-windows-msvc -p seokdok-tsf
 
-# Files the installer carries.
 stage="target/stage/windows"
-rm -rf "$stage"
-mkdir -p "$stage/dict"
-cp target/x86_64-pc-windows-msvc/release/seokdok.dll "$stage/"
-cp LICENSE "$stage/LICENSE"
-for f in dict/*.tsv; do
-  case "$(basename "$f")" in user*.tsv) ;; *) cp "$f" "$stage/dict/" ;; esac
-done
-cp dict/README.md dict/LICENSE-fusion.txt "$stage/dict/"
+crates/seokdok-tsf/stage.sh
 
 # Compile on Windows: copy the script, artwork and stage to its temp folder.
 wintemp=$(cmd.exe /c 'echo %TEMP%' 2>/dev/null | tr -d '\r')

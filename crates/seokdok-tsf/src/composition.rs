@@ -428,8 +428,14 @@ impl TextService_Impl {
                     state.composition = None;
                     state.drawn.clear();
                     state.session.reset();
-                    let key = state.current_key.take();
-                    key.map(|k| state.session.handle(k, &HOST).effects).unwrap_or_default()
+                    match state.current_key.take() {
+                        Some(key) => {
+                            let output = state.session.handle(key, &HOST);
+                            state.replay_passed = !output.eaten;
+                            output.effects
+                        }
+                        None => Vec::new(),
+                    }
                 };
                 return self.apply(context, effects);
             }

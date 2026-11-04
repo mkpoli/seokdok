@@ -1143,6 +1143,16 @@ mod tests {
     }
 
     #[test]
+    fn after_a_reset_punctuation_goes_to_the_application() {
+        let mut s = seokdok();
+        type_str(&mut s, "gks");
+        s.reset();
+        let o = s.handle(Key::Printable(','), &Stub(3));
+        assert!(!o.eaten);
+        assert!(o.effects.is_empty());
+    }
+
+    #[test]
     fn a_reset_owes_no_word_break() {
         let mut s = seokdok();
         type_str(&mut s, "gks");

@@ -182,6 +182,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             if !output.effects.is_empty() {
                 let _ = self.apply(context, output.effects);
             }
+            self.inner_mut().current_key = None;
             return Ok(false.into());
         }
         {
@@ -199,7 +200,15 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         if let Err(e) = self.apply(context, output.effects) {
             crate::debug_log::log(|| format!("apply failed: {e:?}"));
         }
-        Ok(true.into())
+        let passed = {
+            let mut state = self.inner_mut();
+            state.current_key = None;
+            std::mem::take(&mut state.replay_passed)
+        };
+        if passed {
+            crate::debug_log::log(|| format!("OnKeyDown vk={:#x} replay did not eat it, passed on", wparam.0));
+        }
+        Ok((!passed).into())
     }
 
     fn OnKeyUp(

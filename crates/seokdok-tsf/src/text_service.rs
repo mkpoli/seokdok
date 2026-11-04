@@ -53,6 +53,8 @@ pub struct TextServiceState {
     /// The key being handled, to replay on what is left if the text so far
     /// turns out to have reached the application.
     pub current_key: Option<Key>,
+    /// The replay did not eat the key, so it goes on to the application.
+    pub replay_passed: bool,
     /// An edit session is writing the preedit.
     pub writing: bool,
     /// An edit session is committing or cancelling the composition.
@@ -85,6 +87,7 @@ impl Default for TextServiceState {
             composition_transitory: false,
             typing_context: None,
             current_key: None,
+            replay_passed: false,
             writing: false,
             ending: false,
             first_write_at: None,

@@ -12,6 +12,8 @@ final class KeyboardViewController: UIInputViewController {
     /// The marked text this keyboard last wrote into the document, if any.
     private var marked: String?
     private var loadTimer: Timer?
+    /// What the focused field asks for; only `.standard` converts.
+    private var layout = Layout.standard
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,6 +53,7 @@ final class KeyboardViewController: UIInputViewController {
         super.viewWillAppear(animated)
         Session.setConfigDir(configDir())
         session.sync()
+        updateLayout()
         refresh()
         waitForDictionaries()
     }
@@ -67,6 +70,8 @@ final class KeyboardViewController: UIInputViewController {
     /// text, so drop the composition instead of writing it again.
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
+        // The next field may want another layout.
+        updateLayout()
         guard let m = marked else { return }
         let before = textDocumentProxy.documentContextBeforeInput ?? ""
         if !before.hasSuffix(m) {
@@ -74,6 +79,36 @@ final class KeyboardViewController: UIInputViewController {
             marked = nil
             refresh()
         }
+    }
+
+    /// The layout the field in focus asks for. Number pads and the like
+    /// type digits as they are; email, URL, ASCII and secure fields type
+    /// Latin letters. Neither converts. (The system swaps in its own keyboard
+    /// for secure and phone fields, but a field can still reach this one.)
+    private func fieldLayout() -> Layout {
+        let proxy = textDocumentProxy
+        if proxy.isSecureTextEntry == true { return .ascii }
+        switch proxy.keyboardType ?? .default {
+        case .numberPad, .asciiCapableNumberPad: return .number
+        case .decimalPad: return .decimal
+        case .phonePad: return .phone
+        case .emailAddress: return .email
+        case .URL: return .url
+        case .asciiCapable, .namePhonePad: return .ascii
+        default: return .standard
+        }
+    }
+
+    /// Leaving the Hangul layout commits what is being composed first.
+    private func updateLayout() {
+        let next = fieldLayout()
+        guard next != layout else { return }
+        if layout.converts {
+            session.flush()
+            apply()
+        }
+        layout = next
+        refresh()
     }
 
     /// Until the dictionaries load, the strip says so; refresh once they have.
@@ -115,6 +150,7 @@ final class KeyboardViewController: UIInputViewController {
     private func refresh() {
         let runs = session.preedit()
         var s = KeyboardState()
+        s.layout = layout
         s.shift = shift
         s.mode = session.mode
         s.composing = !runs.isEmpty
@@ -134,6 +170,12 @@ final class KeyboardViewController: UIInputViewController {
 extension KeyboardViewController: KeyboardViewDelegate {
     func letter(_ key: Character) {
         let shifted = shift != .off
+        guard layout.converts else {
+            insert(String(shifted ? Character(key.uppercased()) : key))
+            if shift == .once { shift = .off }
+            refresh()
+            return
+        }
         if !session.key(Session.Key.letter, key, shift: shifted) {
             insert(String(shifted ? Character(key.uppercased()) : key))
         }
@@ -144,6 +186,10 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func symbol(_ ch: Character) {
+        guard layout.converts else {
+            insert(String(ch))
+            return
+        }
         // Digits pick candidates while the list is open; close it first so a
         // digit confirms the conversion and is typed after it.
         if session.candidates() != nil, ch.isNumber {
@@ -156,6 +202,10 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func space() {
+        guard layout.converts else {
+            insert(" ")
+            return
+        }
         if !session.key(Session.Key.space) {
             insert(" ")
         }
@@ -163,6 +213,10 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func enter() {
+        guard layout.converts else {
+            insert("\n")
+            return
+        }
         if !session.key(Session.Key.enter) {
             insert("\n")
         }
@@ -170,6 +224,10 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func backspace() {
+        guard layout.converts else {
+            textDocumentProxy.deleteBackward()
+            return
+        }
         if !session.key(Session.Key.backspace) {
             textDocumentProxy.deleteBackward()
         }

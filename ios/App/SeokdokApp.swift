@@ -26,12 +26,26 @@ struct ContentView: View {
     @State private var trial = ""
     @FocusState private var trialFocused: Bool
 
+    /// Launch argument for the simulator check: `-trialKind number` (also
+    /// decimal, phone, email, url) gives the try-it field that keyboard type.
+    private static var trialKeyboard: UIKeyboardType {
+        switch UserDefaults.standard.string(forKey: "trialKind") {
+        case "number": return .numberPad
+        case "decimal": return .decimalPad
+        case "phone": return .phonePad
+        case "email": return .emailAddress
+        case "url": return .URL
+        default: return .default
+        }
+    }
+
     var body: some View {
         NavigationStack {
             Form {
                 Section("試驗 · Try it") {
                     TextField("여기에 입력 · Type here", text: $trial, axis: .vertical)
                         .focused($trialFocused)
+                        .keyboardType(Self.trialKeyboard)
                         .accessibilityIdentifier("trial")
                 }
                 Section("켜기 · Turn on") {

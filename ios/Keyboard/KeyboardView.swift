@@ -15,8 +15,29 @@ protocol KeyboardViewDelegate: AnyObject {
     func resize(_ step: Int)
 }
 
+/// What the text field asks for (`textDocumentProxy.keyboardType` and secure
+/// entry). Only `standard` composes and converts; the others type their
+/// characters as they are.
+enum Layout {
+    case standard
+    /// Latin letters: ASCII-only and secure fields.
+    case ascii
+    case email
+    case url
+    /// Digits only (number pad).
+    case number
+    /// Digits and the decimal separator (decimal pad).
+    case decimal
+    /// Digits, * # and + (phone pad).
+    case phone
+
+    var converts: Bool { self == .standard }
+    var isPad: Bool { self == .number || self == .decimal || self == .phone }
+}
+
 /// What the keys and the bars show; built by the controller from the session.
 struct KeyboardState {
+    var layout = Layout.standard
     var shift: Shift = .off
     var mode: Session.Mode = .seokdok
     var composing = false
@@ -43,8 +64,16 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private let bar = UIStackView()
     private let barScroll = UIScrollView()
     private let pageKeys = UIStackView()
+    private let keysArea = UIStackView()
     private let letters = UIStackView()
     private let symbols = UIStackView()
+    private let pad = UIStackView()
+    private var stripRow: UIView!
+    private var barRow: UIView!
+    private var bottomLine: UIView!
+    private var extraKeys: [KeyButton] = []
+    private var extraChars: [Character] = []
+    private var shownLayout = Layout.standard
     private var letterKeys: [(Character, KeyButton)] = []
     private var symbolKeys: [KeyButton] = []
     private var symbolPage = 0
@@ -81,9 +110,11 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             column.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -4),
         ])
 
-        column.addArrangedSubview(scrolling(strip, in: stripScroll, trailing: resizeKeys, height: 26))
-        column.addArrangedSubview(scrolling(bar, in: barScroll, trailing: pageKeys, height: 44))
-        column.setCustomSpacing(8, after: column.arrangedSubviews[1])
+        stripRow = scrolling(strip, in: stripScroll, trailing: resizeKeys, height: 26)
+        barRow = scrolling(bar, in: barScroll, trailing: pageKeys, height: 44)
+        column.addArrangedSubview(stripRow)
+        column.addArrangedSubview(barRow)
+        column.setCustomSpacing(8, after: barRow)
         resizeKeys.addArrangedSubview(smallKey("−", label: "Shorter segment") { $0.resize(-1) })
         resizeKeys.addArrangedSubview(smallKey("+", label: "Longer segment") { $0.resize(1) })
         pageKeys.addArrangedSubview(smallKey("‹", label: "Previous page") { $0.page(-1) })
@@ -93,12 +124,21 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         letters.spacing = 10
         symbols.axis = .vertical
         symbols.spacing = 10
-        column.addArrangedSubview(letters)
-        column.addArrangedSubview(symbols)
+        keysArea.axis = .vertical
+        keysArea.addArrangedSubview(letters)
+        keysArea.addArrangedSubview(symbols)
+        column.addArrangedSubview(keysArea)
         buildLetters()
         buildSymbols()
         symbols.isHidden = true
-        column.addArrangedSubview(bottomRow(needsGlobe))
+        bottomLine = bottomRow(needsGlobe)
+        column.addArrangedSubview(bottomLine)
+        // The pad layouts replace the strip, the bars and the keys; five rows
+        // of 50 with 7 between fill the 278 the column has.
+        pad.axis = .vertical
+        pad.spacing = 7
+        pad.isHidden = true
+        column.addArrangedSubview(pad)
         render(KeyboardState())
     }
 
@@ -229,8 +269,8 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     }
 
     /// Backspace repeats while held.
-    private func backspaceKey() -> KeyButton {
-        let k = KeyButton(symbol: "delete.left")
+    private func backspaceKey(height: CGFloat = 42) -> KeyButton {
+        let k = KeyButton(symbol: "delete.left", height: height)
         k.accessibilityLabel = "Delete"
         k.addAction(UIAction { [weak self] _ in
             guard let self else { return }
@@ -272,6 +312,18 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
             bottom.addArrangedSubview(g)
             g.widthAnchor.constraint(equalToConstant: 40).isActive = true
         }
+        for i in 0..<2 {
+            let k = KeyButton(title: "")
+            k.isHidden = true
+            k.widthAnchor.constraint(equalToConstant: 40).isActive = true
+            k.addAction(UIAction { [weak self] _ in
+                guard let self, i < self.extraChars.count else { return }
+                let ch = self.extraChars[i]
+                self.tap { $0.symbol(ch) }
+            }, for: .touchUpInside)
+            extraKeys.append(k)
+            bottom.addArrangedSubview(k)
+        }
         modeKey = KeyButton(title: "釋")
         modeKey.accessibilityLabel = "Input mode"
         modeKey.addAction(UIAction { [weak self] _ in self?.tap { $0.cycleMode() } }, for: .touchUpInside)
@@ -302,9 +354,10 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     /// Show the keyboard state: key labels, the strip and the candidate bar.
     func render(_ s: KeyboardState) {
         lastMode = s.mode
+        showLayout(s.layout)
         relabelLayerKey()
         let shifted = s.shift != .off
-        let latin = s.mode == .latin
+        let latin = s.mode == .latin || !s.layout.converts
         for (ch, key) in letterKeys {
             let up = Character(ch.uppercased())
             if latin {
@@ -324,6 +377,76 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         enterKey.setTitle(s.composing ? "確定" : "改行", for: .normal)
         showStrip(s)
         showBar(s)
+    }
+
+    /// Switch between the Hangul keyboard, the Latin one for ASCII fields and
+    /// the number pads. A field that cannot take Hangul has no strip, mode key
+    /// or candidates.
+    private func showLayout(_ layout: Layout) {
+        guard layout != shownLayout else { return }
+        shownLayout = layout
+        let pads = layout.isPad
+        stripRow.isHidden = pads
+        barRow.isHidden = pads
+        keysArea.isHidden = pads
+        bottomLine.isHidden = pads
+        pad.isHidden = !pads
+        modeKey.isHidden = !layout.converts
+        extraChars = layout == .email ? ["@", "."] : layout == .url ? [".", "/"] : []
+        for (i, k) in extraKeys.enumerated() {
+            k.isHidden = i >= extraChars.count
+            if i < extraChars.count { k.set(main: String(extraChars[i]), hint: nil) }
+        }
+        if pads {
+            buildPad(layout)
+        } else if let g = globe, let bottom = bottomLine as? UIStackView {
+            bottom.insertArrangedSubview(g, at: 1)
+        }
+    }
+
+    /// Three columns of digits; the fourth row and the bottom row differ by
+    /// pad. The globe moves into the bottom row while a pad is shown.
+    private func buildPad(_ layout: Layout) {
+        pad.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        func row(_ views: [UIView]) -> UIStackView {
+            let r = UIStackView(arrangedSubviews: views)
+            r.axis = .horizontal
+            r.spacing = 6
+            r.distribution = .fillEqually
+            return r
+        }
+        func key(_ ch: Character) -> KeyButton {
+            let k = KeyButton(title: String(ch), height: 50)
+            k.titleLabel?.font = .systemFont(ofSize: 24, weight: .regular)
+            k.addAction(UIAction { [weak self] _ in self?.tap { $0.symbol(ch) } }, for: .touchUpInside)
+            return k
+        }
+        for digits in ["123", "456", "789"] {
+            pad.addArrangedSubview(row(digits.map(key)))
+        }
+        switch layout {
+        case .phone:
+            pad.addArrangedSubview(row(["*", "0", "#"].map { key($0) }))
+        case .decimal:
+            pad.addArrangedSubview(row([key(Character(Locale.current.decimalSeparator ?? ".")), key("0"), backspaceKey(height: 50)]))
+        default:
+            pad.addArrangedSubview(row([UIView(), key("0"), backspaceKey(height: 50)]))
+        }
+        var bottom: [UIView] = []
+        if let g = globe { bottom.append(g) }
+        if layout == .phone {
+            bottom.append(key("+"))
+            bottom.append(backspaceKey(height: 50))
+        }
+        let enter = KeyButton(title: "改行", accent: true, height: 50)
+        enter.addAction(UIAction { [weak self] _ in self?.tap { $0.enter() } }, for: .touchUpInside)
+        bottom.append(enter)
+        let r = row(bottom)
+        r.distribution = .fill
+        for v in bottom where v !== enter {
+            v.widthAnchor.constraint(equalToConstant: v === globe ? 50 : 70).isActive = true
+        }
+        pad.addArrangedSubview(r)
     }
 
     /// The text being composed. Tapping the Hangul converts it (in 釋讀
@@ -413,7 +536,7 @@ final class KeyButton: UIButton {
     private let hint = UILabel()
     private let accent: Bool
 
-    init(title: String? = nil, symbol: String? = nil, accent: Bool = false) {
+    init(title: String? = nil, symbol: String? = nil, accent: Bool = false, height: CGFloat = 42) {
         self.accent = accent
         super.init(frame: .zero)
         layer.cornerRadius = 6
@@ -431,7 +554,7 @@ final class KeyButton: UIButton {
             setImage(UIImage(systemName: symbol + ".fill"), for: .selected)
             tintColor = .label
         }
-        heightAnchor.constraint(equalToConstant: 42).isActive = true
+        heightAnchor.constraint(equalToConstant: height).isActive = true
         hint.font = OldHangul.font(ofSize: 11, weight: .medium)
         hint.textColor = .secondaryLabel
         hint.translatesAutoresizingMaskIntoConstraints = false

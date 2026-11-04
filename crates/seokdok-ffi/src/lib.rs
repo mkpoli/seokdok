@@ -13,6 +13,7 @@ use std::sync::Mutex;
 use seokdok_session::config::{self, Config, InputMode, Layout, Script};
 use seokdok_session::engine_host::HOST;
 use seokdok_session::keys::Key;
+use seokdok_session::mode_keys::{KeyName, ModeKeyboard};
 use seokdok_session::session::{Attr, Effect, Mode, Popup, Run, Session};
 
 /// Key kinds passed from C (see `seokdok.h`).
@@ -33,8 +34,15 @@ pub const SK_CONVERT: i32 = 14;
 pub const SK_TOGGLE: i32 = 15;
 pub const SK_OTHER: i32 = 16;
 
+/// States of a key passed to [`seokdok_mode_key`].
+pub const SK_KEY_UP: i32 = 0;
+pub const SK_KEY_DOWN: i32 = 1;
+pub const SK_KEY_REPEAT: i32 = 2;
+pub const SK_MOD_CTRL: u32 = 1;
+
 pub struct Ime {
     session: Session,
+    keyboard: ModeKeyboard,
     commit: String,
     preedit: Vec<Run>,
     popup: Option<Popup>,
@@ -74,6 +82,7 @@ impl Ime {
         let cfg = config::reload();
         let mut ime = Ime {
             session: Session::new(mode_of(cfg.input.default_mode), cfg.input.space_converts),
+            keyboard: ModeKeyboard::new(&cfg.input.keys),
             commit: String::new(),
             preedit: Vec::new(),
             popup: None,
@@ -90,6 +99,8 @@ impl Ime {
         self.session.set_space_converts(cfg.input.space_converts);
         self.session.set_horizontal(cfg.input.candidate_layout == Layout::Horizontal);
         self.session.set_old_clusters(cfg.input.old_clusters);
+        self.keyboard.set_keys(&cfg.input.keys);
+        self.keyboard.reset();
         let fx = self.session.set_hangul_only(cfg.conversion.script == Script::HangulOnly);
         self.apply(fx);
         let key = (self.dict_dir.clone(), format!("{:?}", cfg.conversion));
@@ -184,6 +195,32 @@ pub unsafe extern "C" fn seokdok_key(ime: *mut Ime, kind: i32, ch: u32, shift: b
     let Some(key) = key_of(kind, ch, shift) else { return false };
     let out = ime.session.handle(key, &HOST);
     // A key left to the application can still commit first.
+    ime.apply(out.effects);
+    out.eaten
+}
+
+/// Offer a key to the `[input.keys]` lists before [`seokdok_key`]. Call it for
+/// every key that goes down, and for modifiers that come up. `name` is the
+/// key's name in those lists, or NULL for a key they cannot name. `mods` holds
+/// the SK_MOD_* flags held with it, and `state` is SK_KEY_DOWN, SK_KEY_UP or
+/// SK_KEY_REPEAT for auto-repeat. True when the key was used: its effects are
+/// in the view, and it must not reach [`seokdok_key`] or the application.
+///
+/// # Safety
+/// `ime` is a live session; `name` is NULL or a NUL-terminated string.
+#[no_mangle]
+pub unsafe extern "C" fn seokdok_mode_key(ime: *mut Ime, name: *const c_char, mods: u32, state: i32) -> bool {
+    let ime = &mut *ime;
+    let key = if name.is_null() { None } else { CStr::from_ptr(name).to_str().ok().and_then(KeyName::from_name) };
+    let mods = mods as u8;
+    let bound = match state {
+        SK_KEY_DOWN => ime.keyboard.press(key, mods, &ime.session),
+        SK_KEY_UP => key.and_then(|k| ime.keyboard.release(k, &ime.session)),
+        // A held key acts once; its repeats go no further.
+        _ => return ime.keyboard.peek_press(key, mods, &ime.session).is_some_and(|k| ime.session.eats(k)),
+    };
+    let Some(bound) = bound else { return false };
+    let out = ime.session.handle(bound, &HOST);
     ime.apply(out.effects);
     out.eaten
 }
@@ -454,6 +491,45 @@ mod tests {
             assert_eq!(c, "하늘");
             assert_eq!(seokdok_mode(ime), 0);
             assert_eq!(seokdok_preedit_len(ime), 0);
+            seokdok_free(ime);
+        }
+    }
+
+    #[test]
+    fn mode_keys_through_the_c_interface() {
+        let _serial = SERIAL.lock().unwrap_or_else(|e| e.into_inner());
+        let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+        let c = CString::new(dict.to_str().unwrap()).unwrap();
+        let name = |s: &str| CString::new(s).unwrap();
+        unsafe {
+            let ime = seokdok_new(c.as_ptr());
+            let down = |n: &str, mods: u32| seokdok_mode_key(ime, name(n).as_ptr(), mods, SK_KEY_DOWN);
+            let up = |n: &str| seokdok_mode_key(ime, name(n).as_ptr(), 0, SK_KEY_UP);
+            seokdok_set_mode(ime, 0);
+            // Keys no list names go on to seokdok_key.
+            assert!(!seokdok_mode_key(ime, std::ptr::null(), 0, SK_KEY_DOWN));
+            assert!(!down("G", 0));
+            assert!(seokdok_key(ime, SK_LETTER, 'g' as u32, false));
+            // The toggle commits what is composed.
+            assert!(down("Hangul", 0));
+            assert_eq!(CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap(), "ㅎ");
+            assert_eq!(seokdok_mode(ime), 2);
+            // Its repeats are eaten and do nothing.
+            assert!(seokdok_mode_key(ime, name("Hangul").as_ptr(), 0, SK_KEY_REPEAT));
+            assert_eq!(seokdok_mode(ime), 2);
+            assert!(down("Hangul", 0));
+            assert_eq!(seokdok_mode(ime), 0);
+            // A modifier tap fires on release; a chord with a key does not.
+            assert!(!down("LCtrl", 0));
+            assert!(!down("LAlt", 0));
+            assert!(up("LCtrl"));
+            assert_eq!(seokdok_mode(ime), 1);
+            assert!(!up("LAlt"));
+            assert!(!down("LCtrl", 0));
+            assert!(!down("C", SK_MOD_CTRL));
+            assert!(!up("LCtrl"));
+            assert_eq!(seokdok_mode(ime), 1);
+            seokdok_set_mode(ime, 0);
             seokdok_free(ime);
         }
     }

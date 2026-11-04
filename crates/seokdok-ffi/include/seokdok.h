@@ -13,12 +13,17 @@ enum {
     SK_LEFT, SK_RIGHT, SK_UP, SK_DOWN, SK_PAGEUP, SK_PAGEDOWN, SK_CONVERT, SK_TOGGLE, SK_OTHER
 };
 
+/* States of a key for seokdok_mode_key, and its modifier flags. */
+enum { SK_KEY_UP = 0, SK_KEY_DOWN, SK_KEY_REPEAT };
+enum { SK_MOD_CTRL = 1, SK_MOD_SHIFT = 2, SK_MOD_ALT = 4, SK_MOD_SUPER = 8 };
+
 typedef struct Ime Ime;
 
 Ime *seokdok_new(const char *dict_dir);
 void seokdok_free(Ime *ime);
 void seokdok_sync(Ime *ime);
 bool seokdok_key(Ime *ime, int32_t kind, uint32_t ch, bool shift);
+bool seokdok_mode_key(Ime *ime, const char *name, uint32_t mods, int32_t state);
 void seokdok_flush(Ime *ime);
 void seokdok_reset(Ime *ime);
 const char *seokdok_take_commit(Ime *ime);

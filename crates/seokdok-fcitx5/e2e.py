@@ -207,5 +207,43 @@ check("AltGr tap is not eaten", sym(ISO_LEVEL3, 128, True), False)
 check("still Korean", key("g"), True)
 type_("\n")
 
+# A candidate picked twice comes first; an e-mail field neither counts nor shows.
+# (fcitx5 itself keeps password fields from the input method.)
+PREEDIT_AND_PANEL = (1 << 1) | (1 << 39)
+EMAIL = 1 << 7
+
+
+def learned_file():
+    return os.path.join(os.environ["XDG_CONFIG_HOME"], "seokdok", "learned.tsv")
+
+
+def pick_second(keys):
+    type_(keys + " ")
+    type_(" ")
+    second = cands[0][1]
+    type_("2")
+    return second
+
+
+usual = converted("dkq")
+ic.SetCapability(dbus.UInt64(PREEDIT_AND_PANEL | EMAIL))
+pick_second("dkq")
+pick_second("dkq")
+check("an e-mail field does not reorder", converted("dkq"), usual)
+pump(1500)
+with open(learned_file(), encoding="utf8") as f:
+    check("an e-mail field writes nothing", "압\t" in f.read(), False)
+ic.SetCapability(dbus.UInt64(PREEDIT_AND_PANEL))
+once = pick_second("dkq")
+check("one pick does not reorder", converted("dkq"), usual)
+pick_second("dkq")
+pick_second("dkq")
+check("two picks in a row put it first", converted("dkq"), once)
+pump(1500)
+with open(learned_file(), encoding="utf8") as f:
+    check("the picks are on disk", once in f.read(), True)
+os.remove(learned_file())
+check("the file deleted, the order returns", converted("dkq"), usual)
+
 print("all passed" if not failures else f"{failures} failed")
 sys.exit(1 if failures else 0)

@@ -94,6 +94,9 @@ class SeokdokService : InputMethodService(), KeyboardListener {
         val numeric = cls == InputType.TYPE_CLASS_NUMBER || cls == InputType.TYPE_CLASS_PHONE || cls == InputType.TYPE_CLASS_DATETIME
         val latinText = cls == InputType.TYPE_CLASS_TEXT && variation in LATIN_VARIATIONS
         passthrough = numeric || latinText
+        // Incognito tabs and the like ask this of every keyboard. Passthrough
+        // fields never reach the session.
+        session.setPrivateField(attribute.imeOptions and EditorInfo.IME_FLAG_NO_PERSONALIZED_LEARNING != 0)
         state = KeyboardView.State(symbols = numeric)
     }
 

@@ -16,6 +16,9 @@ protocol KeyboardViewDelegate: AnyObject {
     func beginCursor()
     /// Move the caret this many characters.
     func moveCursor(by steps: Int)
+    func toggleLearnMenu()
+    func forgetPicks()
+    func setLearn(_ on: Bool)
 }
 
 /// What the text field asks for (`textDocumentProxy.keyboardType` and secure
@@ -43,6 +46,10 @@ struct KeyboardState {
     var layout = Layout.standard
     var shift: Shift = .off
     var mode: Session.Mode = .seokdok
+    /// The strip shows the controls for what was learned.
+    var learnMenu = false
+    /// `input.learn`, when this keyboard rather than the app decides it.
+    var learnOn: Bool?
     var script: Int32 = 0
     var composing = false
     var spaceConverts = true
@@ -409,6 +416,7 @@ final class KeyboardView: UIView {
         modeKey.spoken = "Input mode"
         modeKey.action = { [weak self] in self?.tap { $0.cycleMode() } }
         modeKey.widthAnchor.constraint(equalToConstant: 46).isActive = true
+        modeKey.onHold = { [weak self] in self?.tap { $0.toggleLearnMenu() } }
         spaceKey = Key(title: "띄어쓰기", look: .letter)
         spaceKey.action = { [weak self] in self?.tap { $0.space() } }
         spaceKey.holdsForCursor = true
@@ -552,7 +560,9 @@ final class KeyboardView: UIView {
             bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
             more.isHidden = true
             setDrawer(open: false)
-            if s.mode == .seokdok, let input = s.runs.first(where: { $0.attr == 0 }) {
+            if s.learnMenu && s.runs.isEmpty {
+                showLearnControls(s)
+            } else if s.mode == .seokdok, let input = s.runs.first(where: { $0.attr == 0 }) {
                 let cell = CandidateCell(.init(text: input.text, reading: ""))
                 cell.heightAnchor.constraint(equalToConstant: 36).isActive = true
                 cell.accessibilityHint = "Convert"
@@ -596,6 +606,23 @@ final class KeyboardView: UIView {
             let v = bar.arrangedSubviews[c.selected]
             barScroll.scrollRectToVisible(v.convert(v.bounds, to: barScroll), animated: false)
         }
+    }
+
+    /// Held 釋 key: what was learned can be switched off and cleared here,
+    /// because a keyboard without Full Access is out of the app's reach.
+    private func showLearnControls(_ s: KeyboardState) {
+        let korean = Locale.preferredLanguages.first?.hasPrefix("ko") == true
+        func control(_ title: String, _ act: @escaping (KeyboardViewDelegate) -> Void) {
+            let cell = CandidateCell(.init(text: title, reading: ""))
+            cell.heightAnchor.constraint(equalToConstant: 36).isActive = true
+            cell.addAction(UIAction { [weak self] _ in self?.feedback.key() }, for: .touchDown)
+            cell.addAction(UIAction { [weak self] _ in self?.tap(act) }, for: .touchUpInside)
+            bar.addArrangedSubview(cell)
+        }
+        if let on = s.learnOn {
+            control(on ? (korean ? "學習 끄기" : "Stop learning") : (korean ? "學習 켜기" : "Learn picks")) { $0.setLearn(!on) }
+        }
+        control(korean ? "고른 것 잊기" : "Forget picks") { $0.forgetPicks() }
     }
 
     /// An initial-only jamo (ᄼ) needs a vowel filler to show on its own.

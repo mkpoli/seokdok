@@ -250,6 +250,17 @@ internal sealed class TypingPage : Page
             Toggle(Settings.Bool("input.space_converts"), on => Change(space, Sky with { Trigger = Native.SpaceKey }, Settings.Patch("input.space_converts", on))),
             "\uE75D"));
 
+        var learn = L("자주 고른 候補 먼저", "Put candidates you keep picking first");
+        Add(Card(
+            learn,
+            L("두 번 고른 候補가 그 읽기의 첫 候補가 됩니다. 고른 낱말은 이 PC의 learned.tsv에만 남습니다.", "A candidate picked twice comes first for that reading. The words stay on this PC in learned.tsv."),
+            null,
+            Toggle(Settings.Bool("input.learn"), on => Change(learn, null, Settings.Patch("input.learn", on))),
+            "\uE81C"));
+        var forget = new Button { Content = L("지우기", "Forget") };
+        forget.Click += (_, _) => forget.Content = Native.seokdok_learned_forget() ? L("지웠습니다", "Forgotten") : L("지우지 못했습니다", "Could not delete");
+        Add(Card(L("고른 것 잊기", "Forget what I picked"), L("learned.tsv를 지웁니다. 끈 뒤에도 파일은 지울 때까지 남습니다.", "Deletes learned.tsv. Turning learning off keeps the file until you delete it."), null, forget, "\uE74D"));
+
         string[] layouts = { "vertical", "horizontal" };
         var layout = L("候補 窓의 方向", "Candidate list direction");
         Add(Card(

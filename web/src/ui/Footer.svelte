@@ -12,6 +12,7 @@
     <li><a href="https://github.com/libhangul/libhangul" rel="noopener">libhangul</a> hanja.txt — BSD-3-Clause, © Choe Hwanjin</li>
     <li><a href="https://github.com/Lee0701/FusionIME" rel="noopener">FusionIME (十八字)</a> — GPL-3.0, Lee0701</li>
     <li><a href="https://kaikki.org/dictionary/Korean/" rel="noopener">English Wiktionary</a> via kaikki.org (wiktextract) — CC BY-SA 4.0</li>
+    <li><a href="https://ko.wikisource.org/" rel="noopener">Korean Wikisource</a> transcriptions of 訓蒙字會 (1527), 光州千字文 (1575), 石峯千字文 (1583), 類合, 倭語類解, 譯語類解 and 諺解 — CC BY-SA 4.0; the books are in the public domain</li>
     <li><a href="https://www.edrdg.org/jmdict/j_jmdict.html" rel="noopener">JMdict</a> — CC BY-SA 4.0, EDRDG</li>
     <li><a href="https://github.com/BYVoid/OpenCC" rel="noopener">OpenCC</a> — Apache-2.0</li>
     <li><a href="https://github.com/notofonts/noto-cjk" rel="noopener">Noto CJK</a> fonts — SIL OFL 1.1</li>

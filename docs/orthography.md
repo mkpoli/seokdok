@@ -381,3 +381,9 @@ candidate and the literal input stay selectable.
   used as evidence.
 - libhangul `data/hanja/hanja.txt`, BSD-3-Clause, Copyright (c) 2005, 2006
   Choe Hwanjin: Sino-Korean words and 訓音 glosses.
+- Historical books, read through Korean Wikisource's transcriptions (dump of
+  2026-11-01, CC BY-SA 4.0, https://ko.wikisource.org/): 訓蒙字會 (1527; 1613
+  reprint), 光州千字文 (1575), 石峯千字文 (1583; later printing), 類合 (1913 printing),
+  倭語類解 (18th century), 譯語類解 (1690), and the 諺解 listed in `dict/README.md`: the
+  citations in `dict/eonhae.tsv`. Most of these pages are unproofread on Wikisource,
+  so a row can carry a transcriber's slip; each note names the page to check.

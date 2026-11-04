@@ -60,6 +60,8 @@ pub enum Source {
     Community,
     /// Added by the project editors.
     Editorial,
+    /// Attested in a historical book: a character primer or a 諺解.
+    Eonhae,
     /// Proposed by a language model from word senses and 訓音 glosses;
     /// unreviewed.
     Suggested,
@@ -80,8 +82,9 @@ impl Source {
             Source::User => 0,
             Source::Corpus | Source::Editorial => 1,
             Source::Community => 2,
-            Source::Suggested => 3,
-            Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon => 4,
+            Source::Eonhae => 3,
+            Source::Suggested => 4,
+            Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon => 5,
         }
     }
 
@@ -91,6 +94,7 @@ impl Source {
             "corpus" => Source::Corpus,
             "community" => Source::Community,
             "editorial" => Source::Editorial,
+            "eonhae" => Source::Eonhae,
             "suggested" => Source::Suggested,
             "gloss" => Source::Gloss,
             "japanese" => Source::Japanese,
@@ -148,6 +152,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
         Source::Corpus => 2.5,
         Source::Community => 3.0,
         Source::Editorial => 3.0,
+        Source::Eonhae => 4.2,
         Source::Suggested => 4.5,
         Source::Gloss => 6.0,
         Source::Japanese => 6.2,
@@ -163,6 +168,8 @@ fn native_cost(source: Source, count: u32) -> f32 {
         // Gloss entries share characters with better entries, so their
         // credited counts are noisy: never rank them above the community tier.
         Source::Suggested => attested.max(2.5),
+        // Ranks by the chat's count as Suggested does; the earlier file wins a tie.
+        Source::Eonhae => attested.max(2.5),
         Source::Gloss | Source::Japanese | Source::Lexicon => attested.max(3.0),
         Source::JapaneseWeak => attested.max(4.0),
         _ => attested.min(base),

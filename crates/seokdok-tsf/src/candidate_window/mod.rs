@@ -498,7 +498,13 @@ pub mod preview {
         unsafe {
             let dc = CreateCompatibleDC(None);
             let mut bits = std::ptr::null_mut();
-            let bitmap = CreateDIBSection(Some(dc), &info, DIB_RGB_COLORS, &mut bits, None, 0)?;
+            let bitmap = match CreateDIBSection(Some(dc), &info, DIB_RGB_COLORS, &mut bits, None, 0) {
+                Ok(bitmap) => bitmap,
+                Err(error) => {
+                    let _ = DeleteDC(dc);
+                    return Err(error);
+                }
+            };
             let old = SelectObject(dc, bitmap.into());
             let rc = RECT { left: 0, top: 0, right: width, bottom: height };
             let result = draw(dc, &rc);

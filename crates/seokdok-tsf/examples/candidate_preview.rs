@@ -291,8 +291,9 @@ mod app {
                 ..Default::default()
             };
             let mut bgra = vec![0u8; (w * h * 4) as usize];
-            GetDIBits(dc, bitmap, 0, h as u32, Some(bgra.as_mut_ptr() as *mut _), &mut info, DIB_RGB_COLORS);
             SelectObject(dc, old);
+            let lines = GetDIBits(dc, bitmap, 0, h as u32, Some(bgra.as_mut_ptr() as *mut _), &mut info, DIB_RGB_COLORS);
+            assert_eq!(lines, h, "GetDIBits");
             let _ = DeleteObject(bitmap.into());
             let _ = DeleteDC(dc);
             ReleaseDC(None, screen);

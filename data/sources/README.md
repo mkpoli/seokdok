@@ -13,6 +13,7 @@ Raw downloads. Nothing here is executed. "MIT/BSD repo" asks whether the file ma
 | Microsoft IME | proprietary | no |
 | Korean Wikisource dump (old books) | books public domain; site CC BY-SA 4.0 | as a derived list under CC BY-SA, with credit |
 | kaikki.org Middle Korean JSONL | CC BY-SA 4.0 + GFDL (Wiktionary) | no (share-alike) |
+| 나무위키 신증유합, 훈몽자회 pages | books public domain; site CC BY-NC-SA 2.0 KR | uncertain; citations say so |
 
 ## 1. libhangul — `libhangul/`
 
@@ -91,6 +92,13 @@ Raw downloads. Nothing here is executed. "MIT/BSD repo" asks whether the file ma
 ## 4b. kaikki.org Middle Korean — `kaikki-middle-korean/`
 
 - URL: https://kaikki.org/dictionary/Middle%20Korean/kaikki.org-dictionary-MiddleKorean.jsonl (2,250,185 bytes, 1,033 entries, 647 with `descendants`; last modified 2026-10-30). robots.txt disallows only `/dictionary/search/*`. License as in section 4.
+
+## 4c. 나무위키 and a Wikisource page — `namu-wiki/`, `wikisource-ko-pages/`
+
+- URLs, read in a browser and saved 2026-11-04 as Playwright accessibility snapshots (rendered text, each Hanja and its gloss in the tree): https://namu.wiki/w/신증유합/상권 (`namu-wiki/yuhap-sang.yml`, last edited 2026-06-19), https://namu.wiki/w/신증유합/하권 (`namu-wiki/yuhap-ha.yml`), https://namu.wiki/w/훈몽자회/상권 (`namu-wiki/hunmong-sang.yml`), https://ko.wikisource.org/wiki/훈몽자회/樹木 (`wikisource-ko-pages/ws-tree.yml`, kept to compare with the dump's page; not read by the tool). Not refetched: save them again by hand, not with a crawler. They stay out of git.
+- License: each 나무위키 page states CC BY-NC-SA 2.0 KR (`이 저작물은 CC BY-NC-SA 2.0 KR`). The books are public domain.
+- Format: `新增類合` rows of entry number, character, gloss with reading (`314 / 芋 / 토란 우`); 新增類合 has 1,000 entries in 상권 and 2,000 in 하권, numbered 1 to 3000. `훈몽자회/상권` has rows of character and gloss under section headings (`松 / 솔〮 쇼ᇰ`), and the gloss often links to the article on the modern word (`솔` → 소나무).
+- Weakness: an anonymously edited wiki's transcription, naming no copy and no scan, with no folios for 新增類合; a few cells carry the editors' notes (`처엄 초 원간 초`, `旦 아ᄎᆞᆷ 단 今音 됴`), and row 2397 has stray markup (`[[偸`). Which printing the 원간 note compares against is uncertain.
 
 ## 5. Other sources (reported, not downloaded)
 

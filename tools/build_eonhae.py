@@ -2,10 +2,10 @@
 
 Usage: uv run tools/build_eonhae.py [--audit DIR]
 
-Reads the Korean Wikisource dump in data/sources/wikisource-ko/ (the books'
-transcriptions), and for the modern side English Wiktionary via kaikki.org,
-Unihan and the other dict/ files. See data/sources/README.md for how to fetch
-them.
+Reads the Korean Wikisource dump in data/sources/wikisource-ko/ and the saved
+나무위키 pages in data/sources/namu-wiki/ (the books' transcriptions), and for the
+modern side English Wiktionary via kaikki.org, Unihan and the other dict/ files.
+See data/sources/README.md for how to fetch them.
 
 Primer rows come from one-gloss-per-character books (天 하ᄂᆞᆯ 텬). Aligned rows
 come from passages printing the Chinese next to its 諺解. An old word becomes a
@@ -21,6 +21,7 @@ import json
 import re
 import sys
 import unicodedata
+import urllib.parse
 import zipfile
 import xml.etree.ElementTree as ET
 from pathlib import Path
@@ -30,6 +31,9 @@ DICT = ROOT / "dict"
 SRC = ROOT / "data" / "sources"
 DUMP = SRC / "wikisource-ko" / "kowikisource-20261101-pages-articles.xml.bz2"
 CACHE = SRC / "wikisource-ko" / "books.jsonl"
+NAMU = SRC / "namu-wiki"
+# Stated in each citation of these pages: a wiki's transcription under a licence narrower than the file's.
+NAMU_TERMS = "CC BY-NC-SA 2.0 KR, unproofread wiki text"
 
 # Books read from the dump. key: the Wikisource page title prefix.
 PRIMER_PREFIXES = ("訓蒙字會.pdf", "훈몽자회/", "광주천자문.pdf", "CNTS-00047980571 千字文.pdf", "유합.djvu", "倭語類解", "譯語類解", "詩經諺解 제1책.djvu")
@@ -464,6 +468,95 @@ def primers(pages):
             parse_yeogeo(p, out)
         elif t.startswith("詩經諺解 제1책.djvu/"):
             parse_mulmyeong(p, out)
+    return out
+
+
+def snapshot_rows(path):
+    """Table rows of a saved accessibility snapshot: (level-3 heading above, [(cell text, [(link text, target)])])."""
+    section, row, row_indent, cell_indent = "", None, 0, 0
+    rows = []
+    lines = path.read_text(encoding="utf-8").splitlines()
+    for i, line in enumerate(lines):
+        indent = len(line) - len(line.lstrip())
+        item = line.strip()
+        if row is not None and indent <= row_indent:
+            rows.append((section, row))
+            row = None
+        if item.startswith("- heading [level=3"):
+            text = next((x.strip() for x in lines[i + 1 : i + 8] if x.strip().startswith("- text: ")), "- text: ")
+            section = text[len("- text: "):]
+        elif item.startswith("- row ["):
+            row, row_indent, cell_indent = [], indent, indent + 2
+        elif row is not None and indent == cell_indent and item.startswith("- cell"):
+            m = re.match(r'- cell(?: "(.*)")? \[ref=[^\]]*\]', item)
+            row.append([m.group(1) or "", []])
+        elif row:
+            m = re.match(r'- link "(.*)" \[ref', item)
+            if m:
+                target = lines[i + 1].strip() if i + 1 < len(lines) else ""
+                target = target[len("- /url: "):] if target.startswith("- /url: ") else ""
+                row[-1][1].append((m.group(1), urllib.parse.unquote(target).removeprefix("/w/")))
+                row[-1][0] += " " + m.group(1)
+            elif item.startswith("- text: "):
+                row[-1][0] += " " + item[len("- text: "):].strip('"')
+    return rows
+
+
+def gloss_pairs(text, fits):
+    """The (gloss, reading) pairs of a cell: 처엄 초; 남녁 남 앏 남; 밧골 역 쉬울 이 去聲. Han characters, 원간 and what
+    follows them are the transcriber's notes (今音 됴, 又 音 완, 一 作 욕심 욕). A gloss of several words is a phrase
+    (믈 ᄲᅳ릴 쇄), which no lemma can be, and a cell with a word left over is not understood, so neither gives a pair."""
+    words = text.split()
+    for i, w in enumerate(words):
+        if re.search(f"[{HAN}]", w) or w == "원간":
+            words = words[:i]
+            break
+    if len(words) == 1:  # 벋뉴, 초ᄒᆞᄅᆞ삭: run together
+        syl = syllables(norm(words[0]))
+        words = ["".join(syl[:-1]), syl[-1]] if syl and len(syl) >= 2 else []
+    pairs, gloss = [], []
+    for w in words:
+        syl = syllables(norm(w))
+        if gloss and syl and len(syl) == 1 and fits(w):
+            pairs.append((gloss, w))
+            gloss = []
+        else:
+            gloss.append(w)
+    return [] if gloss else [(g[0], e) for g, e in pairs if len(g) == 1]
+
+
+def namu_primers(m):
+    """新增類合 and 訓蒙字會 上 on 나무위키: rows of number, character, gloss with its reading. A cell can hold variants
+    of the character (煙烟), or print one before the gloss (鶯 굇고리 ᄋᆡᆼ); a link on a 訓蒙字會 gloss goes to the
+    article on the modern word (가랍나모 → 떡갈나무), which serves as the Wikisource editors' parentheses do."""
+    out = []
+    for name, book, year, title, numbered in (("yuhap-sang.yml", "新增類合", "1576", "신증유합/상권", True),
+                                              ("yuhap-ha.yml", "新增類合", "1576", "신증유합/하권", True),
+                                              ("hunmong-sang.yml", "訓蒙字會", "1527", "훈몽자회/상권", False)):
+        for section, cells in snapshot_rows(NAMU / name):
+            if len(cells) != (3 if numbered else 2):
+                continue
+            chars = re.findall(f"[{HAN}\U00020000-\U000323AF]", cells[-2][0])
+            text = cells[-1][0].strip()
+            lead = re.match(rf"((?:[{HAN}]\s+)+)", text)
+            if lead:
+                chars += lead.group(1).split()
+                text = text[lead.end():]
+            chars = list(dict.fromkeys(unicodedata.normalize("NFC", c) for c in chars))
+            if not chars or (numbered and not cells[0][0].strip().isdigit()):
+                continue
+
+            def fits(eum):
+                # Gloss and reading alone leave one way to read the cell; primer_rows judges the reading as for any book.
+                return len(text.split()) <= 2 or (chars[0] in m.char_readings and reading_starts_alike(chars[0], eum, m))
+
+            pairs = gloss_pairs(text, fits)
+            where = cells[0][0].strip() if numbered else section
+            loc = f"나무위키 {title} {where} ({NAMU_TERMS})"
+            for gloss, eum in pairs:
+                targets = [t for lt, t in cells[-1][1] if lt == gloss and re.fullmatch("[\uAC00-\uD7A3]+", t)]
+                for ch in chars:
+                    out.append(Att(ch, gloss, eum, book, year, loc, modern=targets[0] if targets else ""))
     return out
 
 
@@ -1021,6 +1114,16 @@ def reading_fits(att, m):
     return any(difflib.SequenceMatcher(None, a, skeleton(r).translate(merged).removeprefix("\u1102")).ratio() > 0.5 for r in m.char_readings[att.char])
 
 
+def reading_starts_alike(char, eum, m):
+    """A word of a cell can be the reading only if it starts as the character's reading does: 글 ᄒᆞᆫ ᄆᆞᄎᆞᆷ 편 is one
+    phrase, whatever ᄒᆞᆫ and 편 share."""
+    if not reading_fits(Att(char, "", eum, "", "", ""), m):
+        return False
+    merged = str.maketrans({"\u1103": "\u110C", "\u1105": "\u1102", "\u1140": "\u110C"})
+    onset = skeleton(eum).translate(merged).removeprefix("\u1102")[:1]
+    return any(skeleton(r).translate(merged).removeprefix("\u1102")[:1] == onset for r in m.char_readings[char])
+
+
 def primer_rows(atts, m, rejects=None):
     """Rows from primers. Evidence for the meaning is a hand-made or machine pair from an independent method, or
     an English sense shared with the character. libhangul's gloss, being the same kind of reconstruction, counts
@@ -1096,6 +1199,17 @@ EXCLUDE = {
     ("열", "行"),  # 녈 is the old verb 녀다, go; 열 here is the Sino-Korean row
     ("꼴", "菅"),  # 골 is the rush; 꼴 is a shape, or fodder from another word
     ("덜", "減"),  # the book's 덜 is the adnominal of 덜다, which has its own row
+    ("가름", "代"),  # ᄀᆞᄅᆞᆷ 代 is 갈음, a substitute; 가름 is a division
+    ("걷다", "斂다"),  # 거둘 is 거두다, which has its own row
+    ("겹다", "冬다"),  # 겨을 is 겨울
+    ("나다", "經다"), ("날다", "經다"), ("놀다", "經다"),  # ᄂᆞᆯ 經 is 날, the warp, a noun
+    ("낱", "晌"),  # 낫 晌 is 낮
+    ("들다", "穿다"),  # 들올 is the old verb for 뚫다
+    ("마지막", "卒"),  # ᄆᆞᄎᆞᆷ is 마침
+    ("바리다", "抛다"),  # ᄇᆞ릴 is 버리다
+    ("배", "棹"),  # ᄇᆡᆺ is a genitive with its noun lost: 棹 is an oar
+    ("복", "祚"), ("복", "祉"),  # 福; the fish 복 stays
+    ("창", "牖"),  # 窓; the weapon 창 stays
 }
 # Headwords Wiktionary or FusionIME lists that are no modern form of the old word, or are Sino-Korean in origin.
 EXCLUDE_LEMMA = {
@@ -1104,19 +1218,23 @@ EXCLUDE_LEMMA = {
     "베이다",  # 베힐 is 베다
     "도로래",  # now 땅강아지
     "괴",  # survives only as the old word for a cat
+    "소곰", "호매",  # old or dialect forms of 소금, 호미
+    "되놈",  # the book's 되 is only the first part of this word
+    "아람",  # ᄋᆞᄅᆞᆷ 私 survives in 아람치; 아람 alone is a ripe chestnut
+    "공", "노적", "노하다", "심하다", "약하다", "원쑤", "죄", "평지",  # 功, 露積, 怒, 甚, 弱, 怨讐, 罪, 平地
 }
 
 
 def citation(att):
     entry = " ".join(x for x in (att.char, att.old, att.eum) if x)
-    edition = {"訓蒙字會": "1527", "光州千字文": "1575", "石峯千字文": "1583", "類合": "1913", "倭語類解": "18世紀", "譯語類解": "1690", "詩經諺解 物名": "1820本"}[att.book]
+    edition = {"訓蒙字會": "1527", "光州千字文": "1575", "新增類合": "1576", "石峯千字文": "1583", "類合": "1913", "倭語類解": "18世紀", "譯語類解": "1690", "詩經諺解 物名": "1820本"}[att.book]
     return f"{att.book} {edition}, {att.loc}: {entry}"
 
 
 def build(audit_dir=None):
     pages = extract_pages()
     m = Modern()
-    atts = primers(pages)
+    atts = primers(pages) + namu_primers(m)
     rejects = []
     prim = primer_rows(atts, m, rejects)
     ps = passages(pages)
@@ -1136,13 +1254,14 @@ def build(audit_dir=None):
             continue
         books = {y[0].book for y in v}
         seen, cites = set(), []
-        for y in sorted(v, key=lambda y: (y[0].year, y[0].book)):
-            if y[0].book not in seen:
-                seen.add(y[0].book)
+        for y in sorted(v, key=lambda y: (y[0].year, y[0].book, NAMU_TERMS in y[0].loc)):
+            transcription = (y[0].book, NAMU_TERMS in y[0].loc)
+            if transcription not in seen:
+                seen.add(transcription)
                 cites.append(citation(y[0]))
         evidence = {e.split(":")[0] for y in v for e in y[2]}
         weight = (len(books), len(evidence), m.char_freq[w.removesuffix("다")[:1]] if len(w) else 0)
-        by_lemma[lem].append((0, weight, lem, w, pos, "primer: " + "; ".join(cites[:3])))
+        by_lemma[lem].append((0, weight, lem, w, pos, "primer: " + "; ".join(cites)))
     for (lem, w, pos), (dice, n, nbooks, quoted, ev) in alig.items():
         if (lem, w) in EXCLUDE or lem in EXCLUDE_LEMMA or (lem, w) in written_seen:
             continue
@@ -1180,7 +1299,7 @@ def build(audit_dir=None):
     return out
 
 
-MAX_PER_LEMMA = 6
+MAX_PER_LEMMA = 8
 
 
 def class_of(lemma, pos, m):
@@ -1196,8 +1315,10 @@ def class_of(lemma, pos, m):
 HEADER = """# 訓讀 readings attested in historical Korean books. Each note says where to check the row.
 # primer: a character primer glosses the character with the old form of this word (book, year, page, entry).
 # aligned: 諺解 passages print the Chinese next to the Korean; the note gives the count and quotes the shortest.
-# Text from the transcriptions on Korean Wikisource, dump of 2026-11-01. Built by tools/build_eonhae.py.
-# CC BY-SA 4.0 (Wikisource, Wiktionary); see dict/README.md. Ranks below the hand-made tiers.
+# Text from the transcriptions on Korean Wikisource, dump of 2026-11-01, and on 나무위키, saved 2026-11-04.
+# Built by tools/build_eonhae.py. Ranks below the hand-made tiers.
+# CC BY-SA 4.0 (Wikisource, Wiktionary); citations of 나무위키 say CC BY-NC-SA 2.0 KR, an anonymously edited
+# wiki's transcription that names no copy of the book and has not been read against a scan. See dict/README.md.
 """
 
 

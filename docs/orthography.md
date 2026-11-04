@@ -387,3 +387,7 @@ candidate and the literal input stay selectable.
   倭語類解 (18th century), 譯語類解 (1690), and the 諺解 listed in `dict/README.md`: the
   citations in `dict/eonhae.tsv`. Most of these pages are unproofread on Wikisource,
   so a row can carry a transcriber's slip; each note names the page to check.
+- 新增類合 (1576) and the first volume of 訓蒙字會, read through 나무위키's transcriptions
+  (saved 2026-11-04, CC BY-NC-SA 2.0 KR, https://namu.wiki/w/신증유합/상권,
+  https://namu.wiki/w/신증유합/하권, https://namu.wiki/w/훈몽자회/상권): an anonymously
+  edited wiki naming no copy of the book; `dict/README.md` gives the check.

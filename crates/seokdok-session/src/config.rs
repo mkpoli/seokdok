@@ -421,7 +421,8 @@ menu_items = {menu_items}
         if let Some(dir) = path.parent() {
             std::fs::create_dir_all(dir)?;
         }
-        let tmp = path.with_extension("toml.tmp");
+        // Each process has its own, so two writers cannot mix their text.
+        let tmp = path.with_extension(format!("toml.{}.tmp", std::process::id()));
         std::fs::write(&tmp, self.to_documented_toml())?;
         std::fs::rename(&tmp, path)
     }

@@ -24,6 +24,9 @@
     <li><a href="/dict/NOTICE.txt">NOTICE.txt</a></li>
   </ul>
   <p class="meta">{@html r(t().footer.licence)} · {@html r(t().footer.made)} <a href="https://mkpo.li/">mkpoli</a> · <a href="https://github.com/mkpoli/seokdok" rel="noopener">GitHub</a></p>
+  <p class="meta legal">
+    <a href="/privacy">{@html r(t().footer.privacy)}</a> · <a href="/support">{@html r(t().footer.support)}</a>
+  </p>
 </footer>
 
 <style>
@@ -43,5 +46,8 @@
   }
   .meta {
     margin: 0;
+  }
+  .legal {
+    margin-top: var(--s-2);
   }
 </style>

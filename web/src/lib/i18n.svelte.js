@@ -2,6 +2,7 @@
 // browser, and the choice is remembered.
 import { options } from './options.svelte.js'
 import SINO from './sino-chars.json'
+import pages from './pages.js'
 
 const ko = {
   nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '{個言|낱말}', convert: '{變換|변환}', old: '{古|예}ㅅ{韓㐎|한글}', install: '{設置|설치}', join: '{會|모임}' },
@@ -244,6 +245,8 @@ const ko = {
     suggested: '{機械|기계} {提案|제안}: {言語|언어} 모델이 {意|뜻}으로 {付|붙}인 {漢字|한자}, {人|사람}이 {檢討|검토}하지 {不|않}음',
     made: '{作|만드}ㄴ {人|이}',
     licence: '코드는 MIT. {辭典|사전}마다 {許可|허가}가 {異|다르}ㅂ니다.',
+    privacy: '{個人情報|개인정보} {處理|처리}{方針|방침}',
+    support: '{顧客|고객} {支援|지원}',
   },
 }
 
@@ -488,11 +491,13 @@ const en = {
     sources: 'Dictionaries and sources',
     made: 'Made by',
     licence: 'Code under MIT; each dictionary keeps its own licence.',
+    privacy: 'Privacy policy',
+    support: 'Support',
   },
 }
 
 // 'ko': Korean in 釋讀 with Hangul ruby; 'kore': the same, Hanja only; 'en'.
-const all = { ko, kore: ko, en }
+const all = { ko: { ...ko, ...pages.ko }, kore: { ...ko, ...pages.ko }, en: { ...en, ...pages.en } }
 
 
 function initial() {

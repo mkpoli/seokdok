@@ -2,6 +2,9 @@
   import { i18n, setLang, t, r, plain } from '../lib/i18n.svelte.js'
   import { options } from '../lib/options.svelte.js'
 
+  // On a page other than the front page, `home` is '/' and the section links lead back to it.
+  let { home = '' } = $props()
+
   // The switch moves at once; the page re-renders on the next frame.
   let pending = $state(null)
   const sino = $derived(pending ?? options.sinoOnly)
@@ -35,18 +38,18 @@
 </script>
 
 <header class="bar">
-  <a class="mark" href="#top" aria-label="seokdok">
+  <a class="mark" href="{home}#top" aria-label="seokdok">
     <span class="mark-han">釋讀</span><span class="mark-latn">seokdok</span>
   </a>
   <nav aria-label="sections">
-    <a href="#ime">{@html r(t().nav.ime)}</a>
-    <a href="#custom">{@html r(t().nav.custom)}</a>
-    <a href="#rules">{@html r(t().nav.rules)}</a>
-    <a href="#words">{@html r(t().nav.words)}</a>
-    <a href="#convert">{@html r(t().nav.convert)}</a>
-    <a href="#old">{@html r(t().nav.old)}</a>
-    <a href="#install">{@html r(t().nav.install)}</a>
-    <a href="#join">{@html r(t().nav.join)}</a>
+    <a href="{home}#ime">{@html r(t().nav.ime)}</a>
+    <a href="{home}#custom">{@html r(t().nav.custom)}</a>
+    <a href="{home}#rules">{@html r(t().nav.rules)}</a>
+    <a href="{home}#words">{@html r(t().nav.words)}</a>
+    <a href="{home}#convert">{@html r(t().nav.convert)}</a>
+    <a href="{home}#old">{@html r(t().nav.old)}</a>
+    <a href="{home}#install">{@html r(t().nav.install)}</a>
+    <a href="{home}#join">{@html r(t().nav.join)}</a>
   </nav>
   <div class="tools">
     <div class="mode" title={plain(t().options.sinoTip)}>

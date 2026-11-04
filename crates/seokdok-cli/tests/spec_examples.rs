@@ -544,6 +544,12 @@ fn i_after_hanja_is_also_written_as_a_syllable() {
         assert_eq!(list.get(at + 1).map(String::as_str), Some(spelled), "{input}: {list:?}");
     }
     assert_eq!(e.read("址이니"), "터이니");
+    // Nothing else is pushed out, and a final ㅆ joins the syllable.
+    assert!(offers(&e, "내", "吾ㅐ"));
+    assert!(offers(&e, "냈다", "出있다"));
+    assert!(!offers(&e, "냈다", "出이ㅆ다"));
+    // A Hanja with the particle 이 still reads by its sound.
+    assert_eq!(e.read("脚이"), "각이");
 }
 
 #[test]

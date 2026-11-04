@@ -81,6 +81,11 @@ pub enum Key {
 }
 
 impl Key {
+    /// Does this key switch modes?
+    pub fn switches_mode(self) -> bool {
+        matches!(self, Key::HangulToggle | Key::ToLatin | Key::ToKorean | Key::FlipHangul | Key::ToSeokdok | Key::ToHangul)
+    }
+
     /// The character that selects a jamo in the 두벌식 layout.
     pub fn jamo_key(self) -> Option<char> {
         match self {

@@ -364,13 +364,18 @@ impl ModeKeyboard {
         self.spent = false;
     }
 
+    /// A modifier is down. Telling this twice changes nothing.
+    pub fn modifier_down(&mut self, m: Modifier) {
+        self.held |= m.bit();
+        self.peak |= m.bit();
+    }
+
     /// A key went down; `None` is a key no list can name. `mods` are the
     /// `MOD_*` flags held with it. Returns the session key when it is bound.
     /// Safe to call twice for one key event.
     pub fn press(&mut self, key: Option<KeyName>, mods: u8, session: &Session) -> Option<Key> {
         if let Some(KeyName::Modifier(m)) = key {
-            self.held |= m.bit();
-            self.peak |= m.bit();
+            self.modifier_down(m);
             return None;
         }
         // A typed key with nothing held: anything remembered as held is stale.

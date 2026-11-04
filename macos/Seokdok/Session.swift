@@ -142,12 +142,13 @@ struct Config: Codable, Equatable {
     }
 
     struct Conversion: Codable, Equatable {
+        /// "seokdok", "sino_only" or "hangul_only".
+        var script = "seokdok"
         var style = "surface"
         var fragment = "absorb"
         var codaAlways = false
         var resyllabify = false
         var hadaKun = false
-        var sinoOnly = false
         var maxCandidates = 12
     }
 

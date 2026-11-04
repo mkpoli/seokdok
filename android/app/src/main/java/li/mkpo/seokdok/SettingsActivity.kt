@@ -61,7 +61,7 @@ class SettingsActivity : Activity() {
         column.addView(toggle(R.string.old_clusters, "input.old_clusters"))
 
         column.addView(header(R.string.section_conversion))
-        column.addView(toggle(R.string.sino_only, "conversion.sino_only"))
+        column.addView(choice(R.string.script, R.array.script_labels, "conversion.script", listOf("seokdok", "sino_only", "hangul_only")))
         column.addView(choice(R.string.style, R.array.style_labels, "conversion.style", listOf("surface", "morpheme")))
         column.addView(choice(R.string.fragment, R.array.fragment_labels, "conversion.fragment", listOf("absorb", "letter")))
         column.addView(toggle(R.string.coda_always, "conversion.coda_always"))

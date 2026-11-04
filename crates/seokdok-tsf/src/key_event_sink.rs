@@ -74,6 +74,15 @@ fn decode(wparam: WPARAM, lparam: LPARAM) -> Option<Key> {
 }
 
 impl TextService_Impl {
+    /// `OnTestKeyDown` and `OnTestKeyUp` run only on the IMM32 path; a text
+    /// store of the application's own calls `OnKeyDown` directly.
+    fn note_imm32(&self, context: Option<&ITfContext>) {
+        let raw = context.map(|c| windows::core::Interface::as_raw(c) as usize);
+        if raw.is_some() {
+            self.inner_mut().imm32_context = raw;
+        }
+    }
+
     /// Apply the settings and a mode requested from the language bar. Called
     /// at the start of every key event, so the session is up to date.
     fn sync(&self, context: &ITfContext) {
@@ -107,6 +116,7 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
         wparam: WPARAM,
         lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
+        self.note_imm32(pic.as_ref());
         note_key_down(wparam);
         if repeat_of_commit(wparam, lparam) {
             return Ok(true.into());
@@ -127,10 +137,11 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
 
     fn OnTestKeyUp(
         &self,
-        _pic: Ref<'_, ITfContext>,
+        pic: Ref<'_, ITfContext>,
         wparam: WPARAM,
         _lparam: LPARAM,
     ) -> windows::core::Result<BOOL> {
+        self.note_imm32(pic.as_ref());
         let tap = is_alt(wparam) && ALT_ALONE.with(|a| a.get()) && crate::config::current().input.alt_toggles;
         Ok(tap.into())
     }

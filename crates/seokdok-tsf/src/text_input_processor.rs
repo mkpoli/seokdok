@@ -57,6 +57,8 @@ impl ITfTextInputProcessor_Impl for TextService_Impl {
         let mut state = self.inner_mut();
         state.session.reset();
         state.composition = None;
+        state.drawn.clear();
+        state.imm32_context = None;
         state.candidate_window = None;
         state.category_mgr = None;
         state.display_atoms = [0; 3];

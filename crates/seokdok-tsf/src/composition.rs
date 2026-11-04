@@ -3,6 +3,9 @@
 //! window. Also `ITfCompositionSink`.
 
 use std::mem::ManuallyDrop;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::OnceLock;
+use std::time::Instant;
 
 use windows::core::{IUnknownImpl, Interface, Ref};
 use windows::Win32::Foundation::RECT;
@@ -12,12 +15,26 @@ use windows::Win32::System::Variant::{
 use windows::Win32::UI::TextServices::{
     ITfComposition, ITfCompositionSink, ITfCompositionSink_Impl, ITfContext, ITfContextComposition,
     ITfInsertAtSelection, ITfRange, GUID_PROP_ATTRIBUTE, TF_AE_NONE, TF_ANCHOR_END,
-    TF_ANCHOR_START, TF_DEFAULT_SELECTION, TF_IAS_QUERYONLY, TF_SELECTION, TF_SELECTIONSTYLE, TS_SS_TRANSITORY,
+    TF_ANCHOR_START, TF_DEFAULT_SELECTION, TF_IAS_QUERYONLY, TF_SELECTION, TF_SELECTIONSTYLE, TS_SD_READONLY, TS_SS_TRANSITORY,
 };
 
+use crate::config::Surface;
 use crate::edit_session::run_sync;
 use crate::session::{Attr, Effect, Run};
+use crate::surface::{choose, classify_end, End, Facts};
 use crate::text_service::TextService_Impl;
+
+/// This process refused a composition, so it gets the floating preedit.
+static NEEDS_FLOATING: AtomicBool = AtomicBool::new(false);
+
+/// What came of writing the preedit into the document.
+enum Written {
+    Shown(ITfComposition, Option<(i32, i32)>),
+    /// The document would not start a composition; nothing reached it.
+    NotStarted,
+    /// The composition is open but its text is gone; it has been ended.
+    Vanished,
+}
 
 /// See [`TextService_Impl::composer`].
 struct Composer {
@@ -75,14 +92,37 @@ unsafe fn set_single_selection(ctx: &ITfContext, ec: u32, range: &ITfRange) -> w
     result
 }
 
-/// Whether the document is an IMM32 application seen through the system's
-/// bridge (CUAS). Under a Korean keyboard layout that bridge accepts only a
-/// one-character "interim" composition and ends any other at once, so these
-/// documents get no composition while typing: the preedit is drawn in the
-/// popup and the text arrives when it is confirmed.
-fn is_transitory(context: &ITfContext) -> bool {
+/// The context's static flags.
+fn static_flags(context: &ITfContext) -> u32 {
     // SAFETY: context is a valid ITfContext.
-    unsafe { context.GetStatus() }.is_ok_and(|s| s.dwStaticFlags & TS_SS_TRANSITORY != 0)
+    unsafe { context.GetStatus() }.map_or(0, |s| s.dwStaticFlags)
+}
+
+/// `TS_SS_TRANSITORY` alone does not tell whether a composition will hold.
+/// The system's IMM32 bridge sets it and ends each composition it is given,
+/// handing over the text as finished; Chromium and the console set it on text
+/// stores of their own.
+fn is_transitory(context: &ITfContext) -> bool {
+    static_flags(context) & TS_SS_TRANSITORY != 0
+}
+
+/// Nothing editable has the focus: Chromium says so while no field does.
+fn is_read_only(context: &ITfContext) -> bool {
+    // SAFETY: context is a valid ITfContext.
+    unsafe { context.GetStatus() }.is_ok_and(|s| s.dwDynamicFlags & TS_SD_READONLY != 0)
+}
+
+/// The executable's file name, for the setting in config.toml.
+fn process_name() -> &'static str {
+    static NAME: OnceLock<String> = OnceLock::new();
+    NAME.get_or_init(|| {
+        std::env::current_exe().ok().and_then(|p| p.file_name().map(|n| n.to_string_lossy().into_owned())).unwrap_or_default()
+    })
+}
+
+fn forced_surface() -> Option<Surface> {
+    let cfg = crate::config::current();
+    cfg.composition.iter().find(|(app, _)| app.eq_ignore_ascii_case(process_name())).map(|(_, surface)| *surface)
 }
 
 fn utf16_len(s: &str) -> i32 {
@@ -92,28 +132,29 @@ fn utf16_len(s: &str) -> i32 {
 impl TextService_Impl {
     /// Apply effects in order.
     pub(crate) fn apply(&self, context: &ITfContext, effects: Vec<Effect>) -> windows::core::Result<()> {
-        let floating = is_transitory(context);
         let mut result = Ok(());
         for effect in effects {
-            crate::debug_log::log(|| format!("apply {effect:?} floating={floating}"));
+            crate::debug_log::log(|| format!("apply {effect:?} floating={}", self.inner().floating.is_some()));
             let r = match effect {
-                Effect::Preedit(runs) if floating => {
-                    self.float_preedit(context, runs);
-                    Ok(())
-                }
-                Effect::Preedit(runs) => self.set_preedit(context, &runs),
+                Effect::Preedit(runs) => match self.surface(context) {
+                    Surface::Floating => {
+                        self.float_preedit(context, runs);
+                        Ok(())
+                    }
+                    Surface::Inline => self.set_preedit(context, runs),
+                },
                 Effect::Commit(text) => {
                     self.inner_mut().floating = None;
                     let r = self.commit(context, &text);
                     self.redraw();
                     r
                 }
-                Effect::Cancel if floating => {
+                Effect::Cancel => {
                     self.inner_mut().floating = None;
+                    let r = self.cancel(context);
                     self.redraw();
-                    Ok(())
+                    r
                 }
-                Effect::Cancel => self.cancel(context),
                 Effect::Popup(p) => {
                     self.inner_mut().popup = p;
                     self.redraw();
@@ -128,15 +169,44 @@ impl TextService_Impl {
         result
     }
 
+    /// The surface of the composition in progress, or the one to start with.
+    fn surface(&self, context: &ITfContext) -> Surface {
+        let through_imm32 = {
+            let state = self.inner();
+            if state.composition.is_some() {
+                return Surface::Inline;
+            }
+            if state.floating.is_some() {
+                return Surface::Floating;
+            }
+            state.imm32_context == Some(context.as_raw() as usize)
+        };
+        let flags = static_flags(context);
+        let (surface, why) = choose(Facts {
+            transitory: flags & TS_SS_TRANSITORY != 0,
+            through_imm32,
+            remembered: NEEDS_FLOATING.load(Ordering::Relaxed),
+            forced: forced_surface(),
+        });
+        crate::debug_log::log(|| format!("surface {surface:?}: {why} (static flags {flags:#x})"));
+        surface
+    }
+
+    /// Float this process from now on.
+    fn remember_floating(&self, why: &str) {
+        if !NEEDS_FLOATING.swap(true, Ordering::Relaxed) {
+            crate::debug_log::log(|| format!("fallback: this process gets the floating preedit: {why}"));
+        }
+    }
+
     /// What an edit session needs to write into the composition: the current
     /// one, or the means to start one at the selection inside that same
-    /// session. Starting it in a session of its own leaves it empty when the
-    /// session ends, and the IMM32 bridge that Qt and other IMM32 applications
-    /// go through terminates such a composition at once, so every keystroke
-    /// would arrive as finished text.
+    /// session. A composition started empty in a session of its own may be
+    /// ended before the text arrives.
     fn composer(&self, context: &ITfContext) -> windows::core::Result<Composer> {
+        let current = self.inner().composition.clone();
         Ok(Composer {
-            current: self.inner().composition.clone(),
+            current,
             cc: context.cast()?,
             insert: context.cast()?,
             sink: self.to_interface(),
@@ -144,7 +214,8 @@ impl TextService_Impl {
     }
 
     /// Replace the composition text by `runs`, each with its display attribute.
-    fn set_preedit(&self, context: &ITfContext, runs: &[Run]) -> windows::core::Result<()> {
+    /// If the document will not hold it, the text moves to the floating preedit.
+    fn set_preedit(&self, context: &ITfContext, runs: Vec<Run>) -> windows::core::Result<()> {
         let composer = self.composer(context)?;
         let text: Vec<u16> = runs.iter().flat_map(|r| r.text.encode_utf16()).collect();
         let atoms = self.inner().display_atoms;
@@ -160,46 +231,120 @@ impl TextService_Impl {
                 })
                 .collect()
         };
+        let transitory = is_transitory(context);
+        let started = composer.current.is_none();
+        let holds_text = !started && self.inner().drawn.iter().any(|r| !r.text.is_empty());
+        let ended_before = {
+            let mut state = self.inner_mut();
+            state.drawn = runs.clone();
+            state.composition_transitory = transitory;
+            state.writing = true;
+            state.compositions_ended
+        };
 
-        let (comp, anchor) = run_sync(cid, context, move |ec| {
+        let written = run_sync(cid, context, move |ec| {
             // SAFETY: ec valid; comp/ctx/ranges are valid TSF objects.
             unsafe {
-                let comp = composer.get(ec)?;
+                let comp = match composer.get(ec) {
+                    Ok(comp) => comp,
+                    Err(_) if transitory && started => return Ok(Written::NotStarted),
+                    Err(e) => return Err(e),
+                };
                 let range = comp.GetRange()?;
-                range.SetText(ec, 0, &text)?;
+                if transitory && holds_text && range.IsEmpty(ec)?.as_bool() {
+                    comp.EndComposition(ec)?;
+                    return Ok(Written::Vanished);
+                }
+                let write = || -> windows::core::Result<Option<(i32, i32)>> {
+                    range.SetText(ec, 0, &text)?;
 
-                let prop = ctx.GetProperty(&GUID_PROP_ATTRIBUTE)?;
-                let mut anchor = None;
-                for (offset, len, attr) in layout {
-                    if len == 0 {
-                        continue;
+                    let prop = ctx.GetProperty(&GUID_PROP_ATTRIBUTE)?;
+                    let mut anchor = None;
+                    for (offset, len, attr) in layout {
+                        if len == 0 {
+                            continue;
+                        }
+                        let sub = range.Clone()?;
+                        let mut shifted = 0;
+                        sub.Collapse(ec, TF_ANCHOR_START)?;
+                        sub.ShiftEnd(ec, offset, &mut shifted, std::ptr::null())?;
+                        sub.Collapse(ec, TF_ANCHOR_END)?;
+                        sub.ShiftEnd(ec, len, &mut shifted, std::ptr::null())?;
+                        let atom = match attr {
+                            Attr::Input => atoms[0],
+                            Attr::Converted => atoms[1],
+                            Attr::Focus => atoms[2],
+                        };
+                        prop.SetValue(ec, &sub, &variant_i4(atom as i32))?;
+                        if attr == Attr::Focus || anchor.is_none() {
+                            anchor = text_position(&ctx, ec, &sub);
+                        }
                     }
-                    let sub = range.Clone()?;
-                    let mut shifted = 0;
-                    sub.Collapse(ec, TF_ANCHOR_START)?;
-                    sub.ShiftEnd(ec, offset, &mut shifted, std::ptr::null())?;
-                    sub.Collapse(ec, TF_ANCHOR_END)?;
-                    sub.ShiftEnd(ec, len, &mut shifted, std::ptr::null())?;
-                    let atom = match attr {
-                        Attr::Input => atoms[0],
-                        Attr::Converted => atoms[1],
-                        Attr::Focus => atoms[2],
-                    };
-                    prop.SetValue(ec, &sub, &variant_i4(atom as i32))?;
-                    if attr == Attr::Focus || anchor.is_none() {
-                        anchor = text_position(&ctx, ec, &sub);
+
+                    // Caret after the preedit.
+                    range.Collapse(ec, TF_ANCHOR_END)?;
+                    set_single_selection(&ctx, ec, &range)?;
+                    Ok(anchor)
+                };
+                match write() {
+                    Ok(anchor) => Ok(Written::Shown(comp, anchor)),
+                    // Whatever reached the document goes again, so the text
+                    // cannot end up both there and in the popup.
+                    Err(e) if started => {
+                        let _ = range.SetText(ec, 0, &[]);
+                        let _ = comp.EndComposition(ec);
+                        Err(e)
+                    }
+                    Err(e) => Err(e),
+                }
+            }
+        });
+        let ended = {
+            let mut state = self.inner_mut();
+            state.writing = false;
+            state.compositions_ended != ended_before
+        };
+
+        // A store that cannot be written to right now (locked, nothing editable
+        // focused) says nothing about compositions; the popup keeps the typing
+        // visible.
+        let written = match written {
+            Err(e) if transitory && started => {
+                crate::debug_log::log(|| format!("preedit not written, floating this composition: {e:?}"));
+                self.float_preedit(context, runs);
+                return Ok(());
+            }
+            other => other?,
+        };
+        match written {
+            Written::Shown(comp, anchor) => {
+                let mut state = self.inner_mut();
+                state.anchor = anchor;
+                if ended {
+                    // The sink dealt with it; `comp` is dead.
+                    drop(state);
+                    self.redraw();
+                } else {
+                    state.composition = Some(comp);
+                    state.first_write_at = started.then(Instant::now);
+                    if !started {
+                        state.refusals.accepted();
                     }
                 }
-
-                // Caret after the preedit.
-                range.Collapse(ec, TF_ANCHOR_END)?;
-                set_single_selection(&ctx, ec, &range)?;
-                Ok((comp, anchor))
             }
-        })?;
-        let mut state = self.inner_mut();
-        state.composition = Some(comp);
-        state.anchor = anchor;
+            Written::NotStarted => {
+                crate::debug_log::log(|| "the document would not start a composition".to_string());
+                if !is_read_only(context) && self.inner_mut().refusals.refused(false) {
+                    self.remember_floating("the document would not start a composition");
+                }
+                self.float_preedit(context, runs);
+            }
+            Written::Vanished => {
+                self.inner_mut().composition = None;
+                self.remember_floating("the composition's text vanished");
+                self.float_preedit(context, runs);
+            }
+        }
         Ok(())
     }
 
@@ -214,7 +359,8 @@ impl TextService_Impl {
         let cid = self.inner().client_id;
         let ctx = context.clone();
 
-        run_sync(cid, context, move |ec| {
+        self.inner_mut().ending = true;
+        let result = run_sync(cid, context, move |ec| {
             // SAFETY: ec valid; comp/ctx/range valid.
             unsafe {
                 let comp = composer.get(ec)?;
@@ -226,10 +372,13 @@ impl TextService_Impl {
                 comp.EndComposition(ec)?;
                 Ok(())
             }
-        })?;
+        });
+        self.inner_mut().ending = false;
+        result?;
         let mut state = self.inner_mut();
         state.composition = None;
         state.anchor = None;
+        state.drawn.clear();
         Ok(())
     }
 
@@ -240,7 +389,8 @@ impl TextService_Impl {
         let cid = self.inner().client_id;
         let ctx = context.clone();
 
-        run_sync(cid, context, move |ec| {
+        self.inner_mut().ending = true;
+        let result = run_sync(cid, context, move |ec| {
             // SAFETY: ec valid; comp/ctx/range valid.
             unsafe {
                 let range = comp.GetRange()?;
@@ -249,16 +399,19 @@ impl TextService_Impl {
                 comp.EndComposition(ec)?;
                 Ok(())
             }
-        })?;
+        });
+        self.inner_mut().ending = false;
+        result?;
         let mut state = self.inner_mut();
         state.composition = None;
         state.anchor = None;
+        state.drawn.clear();
         drop(state);
         self.hide_popup();
         Ok(())
     }
 
-    /// Draw the preedit in the popup at the caret (see [`is_transitory`]).
+    /// Draw the preedit in the popup at the caret.
     fn float_preedit(&self, context: &ITfContext, runs: Vec<Run>) {
         let cid = self.inner().client_id;
         let ctx = context.clone();
@@ -321,18 +474,70 @@ unsafe fn text_position(ctx: &ITfContext, ec: u32, range: &ITfRange) -> Option<(
     Some((rect.left, rect.bottom))
 }
 
+impl TextService_Impl {
+    /// The document ended the composition right after it was written. Take the
+    /// text back and let it go on composing in the popup. Returns false when
+    /// the text could not be taken back: then the document has it.
+    fn take_back(&self, ecwrite: u32, composition: Option<&ITfComposition>) -> bool {
+        let Some(composition) = composition else {
+            return false;
+        };
+        // SAFETY: ecwrite is the write cookie TSF passed to the sink;
+        // composition is the valid composition it names.
+        let erased = unsafe {
+            composition.GetRange().and_then(|range| {
+                range.SetText(ecwrite, 0, &[])?;
+                range.IsEmpty(ecwrite)
+            })
+        };
+        crate::debug_log::log(|| format!("  taking the text back: {erased:?}"));
+        if !erased.is_ok_and(|e| e.as_bool()) {
+            return false;
+        }
+        let mut state = self.inner_mut();
+        let drawn = std::mem::take(&mut state.drawn);
+        state.floating = (!drawn.is_empty()).then_some(drawn);
+        state.composition = None;
+        drop(state);
+        self.redraw();
+        true
+    }
+}
+
 impl ITfCompositionSink_Impl for TextService_Impl {
     fn OnCompositionTerminated(
         &self,
-        _ecwrite: u32,
-        _pcomposition: Ref<'_, ITfComposition>,
+        ecwrite: u32,
+        pcomposition: Ref<'_, ITfComposition>,
     ) -> windows::core::Result<()> {
-        // The document ended the composition (focus change, app reset).
-        crate::debug_log::log(|| "OnCompositionTerminated".to_string());
+        let end = {
+            let mut state = self.inner_mut();
+            state.compositions_ended += 1;
+            if state.ending {
+                // Our own commit or cancel: the session has moved on already.
+                state.composition = None;
+                return Ok(());
+            }
+            let since_first_write = state.first_write_at.map(|t| t.elapsed());
+            classify_end(state.composition_transitory, state.writing, since_first_write)
+        };
+        crate::debug_log::log(|| format!("OnCompositionTerminated: {end:?}"));
+        if let End::Refused { in_edit } = end {
+            if self.inner_mut().refusals.refused(in_edit) {
+                self.remember_floating("the document ended a composition just written");
+            }
+            if self.take_back(ecwrite, pcomposition.as_ref()) {
+                return Ok(());
+            }
+            crate::debug_log::log(|| "  the document keeps the text as finished".to_string());
+        }
+        // The document ended the composition (focus change, app reset) and
+        // keeps its text.
         {
             let mut state = self.inner_mut();
             state.composition = None;
             state.anchor = None;
+            state.drawn.clear();
             state.session.reset();
         }
         self.hide_popup();

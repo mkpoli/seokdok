@@ -183,6 +183,23 @@ fn the_bound_noun_su_is_written_with_hand() {
     assert_eq!(e.convert("수")[0].text, "手");
     assert_eq!(e.convert("수도")[0].text, "手도");
     assert!(e.convert("할 수 있다")[0].text.contains('手'));
+    // Typed without a space, 수 and 있다 or 없다 stay two choices.
+    for (input, su, rest, other) in [
+        ("수있다", "수", "有다", "在ㅆ다"),
+        ("수없는", "수", "無는", "莫는"),
+        ("수있겠네요", "수", "有겠네요", "在겠네요"),
+        ("볼수없었던", "수", "無었던", "莫었던"),
+    ] {
+        let segs = e.segments(input);
+        let seg = |w: &str| segs.iter().find(|s| s.reading == w).unwrap_or_else(|| panic!("{input}: {segs:?}"));
+        assert_eq!(seg(su).candidates[0].text, "手", "{input}");
+        assert!(seg(su).candidates.iter().any(|c| c.text == "수"), "{input}");
+        let tail = segs.last().unwrap();
+        assert!(tail.candidates.iter().any(|c| c.text == rest), "{input}");
+        assert!(tail.candidates.iter().any(|c| c.text == other), "{input}");
+    }
+    assert_eq!(e.segments("수없다").len(), 1);
+    assert!(e.segments("수없다")[0].candidates.iter().any(|c| c.text == "手無다"));
     // Whole words keep their own reading.
     assert_eq!(e.convert("옥수수")[0].text, "荳");
     assert_eq!(e.convert("수학")[0].text, "數學");

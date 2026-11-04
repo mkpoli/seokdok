@@ -25,6 +25,8 @@ if [ -z "$app" ]; then
   trap 'rm -rf "$app"' EXIT
   run=$(gh run list --workflow windows-settings.yml --branch main --status success --json databaseId,event -q '[.[] | select(.event == "push")][0].databaseId')
   [ -n "$run" ] || { echo "no successful run of windows-settings.yml on main" >&2; exit 1; }
+  built=$(gh run view "$run" --json headSha -q .headSha)
+  [ "$built" = "$(git rev-parse HEAD)" ] || echo "note: the settings app comes from $built, the input method from $(git rev-parse HEAD)" >&2
   gh run download "$run" --name seokdok-settings-app --dir "$app"
 fi
 

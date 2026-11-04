@@ -17,6 +17,7 @@ comments; the header line names the columns.
 | `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
 | `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
 | `etym.tsv` | Hanja spellings the files above lack, including words Sino-Korean only by origin (대충 大總, 재미 滋味, 김치 沉菜) | English Wiktionary (kaikki.org) | CC BY-SA 4.0 |
+| `loanwords.tsv` | Korean words borrowed from European languages, which stay in Hangul (페이지, 파일, 피자) | English Wiktionary (kaikki.org) | CC BY-SA 4.0 |
 | `hun.tsv` | Keys for finding a character by its 訓音 gloss (살찔비 肥) | libhangul | BSD-3-Clause |
 
 Earlier files win ties: an entry in `user.tsv` ranks above the same word
@@ -70,6 +71,20 @@ with `source` set to `user`. Check a file with
   (https://en.wiktionary.org/wiki/Wiktionary:Copyrights). Wiktionary's
   etymologies are crowd-edited and some are disputed (사랑 思量); the file
   records them as Wiktionary has them.
+
+- **Loanwords** (`loanwords.tsv`, `tools/loanwords.py`): headwords of the same
+  English Wiktionary extract (kaikki.org, enwiktionary dump of 2026-10-01,
+  fetched 2026-11-03; Ylonen, "Wiktextract", LREC 2022) whose every entry is a
+  `bor`, `bor+` or `lbor` template from a European language, Turkish, Arabic,
+  Hindi or Persian, with two or more syllables. Words with a Sino-Korean, native
+  or nativised etymology template, words borrowed from Japanese or Chinese
+  (사진), words that the chat writes with Hanja ten times or more, and words
+  that the corpus, editorial or community 訓讀 files list are left out. The
+  engine keeps a listed word, alone or with a particle or 하다, in Hangul
+  instead of offering Hanja homophones (페이지 is not 페理智). 빌드 is added by
+  hand because the extract lacks it. CC BY-SA 4.0
+  (https://en.wiktionary.org/wiki/Wiktionary:Copyrights). Wiktionary's
+  etymology templates are crowd-edited and can be wrong.
 
 - **FusionIME (十八字)** by Lee0701, https://github.com/Lee0701/FusionIME
   commit `450829df` (2026-10-31), `ko_dict_all.tsv`: GPL-3.0, full text in

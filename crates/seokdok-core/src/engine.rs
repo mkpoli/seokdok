@@ -8,7 +8,7 @@ use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify
 use crate::fold::{foldable, has_era_only, has_old, modern_mask, parse, readings, Reading, Syl, ALL, MAX_READINGS_MODERN, MAX_READINGS_OLD, STRONG};
 use crate::old_spelling::{ends_in_hanja, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant};
 use crate::particles::{allowed, particles, Particle};
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 mod mixed;
 mod okurigana;
@@ -199,6 +199,25 @@ struct Edge {
     kind: Kind,
 }
 
+/// What surrounds the run being converted in the input.
+#[derive(Clone, Copy, Debug)]
+struct Around {
+    /// The run is the only Hangul in the input.
+    alone: bool,
+    /// The next word of the input is a bound noun (때, 것, 수 …), which an
+    /// adnominal verb form before it (불 때, 길 것) needs.
+    bound_next: bool,
+}
+
+impl Default for Around {
+    fn default() -> Self {
+        Around { alone: true, bound_next: false }
+    }
+}
+
+/// Bound nouns that follow an adnominal verb form.
+const BOUND_NEXT: &[&str] = &["때", "것", "수", "줄", "데", "적", "바", "뿐", "듯", "리"];
+
 /// One rendering of a segment.
 #[derive(Clone, Debug, PartialEq)]
 pub struct Candidate {
@@ -219,6 +238,7 @@ pub struct Engine {
     pub natives: Vec<Native>,
     sinos: SinoTable,
     hun: HunTable,
+    loans: HashSet<String>,
     pub options: Options,
     stems: Trie<(u32, u16)>,
     nominals: Trie<u32>,
@@ -275,6 +295,9 @@ impl SinoTable {
     }
     fn cost(&self, i: usize) -> f32 {
         self.entries[i].cost
+    }
+    fn count(&self, i: usize) -> u32 {
+        self.entries[i].count
     }
     fn len(&self) -> usize {
         self.entries.len()
@@ -368,6 +391,25 @@ const BARE: u16 = u16::MAX;
 /// Extra cost for one-syllable words, which are the most ambiguous.
 const SHORT_COST: f32 = 2.5;
 const EDGE_COST: f32 = 1.0;
+/// Added to a bare adnominal verb form that a whole noun also spells.
+const WHOLE_NOUN_PENALTY: f32 = 2.5;
+/// How close a noun must come to a bound noun with a particle (거+의) to replace it.
+const BOUND_MARGIN: f32 = 0.5;
+/// Endings that run on into a bound noun or conjunction, as the final morpheme's label.
+const TAIL_ENDINGS: &[&str] = &[
+    "듯", "는듯", "다란", "는거", "는건", "는것", "고는", "고도", "고만", "냐고", "지마", "지만요", "(으)ㄴ듯", "(으)ㄴ거",
+    "(으)ㄴ건", "(으)ㄴ것", "(으)ㄹ지도", "(으)ㄹ수도", "(으)ㄹ때", "(으)나", "(으)려나",
+];
+/// Added to a pronoun plus particle that an editorial whole word also spells.
+const EDITORIAL_WORD_MARGIN: f32 = 2.5;
+/// A loanword kept in Hangul (loanwords.tsv); cheaper than its Hanja homophones.
+const LOAN_COST: f32 = 2.0;
+/// A particle typed alone, kept in Hangul.
+const ALONE_COST: f32 = 0.5;
+/// Particles that are also words (이 this, 나 I, 보다 to see, 들 field, 같이, 대로, 만큼, 들은 heard) and 이에요, which the editors write 乃요, and 이를, 이는, 이가, 이도, 이의, 이에게, which are the pronoun 이 and a particle: typed alone they convert as words.
+const HOMOGRAPH_PARTICLES: &[&str] = &["이", "나", "보다", "들", "같이", "대로", "만큼", "들은", "들을", "보다는", "이에요", "이를", "이는", "이가", "이도", "이의", "이에게"];
+/// Added to verb forms in the archaic -니라.
+const ARCHAIC_ENDING: f32 = 1.0;
 
 /// Built-in entries: Hangul-only light verb 하다, so 安寧하세요 is the
 /// default and 爲 comes from the dictionary as an alternative.
@@ -378,6 +420,8 @@ pub struct Builder {
     natives: Vec<Native>,
     sinos: SinoTable,
     hun: Vec<(String, String)>,
+    /// Loanwords (loanwords.tsv), which stay in Hangul.
+    loans: HashSet<String>,
     /// Hash of a (reading, Hanja) pair → its entry; the Sino files overlap
     /// (fusion.tsv and sino.tsv share most words).
     index: HashMap<u64, u32>,
@@ -386,7 +430,7 @@ pub struct Builder {
 
 impl Builder {
     pub fn new() -> Builder {
-        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), index: HashMap::new(), errors: Vec::new() };
+        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), loans: HashSet::new(), index: HashMap::new(), errors: Vec::new() };
         b.native("builtin", BUILTIN);
         b
     }
@@ -411,6 +455,9 @@ impl Builder {
         for (line, f) in tsv_lines(text) {
             match parse_sino(&f) {
                 Ok(e) if f.get(3) == Some(&"hun") => self.hun.push((e.reading.into(), e.hanja.into())),
+                Ok(e) if f.get(3) == Some(&"loanword") => {
+                    self.loans.insert(e.reading.into());
+                }
                 Ok(e) => {
                     let mut h = self.index.hasher().build_hasher();
                     (&*e.reading, &*e.hanja).hash(&mut h);
@@ -434,7 +481,7 @@ impl Builder {
 
     /// The engine and the parse errors (file label, line, message).
     pub fn build(self, options: Options) -> (Engine, Vec<String>) {
-        let Builder { natives, mut sinos, hun, index, errors } = self;
+        let Builder { natives, mut sinos, hun, loans, index, errors } = self;
         drop(index);
         sinos.text.shrink_to_fit();
         sinos.entries.shrink_to_fit();
@@ -442,6 +489,7 @@ impl Builder {
             natives,
             sinos,
             hun: HunTable::new(hun),
+            loans,
             options,
             stems: Trie::new(),
             nominals: Trie::new(),
@@ -480,7 +528,7 @@ impl Engine {
 
     /// Native dictionaries loaded by [`Engine::from_dir`], in order.
     pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
-    pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "editorial-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv", "hun.tsv"];
+    pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "editorial-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv", "loanwords.tsv", "hun.tsv"];
 
     /// Load every known dictionary file present in `dir`.
     /// One file is read at a time and dropped once parsed, which keeps the
@@ -551,7 +599,7 @@ impl Engine {
         c
     }
 
-    fn edges(&self, comps: &[char]) -> Vec<Edge> {
+    fn edges(&self, comps: &[char], around: Around) -> Vec<Edge> {
         let n = comps.len();
         let boundary = |p: usize| p == n || is_l(comps[p]);
         // Particles and endings close a word: inside a run they are misparses.
@@ -589,9 +637,12 @@ impl Engine {
                             let p = &self.particles[pi as usize];
                             allowed(p.cond, comps[q - 1], false) && is_l(p.comps[0])
                         });
+                        // A single syllable before a copula (나+이다) is more often a
+                        // word that ends in it (나이+다) than an unknown word.
+                        let lone_copula = crate::jamo::syllable_count(&comps[..q]) == 1 && pis.iter().all(|&pi| self.particles[pi as usize].full_copula());
                         if ok {
                             let k = crate::jamo::syllable_count(&comps[..q]) as f32;
-                            edges.push(Edge { start: 0, end: n, cost: RAW_COST + 2.5 * (k - 1.0) + 0.4, kind: Kind::Raw });
+                            edges.push(Edge { start: 0, end: n, cost: RAW_COST + 2.5 * (k - 1.0) + 0.4 + if lone_copula { 2.5 } else { 0.0 }, kind: Kind::Raw });
                         }
                     }
                 }
@@ -655,6 +706,10 @@ impl Engine {
                     }
                     // Pronouns and bound nouns contract with a following particle:
                     // 저는 → 전, 거+이 → 게, 할 수는 → 할 순.
+                    // Interjections stand alone: 안 不 takes no particle, 안에 is 內에.
+                    if entry.pos == Pos::Interj {
+                        continue;
+                    }
                     let pron = matches!(entry.pos, Pos::Pron | Pos::Bound);
                     for (r, pis) in self.particle_trie.prefixes(comps, q) {
                         if !boundary(r) {
@@ -662,11 +717,20 @@ impl Engine {
                         }
                         for &pi in pis {
                             let p = &self.particles[pi as usize];
+                            // The copula follows nouns, pronouns and numbers, not
+                            // adverbs (아니+라니 is 아니다+라니; 무어라 and 무어+ㄴ가 are
+                            // interjections that take it), and a one-syllable
+                            // pronoun with 이다 is rarer than a word that ends
+                            // in it (나이+다).
+                            if p.copular && !is_t(p.comps[0]) && entry.pos == Pos::Adv {
+                                continue;
+                            }
+                            let lone_pron = if p.full_copula() && entry.pos == Pos::Pron && crate::jamo::syllable_count(&entry.stem) == 1 { 5.0 } else { 0.0 };
                             if allowed(p.cond, comps[q - 1], pron) {
                                 edges.push(Edge {
                                     start: s,
                                     end: r,
-                                    cost: base + 0.2 + mid(r) + weak(p),
+                                    cost: base + 0.2 + mid(r) + weak(p) + lone_pron,
                                     kind: Kind::Nominal { entry: i, particle: Some(pi) },
                                 });
                             }
@@ -705,11 +769,15 @@ impl Engine {
                             continue;
                         }
                         for &ei in eis {
-                            let morphs = ending_label(ei as usize).matches('+').count() as f32;
+                            let label = ending_label(ei as usize);
+                            let morphs = label.matches('+').count() as f32;
+                            // An archaic ending (알+니라) is rare next to a word that
+                            // ends in the same letters (아니+라).
+                            let archaic = if matches!(label, "(으)니라" | "니라") { ARCHAIC_ENDING } else { 0.0 };
                             edges.push(Edge {
                                 start: s,
                                 end: r,
-                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs + mid(r),
+                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs + mid(r) + archaic,
                                 kind: Kind::Verb { entry: i, allo: a, ending: ei },
                             });
                         }
@@ -717,7 +785,162 @@ impl Engine {
                 }
             }
         }
+        if around.alone {
+            self.alone_edges(comps, &mut edges);
+        }
+        self.loan_edges(comps, &mut edges);
+        if !around.bound_next {
+            self.prefer_whole_noun(comps, &mut edges);
+        }
+        self.prefer_editorial_word(comps, &mut edges);
+        self.prefer_word_over_tail(comps, &mut edges);
         edges
+    }
+
+    /// Endings that end in a bound noun or a conjunction (는거, ㄴ듯, 고도, ㄹ때,
+    /// 나) turn up inside words: 근거 is 根據, not 書+ㄴ거, and 바다란 is 海+란.
+    /// A whole token that a dictionary noun or Sino-Korean word spells, alone or
+    /// with a particle, keeps its place over those verb forms.
+    fn prefer_word_over_tail(&self, comps: &[char], edges: &mut [Edge]) {
+        let n = comps.len();
+        if n == 0 || crate::jamo::syllable_count(comps) > 3 {
+            return;
+        }
+        let word_cost = edges
+            .iter()
+            .filter(|e| e.start == 0 && e.end == n)
+            .filter(|e| match e.kind {
+                Kind::Nominal { entry, .. } => {
+                    let nat = &self.natives[entry as usize];
+                    matches!(nat.source, Source::Community | Source::Corpus | Source::Editorial | Source::Suggested) && matches!(nat.pos, Pos::Noun | Pos::Pron | Pos::Num | Pos::Adv)
+                }
+                Kind::Sino { entry, .. } => self.sinos.count(entry as usize) > 0,
+                _ => false,
+            })
+            .map(|e| e.cost)
+            .fold(f32::INFINITY, f32::min);
+        for e in edges.iter_mut().filter(|e| e.start == 0 && e.end == n) {
+            if let Kind::Verb { ending, .. } = e.kind {
+                if ending != BARE && word_cost < e.cost + WHOLE_NOUN_PENALTY {
+                    let label = ending_label(ending as usize);
+                    if TAIL_ENDINGS.contains(&label.rsplit('+').next().unwrap_or("")) {
+                        e.cost += WHOLE_NOUN_PENALTY;
+                    }
+                }
+            }
+        }
+    }
+
+    /// A whole token that an editor entered as one word (저들 彼等, 저만큼 彼만큼)
+    /// beats the same letters read as a pronoun and a particle (自+들, 自+만큼),
+    /// which the pronoun's chat count would otherwise win.
+    fn prefer_editorial_word(&self, comps: &[char], edges: &mut [Edge]) {
+        let n = comps.len();
+        let word_cost = edges
+            .iter()
+            .filter(|e| e.start == 0 && e.end == n)
+            .filter_map(|e| match e.kind {
+                Kind::Nominal { entry, particle: None } if self.natives[entry as usize].source == Source::Editorial => Some(e.cost),
+                _ => None,
+            })
+            .fold(f32::INFINITY, f32::min);
+        for e in edges.iter_mut().filter(|e| e.start == 0 && e.end == n) {
+            if let Kind::Nominal { entry, particle: Some(_) } = e.kind {
+                let nat = &self.natives[entry as usize];
+                if nat.pos == Pos::Pron && nat.source != Source::Editorial && word_cost < e.cost + EDITORIAL_WORD_MARGIN {
+                    e.cost += EDITORIAL_WORD_MARGIN;
+                }
+            }
+        }
+    }
+
+    /// A particle or copula form typed on its own (에서, 까지, 는, 입니다) stays
+    /// Hangul, except the particles that are also words of their own.
+    fn alone_edges(&self, comps: &[char], edges: &mut Vec<Edge>) {
+        let n = comps.len();
+        if n == 0 || !is_l(comps[0]) {
+            return;
+        }
+        let alone = self.particle_trie.prefixes(comps, 0).into_iter().any(|(r, pis)| r == n && pis.iter().any(|&pi| is_l(self.particles[pi as usize].comps[0])));
+        if alone && !HOMOGRAPH_PARTICLES.contains(&compose(comps).as_str()) {
+            edges.push(Edge { start: 0, end: n, cost: ALONE_COST, kind: Kind::Raw });
+        }
+    }
+
+    /// A loanword (페이지, 파일, 피자), alone or with a particle or the light
+    /// verb 하다, is kept in Hangul: it has no Hanja, and its syllables are not
+    /// Sino-Korean words.
+    fn loan_edges(&self, comps: &[char], edges: &mut Vec<Edge>) {
+        let n = comps.len();
+        if self.loans.is_empty() || n == 0 || !is_l(comps[0]) {
+            return;
+        }
+        for q in (1..=n).filter(|&q| q == n || is_l(comps[q])) {
+            if crate::jamo::syllable_count(&comps[..q]) < 2 || !self.loans.contains(&compose(&comps[..q])) {
+                continue;
+            }
+            if q == n {
+                edges.push(Edge { start: 0, end: n, cost: LOAN_COST, kind: Kind::Raw });
+                continue;
+            }
+            // 로그인합니다, 빌드하면: the loanword with the light verb 하다 after it.
+            if comps[q] == '\u{1112}' && matches!(comps.get(q + 1), Some('\u{1161}' | '\u{1162}')) {
+                edges.push(Edge { start: 0, end: q, cost: LOAN_COST, kind: Kind::Raw });
+            }
+            for (r, pis) in self.particle_trie.prefixes(comps, q) {
+                let ok = r == n && pis.iter().any(|&pi| {
+                    let p = &self.particles[pi as usize];
+                    allowed(p.cond, comps[q - 1], false) && is_l(p.comps[0])
+                });
+                if ok {
+                    edges.push(Edge { start: 0, end: n, cost: LOAN_COST + 0.2, kind: Kind::Raw });
+                }
+            }
+        }
+    }
+
+    /// A whole one- or two-syllable token that is a noun of the community,
+    /// corpus or editorial dictionaries, or a chat-attested Sino-Korean word,
+    /// is far more often that noun than a bare adnominal, nominalised or
+    /// imperative verb form: 눈 is 目, not 누+ㄴ, 나라 is 國, not 나+아라, 길
+    /// is 道, not 길+ㄹ. Longer tokens and endings with letters of their own
+    /// (작은, 남은, 마실 …) are left alone.
+    fn prefer_whole_noun(&self, comps: &[char], edges: &mut [Edge]) {
+        let n = comps.len();
+        if n == 0 || crate::jamo::syllable_count(comps) > 2 {
+            return;
+        }
+        // The cheapest whole-token noun, and the cheapest that is not a bound noun.
+        let (mut noun_cost, mut lexical_cost) = (f32::INFINITY, f32::INFINITY);
+        for e in edges.iter().filter(|e| e.start == 0 && e.end == n) {
+            if let Kind::Nominal { entry, particle: None } = e.kind {
+                let nat = &self.natives[entry as usize];
+                if matches!(nat.source, Source::Community | Source::Corpus | Source::Editorial) && matches!(nat.pos, Pos::Noun | Pos::Pron | Pos::Num | Pos::Bound | Pos::Adv) {
+                    noun_cost = noun_cost.min(e.cost);
+                    if nat.pos != Pos::Bound {
+                        lexical_cost = lexical_cost.min(e.cost);
+                    }
+                }
+            }
+        }
+        for e in edges.iter_mut().filter(|e| e.start == 0 && e.end == n) {
+            // Only where the penalty can change the outcome: a verb form far
+            // cheaper than the noun (긴, 빈, 간) stays first.
+            let penalise = match e.kind {
+                Kind::Verb { ending, .. } => {
+                    ending != BARE
+                        && noun_cost < e.cost + WHOLE_NOUN_PENALTY
+                        && matches!(ending_label(ending as usize), "(으)ㄴ" | "(으)ㄹ" | "(으)ㅁ" | "아/어라" | "기" | "진" | "소" | "(으)니라")
+                }
+                // A bound noun never opens a phrase on its own (거+의, 수+ㄹ):
+                // 거의 is the adverb 殆, 술 is 酒.
+                Kind::Nominal { entry, particle: Some(_) } => self.natives[entry as usize].pos == Pos::Bound && lexical_cost < e.cost + BOUND_MARGIN,
+                _ => false,
+            };
+            if penalise {
+                e.cost += WHOLE_NOUN_PENALTY;
+            }
+        }
     }
 
     /// k-best paths over a Hangul run (edge index lists, cheapest first).
@@ -921,11 +1144,11 @@ impl Engine {
     /// Whole-run candidates and segments of one run of Hangul. A run with old
     /// letters is looked up by its modern readings; one that conversion left
     /// as it was may be an era spelling.
-    fn convert_run(&self, run: &str, after_hanja: bool) -> (Vec<Candidate>, Vec<Segment>) {
+    fn convert_run(&self, run: &str, after_hanja: bool, around: Around) -> (Vec<Candidate>, Vec<Segment>) {
         if has_old(run) {
             return self.convert_old(run);
         }
-        let Converted { mut whole, mut segments, .. } = self.convert_plain(run, after_hanja, true);
+        let Converted { mut whole, mut segments, .. } = self.convert_plain(run, after_hanja, true, around);
         // Spellings of the era: the strong classes whenever the run shows
         // one, the others when it was left as typed.
         let unconverted = whole.first().is_some_and(|c| c.text == run);
@@ -983,7 +1206,7 @@ impl Engine {
         // The old spelling of the best reading, as for modern input.
         let (old, ha) = match found.first() {
             Some((_, reading, _, _)) => {
-                let c = self.convert_plain(reading, false, true);
+                let c = self.convert_plain(reading, false, true, Around::default());
                 (c.old, c.ha)
             }
             None => (None, None),
@@ -1039,7 +1262,7 @@ impl Engine {
             if strict && !self.worth_converting(syls, &r) {
                 continue;
             }
-            let c = self.convert_plain(&r.text, false, false);
+            let c = self.convert_plain(&r.text, false, false, Around::default());
             // A guess has to be confirmed by words that cover all of it.
             if let Some(cost) = c.cost.filter(|_| c.covered || !r.optional) {
                 found.push((cost + r.penalty, r.text, c.whole, c.attested));
@@ -1077,9 +1300,9 @@ impl Engine {
 
     /// `full`: also build the segments and the old spellings, which the
     /// readings tried for another run do not need.
-    fn convert_plain(&self, run: &str, after_hanja: bool, full: bool) -> Converted {
+    fn convert_plain(&self, run: &str, after_hanja: bool, full: bool, around: Around) -> Converted {
         let comps = decompose(run);
-        let edges = self.edges(&comps);
+        let edges = self.edges(&comps, around);
         let paths = self.kbest(&comps, &edges, self.options.max_candidates.max(4));
         let mut whole: Vec<Candidate> = Vec::new();
         let push = |c: Candidate, whole: &mut Vec<Candidate>| {
@@ -1280,6 +1503,24 @@ impl Engine {
         Some(self.hun_candidates(&words.concat())).filter(|h| !h.is_empty())
     }
 
+    /// The surroundings of run `i` among the pieces of an input.
+    fn around(&self, pieces: &[(bool, String)], i: usize) -> Around {
+        let hangul = pieces.iter().filter(|(h, _)| *h).count();
+        // The next Hangul word, with only blanks between.
+        let next = match pieces.get(i + 1) {
+            Some((false, gap)) if !gap.is_empty() && gap.chars().all(char::is_whitespace) => pieces.get(i + 2).filter(|(h, _)| *h).map(|(_, w)| w.as_str()),
+            _ => None,
+        };
+        let bound_next = next.is_some_and(|w| {
+            let mut cs = w.chars();
+            let first = cs.next().map(String::from).unwrap_or_default();
+            let rest = cs.as_str();
+            // The bound noun alone or with a particle: 때, 때는, 것을 — not 바람.
+            BOUND_NEXT.contains(&first.as_str()) && (rest.is_empty() || self.particle_trie.prefixes(&decompose(rest), 0).iter().any(|(r, _)| *r == decompose(rest).len()))
+        });
+        Around { alone: hangul == 1, bound_next }
+    }
+
     /// Whole-input candidates, best first. Non-Hangul text passes through.
     /// Number of Sino-Korean (reading, Hanja) pairs loaded.
     pub fn sino_count(&self) -> usize {
@@ -1294,9 +1535,11 @@ impl Engine {
     fn convert_unmixed(&self, input: &str) -> Vec<Candidate> {
         let mut per_run: Vec<Vec<Candidate>> = Vec::new();
         let mut after_hanja = false;
-        for (is_h, run) in runs(input) {
+        let pieces = runs(input);
+        for (i, (is_h, run)) in pieces.iter().enumerate() {
+            let (is_h, run) = (*is_h, run.clone());
             if is_h {
-                per_run.push(self.convert_run(&run, after_hanja).0);
+                per_run.push(self.convert_run(&run, after_hanja, self.around(&pieces, i)).0);
             } else {
                 after_hanja = ends_in_hanja(&run);
                 per_run.push(vec![Candidate { text: run, note: String::new() }]);
@@ -1342,9 +1585,11 @@ impl Engine {
         }
         let mut out = Vec::new();
         let mut after_hanja = false;
-        for (is_h, run) in runs(input) {
+        let pieces = runs(input);
+        for (i, (is_h, run)) in pieces.iter().enumerate() {
+            let (is_h, run) = (*is_h, run.clone());
             if is_h {
-                out.extend(self.convert_run(&run, after_hanja).1.into_iter().map(|mut s| {
+                out.extend(self.convert_run(&run, after_hanja, self.around(&pieces, i)).1.into_iter().map(|mut s| {
                     for c in &mut s.candidates {
                         c.note = whole_note(&c.text, std::slice::from_ref(&c.note));
                     }

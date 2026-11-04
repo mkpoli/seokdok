@@ -232,8 +232,9 @@ pub struct Engine {
     /// Reverse indexes for [`Engine::read`], built on first use.
     reverse: std::sync::OnceLock<Reverse>,
     /// Written forms of entries, kept by [`Engine::read`]: listing them costs
-    /// more than the lookup (the second key is `variant_forms`).
-    forms_cache: std::sync::Mutex<HashMap<(usize, bool), std::sync::Arc<Vec<(String, String)>>>>,
+    /// more than the lookup (the second key is `variant_forms`). The forms
+    /// depend on the spelling options, so the cache starts over when they change.
+    forms_cache: std::sync::Mutex<(u8, HashMap<(usize, bool), std::sync::Arc<Vec<(String, String)>>>)>,
 }
 
 /// The Sino-Korean entries, packed: every reading and Hanja form lives in one
@@ -1520,11 +1521,27 @@ impl Engine {
 
     /// [`Engine::forms_of`] (or `variant_forms`) of entry `i`, listed once.
     fn cached_forms(&self, i: usize, variants: bool) -> std::sync::Arc<Vec<(String, String)>> {
-        if let Some(hit) = self.forms_cache.lock().unwrap().get(&(i, variants)) {
-            return hit.clone();
+        let o = &self.options;
+        let spelling = (o.style == Style::Morpheme) as u8
+            | (o.fragment == Fragment::Letter) as u8 * 2
+            | (o.coda_always as u8) * 4
+            | (o.resyllabify as u8) * 8
+            | (o.hada_kun as u8) * 16
+            | (o.old_ha as u8) * 32;
+        {
+            let mut cache = self.forms_cache.lock().unwrap();
+            if cache.0 != spelling {
+                *cache = (spelling, HashMap::new());
+            }
+            if let Some(hit) = cache.1.get(&(i, variants)) {
+                return hit.clone();
+            }
         }
         let list = std::sync::Arc::new(if variants { self.variant_forms(i) } else { self.forms_of(i) });
-        self.forms_cache.lock().unwrap().insert((i, variants), list.clone());
+        let mut cache = self.forms_cache.lock().unwrap();
+        if cache.0 == spelling {
+            cache.1.insert((i, variants), list.clone());
+        }
         list
     }
 
@@ -1778,6 +1795,21 @@ lemma\twritten\tpos\tclass\tsource\tcount
         let e = eng(Options { sino_only: true, ..Options::default() });
         assert_eq!(e.read("天을 見ㅆ다"), "하늘을 봤다");
         assert_eq!(e.read("初음 來신 事ㅅ을 歡迎"), "처음 오신 것을 환영");
+    }
+
+    #[test]
+    fn read_back_follows_options_changed_later() {
+        // The site changes the options of a running engine.
+        let mut e = eng(Options { resyllabify: true, ..Options::default() });
+        let fresh = eng(Options::default()).read("難ㅂ어");
+        assert_eq!(fresh, "어려워");
+        let _ = e.read("難ㅂ어");
+        e.options.resyllabify = false;
+        assert_eq!(e.read("難ㅂ어"), fresh);
+        e.options.resyllabify = true;
+        e.options.style = Style::Morpheme;
+        let morph = eng(Options { resyllabify: true, style: Style::Morpheme, ..Options::default() });
+        assert_eq!(e.read("難ㅂ어"), morph.read("難ㅂ어"));
     }
 
     #[test]

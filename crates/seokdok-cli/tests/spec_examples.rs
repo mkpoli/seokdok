@@ -711,3 +711,12 @@ fn the_bound_noun_de_is_a_place() {
         assert_eq!(e.convert(input)[0].text, want, "{input}");
     }
 }
+
+#[test]
+fn humble_we_lists_the_owner_order() {
+    let e = engine(Options::default());
+    let list: Vec<String> = e.segments("저희")[0].candidates.iter().map(|c| c.text.clone()).collect();
+    assert_eq!(&list[..4], ["吾等", "自等", "我等", "僕等"], "{list:?}");
+    assert_eq!(e.convert("어쩌다")[0].text, "何쩌다");
+    assert_eq!(e.convert("저희는")[0].text, "吾等는");
+}

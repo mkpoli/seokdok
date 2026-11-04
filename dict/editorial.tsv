@@ -156,8 +156,6 @@ lemma	written	pos	class	source	count	note
 지난주	前週	noun		editorial		demonstrative or time word, as the chat writes it or built like its neighbours (mkpoli's request, 2026-11-04)
 지난달	前月	noun		editorial		demonstrative or time word, as the chat writes it or built like its neighbours (mkpoli's request, 2026-11-04)
 너희	汝等	pron		editorial	14	demonstrative or time word, as the chat writes it or built like its neighbours (mkpoli's request, 2026-11-04)
-저희	吾等	pron		editorial		demonstrative or time word, as the chat writes it or built like its neighbours (mkpoli's request, 2026-11-04)
-저희	僕等	pron		editorial		demonstrative or time word, as the chat writes it or built like its neighbours (mkpoli's request, 2026-11-04)
 저만큼	彼만큼	adv		editorial		demonstrative or time word, as the chat writes it or built like its neighbours (mkpoli's request, 2026-11-04)
 저대로	彼대로	adv		editorial		demonstrative or time word, as the chat writes it or built like its neighbours (mkpoli's request, 2026-11-04)
 저처럼	彼처럼	adv		editorial		demonstrative or time word, as the chat writes it or built like its neighbours (mkpoli's request, 2026-11-04)
@@ -288,6 +286,9 @@ lemma	written	pos	class	source	count	note
 곧	直	adv		editorial		車魄 in the chat (2026-11-04): 直(곧) 配布도
 내려받기	下受	noun		editorial		아니 in the chat (2026-11-04): 下受(내려받기)하면
 요내넘엉족은밧	此川越엉小은田	noun		editorial		아니 in the chat (2026-11-04): 此川越엉小은田(요내넘엉족은밧), 濟州道西歸浦市城山邑新川里; 漢字表記 此川越小田
+저희	吾等	pron		editorial		mkpoli's order (2026-11-04): 저희 吾等 自等 我等 僕等
+저희	自等	pron		editorial		mkpoli's order (2026-11-04): 저희 吾等 自等 我等 僕等
+저희	我等	pron		editorial		mkpoli's order (2026-11-04): 저희 吾等 自等 我等 僕等
+저희	僕等	pron		editorial		mkpoli's order (2026-11-04): 저희 吾等 自等 我等 僕等
 데	處	bound		editorial		the bound noun 데, a place or case, as the chat writes it: 好안處(데), 고름헌데(膿傷ㄴ處); the same meaning as 곳 處
 데	所	bound		editorial		the bound noun 데, by 곳 所; not attested for 데 in the chat, offered beside 處
-데도	處도	adv		editorial		the bound noun 데 with 도, ahead of 데다 燒 (데어도): 만드는 데도

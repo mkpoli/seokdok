@@ -1014,6 +1014,19 @@ mod tests {
     }
 
     #[test]
+    fn turning_hangul_only_off_converts_again() {
+        // Windows: the session starts in 釋讀, the setting is on at activation,
+        // then the user chooses 釋讀 in the settings.
+        let mut s = Session::new(Mode::Seokdok, true);
+        s.set_hangul_only(true);
+        s.set_hangul_only(false);
+        type_str(&mut s, "gks");
+        let o = s.handle(Key::Space { shift: false }, &Stub(3));
+        assert_eq!(commit_of(&o), None);
+        assert_eq!(preedit_of(&o).unwrap()[0].text, "한1");
+    }
+
+    #[test]
     fn hangul_only_flushes_a_composition_or_conversion() {
         let mut s = seokdok();
         type_str(&mut s, "gks");

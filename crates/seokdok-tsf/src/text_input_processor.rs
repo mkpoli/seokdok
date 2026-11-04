@@ -109,9 +109,12 @@ impl TextService_Impl {
         {
             let mut state = self.inner_mut();
             state.session = Session::new(mode, cfg.input.space_converts);
-            state.mode.show(mode);
+            let hangul_only = cfg.conversion.script == crate::config::Script::HangulOnly;
+            state.session.set_hangul_only(hangul_only);
+            state.mode.show(state.session.mode());
         }
-        crate::compartment::publish(thread_mgr, tid, mode);
+        let shown = self.inner().session.mode();
+        crate::compartment::publish(thread_mgr, tid, shown);
 
         // Load the dictionaries in the background; typing works meanwhile and
         // conversion starts to produce results once the load finishes.

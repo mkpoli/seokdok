@@ -259,7 +259,7 @@ final class KeyboardUITests: XCTestCase {
     func testKeyPressFeedback() throws {
         let (app, field) = launch(kind: "default")
         let g = Geometry(app: app)
-        tapUntilTyped(field) { g.letter("d") }
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
         g.hold("q", seconds: 1.5)
         g.hold("g", seconds: 1.5)
         g.hold("p", seconds: 1.5)
@@ -298,7 +298,7 @@ final class KeyboardUITests: XCTestCase {
         XCUIDevice.shared.appearance = .dark
         defer { XCUIDevice.shared.appearance = .light }
         sleep(2)
-        tapUntilTyped(field) { g.letter("d") }
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
         g.type("kssud")
         sleep(1)
         shot("composing-dark")

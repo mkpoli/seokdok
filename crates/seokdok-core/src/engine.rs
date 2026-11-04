@@ -527,7 +527,7 @@ impl Engine {
     }
 
     /// Native dictionaries loaded by [`Engine::from_dir`], in order.
-    pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "eonhae.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
+    pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "eonhae.tsv", "kun-attested.tsv", "suggested.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
     pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "editorial-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv", "loanwords.tsv", "hun.tsv"];
 
     /// Load every known dictionary file present in `dir`.
@@ -691,7 +691,7 @@ impl Engine {
                         0.0
                     } else {
                         match entry.source {
-                            Source::Eonhae | Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon | Source::Suggested => SHORT_COST,
+                            Source::Eonhae | Source::KunAttested | Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon | Source::Suggested => SHORT_COST,
                             Source::Community => 1.0,
                             _ => 0.0,
                         }
@@ -822,7 +822,7 @@ impl Engine {
             .filter(|e| match e.kind {
                 Kind::Nominal { entry, .. } => {
                     let nat = &self.natives[entry as usize];
-                    matches!(nat.source, Source::Community | Source::Corpus | Source::Editorial | Source::Eonhae | Source::Suggested) && matches!(nat.pos, Pos::Noun | Pos::Pron | Pos::Num | Pos::Adv)
+                    matches!(nat.source, Source::Community | Source::Corpus | Source::Editorial | Source::Eonhae | Source::KunAttested | Source::Suggested) && matches!(nat.pos, Pos::Noun | Pos::Pron | Pos::Num | Pos::Adv)
                 }
                 Kind::Sino { entry, .. } => self.sinos.count(entry as usize) > 0,
                 _ => false,
@@ -1850,6 +1850,7 @@ impl Engine {
             Source::User | Source::Corpus | Source::Editorial => -0.5,
             Source::Community => 0.5,
             Source::Eonhae => 1.5,
+            Source::KunAttested => 1.6,
             Source::Suggested => 2.0,
             Source::Gloss | Source::Japanese | Source::Lexicon => 3.0,
             Source::JapaneseWeak => 3.5,

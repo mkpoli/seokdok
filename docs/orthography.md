@@ -385,7 +385,8 @@ candidate and the literal input stay selectable.
   2026-11-01, CC BY-SA 4.0, https://ko.wikisource.org/): 訓蒙字會 (1527; 1613
   reprint), 光州千字文 (1575), 石峯千字文 (1583; later printing), 類合 (1913 printing),
   倭語類解 (18th century), 譯語類解 (1690), and the 諺解 listed in `dict/README.md`: the
-  citations in `dict/eonhae.tsv`. Most of these pages are unproofread on Wikisource,
+  citations in `dict/eonhae.tsv`; books of 1882-1945 that print a native reading beside
+  Hanja, cited in `dict/kun-attested.tsv` with every use in `data/kun-usage.tsv`. Most of these pages are unproofread on Wikisource,
   so a row can carry a transcriber's slip; each note names the page to check.
 - 新增類合 (1576) and the first volume of 訓蒙字會, read through 나무위키's transcriptions
   (saved 2026-11-04, CC BY-NC-SA 2.0 KR, https://namu.wiki/w/신증유합/상권,

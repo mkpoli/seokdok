@@ -382,8 +382,8 @@ const EDITORIAL_WORD_MARGIN: f32 = 2.5;
 const LOAN_COST: f32 = 2.0;
 /// A particle typed alone, kept in Hangul.
 const ALONE_COST: f32 = 0.5;
-/// Particles that are also words (이 this, 나 I, 보다 to see, 들 field, 같이, 대로, 만큼, 들은 heard) and 이에요, which the editors write 乃요: typed alone they convert as words.
-const HOMOGRAPH_PARTICLES: &[&str] = &["이", "나", "보다", "들", "같이", "대로", "만큼", "들은", "들을", "보다는", "이에요"];
+/// Particles that are also words (이 this, 나 I, 보다 to see, 들 field, 같이, 대로, 만큼, 들은 heard) and 이에요, which the editors write 乃요, and 이를, 이는, 이가, 이도, 이의, 이에게, which are the pronoun 이 and a particle: typed alone they convert as words.
+const HOMOGRAPH_PARTICLES: &[&str] = &["이", "나", "보다", "들", "같이", "대로", "만큼", "들은", "들을", "보다는", "이에요", "이를", "이는", "이가", "이도", "이의", "이에게"];
 /// Added to verb forms in the archaic -니라.
 const ARCHAIC_ENDING: f32 = 1.0;
 

@@ -164,6 +164,14 @@ fn words_that_look_like_a_loanword_or_an_ending_keep_their_reading() {
 }
 
 #[test]
+fn the_pronoun_with_a_particle_is_not_a_particle_alone() {
+    first(&[
+        ("이를", "此를"), ("이는", "此는"), ("이가", "此가"), ("이도", "此도"), ("이의", "此의"), ("이에게", "此에게"),
+        ("이에", "此에"), ("이와", "此와"), ("그를", "其를"), ("그는", "其는"), ("저를", "自를"), ("저는", "自는"),
+    ]);
+}
+
+#[test]
 fn nouns_that_a_bare_stem_would_take() {
     first(&[("돌", "石"), ("발", "足"), ("털", "毛"), ("감", "柿"), ("실", "絲")]);
     // No chat attestation of 蜂, and 살 stays the verb stem (生 22× in the chat against 歲 11×, 肉 8×, 膚 1×).

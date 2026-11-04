@@ -18,7 +18,7 @@ Downloads are on [seokdok.mkpo.li/#install](https://seokdok.mkpo.li/#install).
 - **Linux**: unpack the tarball and run `install.sh` (per user, no sudo), restart fcitx5 and add 釋讀 in fcitx5-configtool.
 - **iOS, macOS, Android**: the sources are in `ios/`, `macos/` and `android/`. None of them has been built or released yet.
 
-Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc cancels. Settings live in `config.toml`: `%APPDATA%\seokdok\` on Windows, `~/Library/Application Support/seokdok/` on macOS, `~/.config/seokdok/` elsewhere. Your own rules and words go in `custom.json` beside it; the Customize section of the site exports one.
+Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc cancels. A character with many homophones can be typed by its gloss: 살찔비, 비살찔 or 살찔 비 offer 肥. Settings live in `config.toml`: `%APPDATA%\seokdok\` on Windows, `~/Library/Application Support/seokdok/` on macOS, `~/.config/seokdok/` elsewhere. Your own rules and words go in `custom.json` beside it; the Customize section of the site exports one.
 
 ## Usage
 

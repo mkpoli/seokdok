@@ -10,6 +10,7 @@ comments; the header line names the columns.
 | `editorial.tsv` | 訓讀 entries added by the editors, with reasons | project editors | MIT |
 | `community.tsv` | 標準國語釋讀辭典 | 釋讀會 members | used with the editors' permission |
 | `eonhae.tsv` | 訓讀 attested in historical books: character primers and 諺解 | Korean Wikisource and 나무위키 transcriptions, English Wiktionary | CC BY-SA 4.0; citations of 나무위키 CC BY-NC-SA 2.0 KR |
+| `kun-attested.tsv` | 訓讀 printed with a native reading beside the Hanja in books of 1882-1945 | Korean Wikisource transcriptions | CC BY-SA 4.0 |
 | `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested | language model, unreviewed | MIT |
 | `kun-ja.tsv` | 訓讀 found through Japanese 訓読み words with the same English gloss | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `kun-ja-weak.tsv` | weaker Japanese links, kept so no candidate is lost | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
@@ -42,7 +43,7 @@ lemma	written	pos	class	source	count	note
   (명사, 동사 …).
 - `class`: inflection class, guessed when blank: `reg`, `b` (ㅂ), `d` (ㄷ),
   `s` (ㅅ), `h` (ㅎ), `reu` (르), `reo` (러), `ani` (아니다).
-- `source`: `user`, `corpus`, `editorial`, `community`, `eonhae`, `suggested`, `gloss`.
+- `source`: `user`, `corpus`, `editorial`, `community`, `eonhae`, `kun-attested`, `suggested`, `gloss`.
 - `count`: corpus attestations, refreshed by `tools/attest.py`. Attested
   entries rank by count.
 
@@ -99,6 +100,23 @@ with `source` set to `user`. Check a file with
   wrong (10.0%), mostly Sino-Korean glosses (복 祉, 창 牖) or a wrong modern word for
   the old form (ᄀᆞᄅᆞᆷ 代 as 가름); every new row was then read and the wrong ones
   excluded in the tool.
+
+- **Printed readings** (`kun-attested.tsv`, `tools/build_kun_usage.py`): books of
+  1882-1945 that print a native reading beside Hanja: above it ({{윗주|飛|나}}는 in
+  勞動夜學讀本, 俞吉濬, 1908), below or above a Hangul word (京釜鐵道歌, 崔南善, 1908;
+  地球略論, 1897) or in parentheses (군포내(軍浦場) in 화즁화, 1912; 어깨(肩) in the
+  spelling manuals of 1912-1933). Every use is in `data/kun-usage.tsv`, which stays
+  outside this folder because the iOS keyboard copies the folder whole. Readings a
+  character's sound explains are skipped, allowing for old spellings and 두음법칙, and
+  so are foreign names and remarks in parentheses. Scanned books whose Wikisource index
+  dates them to 1880-1945 are covered; typed-in texts with no scan are left out, since
+  their Hanja may be an editor's. A row here is a use with a modern word that no higher
+  tier spells the same way; lemmas come from `tools/kun_lemmas.txt`, read by hand, or
+  from the folds and evidence of `build_eonhae.py`. Each note gives book, year, page and
+  quote. The books are in the public domain; the text is Korean Wikisource's
+  transcription (dump of 2026-11-01), CC BY-SA 4.0, and most pages are unproofread
+  there. A hand check of 120 random usage rows against their pages found 5 wrong
+  (4.2%), all removed with others of the same kind; a second sample of 100 found 1 (1.0%), also removed.
 
 - **Wiktionary** (`etym.tsv`, `tools/etym_hanja.py`): English Wiktionary's
   Korean entries as extracted by kaikki.org (wiktextract; enwiktionary dump of

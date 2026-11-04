@@ -202,3 +202,24 @@ lemma	written	pos	class	source	count	note
 임금님	王님	noun		editorial	1	the chat: 王님
 임금님	王主	noun		editorial	1	임금 王 + 主
 너무	過	adv		editorial		mkpoli's request (2026-11-04): 過무 for 너무
+거의	殆	adv		editorial	11	the chat writes 殆 (11×)
+꽤	頗	adv		editorial	10	the chat writes 頗 (10×)
+사실	事實	noun		editorial	94	the chat writes 事實 (94×); Sino-Korean 事實 as a 訓讀-format row so it ranks with the chat-attested entries
+물론	勿論	adv		editorial	38	the chat writes 勿論 (38×); Sino-Korean 勿論
+일단	一旦	adv		editorial	21	the chat writes 一旦 (21×); Sino-Korean 一旦
+세기	世紀	noun		editorial	21	the chat writes 世紀 (21×); Sino-Korean 世紀
+매일	每日	noun		editorial	6	the chat writes 每日 (6×); Sino-Korean 每日
+시대	時代	noun		editorial	6	the chat writes 時代 (6×); Sino-Korean 時代
+고려	高麗	noun		editorial	8	the chat writes 高麗 (8×); the dynasty, not 考慮
+모음	母音	noun		editorial	12	the chat writes 母音 (12×); vowel, not 모음 集
+등	等	bound		editorial	58	the chat writes 等 (58×) for the bound noun 등 (A 等 B)
+번	番	bound		editorial	35	the chat writes 番 (35×) for the counter 번 (한 番, 두 番)
+년	年	bound		editorial	112	the chat writes 年 (112×) for 년 (2026年)
+위해	爲해	adv		editorial	22	the chat writes 爲해 (22×); 위하다 + 어, written as one word
+위한	爲한	det		editorial	27	the chat writes 爲한 (27×); 위하다 + ㄴ, written as one word
+별로	別로	adv		editorial	26	the chat writes 別로 (26×); Sino-Korean 別 + 로
+눈	目	noun		editorial	8	the chat writes 目 (8×) for 눈 (eye); community.tsv also has 目 and 雪
+자기	自己	pron		editorial	3	the chat writes 自己 (3×); Sino-Korean 自己
+사진	寫眞	noun		editorial	9	the chat writes 寫眞 (9×); Sino-Korean 寫眞
+나라	國	noun		editorial	27	the chat writes 國 (27×) for 나라 (country); community.tsv also has 國
+아니라	非라	adv		editorial	14	the chat writes 非라 (14×); 아니다 + 라 (아니라 …이다)

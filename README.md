@@ -23,16 +23,16 @@ Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc c
 
 ## Mode keys
 
-There are three modes: 釋讀, plain 한글 and Latin. The keys are the ones people know from the Korean tools on each platform, as far as the system lets an input method see them. They live in `[input.keys]` in `config.toml`, with defaults per platform; a modifier written alone means tapping it with no other key.
+There are three modes: 釋讀, plain 한글 and Latin. In 釋讀 mode the script is 釋讀, 國漢文混用 or 韓㐎 專用. The keys are the ones people know from the Korean tools on each platform, as far as the system lets an input method see them. They live in `[input.keys]` in `config.toml`, with defaults per platform; a modifier written alone means tapping it with no other key.
 
-| | Korean ↔ Latin | 釋讀 ↔ 한글 | Convert | To Latin / back |
+| | Korean ↔ Latin | Next script | Convert | To Latin / back |
 |---|---|---|---|---|
 | Windows | 한/영, right Alt, 半角/全角 | Shift+한/영, left Ctrl + left Alt | 한자, right Ctrl, 変換, F7 | 無変換 / 変換 |
 | macOS | Option | left Control + left Option | Option-Return, F7 | 英数 / かな |
 | Linux (fcitx5) | Hangul, Shift+Space, right Alt, 半角/全角 | Shift+Hangul, left Ctrl + left Alt | Hanja, F9, 変換, F7 | 無変換 / 変換 |
 | Android (hardware keyboard) | 한/영, Shift+Space, 半角/全角 | Shift+한/영, left Ctrl + left Alt | 한자, 変換, F7 | 無変換 / 変換 |
 
-iOS has the on-screen mode key only. Left Alt alone is left to application menus on Windows and Linux; add `Alt` to `toggle` to use it. Windows Korean keyboard drivers turn right Alt and right Ctrl (type 1) or Shift+Space and Ctrl+Space (type 3) into 한/영 and 한자 before the input method sees them. AltGr never counts as right Alt.
+The script key goes 釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀, in every running application, and from Latin or plain 한글 it lands in 釋讀 mode at the next script. Plain 한글 stays in the Windows and macOS menus, and in the `hangul` list of `[input.keys]`. iOS has the on-screen mode key only, 釋 → 混 → 한 → A → 釋, as does Android's on-screen keyboard. Left Alt alone is left to application menus on Windows and Linux; add `Alt` to `toggle` to use it. Windows Korean keyboard drivers turn right Alt and right Ctrl (type 1) or Shift+Space and Ctrl+Space (type 3) into 한/영 and 한자 before the input method sees them. AltGr never counts as right Alt.
 
 On Linux and Android, Shift+Space toggles except while 釋讀 is composing, when it stays a space inside the composition and the previous candidate in a conversion. With more than one input method in its group, fcitx5 itself takes Ctrl+Space, Hangul, 半角/全角 and a tap of left Shift to switch.
 

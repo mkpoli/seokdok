@@ -92,7 +92,9 @@ after changing `project.yml`.
   + shorten or lengthen the focused segment.
 - 確定 (Return) confirms everything. Backspace undoes the conversion, then
   deletes letters; hold it to repeat.
-- The mode key cycles 釋 (convert to 釋讀) → 한 (Hangul only) → A (Latin).
+- The mode key cycles 釋 (釋讀) → 混 (國漢文混用) → 한 (韓㐎 專用) → A (Latin), writing
+  the script to the settings. Without a folder to write them to, it moves between
+  Korean and Latin.
 - 123 opens digits and punctuation, #+= the second page.
 
 A hardware keyboard does not reach this keyboard. A custom keyboard is an

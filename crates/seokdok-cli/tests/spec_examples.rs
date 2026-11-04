@@ -190,3 +190,21 @@ fn the_bound_noun_su_is_written_with_hand() {
     // 手 on its own still reads 손 unless the bound noun fits.
     assert_eq!(e.read("手을"), "손을");
 }
+
+#[test]
+fn demonstratives_take_every_spelling_of_geot() {
+    let e = engine(Options::default());
+    for (ko, han) in [("이", "此"), ("그", "其"), ("저", "彼")] {
+        assert_eq!(e.convert(&format!("{ko}것"))[0].text, format!("{han}것"));
+        assert_eq!(e.convert(&format!("{ko}거"))[0].text, format!("{han}거"));
+        for w in ["事ㅅ", "事", "件", "物", "唟"] {
+            assert!(offers(&e, &format!("{ko}것"), &format!("{han}{w}")), "{ko}것 → {han}{w}");
+        }
+        for w in ["事", "件", "物"] {
+            assert!(offers(&e, &format!("{ko}거"), &format!("{han}{w}")), "{ko}거 → {han}{w}");
+        }
+        // With a particle too, and back again.
+        assert!(offers(&e, &format!("{ko}것을"), &format!("{han}物을")));
+        assert_eq!(e.read(&format!("{han}物을")), format!("{ko}것을"));
+    }
+}

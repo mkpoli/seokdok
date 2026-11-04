@@ -206,6 +206,23 @@ test('backspace edits the preedit, then the document', () => {
   expect(m.doc).toBe('a')
 })
 
+test('韓㐎 專用 turned on while a conversion is in flight leaves the Hangul as typed', async () => {
+  let release
+  const slow = (t) => new Promise((r) => (release = () => r(segment(t))))
+  const m = new Ime(composer(), slow, whole)
+  m.insertText('하늘')
+  m.key({ key: ' ' })
+  expect(m.busy).toBe(true)
+  m.setHangulOnly(true)
+  expect(m.doc).toBe('하늘')
+  release()
+  await tick()
+  await tick()
+  expect(m.segs).toBe(null)
+  expect(m.doc).toBe('하늘')
+  expect(m.busy).toBe(false)
+})
+
 test('keys typed while converting are queued, not lost', async () => {
   let release
   const slow = (t) => new Promise((r) => (release = () => r(segment(t))))

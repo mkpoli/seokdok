@@ -253,7 +253,10 @@ export class Ime {
     this.#spaced = spaced
     this.busy = true
     try {
-      const segs = await this.segment(this.pre)
+      const text = this.pre
+      const segs = await this.segment(text)
+      // 韓㐎 專用 may have been turned on, or the text committed, meanwhile.
+      if (this.hangulOnly || this.pre !== text) return false
       this.segs = segs.map((s) => ({ ...s, pick: 0 }))
       this.focus = this.#stops()[0] ?? 0
       this.open = false
@@ -360,6 +363,7 @@ export class Ime {
     this.busy = true
     try {
       const [ca, cb] = await Promise.all([this.#span(a.join('')), b.length ? this.#span(b.join('')) : null])
+      if (this.segs !== segs) return
       const fresh = [{ reading: a.join(''), candidates: ca, pick: 0 }]
       if (cb) fresh.push({ reading: b.join(''), candidates: cb, pick: 0 })
       this.segs = [...segs.slice(0, i), ...fresh, ...segs.slice(i + 2)]

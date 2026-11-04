@@ -699,3 +699,15 @@ fn a_compound_part_keeps_its_own_character_first() {
     let at = |t: &str| list.iter().position(|x| x == t).unwrap();
     assert!(at("古ㅅ韓字") < at("古ㅅ漢字"), "{list:?}");
 }
+
+#[test]
+fn the_bound_noun_de_is_a_place() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("만드는 데도").into_iter().next().unwrap().text, "作는 處도");
+    assert!(offers(&e, "데도", "所도"));
+    assert!(offers(&e, "데", "燒"));
+    // Inside a word it stays the ending.
+    for (input, want) in [("만드는데도", "作는데도"), ("쓰는데", "書는데"), ("하는데", "하는데"), ("그런데", "然ㄴ데"), ("인데", "인데")] {
+        assert_eq!(e.convert(input)[0].text, want, "{input}");
+    }
+}

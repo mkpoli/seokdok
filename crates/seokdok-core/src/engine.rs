@@ -428,6 +428,61 @@ const ARCHAIC_ENDING: f32 = 1.0;
 /// default and 爲 comes from the dictionary as an alternative.
 const BUILTIN: &str = "하다\t하다\tverb\t\teditorial\t\n";
 
+/// An open-addressing table of Sino entries, keyed by the strings the table
+/// already holds, so a slot is one number. It lives only while loading.
+#[derive(Default)]
+struct PairIndex {
+    /// Entry + 1, or 0 for an empty slot; the length is a power of two.
+    slots: Vec<u32>,
+    filled: usize,
+}
+
+impl PairIndex {
+    fn hash(reading: &str, hanja: &str) -> usize {
+        // FNV-1a; the separator cannot occur in either string.
+        let mut h = 0xcbf2_9ce4_8422_2325u64;
+        for b in reading.bytes().chain([0xFF]).chain(hanja.bytes()) {
+            h = (h ^ b as u64).wrapping_mul(0x0100_0000_01b3);
+        }
+        (h ^ (h >> 32)) as usize
+    }
+
+    /// The entry holding this pair, or `None` having noted that the next entry
+    /// pushed to `sinos` will.
+    fn find_or_add(&mut self, sinos: &SinoTable, reading: &str, hanja: &str) -> Option<usize> {
+        // At most three quarters full, so runs of filled slots stay short.
+        if (self.filled + 1) * 4 > self.slots.len() * 3 {
+            self.grow(sinos);
+        }
+        let mask = self.slots.len() - 1;
+        let mut s = Self::hash(reading, hanja) & mask;
+        while self.slots[s] != 0 {
+            let i = self.slots[s] as usize - 1;
+            if sinos.reading(i) == reading && sinos.hanja(i) == hanja {
+                return Some(i);
+            }
+            s = (s + 1) & mask;
+        }
+        self.filled += 1;
+        self.slots[s] = sinos.len() as u32 + 1;
+        None
+    }
+
+    fn grow(&mut self, sinos: &SinoTable) {
+        let size = (self.slots.len() * 2).max(1 << 12);
+        let mask = size - 1;
+        self.slots = Vec::new();
+        self.slots.resize(size, 0);
+        for i in 0..sinos.len() {
+            let mut s = Self::hash(sinos.reading(i), sinos.hanja(i)) & mask;
+            while self.slots[s] != 0 {
+                s = (s + 1) & mask;
+            }
+            self.slots[s] = i as u32 + 1;
+        }
+    }
+}
+
 /// Collects dictionary files one at a time, then builds the [`Engine`].
 pub struct Builder {
     natives: Vec<Native>,
@@ -435,15 +490,15 @@ pub struct Builder {
     hun: Vec<(String, String)>,
     /// Loanwords (loanwords.tsv), which stay in Hangul.
     loans: HashSet<String>,
-    /// Hash of a (reading, Hanja) pair → its entry; the Sino files overlap
+    /// Finds a (reading, Hanja) pair's entry; the Sino files overlap
     /// (fusion.tsv and sino.tsv share most words).
-    index: HashMap<u64, u32>,
+    pairs: PairIndex,
     errors: Vec<String>,
 }
 
 impl Builder {
     pub fn new() -> Builder {
-        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), loans: HashSet::new(), index: HashMap::new(), errors: Vec::new() };
+        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), loans: HashSet::new(), pairs: PairIndex::default(), errors: Vec::new() };
         b.native("builtin", BUILTIN);
         b
     }
@@ -486,36 +541,27 @@ impl Builder {
     }
 
     fn sino_row(&mut self, label: &str, line: usize, f: &[&str]) {
-        use std::hash::{BuildHasher, Hash, Hasher};
         match parse_sino(f) {
             Ok(e) if f.get(3) == Some(&"hun") => self.hun.push((e.reading.into(), e.hanja.into())),
             Ok(e) if f.get(3) == Some(&"loanword") => {
                 self.loans.insert(e.reading.into());
             }
-            Ok(e) => {
-                let mut h = self.index.hasher().build_hasher();
-                (&*e.reading, &*e.hanja).hash(&mut h);
-                let key = h.finish();
-                match self.index.get(&key).map(|&i| i as usize) {
-                    Some(i) if self.sinos.reading(i) == &*e.reading && self.sinos.hanja(i) == &*e.hanja => {
-                        let kept = &mut self.sinos.entries[i];
-                        kept.cost = kept.cost.min(e.cost);
-                        kept.count = kept.count.saturating_add(e.count);
-                    }
-                    _ => {
-                        self.index.entry(key).or_insert(self.sinos.len() as u32);
-                        self.sinos.push(&e.reading, &e.hanja, e.cost, e.count);
-                    }
+            Ok(e) => match self.pairs.find_or_add(&self.sinos, &e.reading, &e.hanja) {
+                Some(i) => {
+                    let kept = &mut self.sinos.entries[i];
+                    kept.cost = kept.cost.min(e.cost);
+                    kept.count = kept.count.saturating_add(e.count);
                 }
-            }
+                None => self.sinos.push(&e.reading, &e.hanja, e.cost, e.count),
+            },
             Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
         }
     }
 
     /// The engine and the parse errors (file label, line, message).
     pub fn build(self, options: Options) -> (Engine, Vec<String>) {
-        let Builder { natives, mut sinos, hun, loans, index, errors } = self;
-        drop(index);
+        let Builder { natives, mut sinos, hun, loans, pairs, errors } = self;
+        drop(pairs);
         sinos.text.shrink_to_fit();
         sinos.entries.shrink_to_fit();
         let mut eng = Engine {

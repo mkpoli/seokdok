@@ -11,6 +11,9 @@ final class KeyboardViewController: UIInputViewController {
     private var lastShiftTap = Date.distantPast
     /// The marked text this keyboard last wrote into the document, if any.
     private var marked: String?
+    /// The document the marked text was written into
+    /// (`textDocumentProxy.documentIdentifier`).
+    private var composingDocument: UUID?
     private var loadTimer: Timer?
     /// Bumped whenever a composition ends or its field changes, so a delayed
     /// check for an earlier text change does nothing.
@@ -86,10 +89,11 @@ final class KeyboardViewController: UIInputViewController {
     /// while the extension is starting, so a mismatch counts only when it
     /// persists through several looks; judging too soon split the first jamo
     /// off a word (ㄱㅏ for 가). A change of field is told apart by its layout
-    /// and cancels any check still waiting.
+    /// or its document identifier, ends the composition at once and cancels any
+    /// check still waiting.
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
-        if updateLayout() { return }
+        if updateLayout() || dropForeignComposition() { return }
         guard marked != nil else { return }
         checkGeneration += 1
         checkComposition(generation: checkGeneration, looksLeft: 4)
@@ -108,6 +112,25 @@ final class KeyboardViewController: UIInputViewController {
         }
     }
 
+    /// `textDocumentProxy.documentIdentifier`, or nil while the system has
+    /// none to give. The property is declared non-optional, and reading it
+    /// as a UUID traps when the system returns nil (seen in the simulator
+    /// during a field change), so it is read through key-value coding.
+    private var documentIdentifier: UUID? {
+        (textDocumentProxy as? NSObject)?.value(forKey: "documentIdentifier") as? UUID
+    }
+
+    /// A composition typed into another document is left there. Called when
+    /// the text changes and before each key, so a key tapped right after a
+    /// field switch starts a new composition in the new field.
+    @discardableResult
+    private func dropForeignComposition() -> Bool {
+        guard marked != nil, let doc = composingDocument, let now = documentIdentifier,
+              doc != now else { return false }
+        abandonComposition()
+        return true
+    }
+
     /// Forget the composition without writing it: the document it was typed
     /// into already holds it as plain text, and the document now in focus
     /// does not own it.
@@ -115,6 +138,7 @@ final class KeyboardViewController: UIInputViewController {
         checkGeneration += 1
         session.reset()
         marked = nil
+        composingDocument = nil
         refresh()
     }
 
@@ -178,6 +202,7 @@ final class KeyboardViewController: UIInputViewController {
         }
         let text = session.preedit().map(\.text).joined()
         if !text.isEmpty {
+            if marked == nil { composingDocument = documentIdentifier }
             proxy.setMarkedText(text, selectedRange: NSRange(location: (text as NSString).length, length: 0))
             marked = text
         } else if marked != nil {
@@ -211,6 +236,7 @@ final class KeyboardViewController: UIInputViewController {
 
 extension KeyboardViewController: KeyboardViewDelegate {
     func letter(_ key: Character) {
+        dropForeignComposition()
         let shifted = shift != .off
         guard layout.converts else {
             insert(String(shifted ? Character(key.uppercased()) : key))
@@ -228,6 +254,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func symbol(_ ch: Character) {
+        dropForeignComposition()
         guard layout.converts else {
             insert(String(ch))
             return
@@ -244,6 +271,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func space() {
+        dropForeignComposition()
         guard layout.converts else {
             insert(" ")
             return
@@ -255,6 +283,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func enter() {
+        dropForeignComposition()
         guard layout.converts else {
             insert("\n")
             return
@@ -266,6 +295,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func backspace() {
+        dropForeignComposition()
         guard layout.converts else {
             textDocumentProxy.deleteBackward()
             return

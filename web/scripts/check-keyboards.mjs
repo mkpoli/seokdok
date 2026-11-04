@@ -10,6 +10,7 @@
 // composition is dispatched as real DOM events in the order that engine uses,
 // and plain text goes through Playwright's insertText. Deletes are the browser's
 // own delete command, which fires input as a keyboard's delete does.
+import { spawnSync } from 'node:child_process'
 import { chromium, firefox, webkit, devices } from 'playwright'
 
 const url = process.argv[2] ?? 'http://localhost:4173/'
@@ -291,6 +292,11 @@ async function run(name) {
   return failed
 }
 
-let failed = 0
-for (const name of names.length ? names : Object.keys(BROWSERS)) failed += await run(name)
-process.exit(failed ? 1 : 0)
+// One browser per process: under Bun, a second browser launched in the same
+// process stops answering partway through.
+if (names.length === 1) process.exit((await run(names[0])) ? 1 : 0)
+let status = 0
+for (const name of names.length ? names : Object.keys(BROWSERS)) {
+  status ||= spawnSync(process.execPath, [process.argv[1], url, name], { stdio: 'inherit' }).status ?? 1
+}
+process.exit(status)

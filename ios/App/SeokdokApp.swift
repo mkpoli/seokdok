@@ -75,9 +75,9 @@ struct RootView: View {
                     Section(L("키보드 추가", "Add the Keyboard")) {
                         Button(L("설정 열기", "Open Settings"), action: openSettings)
                             .accessibilityIdentifier("openSettings")
-                        Step(1, L("키보드를 누릅니다", "Tap Keyboards"))
-                        Step(2, L("釋讀을 켭니다", "Turn on 釋讀"))
-                        Step(3, L("키 소리와 設定이 必要하면 「전체 접근 허용」도 켭니다", "Turn on Allow Full Access for key clicks and settings"))
+                        Step(1, L("일반 → 키보드 → 키보드", "General → Keyboard → Keyboards"))
+                        Step(2, L("새로운 키보드 추가 → 釋讀", "Add New Keyboard → 釋讀"))
+                        Step(3, L("키 소리와 設定이 必要하면 釋讀을 눌러 「전체 접근 허용」을 켭니다", "For key clicks and settings, tap 釋讀 and turn on Allow Full Access"))
                     }
                 }
 

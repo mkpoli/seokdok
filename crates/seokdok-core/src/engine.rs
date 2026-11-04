@@ -283,6 +283,8 @@ pub struct Segment {
 
 pub struct Engine {
     pub natives: Vec<Native>,
+    /// The file labels that [`Native::origin`] points into.
+    labels: Vec<String>,
     sinos: SinoTable,
     hun: HunTable,
     loans: HashSet<String>,
@@ -531,6 +533,7 @@ impl PairIndex {
 /// Collects dictionary files one at a time, then builds the [`Engine`].
 pub struct Builder {
     natives: Vec<Native>,
+    labels: Vec<String>,
     sinos: SinoTable,
     hun: Vec<(String, String)>,
     /// Loanwords (loanwords.tsv), which stay in Hangul.
@@ -543,7 +546,7 @@ pub struct Builder {
 
 impl Builder {
     pub fn new() -> Builder {
-        let mut b = Builder { natives: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), loans: HashSet::new(), pairs: PairIndex::default(), errors: Vec::new() };
+        let mut b = Builder { natives: Vec::new(), labels: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), loans: HashSet::new(), pairs: PairIndex::default(), errors: Vec::new() };
         b.native("builtin", BUILTIN);
         b
     }
@@ -564,7 +567,11 @@ impl Builder {
     fn native_row(&mut self, label: &str, line: usize, f: &[&str]) {
         match parse_native(f) {
             Ok(mut e) => {
-                e.origin = (label.to_string(), line);
+                if self.labels.last().map(String::as_str) != Some(label) {
+                    self.labels.push(label.to_string());
+                }
+                e.origin = (self.labels.len() as u32 - 1, line as u32);
+                e.allos.shrink_to_fit();
                 self.natives.push(e)
             }
             Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
@@ -605,12 +612,14 @@ impl Builder {
 
     /// The engine and the parse errors (file label, line, message).
     pub fn build(self, options: Options) -> (Engine, Vec<String>) {
-        let Builder { natives, mut sinos, hun, loans, pairs, errors } = self;
+        let Builder { mut natives, labels, mut sinos, hun, loans, pairs, errors } = self;
         drop(pairs);
+        natives.shrink_to_fit();
         sinos.text.shrink_to_fit();
         sinos.entries.shrink_to_fit();
         let mut eng = Engine {
             natives,
+            labels,
             sinos,
             hun: HunTable::new(hun),
             loans,
@@ -1726,6 +1735,12 @@ impl Engine {
 
     /// Whole-input candidates, best first. Non-Hangul text passes through.
     /// Number of Sino-Korean (reading, Hanja) pairs loaded.
+    /// The file label and line that native entry `i` came from.
+    pub fn origin(&self, i: usize) -> (&str, usize) {
+        let (label, line) = self.natives[i].origin;
+        (&self.labels[label as usize], line as usize)
+    }
+
     pub fn sino_count(&self) -> usize {
         self.sinos.len()
     }

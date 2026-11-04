@@ -123,7 +123,6 @@ pub struct Native {
     pub hanja: String,
     /// Lemma components without 다 for inflecting words.
     pub stem: Vec<char>,
-    pub stem_str: String,
     /// Number of components covered by the Hanja.
     pub cover: usize,
     pub tail: Tail,
@@ -133,8 +132,8 @@ pub struct Native {
     pub source: Source,
     pub count: u32,
     pub cost: f32,
-    /// File label and line the entry came from.
-    pub origin: (String, usize),
+    /// File the entry came from, as an index for [`crate::engine::Engine::origin`], and its line.
+    pub origin: (u32, u32),
 }
 
 #[derive(Clone, Debug)]
@@ -278,7 +277,6 @@ pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
         pos,
         hanja: hanja.to_string(),
         stem,
-        stem_str,
         cover,
         tail,
         class,
@@ -287,7 +285,7 @@ pub fn parse_native(fields: &[&str]) -> Result<Native, String> {
         source,
         count,
         cost: native_cost(source, count),
-        origin: (String::new(), 0),
+        origin: (0, 0),
     })
 }
 

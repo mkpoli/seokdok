@@ -5,7 +5,7 @@
 use crate::conj::{ending_label, ending_surfaces, morph_ending, Ctx};
 use crate::dict::{parse_native, parse_sino, tsv_lines, Native, Pos, Source, Tail};
 use crate::jamo::{compose, decompose, is_l, is_syllable, is_t, is_v, resyllabify};
-use crate::old_spelling::{ends_in_hanja, has_era, has_old, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant, parse, readings, Syl};
+use crate::old_spelling::{ends_in_hanja, has_era, has_old, has_palatal_era, is_function_old, is_jamo, keep_typed_tail, modernize_function, old_variant, parse, readings, Syl};
 use crate::particles::{allowed, particles, Particle};
 use std::collections::HashMap;
 
@@ -900,7 +900,7 @@ impl Engine {
             return self.convert_old(run);
         }
         let Converted { mut whole, mut segments, .. } = self.convert_plain(run, after_hanja, true);
-        if whole.first().is_some_and(|c| c.text == run && has_era(run)) {
+        if whole.first().is_some_and(|c| era_wanted(&c.text, run)) {
             if let Some(syls) = parse(run) {
                 // Behind what was typed: the first candidate stays.
                 let mut era: Vec<Candidate> = Vec::new();
@@ -928,8 +928,13 @@ impl Engine {
     fn convert_old(&self, run: &str) -> (Vec<Candidate>, Vec<Segment>) {
         let syls = parse(run).unwrap_or_default();
         let mut found = self.read_as(&syls, false);
+        // Era readings come behind what was typed; with no reading at all
+        // they stand in for it.
+        let mut era = Vec::new();
         if found.is_empty() {
             found = self.read_as(&syls, true);
+        } else if found[0].2.first().is_some_and(|c| era_wanted(&c.text, &found[0].1)) {
+            era = self.read_as(&syls, true);
         }
         // The old spelling of the best reading, as for modern input.
         let (old, ha) = match found.first() {
@@ -967,6 +972,17 @@ impl Engine {
         if !list.iter().any(|c| c.text == run) {
             list.insert(at, typed.clone());
         }
+        let behind = list.iter().position(|c| c.text == run).map_or(list.len(), |p| p + 1);
+        let mut extra: Vec<Candidate> = Vec::new();
+        for (_, reading, cands) in era {
+            for c in restored(&reading, cands.into_iter().filter(|c| c.text != reading).collect()) {
+                if !list.iter().chain(&extra).any(|x| x.text == c.text) {
+                    extra.push(c);
+                }
+            }
+        }
+        extra.truncate(self.options.max_candidates.max(2));
+        list.splice(behind..behind, extra);
         offer_old(&mut list, old);
         first_old(&mut list, ha);
         let keep = self.options.max_candidates.max(2);
@@ -1510,6 +1526,14 @@ fn offer_old(list: &mut Vec<Candidate>, old: Option<String>) {
     }
     let at = list.len().min(2);
     list.insert(at, Candidate { text, note: "옛한글".into() });
+}
+
+/// Whether a word whose best conversion starts with `first` is worth looking
+/// up again by its era spellings: nothing was converted and a syllable may be
+/// one (갓다), or the conversion still holds a syllable of the era that
+/// today's words do not use (텬 in 텬하고, whose 하고 was recognised).
+fn era_wanted(first: &str, reading: &str) -> bool {
+    (first == reading && has_era(reading)) || has_palatal_era(first)
 }
 
 /// With `old_ha`: the old spelling of 하 in first place, the candidate it

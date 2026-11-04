@@ -247,6 +247,17 @@ fn era_reads(c: char) -> Vec<char> {
     out
 }
 
+/// Whether the text has a syllable of the era that modern words do not use
+/// (텬 뎌 됴 댜 텨: ㄷ or ㅌ before ㅑ ㅕ ㅛ).
+pub(crate) fn has_palatal_era(text: &str) -> bool {
+    text.chars().any(|c| {
+        is_syllable(c) && {
+            let s = c as u32 - SBASE;
+            matches!((s / 588, (s % 588) / 28), (3 | 16, 2 | 6 | 12))
+        }
+    })
+}
+
 /// Whether the run has a syllable with an era spelling worth trying.
 pub(crate) fn has_era(run: &str) -> bool {
     run.chars().any(|c| is_syllable(c) && !era_reads(c).is_empty())

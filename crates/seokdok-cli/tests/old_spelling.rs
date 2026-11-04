@@ -214,3 +214,16 @@ fn old_input_gets_the_same_old_spelling_as_modern_input() {
     assert_eq!(texts(&e, "사랑하고").0[..2], whole[..2]);
     assert!(whole.contains(&sarang.to_string()));
 }
+
+#[test]
+fn a_recognised_suffix_does_not_hide_the_era_reading_of_the_prefix() {
+    let e = engine(Options::default());
+    // 텬하고 reads 하고 as a word, and 天下고 is still looked up.
+    let mixed = format!("텬{HA}고");
+    for input in ["텬하고", mixed.as_str()] {
+        let (whole, segs) = texts(&e, input);
+        assert_eq!(whole[0], input);
+        assert!(whole.iter().any(|t| t == "天下고"), "{input}: {whole:?}");
+        assert!(segs[0].iter().any(|t| t == "天下고"), "{input}: {:?}", segs[0]);
+    }
+}

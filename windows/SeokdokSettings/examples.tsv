@@ -1,0 +1,27 @@
+# What the settings show as examples: id, the setting (JSON Merge Patch of
+# config.toml), the 두벌식 keys typed (a space is Shift+Space), and what the
+# engine writes (␣ is a space it types). crates/seokdok-ffi checks every row against the engine.
+script.seokdok	{"conversion":{"script":"seokdok"}}	tjstodslaRptj rhdqngktuTek	先生主께서 工夫하셨다
+script.sino_only	{"conversion":{"script":"sino_only"}}	tjstodslaRptj rhdqngktuTek	先生님께서 工夫하셨다
+script.hangul_only	{"conversion":{"script":"hangul_only"}}	tjstodslaRptj rhdqngktuTek	선생님께서 공부하셨다
+ending.drop	{"conversion":{"style":"surface","fragment":"absorb"}}	qhkTek	見ㅆ다
+ending.letter	{"conversion":{"style":"surface","fragment":"letter"}}	qhkTek	見ㅏㅆ다
+ending.whole	{"conversion":{"style":"morpheme"}}	qhkTek	見았다
+itda.yu	{"conversion":{"itda":"有"}}	dlTek	有다
+itda.jae	{"conversion":{"itda":"在"}}	dlTek	在다
+itda.jae_coda	{"conversion":{"itda":"在ㅆ"}}	dlTek	在ㅆ다
+final.off	{"conversion":{"coda_always":false}}	ajrdmaus	食으면
+final.on	{"conversion":{"coda_always":true}}	ajrdmaus	食ㄱ으면
+carry.off	{"conversion":{"coda_always":true,"resyllabify":false}}	ajrdmaus	食ㄱ으면
+carry.on	{"conversion":{"coda_always":true,"resyllabify":true}}	ajrdmaus	食그면
+ha.modern	{"conversion":{"hada_kun":false,"old_ha":false}}	gkrh	하고
+ha.kun	{"conversion":{"hada_kun":true,"old_ha":false}}	gkrh	爲고
+ha.old	{"conversion":{"hada_kun":false,"old_ha":true}}	gkrh	ᄒᆞ고
+ha.both	{"conversion":{"hada_kun":true,"old_ha":true}}	rhdqngoTek	工夫爲ㅆ다
+clusters.off	{"input":{"old_clusters":false}}	trk	ㅅ가
+clusters.on	{"input":{"old_clusters":true}}	trk	ᄭᅡ
+start.seokdok	{"input":{"default_mode":"seokdok"}}	gksmf	天
+start.hangul	{"input":{"default_mode":"hangul"}}	gksmf	하늘
+start.latin	{"input":{"default_mode":"latin"}}	gksmf	gksmf
+space.on	{"input":{"space_converts":true}}	gksmfdmf	天을
+space.off	{"input":{"space_converts":false}}	gksmfdmf	하늘을␣

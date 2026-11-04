@@ -63,7 +63,7 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private let stripScroll = UIScrollView()
     private let resizeKeys = UIStackView()
     private let bar = UIStackView()
-    private let barScroll = UIScrollView()
+    private let barScroll = CandidateScroll()
     private let barEnd = UIStackView()
     private var shownCandidates: Session.Candidates?
     private let keysArea = UIStackView()
@@ -114,7 +114,6 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
 
         stripRow = scrolling(strip, in: stripScroll, trailing: resizeKeys, height: 26)
         barRow = scrolling(bar, in: barScroll, trailing: barEnd, height: 44)
-        barScroll.delaysContentTouches = false
         column.addArrangedSubview(stripRow)
         column.addArrangedSubview(barRow)
         column.setCustomSpacing(8, after: barRow)
@@ -526,6 +525,23 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     }
 }
 
+/// A scroll view of candidates. Touches reach the cells at once so that they
+/// highlight, and a drag starting on a cell still scrolls.
+final class CandidateScroll: UIScrollView {
+    override init(frame: CGRect) {
+        super.init(frame: frame)
+        delaysContentTouches = false
+    }
+
+    required init?(coder: NSCoder) {
+        fatalError("not used")
+    }
+
+    override func touchesShouldCancel(in view: UIView) -> Bool {
+        true
+    }
+}
+
 /// One candidate: its text with the reading beside it, smaller, on the same
 /// baseline, so that candidates line up whether they have a reading or not.
 final class CandidateCell: UIControl {
@@ -555,7 +571,7 @@ final class CandidateCell: UIControl {
             heightAnchor.constraint(equalToConstant: 36),
         ])
         accessibilityTraits = .keyboardKey
-        accessibilityLabel = item.text
+        accessibilityLabel = item.reading.isEmpty ? item.text : item.text + ", " + item.reading
         isAccessibilityElement = true
     }
 

@@ -27,12 +27,20 @@ jobs:
         with:
           key: windows-release
 
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
       - name: Input method DLL
         run: cargo build --release --target x86_64-pc-windows-msvc -p seokdok-tsf
 
+      - name: Settings app
+        shell: pwsh
+        run: windows\build.ps1
+
       - name: Stage installer files
         shell: bash
-        run: crates/seokdok-tsf/stage.sh
+        run: crates/seokdok-tsf/stage.sh target/settings-app
 
       - name: Inno Setup
         shell: pwsh

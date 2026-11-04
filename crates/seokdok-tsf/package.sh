@@ -3,6 +3,10 @@
 #   target/stage/seokdok-<version>-x86_64-windows-setup.exe
 # The installer is compiled by Inno Setup 6.7+ on the Windows side of WSL
 # (winget install JRSoftware.InnoSetup). Usage: crates/seokdok-tsf/package.sh
+# The settings app is built by the Windows settings workflow, since WinUI builds
+# only on Windows (artifact seokdok-settings-app of the latest successful push
+# run on main); set SEOKDOK_SETTINGS_APP to a local copy of that folder to use
+# it instead.
 set -euo pipefail
 cd "$(dirname "$0")/../.."
 root="$PWD"
@@ -15,8 +19,17 @@ dll="$root/target/x86_64-pc-windows-msvc/release/seokdok.dll"
 python3 -c "import sys; d=open(sys.argv[1],'rb').read(4096); sys.exit(b'.rsrc' not in d)" "$dll" ||
   { echo "seokdok.dll has no resources: llvm-rc failed; see the warnings above" >&2; exit 1; }
 
+app="${SEOKDOK_SETTINGS_APP:-}"
+if [ -z "$app" ]; then
+  app="$(mktemp -d)"
+  trap 'rm -rf "$app"' EXIT
+  run=$(gh run list --workflow windows-settings.yml --branch main --status success --json databaseId,event -q '[.[] | select(.event == "push")][0].databaseId')
+  [ -n "$run" ] || { echo "no successful run of windows-settings.yml on main" >&2; exit 1; }
+  gh run download "$run" --name seokdok-settings-app --dir "$app"
+fi
+
 stage="target/stage/windows"
-crates/seokdok-tsf/stage.sh
+crates/seokdok-tsf/stage.sh "$app"
 
 # Compile on Windows: copy the script, artwork and stage to its temp folder.
 wintemp=$(cmd.exe /c 'echo %TEMP%' 2>/dev/null | tr -d '\r')

@@ -527,7 +527,7 @@ export function t() {
   return all[i18n.lang]
 }
 
-const MARK = /\{([^|}]+)\|([^}]+)\}([ㄱ-ㅎ])?/g
+const MARK = /\{([^|}]+)\|([^}]+)\}([ㄱ-ㅎㅣ])?/g
 const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])
 
 /** A mark read by its characters' own Sino-Korean readings (音讀). */
@@ -541,12 +541,31 @@ export function isSino(hanja, reading) {
 
 // Final consonants as they follow a syllable without one (되 + ㅂ → 됩).
 const FINALS = ' ㄱㄲㄳㄴㄵㄶㄷㄹㄺㄻㄼㄽㄾㄿㅀㅁㅂㅄㅅㅆㅇㅈㅊㅋㅌㅍㅎ'
+// A final plus a consonant that makes a cluster final (안 + ㅎ → 않).
+const CLUSTERS = { ㄱㅅ: 'ㄳ', ㄴㅈ: 'ㄵ', ㄴㅎ: 'ㄶ', ㄹㄱ: 'ㄺ', ㄹㅁ: 'ㄻ', ㄹㅂ: 'ㄼ', ㄹㅅ: 'ㄽ', ㄹㅌ: 'ㄾ', ㄹㅍ: 'ㄿ', ㄹㅎ: 'ㅀ', ㅂㅅ: 'ㅄ' }
+// A vowel plus ㅣ (저 + ㅣ → 제).
+const WITH_I = { 0: 1, 2: 3, 4: 5, 6: 7, 8: 11, 13: 16, 18: 19 }
 function attach(word, jamo) {
   if (!jamo) return word
   const last = word.codePointAt(word.length - 1) - 0xac00
-  const f = FINALS.indexOf(jamo)
-  if (last < 0 || last > 11171 || last % 28 !== 0 || f < 1) return word + jamo
-  return word.slice(0, -1) + String.fromCodePoint(0xac00 + last + f)
+  if (last < 0 || last > 11171) return word + jamo
+  const final = last % 28
+  const head = word.slice(0, -1)
+  if (jamo === 'ㅣ') {
+    const vowel = Math.floor(last / 28) % 21
+    return final === 0 && vowel in WITH_I ? head + String.fromCodePoint(0xac00 + last + (WITH_I[vowel] - vowel) * 28) : word + jamo
+  }
+  if (final === 0) {
+    const f = FINALS.indexOf(jamo)
+    return f < 1 ? word + jamo : head + String.fromCodePoint(0xac00 + last + f)
+  }
+  const cluster = FINALS.indexOf(CLUSTERS[FINALS[final] + jamo])
+  return cluster > 0 ? head + String.fromCodePoint(0xac00 + last - final + cluster) : word + jamo
+}
+
+/** The Hangul reading of a marked string: every mark replaced by its reading. */
+export function reading(s) {
+  return s.replace(MARK, (_, h, k, j = '') => attach(k, j))
 }
 
 /** In 國漢文混用 mode a 訓讀 mark shows its Hangul reading. */
@@ -556,7 +575,7 @@ function render(s, ruby, html) {
   const text = html ? esc(s) : s
   const out = text.replace(MARK, (_, h, k, j = '') => {
     if (hangulOnly(h, k)) return attach(k, j)
-    if (!html) return (ruby ? k : h) + j
+    if (!html) return ruby ? attach(k, j) : h + j
     return (ruby ? `<ruby>${h}<rt>${k}</rt></ruby>` : h) + j
   })
   // One span, so a flex parent (button, label) sees one item and not a piece per ruby.

@@ -545,8 +545,9 @@ fn patched(config: &Config, patch: &serde_json::Value) -> Result<Config, String>
 }
 
 /// Change only what the JSON Merge Patch `patch` names, through
-/// [`config::update`]: what another application wrote meanwhile survives, and
-/// running applications see the new file at their next key. NULL when done,
+/// [`config::update`], which reads the file at that moment: what another
+/// application wrote before then survives, and running applications see the new
+/// file at their next key. NULL when done,
 /// else the reason, and the file is as it was. Free the result with
 /// [`seokdok_string_free`].
 ///
@@ -613,6 +614,9 @@ pub unsafe extern "C" fn seokdok_custom_save_json(json: *const c_char) -> *mut c
     let path = dir.join("custom.json");
     let tmp = dir.join(format!("custom.json.{}.tmp", std::process::id()));
     let written = std::fs::create_dir_all(&dir).and_then(|()| std::fs::write(&tmp, text.as_bytes())).and_then(|()| std::fs::rename(&tmp, &path));
+    if written.is_err() {
+        let _ = std::fs::remove_file(&tmp);
+    }
     written.err().map_or(std::ptr::null_mut(), |e| owned(e.to_string()))
 }
 

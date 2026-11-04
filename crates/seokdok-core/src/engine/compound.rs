@@ -1,10 +1,10 @@
-//! A compound of nouns typed as one word (옛한글, 봄바람) offers every way of
-//! writing it, as one list: each part's own choices are combined, including
+//! A compound of nouns typed as one word (옛한글, 봄바람) lists the ways of
+//! writing it together: each part's leading choices are combined, including
 //! readings that only appear when the part is analysed alone (한글 as 韓字,
-//! from 한 + 글). The parts can still be split by resizing the segment.
+//! from 한 + 글). Resizing the segment splits the parts, with all their choices.
 
 use super::{Around, Candidate, Edge, Engine, Kind, Segment};
-use crate::dict::is_han;
+use crate::dict::{is_han, Pos};
 use crate::jamo::{compose, syllable_count};
 
 /// Parts in a compound, the syllables it may span, the choices kept per part
@@ -13,6 +13,8 @@ const MAX_PARTS: usize = 3;
 const MAX_SYLLABLES: usize = 8;
 const PER_PART: usize = 16;
 const MAX_COMBINATIONS: usize = 64;
+/// Determiners that form compounds. 그, 이, 한, 두 start phrases (그 사람).
+const COMPOUND_DETERMINERS: &[&str] = &["옛", "첫", "새", "맨", "헌", "온"];
 /// How far a part in Hangul alone ranks behind its Hanja choices.
 const HANGUL_PENALTY: usize = 3;
 
@@ -25,25 +27,54 @@ impl Engine {
         }
     }
 
-    /// Whether `path` is nouns only, with a particle at most on the last one.
-    fn is_compound(&self, comps: &[char], edges: &[Edge], path: &[usize]) -> bool {
-        if !(2..=MAX_PARTS).contains(&path.len()) || syllable_count(comps) > MAX_SYLLABLES {
+    /// Whether a word that starts phrases also spells edge `e`'s span: a
+    /// determiner, pronoun, adverb, interjection, numeral or bound noun (그, 두, 또).
+    fn spells_phrase_word(&self, edges: &[Edge], e: &Edge) -> bool {
+        edges.iter().any(|x| {
+            let Kind::Nominal { entry, particle: None } = x.kind else { return false };
+            let n = &self.natives[entry as usize];
+            x.start == e.start
+                && x.end == e.end
+                && n.pos != Pos::Noun
+                && !(n.pos == Pos::Det && COMPOUND_DETERMINERS.contains(&n.lemma.as_str()))
+        })
+    }
+
+    /// Whether edge `e` can be a part of a compound: a noun, a Sino-Korean word,
+    /// or Hangul left over a span that a noun also spells. Letters that make a
+    /// particle (에, 를) are not one.
+    fn is_compound_part(&self, comps: &[char], edges: &[Edge], e: &Edge) -> bool {
+        if self.spells_phrase_word(edges, e) {
             return false;
         }
-        let mut words = 0;
-        for (k, &ei) in path.iter().enumerate() {
-            match edges[ei].kind {
-                Kind::Raw => {}
-                Kind::Nominal { .. } | Kind::Sino { .. } => {
-                    words += 1;
-                    if k + 1 < path.len() && Self::edge_particle(&edges[ei]).is_some() {
-                        return false;
-                    }
-                }
-                _ => return false,
+        match e.kind {
+            Kind::Nominal { entry, .. } => {
+                let n = &self.natives[entry as usize];
+                n.pos == Pos::Noun || (n.pos == Pos::Det && COMPOUND_DETERMINERS.contains(&n.lemma.as_str()))
             }
+            Kind::Sino { .. } => true,
+            Kind::Raw => {
+                let particle = self.particle_trie.prefixes(comps, e.start).iter().any(|(r, _)| *r == e.end);
+                !particle
+                    && edges.iter().any(|x| {
+                        x.start == e.start
+                            && x.end == e.end
+                            && Self::edge_particle(x).is_none()
+                            && matches!(x.kind, Kind::Nominal { .. } | Kind::Sino { .. })
+                            && self.is_compound_part(comps, edges, x)
+                    })
+            }
+            _ => false,
         }
-        words > 0
+    }
+
+    /// Whether `path` is nouns only, with a particle at most on the last one.
+    fn is_compound(&self, comps: &[char], edges: &[Edge], path: &[usize]) -> bool {
+        (2..=MAX_PARTS).contains(&path.len())
+            && syllable_count(comps) <= MAX_SYLLABLES
+            && path.iter().enumerate().all(|(k, &ei)| {
+                self.is_compound_part(comps, edges, &edges[ei]) && (k + 1 == path.len() || Self::edge_particle(&edges[ei]).is_none())
+            })
     }
 
     /// One part's choices: the segment's own, then what the part's letters

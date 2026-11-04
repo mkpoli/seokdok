@@ -635,6 +635,31 @@ fn a_compound_of_nouns_offers_every_combination() {
         assert!(seg[0].candidates.iter().any(|c| c.text == want), "{want}: {:?}", seg[0].candidates.iter().map(|c| &c.text).collect::<Vec<_>>());
     }
     assert!(e.segments("옛한글을")[0].candidates.iter().any(|c| c.text == "古韓字을"));
-    // A verb in the run keeps its segments.
-    assert!(e.segments("사람이좋다").len() >= 2);
+    // Phrases keep their segments: a verb, a determiner, a pronoun or adverb, a
+    // particle in the middle, an unknown syllable.
+    for phrase in ["사람이좋다", "그사람", "두사람", "매우빨리", "오늘내가", "파일에한글", "뷁한글"] {
+        assert!(e.segments(phrase).len() >= 2, "{phrase}");
+    }
+    assert_eq!(e.segments("봄바람").len(), 1);
+    // The old spelling stays in the phrase list and in third place.
+    assert!(e.convert("친구시간을").iter().any(|c| c.text.ends_with("時間ᄋᆞᆯ")));
+    assert!(e.segments("친구시간을")[0].candidates.iter().position(|c| c.text.ends_with("時間ᄋᆞᆯ")).unwrap() <= 2);
+}
+
+#[test]
+fn finding_out_and_its_misspelling() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("찾아냈어요")[0].text, "尋出ㅆ어요");
+    assert_eq!(e.convert("찿아냈어요")[0].text, "尋出ㅆ어요");
+    assert!(offers(&e, "찾아냈어요", "探아出ㅆ어요"));
+    assert_eq!(e.convert("찿아")[0].text, "探아");
+}
+
+#[test]
+fn more_readings_from_the_chat_of_2026_11_04() {
+    let e = engine(Options::default());
+    for (input, want) in [("쥐락펴락", "握락伸락"), ("셈치고", "算打고"), ("곧", "直"), ("내려받기", "下受")] {
+        assert!(offers(&e, input, want), "{input} → {want}");
+    }
+    assert_eq!(e.convert("내려받았다")[0].text, "下려受았다");
 }

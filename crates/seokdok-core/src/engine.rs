@@ -1474,15 +1474,24 @@ impl Engine {
         }
         if let Some((_, path)) = paths.first().filter(|_| full && no_hun) {
             if let Some(list) = self.compound_list(&comps, &edges, path, &segments) {
-                // The analysis's first choice stays first; the phrase readings follow.
-                let mut merged: Vec<Candidate> = whole.first().cloned().into_iter().collect();
-                for c in list.into_iter().chain(whole.iter().cloned()) {
-                    if !merged.iter().any(|x| x.text == c.text) {
-                        merged.push(c);
+                // The analysis's first choice stays first, the old spelling keeps
+                // its place, and `convert` keeps its phrase readings ahead.
+                let mut listed: Vec<Candidate> = whole.first().cloned().into_iter().collect();
+                for c in list.iter().chain(whole.iter()) {
+                    if !listed.iter().any(|x| x.text == c.text) {
+                        listed.push(c.clone());
                     }
                 }
-                segments = vec![Segment { reading: run.to_string(), candidates: merged.clone() }];
-                whole = merged;
+                if let Some(old) = &old_whole {
+                    listed.retain(|c| c.text != *old);
+                }
+                offer_old(&mut listed, old_whole.clone());
+                segments = vec![Segment { reading: run.to_string(), candidates: listed }];
+                for c in list {
+                    if !whole.iter().any(|x| x.text == c.text) {
+                        whole.push(c);
+                    }
+                }
             }
         }
         // The literal input always stays selectable.

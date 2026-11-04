@@ -86,7 +86,8 @@ after changing `project.yml`.
   letter; a double tap locks it.
 - 變換 (Space) converts the composition and shows the focused segment's
   candidates in the bar; Space again moves to the next one. The bar scrolls
-  through the whole list. Tap a candidate to confirm through that segment.
+  through the whole list, and the chevron opens all of it as a grid over the
+  keys. Tap a candidate to confirm through that segment.
 - Beside a candidate, in smaller text, is only what tells it from the others:
   a dictionary word that differs from what was typed (行ㄹ 가다, 磨ㄹ 갈다 for 갈),
   or 音 and 訓 when the list holds both.
@@ -142,6 +143,8 @@ turned off.
   text changes outside the keyboard.
 - `Keyboard/KeyboardView.swift`: the strip, the candidate bar, the 두벌식
   and symbol layers.
+- `Keyboard/CandidateDrawer.swift`: the candidate cells and the grid that opens
+  over the keys.
 - `App/SeokdokApp.swift`: a field to try the keyboard, how to enable it, and
   the settings.
 - `Shared/AppGroup.swift`: finds the App Group the signature grants.

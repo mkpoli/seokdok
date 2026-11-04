@@ -73,6 +73,11 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
     private let barScroll = CandidateScroll()
     private let barEnd = UIStackView()
     private var shownCandidates: Session.Candidates?
+    private let more = BarButton(symbol: "chevron.down", label: "More candidates")
+    private let drawer = CandidateDrawer()
+    private var drawerOpen = false
+    /// Everything the drawer covers.
+    private let column = UIStackView()
     private let keysArea = UIStackView()
     private let letters = UIStackView()
     private let symbols = UIStackView()
@@ -107,7 +112,6 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         super.init(frame: .zero)
         backgroundColor = .clear
 
-        let column = UIStackView()
         column.axis = .vertical
         column.spacing = 6
         column.translatesAutoresizingMaskIntoConstraints = false
@@ -146,8 +150,54 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         pad.spacing = 7
         pad.isHidden = true
         column.addArrangedSubview(pad)
+        barEnd.addArrangedSubview(more)
+        more.isHidden = true
+        more.addAction(UIAction { [weak self] _ in
+            UIDevice.current.playInputClick()
+            self?.setDrawer(open: true)
+        }, for: .touchUpInside)
+        drawer.onPick = { [weak self] i in
+            self?.setDrawer(open: false)
+            self?.tap { $0.pick(i) }
+        }
+        drawer.close.addAction(UIAction { [weak self] _ in
+            UIDevice.current.playInputClick()
+            self?.setDrawer(open: false)
+        }, for: .touchUpInside)
+        drawer.isHidden = true
+        drawer.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(drawer)
+        NSLayoutConstraint.activate([
+            drawer.leadingAnchor.constraint(equalTo: leadingAnchor),
+            drawer.trailingAnchor.constraint(equalTo: trailingAnchor),
+            drawer.topAnchor.constraint(equalTo: topAnchor),
+            drawer.bottomAnchor.constraint(equalTo: bottomAnchor),
+        ])
         render(KeyboardState())
     }
+
+    /// Open or close the drawer over the keys. In recordings of the system's
+    /// Chinese keyboard (iOS 18.5 simulator) its drawer changes within about
+    /// 50 ms with no slide, so this is a very short cross-fade.
+    private func setDrawer(open: Bool) {
+        guard open != drawerOpen else { return }
+        drawerOpen = open
+        if open, let c = shownCandidates {
+            drawer.isHidden = false
+            drawer.alpha = 0
+            drawer.show(c)
+        }
+        UIView.animate(withDuration: Self.drawerDuration, delay: 0, options: [.curveEaseInOut, .beginFromCurrentState]) {
+            self.drawer.alpha = open ? 1 : 0
+            self.column.alpha = open ? 0 : 1
+        } completion: { _ in
+            guard !self.drawerOpen else { return }
+            self.drawer.isHidden = true
+            self.drawer.clear()
+        }
+    }
+
+    private static let drawerDuration: TimeInterval = 0.06
 
     required init?(coder: NSCoder) {
         fatalError("not used")
@@ -525,12 +575,19 @@ final class KeyboardView: UIView, UIInputViewAudioFeedback {
         shownCandidates = s.candidates
         guard let c = s.candidates else {
             bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
+            more.isHidden = true
+            setDrawer(open: false)
             return
+        }
+        more.isHidden = false
+        if drawerOpen {
+            drawer.show(c)
         }
         if old?.items != c.items {
             bar.arrangedSubviews.forEach { $0.removeFromSuperview() }
             for (i, item) in c.items.enumerated() {
                 let cell = CandidateCell(item)
+                cell.heightAnchor.constraint(equalToConstant: 36).isActive = true
                 cell.addAction(UIAction { [weak self] _ in self?.tap { $0.pick(i) } }, for: .touchUpInside)
                 bar.addArrangedSubview(cell)
             }

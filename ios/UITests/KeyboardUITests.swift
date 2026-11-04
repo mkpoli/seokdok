@@ -83,6 +83,8 @@ final class KeyboardUITests: XCTestCase {
             usleep(400_000)
         }
 
+        /// The vertical centre of the candidate bar.
+        var barCenter: CGFloat { 56 }
         /// Delete, at the end of the third letter row.
         func delete() {
             tap(x: width - 3 - 23, y: 211)
@@ -190,6 +192,36 @@ final class KeyboardUITests: XCTestCase {
         assertText(second, "", "the composition leaked into the next field")
         g.tap(x: g.width * 274 / 920, y: 159) // d, typed as Latin in the email field
         assertText(second, "d")
+    }
+
+    /// The chevron opens every candidate over the keys, and a tap on one
+    /// confirms it.
+    func testDrawerOpensAndPicks() throws {
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.tap(x: g.width * 274 / 920, y: 159) } // ㅇ
+        for x: CGFloat in [738, 180, 180, 598, 274] {
+            g.tap(x: g.width * x / 920, y: x == 598 ? 107 : 159) // ㅏ ㄴ ㄴ ㅕ ㅇ
+        }
+        g.tap(x: g.width * 474 / 920, y: 259) // Space
+        sleep(1)
+        g.tap(x: g.width - 25, y: 56)
+        usleep(100_000)
+        shot("drawer-opening")
+        sleep(1)
+        shot("drawer")
+        g.tap(x: g.width - 22, y: 22) // closes
+        sleep(1)
+        shot("drawer-closed")
+        g.tap(x: g.width - 25, y: 56)
+        sleep(1)
+        g.tap(x: 40, y: 66) // the second row's first candidate
+        sleep(1)
+        shot("drawer-picked")
+        let value = text(field)
+        XCTAssertFalse(value.isEmpty)
+        XCTAssertNotEqual(value, "安寧", "the first candidate came out, not the tapped one")
+        XCTAssertNotEqual(value, "안녕")
     }
 
     /// Two default fields: Hangul pending in the first must stay there, and

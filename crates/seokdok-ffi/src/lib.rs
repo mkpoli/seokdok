@@ -347,6 +347,14 @@ pub extern "C" fn seokdok_alt_toggles() -> bool {
     config::current().input.alt_toggles
 }
 
+/// Whether the script setting is 韓㐎 專用. The session then reports Hangul
+/// for the 釋讀 mode; front ends use this to leave the user's input source
+/// as it is.
+#[no_mangle]
+pub extern "C" fn seokdok_hangul_only() -> bool {
+    config::current().conversion.script == Script::HangulOnly
+}
+
 /// Whether Space converts (from the settings); when false, only the convert
 /// key does.
 #[no_mangle]

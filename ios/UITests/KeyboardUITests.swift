@@ -73,6 +73,11 @@ final class KeyboardUITests: XCTestCase {
             usleep(400_000)
         }
 
+        /// Delete, at the end of the third letter row.
+        func delete() {
+            tap(x: width - 3 - 23, y: 211)
+        }
+
         /// Pad key in column `c` (0-2) of row `r` (0-3 the grid, 4 the bottom row).
         func pad(_ r: Int, _ c: Int) {
             let w = (width - 6 - 12) / 3
@@ -95,37 +100,54 @@ final class KeyboardUITests: XCTestCase {
         return v == field.placeholderValue ? "" : v
     }
 
-    /// Tap until the keyboard has come up and the field changed, so a slow
-    /// extension start does not lose the first key.
-    private func tapUntilTyped(_ field: XCUIElement, _ key: () -> Void) {
+    /// Type a first key once the keyboard has come up. Taps made while the
+    /// extension starts can land late and all at once, so the field is emptied
+    /// again and the key typed once more on the settled keyboard.
+    private func tapUntilTyped(_ field: XCUIElement, delete: () -> Void, _ key: () -> Void) {
         for _ in 0..<10 {
             key()
             sleep(2)
-            if !text(field).isEmpty { return }
+            if !text(field).isEmpty { break }
         }
+        sleep(1)
+        for _ in 0..<10 where !text(field).isEmpty {
+            delete()
+            usleep(300_000)
+        }
+        key()
+    }
+
+    /// The field reads `expected`, given a moment: a keyboard's text reaches the
+    /// app's accessibility value some time after the tap.
+    private func assertText(_ field: XCUIElement, _ expected: String, _ message: String = "", file: StaticString = #filePath, line: UInt = #line) {
+        let deadline = Date().addingTimeInterval(6)
+        while text(field) != expected, Date() < deadline {
+            usleep(200_000)
+        }
+        XCTAssertEqual(text(field), expected, message, file: file, line: line)
     }
 
     func testNumberPadTypesDigits() throws {
         let (app, field) = launch(kind: "number")
         let g = Geometry(app: app)
-        tapUntilTyped(field) { g.pad(0, 0) } // 1
+        tapUntilTyped(field, delete: { g.pad(3, 2) }) { g.pad(0, 0) } // 1
         g.pad(0, 1) // 2
         g.pad(2, 2) // 9
         g.pad(3, 1) // 0
         shot("number-pad")
-        XCTAssertEqual(text(field), "1290")
+        assertText(field, "1290")
         g.pad(3, 2) // delete
-        XCTAssertEqual(text(field), "129")
+        assertText(field, "129")
     }
 
     func testDecimalPadTypesDecimalPoint() throws {
         let (app, field) = launch(kind: "decimal")
         let g = Geometry(app: app)
-        tapUntilTyped(field) { g.pad(0, 2) } // 3
+        tapUntilTyped(field, delete: { g.pad(3, 2) }) { g.pad(0, 2) } // 3
         g.pad(3, 0) // the decimal separator
         g.pad(1, 1) // 5
         shot("decimal-pad")
-        XCTAssertEqual(text(field), "3" + (Locale.current.decimalSeparator ?? ".") + "5")
+        assertText(field, "3" + (Locale.current.decimalSeparator ?? ".") + "5")
     }
 
     /// An email field gets Latin letters and an @ key, never Hangul.
@@ -134,12 +156,12 @@ final class KeyboardUITests: XCTestCase {
         let g = Geometry(app: app)
         let d = g.width * 274 / 920
         let k = g.width * 738 / 920
-        tapUntilTyped(field) { g.tap(x: d, y: 159) }
+        tapUntilTyped(field, delete: { g.delete() }) { g.tap(x: d, y: 159) }
         g.tap(x: 74, y: 259) // @
         g.tap(x: k, y: 159)
         g.tap(x: 119, y: 259) // .
         shot("email")
-        XCTAssertEqual(text(field), "d@k.")
+        assertText(field, "d@k.")
     }
 
     /// Hangul pending in one field must not be written into the next field.
@@ -149,15 +171,15 @@ final class KeyboardUITests: XCTestCase {
         let g = Geometry(app: app)
         let w = (g.width - 6 - 45) / 10
         let r = 3 + 3 * (w + 5) + w / 2 // ㄱ
-        tapUntilTyped(field) { g.tap(x: r, y: 107) }
+        tapUntilTyped(field, delete: { g.delete() }) { g.tap(x: r, y: 107) }
         g.tap(x: g.width * 738 / 920, y: 159) // ㅏ
-        XCTAssertEqual(text(field), "가")
+        assertText(field, "가")
         second.tap()
         sleep(2)
         shot("switched-field")
-        XCTAssertEqual(text(second), "", "the composition leaked into the next field")
+        assertText(second, "", "the composition leaked into the next field")
         g.tap(x: g.width * 274 / 920, y: 159) // d, typed as Latin in the email field
-        XCTAssertEqual(text(second), "d")
+        assertText(second, "d")
     }
 
     /// With the keyboard's own globe shown (the workflow forces it on in
@@ -165,9 +187,9 @@ final class KeyboardUITests: XCTestCase {
     func testNumberPadWithGlobeKey() throws {
         let (app, field) = launch(kind: "number")
         let g = Geometry(app: app)
-        tapUntilTyped(field) { g.pad(0, 0) }
+        tapUntilTyped(field, delete: { g.pad(3, 2) }) { g.pad(0, 0) }
         g.pad(0, 1)
         shot("number-pad-globe")
-        XCTAssertEqual(text(field), "12")
+        assertText(field, "12")
     }
 }

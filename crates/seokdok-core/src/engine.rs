@@ -337,6 +337,8 @@ struct Converted {
     cost: Option<f32>,
     /// No raw Hangul is left in the best path.
     covered: bool,
+    /// Every word of the best path is an entry with a count of at least `ATTESTED`.
+    attested: bool,
     /// The old spelling of the best reading, and with `old_ha` the one that
     /// writes only the 하 rows that way (built when `full`).
     old: Option<String>,
@@ -346,6 +348,13 @@ struct Converted {
 /// A modern reading of old input is kept when its best path costs at most
 /// this much more than the best reading's.
 const READING_MARGIN: f32 = 4.0;
+
+/// The count an entry needs for its reading to go first for an era-only syllable
+/// (the counts are the chat's, or FusionIME's frequencies where the chat has none).
+const ATTESTED: u32 = 3;
+
+/// How many era readings are added behind the candidates of a run.
+const ERA_EXTRA: usize = 8;
 
 const RAW_COST: f32 = 4.5;
 /// The ending index of a bare stem (않 → 不ㅎ), typed alone to be continued
@@ -911,12 +920,13 @@ impl Engine {
         let mask = modern_mask(run, unconverted);
         if mask != 0 {
             if let Some(syls) = parse(run) {
+                let found = self.read_as(&syls, mask, true, MAX_READINGS_MODERN);
                 // One candidate of each reading in turn, so that the likely
-                // readings all show before the long tail of one.
+                // readings all show before the long tail of one. They add to
+                // the list: every modern candidate stays.
                 let mut era: Vec<Candidate> = Vec::new();
-                let lists: Vec<(String, Vec<Candidate>)> = self.read_as(&syls, mask, true, MAX_READINGS_MODERN).into_iter().map(|(_, r, c)| (r, c)).collect();
-                for k in 0..lists.iter().map(|l| l.1.len()).max().unwrap_or(0) {
-                    for (reading, cands) in &lists {
+                for k in 0..found.iter().map(|f| f.2.len()).max().unwrap_or(0) {
+                    for (_, reading, cands, _) in &found {
                         if let Some(c) = cands.get(k) {
                             if c.text != *reading && !era.iter().any(|x| x.text == c.text) && !whole.iter().any(|x| x.text == c.text) {
                                 era.push(c.clone());
@@ -924,20 +934,28 @@ impl Engine {
                         }
                     }
                 }
+                era.truncate(ERA_EXTRA);
                 if !era.is_empty() {
-                    era.truncate(self.options.max_candidates.max(2));
-                    // A syllable that modern words do not use: the converted
-                    // reading comes first. Otherwise behind what was typed.
-                    let converted = lists.first().is_some_and(|(r, c)| c.first().is_some_and(|c| c.text != *r && c.text == era[0].text && c.text.chars().any(crate::dict::is_han)));
-                    if has_era_only(run) && converted {
-                        let first = era.remove(0);
-                        whole.splice(1..1, era);
-                        whole.insert(0, first);
-                    } else {
-                        whole.splice(1..1, era);
+                    // A syllable that modern words do not use puts the best
+                    // reading first, then what was typed: when the reading is
+                    // two syllables or more and made of whole entries the
+                    // chat uses. Otherwise the readings come behind it.
+                    let first = has_era_only(run)
+                        && found.first().is_some_and(|(_, r, c, attested)| *attested && r.chars().count() >= 2 && c.first().is_some_and(|c| c.text == era[0].text && c.text.chars().any(crate::dict::is_han)));
+                    let lead = if first { Some(era.remove(0)) } else { None };
+                    let place = |list: &mut Vec<Candidate>| {
+                        list.splice(1.min(list.len())..1.min(list.len()), era.clone());
+                        if let Some(l) = &lead {
+                            list.insert(0, l.clone());
+                        }
+                    };
+                    place(&mut whole);
+                    match segments.as_mut_slice() {
+                        [one] => place(&mut one.candidates),
+                        _ => {
+                            segments = vec![Segment { reading: run.to_string(), candidates: whole.clone() }];
+                        }
                     }
-                    whole.truncate(self.options.max_candidates.max(2));
-                    segments = vec![Segment { reading: run.to_string(), candidates: whole.clone() }];
                 }
             }
         }
@@ -952,7 +970,7 @@ impl Engine {
         let found = self.read_as(&syls, ALL, false, MAX_READINGS_OLD);
         // The old spelling of the best reading, as for modern input.
         let (old, ha) = match found.first() {
-            Some((_, reading, _)) => {
+            Some((_, reading, _, _)) => {
                 let c = self.convert_plain(reading, false, true);
                 (c.old, c.ha)
             }
@@ -965,7 +983,7 @@ impl Engine {
                 .collect()
         };
         let mut list: Vec<Candidate> = Vec::new();
-        for (_, reading, cands) in found {
+        for (_, reading, cands, _) in found {
             for c in restored(&reading, cands) {
                 if !list.iter().any(|x| x.text == c.text) {
                     list.push(c);
@@ -1003,8 +1021,8 @@ impl Engine {
 
     /// The conversions of the modern readings of a run, best path first, only
     /// those that use a dictionary word and cost little more than the best.
-    fn read_as(&self, syls: &[Syl], mask: u16, strict: bool, cap: usize) -> Vec<(f32, String, Vec<Candidate>)> {
-        let mut found: Vec<(f32, String, Vec<Candidate>)> = Vec::new();
+    fn read_as(&self, syls: &[Syl], mask: u16, strict: bool, cap: usize) -> Vec<(f32, String, Vec<Candidate>, bool)> {
+        let mut found: Vec<(f32, String, Vec<Candidate>, bool)> = Vec::new();
         for r in readings(syls, mask, strict, cap) {
             if strict && !self.worth_converting(syls, &r) {
                 continue;
@@ -1012,7 +1030,7 @@ impl Engine {
             let c = self.convert_plain(&r.text, false, false);
             // A guess has to be confirmed by words that cover all of it.
             if let Some(cost) = c.cost.filter(|_| c.covered || !r.optional) {
-                found.push((cost + r.penalty, r.text, c.whole));
+                found.push((cost + r.penalty, r.text, c.whole, c.attested));
             }
         }
         found.sort_by(|a, b| a.0.partial_cmp(&b.0).unwrap());
@@ -1089,6 +1107,13 @@ impl Engine {
 
         let cost = paths.first().filter(|(_, path)| path.iter().any(|&ei| !matches!(edges[ei].kind, Kind::Raw))).map(|(c, _)| *c);
         let covered = paths.first().is_some_and(|(_, path)| path.iter().all(|&ei| !matches!(edges[ei].kind, Kind::Raw)));
+        let attested = paths.first().is_some_and(|(_, path)| {
+            path.iter().all(|&ei| match &edges[ei].kind {
+                Kind::Raw => false,
+                Kind::Sino { entry, .. } => self.sinos.entries[*entry as usize].count >= ATTESTED,
+                Kind::Nominal { entry, .. } | Kind::Verb { entry, .. } => self.natives[*entry as usize].count >= ATTESTED,
+            })
+        });
         let mut segments = Vec::new();
         // The old spelling of each segment's tail, for the best path.
         let mut old_seg: Vec<Option<String>> = Vec::new();
@@ -1182,8 +1207,16 @@ impl Engine {
             segments = vec![Segment { reading: run.to_string(), candidates: self.with_hun(cands, run, hun.clone()) }];
             whole = self.with_hun(whole, run, hun);
         }
-        whole.truncate(self.options.max_candidates.max(2));
-        Converted { whole, segments, cost, covered, old: old_whole, ha: ha_whole }
+        // The literal input always stays selectable.
+        let keep = self.options.max_candidates.max(2);
+        if whole.len() > keep {
+            let typed = whole.iter().find(|c| c.text == run).cloned();
+            whole.truncate(keep);
+            if let Some(t) = typed.filter(|t| !whole.iter().any(|c| c.text == t.text)) {
+                whole[keep - 1] = t;
+            }
+        }
+        Converted { whole, segments, cost, covered, attested, old: old_whole, ha: ha_whole }
     }
 
     /// Characters whose gloss is `word`, in either order: 살찔비 or 비살찔 → 肥.

@@ -315,6 +315,33 @@ fn random_old_and_modern_text_never_panics_or_loses_a_run() {
 }
 
 #[test]
+fn era_guesses_add_to_the_candidates_and_the_typed_text_stays() {
+    let e = engine(Options::default());
+    // 조타 is a word (操舵) and also 좋다 as pronounced: nothing is lost.
+    let (whole, segs) = texts(&e, "조타");
+    for want in ["操舵", "趙佗", "조타", "好다"] {
+        assert!(whole.iter().any(|t| t == want), "{want} in {whole:?}");
+        assert!(segs[0].iter().any(|t| t == want), "{want} in {:?}", segs[0]);
+    }
+    assert_eq!(whole[0], "操舵");
+    // A modern word with the mark of a class keeps every candidate it had.
+    let main = ["續다", "受다", "連다", "잇다"];
+    let (whole, segs) = texts(&e, "잇다");
+    for want in main {
+        assert!(whole.iter().any(|t| t == want), "{want} in {whole:?}");
+        assert!(segs[0].iter().any(|t| t == want), "{want} in {:?}", segs[0]);
+    }
+    // The literal input is always a choice, however long the list.
+    for typed in ["생각해", "좋고요", "환영합니다", "알았네요", "잇다", "텬하", "됴코요"] {
+        let (whole, segs) = texts(&e, typed);
+        assert!(whole.iter().any(|t| t == typed), "{typed}: {whole:?}");
+        if segs.len() == 1 {
+            assert!(segs[0].iter().any(|t| t == typed), "{typed}: {:?}", segs[0]);
+        }
+    }
+}
+
+#[test]
 fn a_letter_the_engine_cannot_read_leaves_the_rest_converting() {
     let e = engine(Options::default());
     let stray = "\u{1100}";
@@ -342,3 +369,23 @@ fn syllables_of_several_medials_are_read_as_one() {
     assert_eq!(whole[0], "花");
 }
 
+#[test]
+fn fused_endings_are_read_before_common_continuations() {
+    let e = engine(Options::default());
+    assert_eq!(texts(&e, "됴코요").0[..2], ["好고요", "됴코요"]);
+    assert_eq!(texts(&e, "됴타고").0[..2], ["好다고", "됴타고"]);
+    assert!(offers(&e, "됴치만", "好지만"));
+}
+
+#[test]
+fn a_weak_basis_does_not_put_an_era_reading_first() {
+    let e = engine(Options::default());
+    // One syllable, or a word the dictionary has no count for: offered, typed first.
+    for typed in ["둏", "댜", "뎍", "됴한", "됴츙", "뎜다"] {
+        assert_eq!(texts(&e, typed).0[0], typed, "{typed}");
+    }
+    // Two syllables or more with a count: first.
+    for (typed, first) in [("텬하", "天下"), ("됴션", "朝鮮"), ("텬문", "天文")] {
+        assert_eq!(texts(&e, typed).0[0], first, "{typed}");
+    }
+}

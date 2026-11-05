@@ -1,0 +1,15 @@
+[package]
+name = "seokdok-product"
+description = "What tells the input methods built from this repository apart: names, identifiers, defaults and what the settings offer"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+authors.workspace = true
+publish = false
+
+[features]
+# Build 音讀 (products/eumdok.json) instead of 釋讀 (products/seokdok.json).
+eumdok = []
+
+[build-dependencies]
+serde_json = "1"

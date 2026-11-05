@@ -140,7 +140,7 @@ fn register_server() -> windows::core::Result<()> {
     // HKCR\CLSID\{..} (default) = service name
     {
         let key = RegKey::create(&clsid_key)?;
-        let name = wide_pcwstr_owned(SERVICE_NAME);
+        let name = wide(SERVICE_NAME);
         key.set_string(None, &name)?;
     }
     // HKCR\CLSID\{..}\InProcServer32 (default) = dll path, ThreadingModel = Apartment
@@ -168,20 +168,6 @@ fn unregister_server() -> windows::core::Result<()> {
     }
 }
 
-/// Copy a `PCWSTR` static into an owned NUL-terminated `Vec<u16>`.
-fn wide_pcwstr_owned(s: PCWSTR) -> Vec<u16> {
-    // SAFETY: `s` points to a static NUL-terminated wide string (`w!` literal).
-    unsafe {
-        let mut len = 0usize;
-        while *s.0.add(len) != 0 {
-            len += 1;
-        }
-        let mut v = std::slice::from_raw_parts(s.0, len).to_vec();
-        v.push(0);
-        v
-    }
-}
-
 // --- (b) Input-processor profile -------------------------------------------
 
 fn register_profile() -> windows::core::Result<()> {
@@ -189,7 +175,7 @@ fn register_profile() -> windows::core::Result<()> {
     let profiles: ITfInputProcessorProfileMgr =
         unsafe { CoCreateInstance(&CLSID_TF_InputProcessorProfiles, None, CLSCTX_INPROC_SERVER)? };
 
-    let name = wide_pcwstr_owned(DISPLAY_DESCRIPTION); // NUL-terminated
+    let name = wide(DISPLAY_DESCRIPTION); // NUL-terminated
     let dll_path = module_path_utf16()?; // also the icon source (index 0 -> IDI_ICON)
 
     // Register the profile under ko-KR, enabled by default.

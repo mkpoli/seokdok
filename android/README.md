@@ -27,8 +27,9 @@ newer (or open `android/` in Android Studio, which reads
 ```sh
 cd android
 gradle wrapper --gradle-version 8.11.1
-./gradlew assembleDebug                    # → app/build/outputs/apk/debug/app-debug.apk
-adb install -r app/build/outputs/apk/debug/app-debug.apk
+./gradlew assembleSeokdokDebug             # → app/build/outputs/apk/seokdok/debug/app-seokdok-debug.apk
+adb install -r app/build/outputs/apk/seokdok/debug/app-seokdok-debug.apk
+./gradlew assembleEumdokDebug              # 音讀, package li.mkpo.eumdok: installs beside 釋讀
 ```
 
 `assembleDebug` runs `cargo ndk` from the repository root for arm64-v8a,

@@ -7921,3 +7921,6 @@ lemma	written	pos	class	source	count	note
 셜흔	三十	num		suggested		Middle Korean 셜흔 → 서른 (Wiktionary); “thirty”
 노로	獐	noun		suggested		Middle Korean 노로 → 노루 (Wiktionary); 노루 獐 in community.tsv
 업시	無	adv		suggested		Middle Korean 업시 → 없이 (Wiktionary); 없이 無 in this file
+안타깝다	內悶깝다	adj		suggested		않(內) + 답ᄭᅵ(悶): 아니, 釋讀會 chat 2026-11-06; Wiktionary 안타깝다 gives 안ㅎ + 닶갑다, 月印釋譜 1459 (search summary, entry not read)
+답답하다	鬱鬱하다	adj		suggested		아니, 釋讀會 chat 2026-11-06, citing 鬱鬱冬炎瘴 with the 諺解 답답ᄒᆞᆫ; the quotation was not located
+아깝다	惜깝다	adj		suggested		아니, 釋讀會 chat 2026-11-06: 아깝다 < 앗갑다

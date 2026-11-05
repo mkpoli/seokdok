@@ -5,15 +5,18 @@
 # XCFramework needs Xcode (macOS).
 #
 #   rustup target add aarch64-apple-ios aarch64-apple-ios-sim
-#   ios/build-rust.sh
+#   ios/build-rust.sh [seokdok|eumdok]
 set -euo pipefail
+id="${1:-seokdok}"
+features=()
+[ "$id" = seokdok ] || features=(--features "$id")
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/.." && pwd)"
 targets=(aarch64-apple-ios aarch64-apple-ios-sim)
 # Match the deployment target in project.yml.
 export IPHONEOS_DEPLOYMENT_TARGET=16.0
 for t in "${targets[@]}"; do
-  cargo build --release --target "$t" -p seokdok-ffi --manifest-path "$root/Cargo.toml"
+  cargo build --release --target "$t" -p seokdok-ffi --manifest-path "$root/Cargo.toml" ${features[@]+"${features[@]}"}
 done
 
 headers="$root/target/ios-headers"

@@ -301,6 +301,7 @@ final class KeyboardView: UIView {
                 shiftKey = Key(symbol: "shift")
                 shiftKey.spoken = "Shift"
                 shiftKey.fires = .onPress
+                shiftKey.slides = true
                 shiftKey.action = { [weak self] in self?.tap { $0.toggleShift() } }
                 keys = [shiftKey!] + keys + [backspaceKey()]
             }
@@ -322,6 +323,7 @@ final class KeyboardView: UIView {
             }
             if r == 2 {
                 symbolPageKey = Key(title: "#+=")
+                symbolPageKey.fires = .onPress
                 symbolPageKey.action = { [weak self] in
                     guard let self else { return }
                             self.symbolPage = 1 - self.symbolPage
@@ -383,7 +385,12 @@ final class KeyboardView: UIView {
         let bottom = UIStackView()
         bottom.axis = .horizontal
         bottom.spacing = 6
+        // As on the system keyboard, 123 changes the keys as the finger lands, and
+        // a finger slid on to a symbol returns to the letters when it lifts.
         layerKey = Key(title: "123")
+        layerKey.fires = .onPress
+        layerKey.slides = true
+        layerKey.slideReturns = true
         layerKey.action = { [weak self] in
             guard let self else { return }
             self.symbolPage = 0
@@ -420,7 +427,11 @@ final class KeyboardView: UIView {
         modeKey.widthAnchor.constraint(equalToConstant: 46).isActive = true
         modeKey.onHold = { [weak self] in self?.tap { $0.toggleLearnMenu() } }
         spaceKey = Key(title: "띄어쓰기", look: .letter)
-        spaceKey.action = { [weak self] in self?.tap { $0.space() } }
+        spaceKey.action = { [weak self] in
+            self?.tap { $0.space() }
+            // Space ends a run of symbols, as on the system keyboard.
+            if let self, !self.lettersShown { self.layerKey.action?() }
+        }
         spaceKey.holdsForCursor = true
         enterKey = Key(title: "改行")
         enterKey.action = { [weak self] in self?.tap { $0.enter() } }

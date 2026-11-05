@@ -17,6 +17,11 @@ final class Key: UIView {
     var repeats = false
     /// Show the pop-up preview while held.
     var previews = false
+    /// 123 and Shift: a finger that started here can slide onto a letter and type
+    /// it where it lifts. `slideReturns` runs `action` again after that letter, so
+    /// 123 goes back to the letters.
+    var slides = false
+    var slideReturns = false
     /// Space: held, it turns the keyboard into a trackpad.
     var holdsForCursor = false
     var action: (() -> Void)?
@@ -257,6 +262,8 @@ final class KeyPad: UIView {
         var key: Key
         /// Still close enough to the key for release to fire it.
         var inside = true
+        /// The layer key this finger slid from, to run again after the lift.
+        var returnTo: Key?
     }
 
     private var tracks: [ObjectIdentifier: Track] = [:]
@@ -361,7 +368,18 @@ final class KeyPad: UIView {
                 }
                 continue
             }
-            guard var t = tracks[id], t.key.fires == .onRelease else { continue }
+            guard var t = tracks[id] else { continue }
+            if t.key.slides {
+                guard let next = key(at: p), next.previews else { continue }
+                t.key.isPressed = false
+                if t.key.slideReturns { t.returnTo = t.key }
+                t.key = next
+                next.isPressed = true
+                preview(next)
+                tracks[id] = t
+                continue
+            }
+            guard t.key.fires == .onRelease else { continue }
             if t.key.previews {
                 // Off the keyboard's keys altogether, a lift types nothing.
                 let next = key(at: p)
@@ -392,6 +410,7 @@ final class KeyPad: UIView {
             guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
             if t.inside, t.key.fires == .onRelease { t.key.action?() }
+            t.returnTo?.action?()
         }
     }
 
@@ -413,6 +432,7 @@ final class KeyPad: UIView {
             tracks[id] = nil
             release(t.key)
             if t.inside { t.key.action?() }
+            t.returnTo?.action?()
         }
     }
 

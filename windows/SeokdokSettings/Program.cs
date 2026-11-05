@@ -22,7 +22,7 @@ internal static partial class Program
     {
         AppDomain.CurrentDomain.UnhandledException += (_, e) => App.Log(e.ExceptionObject.ToString() ?? "");
         ComWrappersSupport.InitializeComWrappers();
-        var instance = AppInstance.FindOrRegisterForKey("seokdok-settings");
+        var instance = AppInstance.FindOrRegisterForKey(Product.Id + "-settings");
         if (!instance.IsCurrent)
         {
             AllowSetForegroundWindow(instance.ProcessId);

@@ -494,7 +494,7 @@ final class KeyPopup: UIView {
         return false
     }
     /// Over the top of the key.
-    private static let rise: CGFloat = flat ? 54 : 64
+    private static let rise: CGFloat = flat ? 66 : 64
     /// To each side of the key.
     private static let grow: CGFloat = flat ? 12.3 : 13
     /// The system's pop-up outlives the finger by about this much.

@@ -147,6 +147,11 @@ final class Key: UIView {
         icon.image = name.flatMap { UIImage(systemName: $0) }
     }
 
+    /// How far above the middle the label sits, on a number pad.
+    var labelRise: CGFloat = 0 {
+        didSet { labelCenter?.constant = -labelRise }
+    }
+
     /// The letters under a digit on a number pad.
     func setPadLetters(_ text: String?) {
         guard let text else { return }
@@ -155,7 +160,6 @@ final class Key: UIView {
         sub.attributedText = NSAttributedString(string: text, attributes: [.kern: 1.6])
         sub.translatesAutoresizingMaskIntoConstraints = false
         addSubview(sub)
-        labelCenter?.constant = -6
         NSLayoutConstraint.activate([
             sub.centerXAnchor.constraint(equalTo: centerXAnchor),
             sub.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),

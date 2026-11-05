@@ -580,8 +580,9 @@ final class KeyboardView: UIView {
         }
         func key(_ ch: Character, look: Key.Look = .letter) -> Key {
             let k = Key(title: String(ch), look: look, height: m.key)
-            k.titleFont = .systemFont(ofSize: 28, weight: .regular)
+            k.titleFont = .systemFont(ofSize: 25, weight: .regular)
             k.setPadLetters(Self.padLetters[ch])
+            k.labelRise = ch == "0" ? 2 : ch.isNumber ? 6 : 0
             k.action = { [weak self] in self?.tap { $0.symbol(ch) } }
             return k
         }

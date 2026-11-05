@@ -31,7 +31,8 @@ for (const f of ['editorial-sino.tsv', 'fusion.tsv', 'sino.tsv', 'etym.tsv', 'lo
     if (!prev) sino.set(key, { n, sum: n, source })
     else {
       prev.sum += n
-      if (n > prev.n) Object.assign(prev, { n, source })
+      // An editorial row stays editorial, whatever count another file gives the pair.
+      if (n > prev.n) Object.assign(prev, { n, source: prev.source === 'editorial' ? prev.source : source })
     }
   }
 }

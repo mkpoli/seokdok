@@ -37,6 +37,27 @@
       remove: '設定 › 앱 › 釋讀',
       where: '釋讀 앱 › 내 낱말 › 가져오기',
     },
+    {
+      key: 'macos',
+      name: 'macOS',
+      req: 'macOS 13+, Apple silicon · Intel',
+      file: downloads.macos.file,
+      size: downloads.macos.size,
+      run: `mkdir -p ~/Library/Input\\ Methods && cd ~/Library/Input\\ Methods\nditto -xk ~/Downloads/${downloads.macos.file} .\nxattr -dr com.apple.quarantine Seokdok.app\nSeokdok.app/Contents/MacOS/Seokdok --register`,
+      system: null,
+      remove: 'rm -rf ~/Library/Input\\ Methods/Seokdok.app',
+      where: '~/Library/Application Support/seokdok/custom.json',
+    },
+    {
+      key: 'ios',
+      name: 'iOS',
+      req: 'iOS 16+',
+      file: downloads.ios.file,
+      size: downloads.ios.size,
+      system: null,
+      remove: '釋讀 앱을 길게 눌러 삭제',
+      where: '釋讀 앱',
+    },
   ]
 </script>
 
@@ -78,23 +99,6 @@
       </article>
     {/each}
   </div>
-  <h3 class="more" use:reveal={5}>{@html r(t().install.more)}</h3>
-  <p class="more-note" use:reveal={5}>{@html r(t().install.moreNote)}</p>
-  <div class="cards small">
-    {#each ['ios', 'macos'] as key, i (key)}
-      <article class="card plat" use:reveal={6 + i}>
-        <header>
-          <h3>{{ ios: 'iOS', macos: 'macOS' }[key]}</h3>
-        </header>
-        <ol>
-          {#each t().install[key] as step}
-            <li>{@html r(step)}</li>
-          {/each}
-        </ol>
-        <a class="btn" href="https://github.com/mkpoli/seokdok/tree/main/{key}" target="_blank" rel="noopener">{@html r(t().install.source)}</a>
-      </article>
-    {/each}
-  </div>
   <div class="after" use:reveal={5}>
     <p class="keys">{@html r(t().install.keys)}</p>
     <p>{@html r(t().install.custom)} {@html r(t().install.note)}</p>
@@ -102,22 +106,6 @@
 </section>
 
 <style>
-  .more {
-    margin: var(--s-7) 0 var(--s-1);
-    font: 700 22px/1.3 var(--f-serif);
-  }
-  .more-note {
-    margin: 0 0 var(--s-4);
-    color: var(--c-soft);
-  }
-  .cards.small {
-    grid-template-columns: repeat(auto-fit, minmax(min(100%, 290px), 1fr));
-  }
-  .cards.small .btn {
-    justify-self: start;
-    align-self: start;
-    margin-top: auto;
-  }
   .cards {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));

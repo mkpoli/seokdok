@@ -12,6 +12,7 @@ use std::collections::{HashMap, HashSet};
 
 mod compound;
 mod mixed;
+mod pairs;
 mod okurigana;
 
 /// How the Hangul after a 訓讀 stem is written.
@@ -479,7 +480,24 @@ const BOUND_MARGIN: f32 = 0.5;
 const TAIL_ENDINGS: &[&str] = &[
     "듯", "는듯", "다란", "는거", "는건", "는것", "고는", "고도", "고만", "냐고", "지마", "지만요", "(으)ㄴ듯", "(으)ㄴ거",
     "(으)ㄴ건", "(으)ㄴ것", "(으)ㄹ지도", "(으)ㄹ수도", "(으)ㄹ때", "(으)나", "(으)려나",
+    "듯요", "는듯요", "는것도", "는줄", "는지도", "긴한데", "긴하지만", "긴해요", "긴하네요", "긴합니다", "긴했는데", "긴했어요", "긴했지만", "는것은", "는것을", "는것이", "(으)ㄴ것은", "(으)ㄴ것을", "(으)ㄴ것이", "(으)ㄴ지도", "(으)ㄴ듯요", "(으)ㄹ듯요",
+    "(으)ㄴ것도", "(으)ㄹ것도", "(으)ㄴ줄", "(으)ㄹ줄",
 ];
+/// A particle or an ending inside a run, which is usually a misparse.
+const MID_WORD_COST: f32 = 8.0;
+/// Helper verbs typed onto a verb without a space (食고欲어요, 食어見았어요,
+/// 好지不ㅎ아): the connective ending's label and the stems that follow it.
+const HELPERS: &[(&str, &[&str])] = &[
+    ("고", &["싶", "있", "계시", "말"]),
+    ("지", &["않", "못하", "말"]),
+    ("아/어", &["보", "주", "버리", "있", "놓", "두", "드리", "가", "오", "치우"]),
+];
+/// One-syllable stems that are more often the tail of another form than a verb
+/// before a helper: 살아 있죠, 이지 않고, 마지않는.
+const NOT_BEFORE_HELPER: &[&str] = &["아", "어", "마", "여", "다", "이", "라"];
+/// The same inside a run: 했나 보네요.
+const NOT_BEFORE_HELPER_INSIDE: &[&str] = &["나", "지", "일"];
+
 /// Added to a pronoun plus particle that an editorial whole word also spells.
 const EDITORIAL_WORD_MARGIN: f32 = 2.5;
 /// A loanword kept in Hangul (loanwords.tsv); cheaper than its Hanja homophones.
@@ -791,7 +809,7 @@ impl Engine {
         let n = comps.len();
         let boundary = |p: usize| p == n || is_l(comps[p]);
         // Particles and endings close a word: inside a run they are misparses.
-        let mid = |r: usize| if r == n { 0.0 } else { 8.0 };
+        let mid = |r: usize| if r == n { 0.0 } else { MID_WORD_COST };
         // Short copula forms after a vowel (라, 다, 고, 야 …) are as often the
         // end of an unknown word (나라, 바다) as a particle.
         let weak = |p: &Particle| {
@@ -994,16 +1012,92 @@ impl Engine {
                 }
             }
         }
+        // A whole Sino-Korean word (가주어 假主語) keeps its reading.
+        if !self.sino.prefixes(comps, 0).into_iter().any(|(q, _)| q == n) {
+            self.allow_helpers(n, &mut edges);
+        }
         if around.alone {
             self.alone_edges(comps, &mut edges);
         }
-        self.loan_edges(comps, &mut edges);
+        // A whole loanword is not cut into pieces: 버그를 offers no 버其를.
+        if self.loan_edges(comps, &mut edges) {
+            edges.retain(|e| e.start == 0 && e.end == n);
+        }
         if !around.bound_next {
             self.prefer_whole_noun(comps, &mut edges);
         }
+        self.prefer_written_h(&mut edges);
+        self.keep_ending_jido(comps, &mut edges);
         self.prefer_editorial_word(comps, &mut edges);
         self.prefer_word_over_tail(comps, &mut edges);
         edges
+    }
+
+    /// A verb form whose connective ending leads straight into a helper verb
+    /// does not close the word, so it pays no mid-word cost.
+    fn allow_helpers(&self, n: usize, edges: &mut [Edge]) {
+        let mut helpers: Vec<Vec<usize>> = vec![Vec::new(); n + 1];
+        for e in edges.iter() {
+            if let Kind::Verb { entry, .. } = e.kind {
+                let stem = compose(&self.natives[entry as usize].stem);
+                for (c, stems) in HELPERS.iter().enumerate() {
+                    if stems.1.contains(&stem.as_str()) && !helpers[e.start].contains(&c) {
+                        helpers[e.start].push(c);
+                    }
+                }
+            }
+        }
+        for e in edges.iter_mut().filter(|e| e.end < n) {
+            let Kind::Verb { entry, allo, ending } = e.kind else { continue };
+            if ending == BARE || helpers[e.end].is_empty() {
+                continue;
+            }
+            let form = compose(&self.natives[entry as usize].allos[allo as usize].comps);
+            if NOT_BEFORE_HELPER.contains(&form.as_str()) || (e.start > 0 && NOT_BEFORE_HELPER_INSIDE.contains(&form.as_str())) {
+                continue;
+            }
+            let label = ending_label(ending as usize);
+            let connective = label.rsplit('+').next().unwrap_or("");
+            if helpers[e.end].iter().any(|&c| HELPERS[c].0 == connective) {
+                e.cost -= MID_WORD_COST;
+            }
+        }
+    }
+
+    /// After ㄹ, 지도 is the ending -ㄹ지도 (그럴지도요, 어질지도요), not a noun.
+    fn keep_ending_jido(&self, comps: &[char], edges: &mut [Edge]) {
+        let jido = decompose("지도");
+        for e in edges.iter_mut() {
+            let starts = e.start > 0 && comps[e.start - 1] == 'ᆯ' && comps[e.start..].starts_with(&jido);
+            if starts && matches!(e.kind, Kind::Sino { .. } | Kind::Nominal { .. }) {
+                e.cost += MID_WORD_COST;
+            }
+        }
+    }
+
+    /// Where a form keeps the stem's ㅎ (그렇네요, 그렇군요) and the chat also writes
+    /// it (然ㅎ군요 39×, 然군 1×), the spelling with ㅎ leads. 然's count also
+    /// holds 그런, which has no ㅎ to write.
+    fn prefer_written_h(&self, edges: &mut [Edge]) {
+        let keeps_h = |e: &Edge| match e.kind {
+            Kind::Verb { entry, allo, .. } => {
+                let n = &self.natives[entry as usize];
+                n.stem.last() == Some(&'ᇂ') && n.allos[allo as usize].comps == n.stem
+            }
+            _ => false,
+        };
+        let written_h = |e: &Edge| match e.kind {
+            Kind::Verb { entry, .. } => self.natives[entry as usize].tail == crate::dict::Tail::Coda,
+            _ => false,
+        };
+        let spots: Vec<(usize, usize, f32)> = edges.iter().filter(|e| keeps_h(e) && written_h(e)).map(|e| (e.start, e.end, e.cost)).collect();
+        for (start, end, cost) in spots {
+            for e in edges.iter_mut().filter(|e| e.start == start && e.end == end) {
+                if keeps_h(e) && !written_h(e) && e.cost <= cost {
+                    e.cost = cost + 0.01;
+                }
+            }
+        }
     }
 
     /// Endings that end in a bound noun or a conjunction (는거, ㄴ듯, 고도, ㄹ때,
@@ -1087,17 +1181,19 @@ impl Engine {
     /// A loanword (페이지, 파일, 피자), alone or with a particle or the light
     /// verb 하다, is kept in Hangul: it has no Hanja, and its syllables are not
     /// Sino-Korean words.
-    fn loan_edges(&self, comps: &[char], edges: &mut Vec<Edge>) {
+    fn loan_edges(&self, comps: &[char], edges: &mut Vec<Edge>) -> bool {
         let n = comps.len();
         if self.loans.is_empty() || n == 0 || !is_l(comps[0]) {
-            return;
+            return false;
         }
+        let mut whole = false;
         for q in (1..=n).filter(|&q| q == n || is_l(comps[q])) {
             if crate::jamo::syllable_count(&comps[..q]) < 2 || !self.loans.contains(&compose(&comps[..q])) {
                 continue;
             }
             if q == n {
                 edges.push(Edge { start: 0, end: n, cost: LOAN_COST, kind: Kind::Raw });
+                whole = true;
                 continue;
             }
             // 로그인합니다, 빌드하면: the loanword with the light verb 하다 after it.
@@ -1111,9 +1207,11 @@ impl Engine {
                 });
                 if ok {
                     edges.push(Edge { start: 0, end: n, cost: LOAN_COST + 0.2, kind: Kind::Raw });
+                    whole = true;
                 }
             }
         }
+        whole
     }
 
     /// A whole one- or two-syllable token that is a noun of the community,
@@ -1819,6 +1917,8 @@ impl Engine {
                 per_run.push(vec![Candidate { text: run, note: String::new() }]);
             }
         }
+        let texts: Vec<String> = pieces.iter().map(|(_, run)| run.clone()).collect();
+        pairs::apply_to_runs(&texts, &mut per_run);
         let k = per_run.iter().map(|r| r.len()).max().unwrap_or(0);
         let mut out: Vec<Candidate> = Vec::new();
         for i in 0..k {
@@ -1874,6 +1974,7 @@ impl Engine {
                 out.push(Segment { reading: run.clone(), candidates: vec![Candidate { text: run, note: String::new() }] });
             }
         }
+        pairs::apply_to_segments(&mut out);
         out
     }
 }

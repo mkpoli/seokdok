@@ -106,6 +106,8 @@ final class KeyboardViewController: UIInputViewController {
             _ = session.takeCommit()
             textDocumentProxy.unmarkText()
             marked = nil
+            // The caret may be anywhere when the keyboard returns; no word break is owed.
+            session.reset()
         }
         apply()
         loadTimer?.invalidate()

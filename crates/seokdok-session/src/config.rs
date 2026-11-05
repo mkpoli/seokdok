@@ -1,11 +1,13 @@
-//! TOML configuration: `%APPDATA%\seokdok\config.toml` on Windows,
-//! `~/Library/Application Support/seokdok/config.toml` on macOS,
-//! `$XDG_CONFIG_HOME/seokdok/config.toml` (default `~/.config/seokdok`) elsewhere.
+//! TOML configuration: `%APPDATA%\<folder>\config.toml` on Windows,
+//! `~/Library/Application Support/<folder>/config.toml` on macOS,
+//! `$XDG_CONFIG_HOME/<folder>/config.toml` (default `~/.config/<folder>`) elsewhere.
+//! The folder is the product's: `seokdok` for 釋讀, `eumdok` for 音讀.
 //!
 //! The file and the settings screens edit the same [`Config`]. Every field has
 //! a default, so a partial or malformed file still loads.
 
 use seokdok_core::{Fragment, Itda, Options, Style};
+use seokdok_product::{Product, CURRENT};
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 use std::path::{Path, PathBuf};
@@ -50,13 +52,41 @@ pub enum Script {
 }
 
 impl Script {
+    /// The name in `conversion.script`.
+    pub fn key(self) -> &'static str {
+        match self {
+            Script::Seokdok => "seokdok",
+            Script::SinoOnly => "sino_only",
+            Script::HangulOnly => "hangul_only",
+        }
+    }
+
+    fn from_key(key: &str) -> Option<Script> {
+        [Script::Seokdok, Script::SinoOnly, Script::HangulOnly].into_iter().find(|s| s.key() == key)
+    }
+
     /// The script `input.keys.script_cycle` goes to from this one.
     pub fn next(self) -> Script {
-        match self {
+        self.next_in(&CURRENT)
+    }
+
+    /// The script after this one among those `product` offers.
+    pub fn next_in(self, product: &Product) -> Script {
+        let step = |s| match s {
             Script::Seokdok => Script::SinoOnly,
             Script::SinoOnly => Script::HangulOnly,
             Script::HangulOnly => Script::Seokdok,
+        };
+        let mut s = step(self);
+        while !product.offers_script(s.key()) {
+            s = step(s);
         }
+        s
+    }
+
+    /// What `product` writes unless told otherwise.
+    pub fn default_of(product: &Product) -> Script {
+        Script::from_key(product.default_script).unwrap_or_default()
     }
 }
 
@@ -96,6 +126,28 @@ pub enum Layout {
     #[default]
     Vertical,
     Horizontal,
+}
+
+/// How the Windows candidate window is drawn.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CandidateStyle {
+    /// Rounded, with an accent mark on the selected row.
+    #[default]
+    Windows11,
+    /// Square, with the selected row filled, as in Windows 10 and earlier.
+    Classic,
+}
+
+/// The colours of the Windows candidate window.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CandidateTheme {
+    /// The default app mode in Windows' colour settings.
+    #[default]
+    System,
+    Light,
+    Dark,
 }
 
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
@@ -157,7 +209,7 @@ impl Default for Conversion {
             hada_kun: o.hada_kun,
             itda: ItdaOpt::Yu,
             old_ha: o.old_ha,
-            script: if o.sino_only { Script::SinoOnly } else { Script::Seokdok },
+            script: Script::default_of(&CURRENT),
             max_candidates: o.max_candidates,
         }
     }
@@ -169,11 +221,17 @@ pub struct Windows {
     /// What the input indicator's menu shows: the keys of
     /// [`crate::quick_menu::MenuItem`]. Other entries are ignored.
     pub menu_items: Vec<String>,
+    pub candidate_style: CandidateStyle,
+    pub candidate_theme: CandidateTheme,
 }
 
 impl Default for Windows {
     fn default() -> Self {
-        Windows { menu_items: ["script", "input_mode", "candidate_layout", "old_ha"].map(String::from).to_vec() }
+        Windows {
+            menu_items: ["script", "input_mode", "candidate_layout", "old_ha"].map(String::from).to_vec(),
+            candidate_style: CandidateStyle::Windows11,
+            candidate_theme: CandidateTheme::System,
+        }
     }
 }
 
@@ -191,24 +249,23 @@ pub struct Config {
 impl Config {
     /// The folder holding config.toml, custom.json and learned.tsv: $SEOKDOK_CONFIG_DIR
     /// when set (the iOS app and keyboard share an App Group container),
-    /// else %APPDATA%\seokdok on Windows, ~/Library/Application
-    /// Support/seokdok on macOS, and $XDG_CONFIG_HOME/seokdok or
-    /// ~/.config/seokdok elsewhere.
+    /// else the product's folder in %APPDATA% on Windows, ~/Library/Application
+    /// Support on macOS, and $XDG_CONFIG_HOME or ~/.config elsewhere.
     pub fn user_dir() -> Option<PathBuf> {
         if let Some(d) = std::env::var_os("SEOKDOK_CONFIG_DIR").map(PathBuf::from).filter(|p| p.is_absolute()) {
             return Some(d);
         }
         if cfg!(windows) {
-            return Some(PathBuf::from(std::env::var_os("APPDATA")?).join("seokdok"));
+            return Some(PathBuf::from(std::env::var_os("APPDATA")?).join(CURRENT.config_dir));
         }
         if cfg!(target_os = "macos") {
-            return Some(PathBuf::from(std::env::var_os("HOME")?).join("Library/Application Support/seokdok"));
+            return Some(PathBuf::from(std::env::var_os("HOME")?).join("Library/Application Support").join(CURRENT.config_dir));
         }
         let base = std::env::var_os("XDG_CONFIG_HOME")
             .map(PathBuf::from)
             .filter(|p| p.is_absolute())
             .or_else(|| Some(PathBuf::from(std::env::var_os("HOME")?).join(".config")))?;
-        Some(base.join("seokdok"))
+        Some(base.join(CURRENT.config_dir))
     }
 
     pub fn path() -> Option<PathBuf> {
@@ -252,40 +309,85 @@ impl Config {
     }
 
     pub fn parse(text: &str) -> Self {
-        toml::from_str(text).unwrap_or_default()
+        let mut config: Config = toml::from_str(text).unwrap_or_default();
+        config.keep_to(&CURRENT);
+        config
+    }
+
+    /// Hold the settings to what `product` offers: a script it does not offer
+    /// and a setting it hides, wherever they came from, take their defaults.
+    pub fn keep_to(&mut self, product: &Product) {
+        let c = &mut self.conversion;
+        if !product.offers_script(c.script.key()) {
+            c.script = Script::default_of(product);
+        }
+        let d = Options::default();
+        if product.hides("style") {
+            c.style = StyleOpt::Surface;
+        }
+        if product.hides("fragment") {
+            c.fragment = FragmentOpt::Absorb;
+        }
+        if product.hides("coda_always") {
+            c.coda_always = d.coda_always;
+        }
+        if product.hides("resyllabify") {
+            c.resyllabify = d.resyllabify;
+        }
+        if product.hides("hada_kun") {
+            c.hada_kun = d.hada_kun;
+        }
+        if product.hides("itda") {
+            c.itda = ItdaOpt::Yu;
+        }
     }
 
     /// Change the file through `change`, writing only if the settings differ.
     /// A file that does not parse is left alone and is an error: loading it
     /// gives the defaults, and saving those would lose what it holds.
     pub fn update_file(path: &Path, change: impl FnOnce(&mut Config)) -> std::io::Result<Config> {
-        let mut config = match std::fs::read_to_string(path) {
+        let mut config: Config = match std::fs::read_to_string(path) {
             Ok(text) => toml::from_str(&text).map_err(std::io::Error::other)?,
             Err(e) if e.kind() == std::io::ErrorKind::NotFound => Config::default(),
             Err(e) => return Err(e),
         };
+        config.keep_to(&CURRENT);
         let before = config.clone();
         change(&mut config);
+        config.keep_to(&CURRENT);
         if config != before {
             config.save_to(path)?;
         }
         Ok(config)
     }
 
-    /// The file as written to disk: every option with a comment and its
-    /// allowed values.
+    /// The file as written to disk: every option the product offers, with a
+    /// comment and its allowed values.
     pub fn to_documented_toml(&self) -> String {
+        self.documented_toml_for(&CURRENT)
+    }
+
+    fn documented_toml_for(&self, product: &Product) -> String {
         let mode = match self.input.default_mode {
             InputMode::Seokdok => "seokdok",
             InputMode::Hangul => "hangul",
             InputMode::Latin => "latin",
         };
         let c = &self.conversion;
-        let script = match c.script {
-            Script::Seokdok => "seokdok",
-            Script::SinoOnly => "sino_only",
-            Script::HangulOnly => "hangul_only",
-        };
+        let script = c.script.key();
+        let dir = product.config_dir;
+        let conversion_label = product.conversion_label;
+        let id = product.id;
+        let cycle_names: Vec<&str> = [Script::Seokdok, Script::SinoOnly, Script::HangulOnly]
+            .into_iter()
+            .filter(|s| product.offers_script(s.key()))
+            .map(|s| match s {
+                Script::Seokdok => "釋讀",
+                Script::SinoOnly => "國漢文混用",
+                Script::HangulOnly => "韓㐎 專用",
+            })
+            .collect();
+        let cycle = format!("{} → {}", cycle_names.join(" → "), cycle_names[0]);
         let style = match c.style {
             StyleOpt::Surface => "surface",
             StyleOpt::Morpheme => "morpheme",
@@ -310,12 +412,12 @@ impl Config {
                 format!("{} = \"{surface}\"\n", toml::Value::String(app.clone()))
             })
             .collect();
-        format!(
+        let text = format!(
             "\
-# seokdok configuration
-#   Windows: %APPDATA%\\seokdok\\config.toml
-#   macOS:   ~/Library/Application Support/seokdok/config.toml
-#   Linux:   ~/.config/seokdok/config.toml
+# {id} configuration
+#   Windows: %APPDATA%\\{dir}\\config.toml
+#   macOS:   ~/Library/Application Support/{dir}/config.toml
+#   Linux:   ~/.config/{dir}/config.toml
 #
 # On Windows, changes apply at the next key or when an application gets the
 # focus.  Elsewhere, re-activate the input method (switch away and back).
@@ -323,7 +425,7 @@ impl Config {
 
 [input]
 # Mode a new session starts in.
-#   seokdok = type Hangul, convert to 釋讀
+#   seokdok = type Hangul, convert to {conversion_label}
 #   hangul  = type Hangul without conversion
 #   latin   = pass keys through
 default_mode = \"{mode}\"
@@ -358,16 +460,16 @@ learn = {learn}
 # input sources, and the keys fcitx5 uses to switch when it has more than one
 # input method.
 [input.keys]
-# Korean ↔ Latin, back to whichever of 釋讀 and 한글 was last in use.
+# Korean ↔ Latin, back to whichever of {conversion_label} and 한글 was last in use.
 toggle = {k_toggle}
 # To Latin.
 latin = {k_latin}
 # From Latin back to Korean.
 korean = {k_korean}
-# To 釋讀 mode at the next conversion.script, in every application:
-# 釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀.
+# To {conversion_label} mode at the next conversion.script, in every application:
+# {cycle}.
 script_cycle = {k_cycle}
-# To 釋讀.
+# To {conversion_label}.
 seokdok = {k_seokdok}
 # To 한글.
 hangul = {k_hangul}
@@ -427,6 +529,15 @@ max_candidates = {max}
 #   resyllabify      = conversion.resyllabify
 #   hada_kun         = conversion.hada_kun
 menu_items = {menu_items}
+# How the candidate window looks.
+#   windows11 = rounded, with an accent mark on the selected row
+#   classic   = square, with the selected row filled, as in Windows 10 and earlier
+candidate_style = \"{candidate_style}\"
+# The candidate window's colours.  A high-contrast theme keeps its own.
+#   system = follow the default app mode in Windows' colour settings
+#   light  = always light
+#   dark   = always dark
+candidate_theme = \"{candidate_theme}\"
 
 # Windows: where the text being typed is drawn, by executable name.
 #   inline   = in the document
@@ -460,8 +571,18 @@ menu_items = {menu_items}
             script = script,
             max = c.max_candidates,
             menu_items = toml_list(&self.windows.menu_items),
+            candidate_style = match self.windows.candidate_style {
+                CandidateStyle::Windows11 => "windows11",
+                CandidateStyle::Classic => "classic",
+            },
+            candidate_theme = match self.windows.candidate_theme {
+                CandidateTheme::System => "system",
+                CandidateTheme::Light => "light",
+                CandidateTheme::Dark => "dark",
+            },
             composition = composition,
-        )
+        );
+        keep_documented(&text, product)
     }
 
     pub fn save(&self) -> std::io::Result<()> {
@@ -479,6 +600,36 @@ menu_items = {menu_items}
         let tmp = path.with_extension(format!("toml.{}.tmp", std::process::id()));
         std::fs::write(&tmp, self.to_documented_toml())?;
         std::fs::rename(&tmp, path)
+    }
+}
+
+/// The documented file without what `product` does not offer: the lines of a
+/// script and of a menu entry, and each hidden option with the comment above it.
+fn keep_documented(text: &str, product: &Product) -> String {
+    let mut out: Vec<&str> = Vec::new();
+    for line in text.split_inclusive('\n') {
+        let hidden_option = product.hidden_settings.iter().any(|k| line.starts_with(&format!("{k} = ")));
+        if hidden_option {
+            while out.last().is_some_and(|l: &&str| l.starts_with('#')) {
+                out.pop();
+            }
+            continue;
+        }
+        let names = |key: &str| line.starts_with(&format!("#   {key} "));
+        if product.hidden_settings.iter().any(|k| names(k)) {
+            continue;
+        }
+        // The script list: its seokdok line, not default_mode's.
+        if !product.offers_script("seokdok") && line.starts_with("#   seokdok     = ") {
+            continue;
+        }
+        out.push(line);
+    }
+    let text = out.concat();
+    if product.offers_script("seokdok") {
+        text
+    } else {
+        text.replace("#   script           = 釋 混 한: conversion.script", "#   script           = 混 한: conversion.script").replace("#   input_mode       = 釋讀, 한글, A", &format!("#   input_mode       = {}, 한글, A", product.conversion_label))
     }
 }
 
@@ -591,6 +742,72 @@ pub fn ensure_file() {
 }
 
 #[cfg(test)]
+mod product_tests {
+    use super::*;
+    use seokdok_product::{EUMDOK, SEOKDOK};
+
+    #[test]
+    fn seokdok_rotates_through_three_scripts() {
+        assert_eq!(Script::Seokdok.next_in(&SEOKDOK), Script::SinoOnly);
+        assert_eq!(Script::SinoOnly.next_in(&SEOKDOK), Script::HangulOnly);
+        assert_eq!(Script::HangulOnly.next_in(&SEOKDOK), Script::Seokdok);
+    }
+
+    #[test]
+    fn eumdok_rotates_between_mixed_and_hangul() {
+        assert_eq!(Script::SinoOnly.next_in(&EUMDOK), Script::HangulOnly);
+        assert_eq!(Script::HangulOnly.next_in(&EUMDOK), Script::SinoOnly);
+    }
+
+    #[test]
+    fn eumdok_reads_a_file_with_kun_settings_as_plain_mixed_script() {
+        let mut c: Config = toml::from_str(
+            "[conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = true\nhada_kun = true\nitda = \"在\"\nscript = \"seokdok\"\nold_ha = true\nmax_candidates = 20\n",
+        )
+        .unwrap();
+        c.keep_to(&EUMDOK);
+        assert_eq!(c.engine_options(), Options { sino_only: true, old_ha: true, max_candidates: 20, ..Options::default() });
+        assert_eq!(c.conversion.script, Script::SinoOnly);
+    }
+
+    #[test]
+    fn seokdok_keeps_every_setting_it_reads() {
+        let text = "[conversion]\nstyle = \"morpheme\"\nfragment = \"letter\"\ncoda_always = true\nresyllabify = true\nhada_kun = true\nitda = \"在\"\nscript = \"seokdok\"\n";
+        let mut c: Config = toml::from_str(text).unwrap();
+        let before = c.clone();
+        c.keep_to(&SEOKDOK);
+        assert_eq!(c, before);
+    }
+
+    #[test]
+    fn eumdok_hangul_only_stays_hangul_only() {
+        let mut c: Config = toml::from_str("[conversion]\nscript = \"hangul_only\"\n").unwrap();
+        c.keep_to(&EUMDOK);
+        assert_eq!(c.conversion.script, Script::HangulOnly);
+    }
+
+    #[test]
+    fn eumdok_file_offers_nothing_of_seokdok() {
+        let mut c = Config::default();
+        c.conversion.script = Script::SinoOnly;
+        let text = c.documented_toml_for(&EUMDOK);
+        for gone in ["釋", "訓讀", "\nstyle =", "fragment =", "coda_always =", "resyllabify =", "hada_kun =", "itda =", "#   style", "#   fragment", "#   hada_kun", "爲", "在"] {
+            assert!(!text.contains(gone), "{gone}\n{text}");
+        }
+        assert!(text.contains("# eumdok configuration"));
+        assert!(text.contains("%APPDATA%\\eumdok\\config.toml"));
+        assert!(text.contains("# 國漢文混用 → 韓㐎 專用 → 國漢文混用."));
+        assert!(text.contains("script = \"sino_only\""));
+        assert!(text.contains("old_ha ="));
+        // What it writes reads back as it was.
+        let mut back: Config = toml::from_str(&text).unwrap();
+        back.keep_to(&EUMDOK);
+        c.keep_to(&EUMDOK);
+        assert_eq!(back, c);
+    }
+}
+
+#[cfg(all(test, not(feature = "eumdok")))]
 mod tests {
     use super::*;
 
@@ -646,7 +863,11 @@ mod tests {
                 script: Script::HangulOnly,
                 max_candidates: 5,
             },
-            windows: Windows { menu_items: vec!["script".into(), "no such item".into()] },
+            windows: Windows {
+                menu_items: vec!["script".into(), "no such item".into()],
+                candidate_style: CandidateStyle::Classic,
+                candidate_theme: CandidateTheme::Dark,
+            },
             composition: BTreeMap::from([
                 ("Telegram.exe".to_string(), Surface::Floating),
                 ("vivaldi.exe".to_string(), Surface::Inline),
@@ -727,6 +948,17 @@ mod tests {
         assert_eq!(c.input, Input::default());
         assert_eq!(Config::parse("").windows, Windows::default());
         assert!(Config::parse("[windows]\nmenu_items = []\n").windows.menu_items.is_empty());
+    }
+
+    #[test]
+    fn the_candidate_look_is_read_and_defaults_to_windows11_following_the_system() {
+        let c = Config::parse("[windows]\ncandidate_style = \"classic\"\ncandidate_theme = \"light\"\n");
+        assert_eq!(c.windows.candidate_style, CandidateStyle::Classic);
+        assert_eq!(c.windows.candidate_theme, CandidateTheme::Light);
+        assert_eq!(c.windows.menu_items, Windows::default().menu_items);
+        let d = Config::parse("");
+        assert_eq!(d.windows.candidate_style, CandidateStyle::Windows11);
+        assert_eq!(d.windows.candidate_theme, CandidateTheme::System);
     }
 
     fn scratch(name: &str) -> PathBuf {

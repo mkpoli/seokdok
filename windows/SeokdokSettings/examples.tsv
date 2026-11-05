@@ -25,3 +25,8 @@ start.hangul	{"input":{"default_mode":"hangul"}}	gksmf	하늘
 start.latin	{"input":{"default_mode":"latin"}}	gksmf	gksmf
 space.on	{"input":{"space_converts":true}}	gksmfdmf	天을
 space.off	{"input":{"space_converts":false}}	gksmfdmf	하늘을␣
+start.sino	{"input":{"default_mode":"seokdok"},"conversion":{"script":"sino_only"}}	rhdqn	工夫
+start.sino.hangul	{"input":{"default_mode":"hangul"},"conversion":{"script":"sino_only"}}	rhdqn	공부
+start.sino.latin	{"input":{"default_mode":"latin"},"conversion":{"script":"sino_only"}}	rhdqn	rhdqn
+space.sino.on	{"input":{"space_converts":true},"conversion":{"script":"sino_only"}}	rhdqnfmf	工夫를
+space.sino.off	{"input":{"space_converts":false},"conversion":{"script":"sino_only"}}	rhdqnfmf	공부를␣

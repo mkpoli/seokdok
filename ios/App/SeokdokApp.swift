@@ -77,8 +77,8 @@ struct RootView: View {
                         Button(L("설정 열기", "Open Settings"), action: openSettings)
                             .accessibilityIdentifier("openSettings")
                         Step(1, L("일반 → 키보드 → 키보드", "General → Keyboard → Keyboards"))
-                        Step(2, L("새로운 키보드 추가 → 釋讀", "Add New Keyboard → 釋讀"))
-                        Step(3, L("키 소리와 設定이 必要하면 釋讀을 눌러 「전체 접근 허용」을 켭니다", "For key clicks and settings, tap 釋讀 and turn on Allow Full Access"))
+                        Step(2, L("새로운 키보드 추가 → \(Product.hanja)", "Add New Keyboard → \(Product.hanja)"))
+                        Step(3, L("키 소리와 設定이 必要하면 \(Product.hanja)을 눌러 「전체 접근 허용」을 켭니다", "For key clicks and settings, tap \(Product.hanja) and turn on Allow Full Access"))
                     }
                 }
 
@@ -95,7 +95,7 @@ struct RootView: View {
                 } header: {
                     Text(L("試驗", "Try It"))
                 } footer: {
-                    Text(L("지구본 키를 길게 눌러 釋讀을 고릅니다.", "Touch and hold the globe key to choose 釋讀."))
+                    Text(L("지구본 키를 길게 눌러 \(Product.hanja)을 고릅니다.", "Touch and hold the globe key to choose \(Product.hanja)."))
                 }
 
                 if AppGroup.containerURL == nil {
@@ -119,11 +119,11 @@ struct RootView: View {
                 }
 
                 Section {
-                    Link("seokdok.mkpo.li", destination: URL(string: "https://seokdok.mkpo.li/")!)
+                    Link("seokdok.mkpo.li", destination: URL(string: Product.guide)!)
                 }
             }
             .listStyle(.insetGrouped)
-            .navigationTitle("釋讀")
+            .navigationTitle(Product.hanja)
             .navigationDestination(for: Page.self) { page in
                 switch page {
                 case .conversion: ConversionPage()
@@ -202,7 +202,7 @@ private struct Choices<Value: Hashable>: View {
 }
 
 private struct ConversionPage: View {
-    @AppStorage("script", store: Settings.store) private var script = "seokdok"
+    @AppStorage("script", store: Settings.store) private var script = Product.defaultScript
     @AppStorage("style", store: Settings.store) private var style = "surface"
     @AppStorage("fragment", store: Settings.store) private var fragment = "absorb"
     @AppStorage("itda", store: Settings.store) private var itda = "有"
@@ -240,16 +240,49 @@ private struct ConversionPage: View {
             let scriptName = L("韓㐎을 무엇으로 變換하나", "What your Hangul becomes")
             SettingGroup(
                 name: scriptName,
-                about: L("Space를 押면 이렇게 變합니다. 모드 키의 釋 混 한입니다.", "Space turns what you typed into this. The mode key shows it as 釋, 混 or 한."),
-                example: "선생님께서 공부하셨다 → 先生主께서 工夫하셨다 · 先生님께서 工夫하셨다 · 선생님께서 공부하셨다"
+                about: Product.hasKun
+                    ? L("Space를 押면 이렇게 變합니다. 모드 키의 釋 混 한입니다.", "Space turns what you typed into this. The mode key shows it as 釋, 混 or 한.")
+                    : L("Space를 누르면 이렇게 變합니다. 모드 키의 混 한입니다.", "Space turns what you typed into this. The mode key shows it as 混 or 한."),
+                example: Product.hasKun
+                    ? "선생님께서 공부하셨다 → 先生主께서 工夫하셨다 · 先生님께서 工夫하셨다 · 선생님께서 공부하셨다"
+                    : "선생님께서 공부하셨다 → 先生님께서 工夫하셨다 · 선생님께서 공부하셨다"
             ) {
-                Choices(name: scriptName, selection: $script, options: [
-                    ("seokdok", L("釋讀: 固有語까지 漢字로", "釋讀: native words in Hanja too")),
+                Choices(name: scriptName, selection: $script, options: (Product.hasKun ? [("seokdok", L("釋讀: 固有語까지 漢字로", "釋讀: native words in Hanja too"))] : []) + [
                     ("sino_only", L("國漢文混用: 漢字語만 漢字로", "國漢文混用: Sino-Korean words only")),
                     ("hangul_only", L("韓㐎 專用: 變換하지 않음", "Hangul only: no conversion")),
                 ])
             }
 
+            if Product.hasKun {
+                kunSpelling
+            }
+
+            let haName = L("하를 적는 法", "How 하 is written")
+            SettingGroup(
+                name: haName,
+                about: L("먼저 나오는 表記입니다. 다른 表記도 候補에 남습니다.", "Listed first. The others stay among the candidates."),
+                example: Product.hasKun ? "하고 → 하고 · 爲고 · \u{1112}\u{119E}고" : "하고 → 하고 · \u{1112}\u{119E}고"
+            ) {
+                Choices(name: haName, selection: ha, options: [(0, L("그대로 하고", "As it is: 하고"))] + (Product.hasKun ? [(1, L("漢字로 爲고", "In Hanja: 爲고"))] : []) + [
+                    (2, L("옛 表記로 \u{1112}\u{119E}고", "Old spelling: \u{1112}\u{119E}고")),
+                ] + (Product.hasKun ? [(3, L("옛 表記로, 했다만 爲ㅆ다", "Old spelling, and 爲ㅆ다 for 했다"))] : []))
+            }
+
+            SettingGroup(
+                about: L("句節 全體를 變換한 候補의 上限입니다. 낱말 候補는 그대로여서 目錄의 맨 끝만 조금 달라집니다.", "A limit on conversions of the whole phrase. Word candidates are not affected, so only the end of the list changes a little.")
+            ) {
+                Stepper(value: $maxCandidates, in: 1...50) {
+                    LabeledContent(L("候補 數", "How many candidates"), value: "\(maxCandidates)")
+                }
+            }
+        }
+        .listStyle(.insetGrouped)
+        .navigationTitle(L("變換", "Conversion"))
+        .navigationBarTitleDisplayMode(.large)
+    }
+
+    /// How 訓讀 is spelled; none of this exists in a product without it.
+    @ViewBuilder private var kunSpelling: some View {
             let endingName = L("漢字 뒤의 語尾", "The ending after a Hanja verb")
             SettingGroup(
                 name: endingName,
@@ -282,32 +315,6 @@ private struct ConversionPage: View {
                 Toggle(L("그 받침을 다음 字로 넘기기", "Carry that consonant into the next syllable"), isOn: $resyllabify)
                     .disabled(!codaAlways && itda != "在ㅆ")
             }
-
-            let haName = L("하를 적는 法", "How 하 is written")
-            SettingGroup(
-                name: haName,
-                about: L("먼저 나오는 表記입니다. 다른 表記도 候補에 남습니다.", "Listed first. The others stay among the candidates."),
-                example: "하고 → 하고 · 爲고 · \u{1112}\u{119E}고"
-            ) {
-                Choices(name: haName, selection: ha, options: [
-                    (0, L("그대로 하고", "As it is: 하고")),
-                    (1, L("漢字로 爲고", "In Hanja: 爲고")),
-                    (2, L("옛 表記로 \u{1112}\u{119E}고", "Old spelling: \u{1112}\u{119E}고")),
-                    (3, L("옛 表記로, 했다만 爲ㅆ다", "Old spelling, and 爲ㅆ다 for 했다")),
-                ])
-            }
-
-            SettingGroup(
-                about: L("句節 全體를 變換한 候補의 上限입니다. 낱말 候補는 그대로여서 目錄의 맨 끝만 조금 달라집니다.", "A limit on conversions of the whole phrase. Word candidates are not affected, so only the end of the list changes a little.")
-            ) {
-                Stepper(value: $maxCandidates, in: 1...50) {
-                    LabeledContent(L("候補 數", "How many candidates"), value: "\(maxCandidates)")
-                }
-            }
-        }
-        .listStyle(.insetGrouped)
-        .navigationTitle(L("變換", "Conversion"))
-        .navigationBarTitleDisplayMode(.large)
     }
 }
 
@@ -324,7 +331,7 @@ private struct TypingPage: View {
             SettingGroup(
                 name: startName,
                 about: L("모드 키로 언제든 바꿀 수 있습니다.", "The mode key switches this at any time."),
-                example: "gksmf → 天 · 하늘 · gksmf"
+                example: Product.hasKun ? "gksmf → 天 · 하늘 · gksmf" : "rhdqn → 工夫 · 공부 · rhdqn"
             ) {
                 Choices(name: startName, selection: $defaultMode, options: [
                     ("seokdok", L("韓㐎, 變換함", "Hangul, converted")),
@@ -335,7 +342,7 @@ private struct TypingPage: View {
 
             SettingGroup(
                 about: L("끄면 Space는 띄어쓰기이고, 候補 欄의 글자를 눌러 變換합니다.", "Off: Space types a space, and tapping the text in the candidate bar converts."),
-                example: "하늘을 + Space → 天을 · 하늘을␣"
+                example: Product.hasKun ? "하늘을 + Space → 天을 · 하늘을␣" : "공부를 + Space → 工夫를 · 공부를␣"
             ) {
                 Toggle(L("Space로 變換", "Space converts"), isOn: $spaceConverts)
             }
@@ -347,7 +354,7 @@ private struct TypingPage: View {
             }
 
             SettingGroup(
-                about: L("learned.tsv를 지웁니다. 끈 뒤에도 파일은 지울 때까지 남습니다. 전체 접근 없이 쓸 때는 키보드의 釋 키를 길게 눌러 지웁니다.", "Deletes learned.tsv. Turning learning off keeps the file until you delete it. Without Full Access, hold the keyboard's 釋 key to clear it.")
+                about: L("learned.tsv를 지웁니다. 끈 뒤에도 파일은 지울 때까지 남습니다. 전체 접근 없이 쓸 때는 키보드의 \(Product.hasKun ? "釋" : "混") 키를 길게 눌러 지웁니다.", "Deletes learned.tsv. Turning learning off keeps the file until you delete it. Without Full Access, hold the keyboard's \(Product.hasKun ? "釋" : "混") key to clear it.")
             ) {
                 Button(forgotten ? L("지웠습니다", "Forgotten") : L("고른 것 잊기", "Forget what I picked")) {
                     Settings.forgetPicks()
@@ -419,7 +426,7 @@ enum Settings {
         hada_kun = \(bool("hadaKun", false))
         itda = "\(text("itda", "有"))"
         old_ha = \(bool("oldHa", false))
-        script = "\(text("script", "seokdok"))"
+        script = "\(text("script", Product.defaultScript))"
         max_candidates = \(s.object(forKey: "maxCandidates") as? Int ?? 12)
 
         """

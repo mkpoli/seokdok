@@ -217,7 +217,9 @@ class SeokdokService : InputMethodService(), KeyboardListener {
             requestHideSelf(0)
         }
         if ((rotated || session.mode != modeBefore) && !isInputViewShown) {
-            val label = if (rotated) resources.getStringArray(R.array.script_labels)[script]
+            // A product without 釋讀 lists only the scripts after it.
+            val scripts = resources.getStringArray(R.array.script_labels)
+            val label = if (rotated) scripts[script - (3 - scripts.size)]
             else resources.getStringArray(R.array.mode_labels)[session.mode]
             Toast.makeText(this, label, Toast.LENGTH_SHORT).show()
         }

@@ -307,3 +307,43 @@ lemma	written	pos	class	source	count	note
 예로는	例로는	noun		editorial		例 with a particle, as 예를
 예에서	例에서	noun		editorial	2	the chat writes 例에서 (2×)
 책	冊	noun		editorial		冊 for 책 (mkpoli's request, 2026-11-05); the chat writes 冊 48 times, 책 17
+감사합니다	感謝합니다	interj		editorial	34	the chat writes 感謝합니다 (34×)
+주로	主로	adv		editorial	31	the chat writes 主로 (31×)
+고로	故로	adv		editorial	15	the chat writes 故로 (15×)
+의외로	意外로	adv		editorial	11	the chat writes 意外로 (11×)
+실은	實은	adv		editorial	10	the chat writes 實은 (10×)
+혹은	或은	adv		editorial	10	the chat writes 或은 (10×)
+여전히	如前히	adv		editorial	9	the chat writes 如前히 (9×)
+나중에	乃終에	adv		editorial	9	the chat writes 乃終에 (9×)
+대체로	大體로	adv		editorial	7	the chat writes 大體로 (7×)
+당연히	當然히	adv		editorial	5	the chat writes 當然히 (5×)
+식으로	式으로	noun		editorial	43	the chat writes 式으로 (43×) against Hangul 식으로 (12×)
+식의	式의	noun		editorial		式 with a particle, as 식으로
+이런식	此런式	noun		editorial	9	the chat writes 이런式 (9×)
+묘하다	妙하다	adj		editorial	20	the chat writes 妙한 (20×) against Hangul 묘한 (3×)
+물을	水을	noun		editorial		물 + 을, ahead of 물다 + (으)ㄹ
+방에	房에	noun		editorial	31	the chat writes 房에 (31×) against Hangul 방에 (8×)
+방에서	房에서	noun		editorial		房 with a particle, as 방에
+점이	點이	noun		editorial	31	the chat writes 點이 (31×) against Hangul 점이 (5×)
+점은	點은	noun		editorial		點 with a particle, as 점이
+북에서	北에서	noun		editorial	22	the chat writes 北에서 (22×) against Hangul 북에서 (0×)
+북은	北은	noun		editorial		北 with a particle, as 북에서
+설이	說이	noun		editorial	22	the chat writes 說이 (22×) against Hangul 설이 (6×)
+비해	比해	adv		editorial	11	the chat writes 比해 (11×) against Hangul 비해 (2×)
+비하면	比하면	adv		editorial		比 as in 비해
+거예요	거예요	bound		editorial	13	the chat writes Hangul 거예요 (13×) against 物예요 (1×)
+지도하다	指導하다	verb		editorial		指導 for the verb; 地圖 is the noun 지도
+고수	高手	noun		editorial	10	the chat writes 高手 (10×) against Hangul 고수 (2×)
+빈도	頻度	noun		editorial	3	the chat writes 頻度 (3×) against Hangul 빈도 (1×)
+점도	點도	noun		editorial	9	the chat writes 點도 (9×) against Hangul 점도 (1×)
+방은	房은	noun		editorial	14	the chat writes 房은 (14×) against Hangul 방은 (4×)
+방이	房이	noun		editorial	10	the chat writes 房이 (10×) against Hangul 방이 (10×)
+훈이	訓이	noun		editorial	10	the chat writes 訓이 (10×) against Hangul 훈이 (3×)
+훈을	訓을	noun		editorial	7	the chat writes 訓을 (7×) against Hangul 훈을 (2×)
+외의	外의	noun		editorial	3	the chat writes 外의 (3×) against Hangul 외의 (1×)
+외에	外에	noun		editorial	28	the chat writes 外에 (28×) against Hangul 외에 (7×)
+초에	初에	noun		editorial	16	the chat writes 初에 (16×) against Hangul 초에 (13×)
+추구하다	追求하다	verb		editorial		the Sino word + 하다, ahead of 搜
+한정되다	限定되다	verb		editorial		the Sino word + 되다, ahead of 限
+우회책	迂廻策	noun		editorial	1	the chat writes 迂廻策 (1×) against Hangul 우회책 (0×)
+것	件ㅅ	bound		editorial	5	the chat writes 件ㅅ for 것 (5× in Nov 2026)

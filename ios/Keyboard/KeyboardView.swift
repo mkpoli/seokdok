@@ -3,6 +3,8 @@ import UIKit
 protocol KeyboardViewDelegate: AnyObject {
     func letter(_ key: Character)
     func symbol(_ ch: Character)
+    /// Text as it is, past any composition (the .com key).
+    func literal(_ text: String)
     func space()
     func enter()
     func backspace()
@@ -36,8 +38,14 @@ enum Layout {
     case decimal
     /// Digits, * # and + (phone pad).
     case phone
+    /// Hangul with the symbols showing first (numbers and punctuation).
+    case numbers
+    /// Hangul with @ and # by the space bar.
+    case twitter
+    /// Hangul with a period by the space bar (web search).
+    case web
 
-    var converts: Bool { self == .standard }
+    var converts: Bool { self == .standard || self == .numbers || self == .twitter || self == .web }
     var isPad: Bool { self == .number || self == .decimal || self == .phone }
 }
 
@@ -85,6 +93,8 @@ final class KeyboardView: UIView {
     private let keyPad = KeyPad()
     private let popup = KeyPopup()
     private var keysTop: NSLayoutConstraint!
+    private var keysBottom: NSLayoutConstraint!
+    private let keysColumn = UIStackView()
     private let keysArea = UIStackView()
     private let letters = UIStackView()
     private let symbols = UIStackView()
@@ -92,7 +102,8 @@ final class KeyboardView: UIView {
     private var barRow: UIView!
     private var bottomLine: UIView!
     private var extraKeys: [Key] = []
-    private var extraChars: [Character] = []
+    private var extraTexts: [String] = []
+    private var layerWidth: NSLayoutConstraint!
     private var shownLayout = Layout.standard
     private var letterKeys: [(Character, Key)] = []
     private var symbolKeys: [Key] = []
@@ -104,7 +115,24 @@ final class KeyboardView: UIView {
     private var spaceKey: Key!
     private var enterKey: Key!
 
-    private static let padKeyHeight: CGFloat = 46.8
+    /// The number pads, measured from the system keyboard's in iOS 18.5 and iOS
+    /// 26.5 simulators; the landscape one is our choice, since none was captured.
+    private struct PadMetrics {
+        let side, gap, key, between, top, bottom: CGFloat
+        static var current: PadMetrics {
+            if UIScreen.main.bounds.width > UIScreen.main.bounds.height {
+                return PadMetrics(side: 3, gap: 6, key: 36, between: 4, top: 4, bottom: 3)
+            }
+            if #available(iOS 26, *) {
+                return PadMetrics(side: 2.3, gap: 7.3, key: 48, between: 6, top: 6, bottom: 0)
+            }
+            return PadMetrics(side: 3, gap: 6, key: 47, between: 6.33, top: 6, bottom: 3)
+        }
+    }
+
+    private static let padLetters: [Character: String] = [
+        "2": "ABC", "3": "DEF", "4": "GHI", "5": "JKL", "6": "MNO", "7": "PQRS", "8": "TUV", "9": "WXYZ",
+    ]
     private static let rows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
     /// Two pages of symbols, three rows each, as on the system keyboard.
     private static let symbolRows: [[String]] = [
@@ -137,17 +165,17 @@ final class KeyboardView: UIView {
         // under the bar type too. A nearly clear fill, because a keyboard gets
         // no touches where it draws nothing.
         keyPad.backgroundColor = UIColor(white: 1, alpha: 0.01)
-        let keysColumn = UIStackView()
         keysColumn.axis = .vertical
         keysColumn.spacing = 12
         keysColumn.translatesAutoresizingMaskIntoConstraints = false
         keyPad.addSubview(keysColumn)
         keysTop = keysColumn.topAnchor.constraint(equalTo: keyPad.topAnchor, constant: 9)
+        keysBottom = keysColumn.bottomAnchor.constraint(equalTo: keyPad.bottomAnchor, constant: -3)
         NSLayoutConstraint.activate([
             keysTop,
             keysColumn.leadingAnchor.constraint(equalTo: keyPad.leadingAnchor, constant: 3),
             keysColumn.trailingAnchor.constraint(equalTo: keyPad.trailingAnchor, constant: -3),
-            keysColumn.bottomAnchor.constraint(equalTo: keyPad.bottomAnchor, constant: -3),
+            keysBottom,
         ])
         keyPad.onPress = { [weak self] in self?.feedback.key() }
         Key.onActivate = { [weak self] in self?.feedback.key() }
@@ -171,8 +199,7 @@ final class KeyboardView: UIView {
         symbols.isHidden = true
         bottomLine = bottomRow(needsGlobe)
         keysColumn.addArrangedSubview(bottomLine)
-        // The pad layouts replace the bar and the keys; five rows with 6
-        // between fill the 258 there are.
+        // The pad layouts replace the bar and the keys.
         pad.axis = .vertical
         pad.spacing = 6
         pad.isHidden = true
@@ -281,6 +308,9 @@ final class KeyboardView: UIView {
         }
         popup.show(key, over: key.convert(key.bounds, to: self), within: bounds)
     }
+
+    private var extraWidths: [NSLayoutConstraint] = []
+    private var extraEqual: [NSLayoutConstraint] = []
 
     private func letterKey(_ action: @escaping () -> Void) -> Key {
         let k = Key(look: .letter)
@@ -392,7 +422,8 @@ final class KeyboardView: UIView {
             self.symbols.isHidden = !self.letters.isHidden
             self.relabelLayerKey()
         }
-        layerKey.widthAnchor.constraint(equalToConstant: 46).isActive = true
+        layerWidth = layerKey.widthAnchor.constraint(equalToConstant: 46)
+        layerWidth.isActive = true
         bottom.addArrangedSubview(layerKey)
         if needsGlobe {
             let g = GlobeKey()
@@ -403,16 +434,18 @@ final class KeyboardView: UIView {
             globeWidth = g.widthAnchor.constraint(equalToConstant: 40)
             globeWidth?.isActive = true
         }
-        for i in 0..<2 {
+        for i in 0..<3 {
             let k = letterKey { [weak self] in
-                guard let self, i < self.extraChars.count else { return }
-                let ch = self.extraChars[i]
-                self.tap { $0.symbol(ch) }
+                guard let self, i < self.extraTexts.count else { return }
+                let text = self.extraTexts[i]
+                if text.count == 1, let ch = text.first {
+                    self.tap { $0.symbol(ch) }
+                } else {
+                    self.tap { $0.literal(text) }
+                }
             }
             k.isHidden = true
-            k.widthAnchor.constraint(equalToConstant: 40).isActive = true
             extraKeys.append(k)
-            bottom.addArrangedSubview(k)
         }
         modeKey = Key(title: "釋")
         modeKey.spoken = "Input mode"
@@ -425,9 +458,15 @@ final class KeyboardView: UIView {
         enterKey = Key(title: "改行")
         enterKey.action = { [weak self] in self?.tap { $0.enter() } }
         enterKey.widthAnchor.constraint(equalToConstant: 94).isActive = true
-        for k in [modeKey!, spaceKey!, enterKey!] {
+        for k in [modeKey!, spaceKey!] + extraKeys + [enterKey!] {
             bottom.addArrangedSubview(k)
         }
+        // By the space bar they have a key's width; with no space bar, a third each.
+        extraWidths = extraKeys.map { $0.widthAnchor.constraint(equalToConstant: 40) }
+        extraEqual = [
+            extraKeys[1].widthAnchor.constraint(equalTo: extraKeys[0].widthAnchor),
+            extraKeys[2].widthAnchor.constraint(equalTo: extraKeys[0].widthAnchor),
+        ]
         return bottom
     }
 
@@ -478,75 +517,110 @@ final class KeyboardView: UIView {
         guard layout != shownLayout else { return }
         shownLayout = layout
         let pads = layout.isPad
+        let metrics = PadMetrics.current
         barRow.isHidden = pads
-        keysTop.constant = pads ? 0 : 9
+        keysTop.constant = pads ? metrics.top : 9
+        keysBottom.constant = pads ? -metrics.bottom : -3
+        keysColumn.spacing = pads ? metrics.between : 12
         keysArea.isHidden = pads
         bottomLine.isHidden = pads
         pad.isHidden = !pads
         modeKey.isHidden = !layout.converts
-        extraChars = layout == .email ? ["@", "."] : layout == .url ? [".", "/"] : []
+        layerWidth.constant = layout.converts ? 46 : 94
+        switch layout {
+        case .email: extraTexts = ["@", "."]
+        case .url: extraTexts = [".", "/", ".com"]
+        case .twitter: extraTexts = ["@", "#"]
+        case .web: extraTexts = ["."]
+        default: extraTexts = []
+        }
+        // A web address has no spaces; the system's has no space bar there.
+        spaceKey.isHidden = layout == .url
+        NSLayoutConstraint.deactivate(extraWidths + extraEqual)
         for (i, k) in extraKeys.enumerated() {
-            k.isHidden = i >= extraChars.count
-            if i < extraChars.count { k.set(main: String(extraChars[i]), hint: nil) }
+            k.isHidden = i >= extraTexts.count
+            if i < extraTexts.count { k.set(main: extraTexts[i], hint: nil) }
+        }
+        if layout == .url {
+            NSLayoutConstraint.activate(extraEqual)
+        } else {
+            NSLayoutConstraint.activate(Array(extraWidths.prefix(extraTexts.count)))
+        }
+        // The symbols first, for a field of numbers and punctuation.
+        let wantsSymbols = layout == .numbers
+        if lettersShown == wantsSymbols {
+            symbolPage = 0
+            labelSymbols()
+            letters.isHidden = wantsSymbols
+            symbols.isHidden = !wantsSymbols
         }
         if pads {
-            buildPad(layout)
+            buildPad(layout, metrics)
         } else if let g = globe, let bottom = bottomLine as? UIStackView {
+            g.removeFromSuperview()
             bottom.insertArrangedSubview(g, at: 1)
             sizeGlobe(width: 40, height: KeyMetrics.keyHeight)
         }
     }
 
-    /// Three columns of digits; the fourth row and the bottom row differ by
-    /// pad. The globe moves into the bottom row while a pad is shown.
-    private func buildPad(_ layout: Layout) {
+    /// Four rows of three, as on the system's pads: no Return, letters under the
+    /// digits, and flat keys beside the 0. With a globe to show it takes the empty
+    /// cell, or shares the separator's.
+    private func buildPad(_ layout: Layout, _ m: PadMetrics) {
         pad.arrangedSubviews.forEach { $0.removeFromSuperview() }
+        pad.spacing = m.between
+        pad.isLayoutMarginsRelativeArrangement = true
+        pad.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: m.side, bottom: 0, trailing: m.side)
         func row(_ views: [UIView]) -> UIStackView {
             let r = UIStackView(arrangedSubviews: views)
             r.axis = .horizontal
-            r.spacing = 6
+            r.spacing = m.gap
             r.distribution = .fillEqually
             return r
         }
-        func key(_ ch: Character) -> Key {
-            let k = Key(title: String(ch), look: .letter, height: Self.padKeyHeight)
-            k.titleFont = .systemFont(ofSize: 24, weight: .regular)
+        func key(_ ch: Character, look: Key.Look = .letter) -> Key {
+            let k = Key(title: String(ch), look: look, height: m.key)
+            k.titleFont = .systemFont(ofSize: 28, weight: .regular)
+            k.setPadLetters(Self.padLetters[ch])
             k.action = { [weak self] in self?.tap { $0.symbol(ch) } }
             return k
         }
         for digits in ["123", "456", "789"] {
-            pad.addArrangedSubview(row(digits.map(key)))
+            pad.addArrangedSubview(row(digits.map { key($0) }))
         }
+        var corner: UIView
         switch layout {
         case .phone:
-            pad.addArrangedSubview(row(["*", "0", "#"].map { key($0) }))
+            corner = key("+", look: .plain)
         case .decimal:
-            pad.addArrangedSubview(row([key(Character(Locale.current.decimalSeparator ?? ".")), key("0"), backspaceKey(height: Self.padKeyHeight)]))
+            corner = key(Character(Locale.current.decimalSeparator ?? "."), look: .plain)
         default:
-            pad.addArrangedSubview(row([UIView(), key("0"), backspaceKey(height: Self.padKeyHeight)]))
+            corner = UIView()
         }
-        var bottom: [UIView] = []
-        if let g = globe { bottom.append(g) }
-        if layout == .phone {
-            bottom.append(key("+"))
-            bottom.append(backspaceKey(height: Self.padKeyHeight))
+        if let g = globe {
+            g.removeFromSuperview()
+            if layout == .number {
+                corner = g
+            } else {
+                let pair = UIStackView(arrangedSubviews: [g, corner])
+                pair.axis = .horizontal
+                pair.spacing = m.gap
+                pair.distribution = .fillEqually
+                corner = pair
+            }
+            globeWidth?.isActive = false
+            globe?.heightConstraint.constant = m.key
         }
-        let enter = Key(title: "改行", height: Self.padKeyHeight)
-        enter.action = { [weak self] in self?.tap { $0.enter() } }
-        bottom.append(enter)
-        let r = row(bottom)
-        r.distribution = .fill
-        for v in bottom where v !== enter && v !== globe {
-            v.widthAnchor.constraint(equalToConstant: 70).isActive = true
-        }
-        sizeGlobe(width: 50, height: Self.padKeyHeight)
-        pad.addArrangedSubview(r)
+        let delete = backspaceKey(height: m.key)
+        delete.look = .plain
+        pad.addArrangedSubview(row([corner, key("0"), delete]))
     }
 
     /// The globe is one button that moves between the letter row and the pad
     /// row, so its two size constraints change with the row instead of new
     /// ones piling up against them.
     private func sizeGlobe(width: CGFloat, height: CGFloat) {
+        globeWidth?.isActive = true
         globeWidth?.constant = width
         globe?.heightConstraint.constant = height
     }

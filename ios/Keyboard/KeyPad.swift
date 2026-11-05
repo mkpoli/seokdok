@@ -3,7 +3,10 @@ import UIKit
 /// A key cap. It draws itself and knows what it does; `KeyPad` decides when it
 /// is pressed.
 final class Key: UIView {
-    enum Look { case letter, function, accent }
+    enum Look { case letter, function, accent
+        /// No cap of its own until pressed (the flat keys of the number pads).
+        case plain
+    }
 
     enum Fires {
         /// When the finger lifts (the system's letters, Space, Return).
@@ -32,6 +35,7 @@ final class Key: UIView {
     private var symbol: String?
     /// The key's height, changed in place when a row needs another.
     private(set) var heightConstraint: NSLayoutConstraint!
+    private var labelCenter: NSLayoutConstraint?
 
     var look: Look {
         didSet { refill() }
@@ -100,10 +104,12 @@ final class Key: UIView {
         addSubview(hint)
 
         heightConstraint = heightAnchor.constraint(equalToConstant: height)
+        let labelY = label.centerYAnchor.constraint(equalTo: centerYAnchor)
+        labelCenter = labelY
         NSLayoutConstraint.activate([
             heightConstraint,
             label.centerXAnchor.constraint(equalTo: centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: centerYAnchor),
+            labelY,
             label.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, constant: -2),
             icon.centerXAnchor.constraint(equalTo: centerXAnchor),
             icon.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -141,6 +147,21 @@ final class Key: UIView {
         icon.image = name.flatMap { UIImage(systemName: $0) }
     }
 
+    /// The letters under a digit on a number pad.
+    func setPadLetters(_ text: String?) {
+        guard let text else { return }
+        let sub = UILabel()
+        sub.font = .systemFont(ofSize: 10, weight: .semibold)
+        sub.attributedText = NSAttributedString(string: text, attributes: [.kern: 1.6])
+        sub.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(sub)
+        labelCenter?.constant = -6
+        NSLayoutConstraint.activate([
+            sub.centerXAnchor.constraint(equalTo: centerXAnchor),
+            sub.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+        ])
+    }
+
     /// Spoken by VoiceOver; the visible label unless set.
     var spoken: String?
 
@@ -176,8 +197,12 @@ final class Key: UIView {
         case .accent:
             backgroundColor = down ? UIColor.systemBlue.withAlphaComponent(0.7) : .systemBlue
             label.textColor = .white
+        case .plain:
+            backgroundColor = isPressed ? KeyMetrics.letterFill : UIColor.white.withAlphaComponent(0.001)
+            label.textColor = .label
         }
         icon.tintColor = look == .accent ? .white : .label
+        if look == .plain { layer.shadowOpacity = 0 }
         if isDimmed {
             backgroundColor = backgroundColor?.withAlphaComponent(look == .letter ? 0.45 : 0.6)
         }

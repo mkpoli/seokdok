@@ -177,7 +177,10 @@ final class KeyboardViewController: UIInputViewController {
         case .phonePad: return .phone
         case .emailAddress: return .email
         case .URL: return .url
-        case .asciiCapable, .namePhonePad: return .ascii
+        case .asciiCapable: return .ascii
+        case .numbersAndPunctuation: return .numbers
+        case .twitter: return .twitter
+        case .webSearch: return .web
         default: return .standard
         }
     }
@@ -306,6 +309,11 @@ extension KeyboardViewController: KeyboardViewDelegate {
             insert(String(ch))
         }
         apply()
+    }
+
+    func literal(_ text: String) {
+        dropForeignComposition()
+        insert(text)
     }
 
     func space() {

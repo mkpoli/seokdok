@@ -9,7 +9,7 @@ final class KeyboardUITests: XCTestCase {
     /// Keys by point offsets from the top of the keyboard, which is 261 pt high
     /// with its top 336 pt above the bottom of an iPhone 16-sized window. The
     /// bar is 45 pt, and key rows are 54 pt apart from y 54; letter keys have 6
-    /// between. Pad rows are 52.8 pt apart in three columns with 6 between.
+    /// between. Pad rows are 53.33 pt apart in three columns with 6 between.
     private struct Geometry {
         let app: XCUIApplication
         var width: CGFloat { app.windows.firstMatch.frame.width }
@@ -74,18 +74,19 @@ final class KeyboardUITests: XCTestCase {
             tap(x: width - 3 - 47, y: 237)
         }
 
-        /// Of the bottom row, with 123 and no mode key: an email field's @ and .
+        /// Of the bottom row, left of Return: an email field's @ and .
         func emailExtra(_ i: Int) {
-            tap(x: 3 + 46 + 6 + 20 + CGFloat(i) * 46, y: 237)
+            tap(x: width - 3 - 94 - 6 - 20 - CGFloat(1 - i) * 46, y: 237)
         }
 
         /// The vertical centre of the candidate bar.
         var barCenter: CGFloat { 22 }
 
-        /// Pad key in column `c` (0-2) of row `r` (0-3 the grid, 4 the bottom row).
+        /// Pad key in column `c` (0-2) of row `r` (0-3): the pad is 216 pt high
+        /// over the same 75 pt strip, 45 pt lower than the letters' top.
         func pad(_ r: Int, _ c: Int) {
-            let w = (width - 6 - 12) / 3
-            tap(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: CGFloat(r) * 52.8 + 23.4)
+            let w = (width - 12 - 12) / 3
+            tap(x: 6 + CGFloat(c) * (w + 6) + w / 2, y: 45 + 6 + CGFloat(r) * 53.33 + 23.5)
         }
     }
 

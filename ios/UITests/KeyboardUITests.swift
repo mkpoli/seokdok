@@ -380,6 +380,39 @@ final class KeyboardUITests: XCTestCase {
         assertText(second, "나", "the second field lost or gained text")
     }
 
+    /// After a confirmed conversion the next word gets a space before it, but
+    /// not once the caret has been tapped away from what was confirmed.
+    func testNoWordBreakAfterTheCaretMoved() throws {
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("r") }
+        g.delete()
+        g.type("gks") // 한
+        g.space()
+        sleep(1)
+        g.enter()
+        sleep(1)
+        let confirmed = text(field)
+        XCTAssertFalse(confirmed.isEmpty)
+        g.type("r") // the word break, then ㄱ
+        assertText(field, confirmed + " ㄱ")
+        g.enter()
+        sleep(1)
+        g.type("gks")
+        g.space()
+        sleep(1)
+        g.enter()
+        sleep(1)
+        let before = text(field)
+        // A tap at the field's start moves the caret away from the end.
+        field.coordinate(withNormalizedOffset: CGVector(dx: 0.02, dy: 0.5)).tap()
+        sleep(1)
+        g.type("r")
+        sleep(1)
+        shot("no-word-break")
+        XCTAssertEqual(text(field).count, before.count + 1, "a word break was typed where the caret was tapped")
+    }
+
     /// A longer composition shows its segments in the drawer, and the − and +
     /// beside the grid change the focused one.
     func testDrawerResizesSegments() throws {

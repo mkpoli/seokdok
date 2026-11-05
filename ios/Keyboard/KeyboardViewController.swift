@@ -15,6 +15,9 @@ final class KeyboardViewController: UIInputViewController {
     /// The document the marked text was written into
     /// (`textDocumentProxy.documentIdentifier`).
     private var composingDocument: UUID?
+    /// The text last confirmed here and when, while a word break may be owed
+    /// after it.
+    private var lastCommit: (text: String, at: Date)?
     private var loadTimer: Timer?
     /// Bumped whenever a composition ends or its field changes, so a delayed
     /// check for an earlier text change does nothing.
@@ -153,6 +156,20 @@ final class KeyboardViewController: UIInputViewController {
         return true
     }
 
+    /// A word break is owed after what was confirmed, and only there: if the
+    /// app has since sent or cleared the text, or the caret was tapped elsewhere,
+    /// the next word starts where it stands. The proxy's context can lag behind
+    /// the keyboard's own insert for a moment, so a fresh commit is taken on
+    /// trust, and a field with text but no context to show keeps the break.
+    private func forgetStaleBreak() {
+        guard let last = lastCommit, session.preedit().isEmpty else { return }
+        lastCommit = nil
+        guard Date().timeIntervalSince(last.at) > 0.3 else { return }
+        let proxy = textDocumentProxy
+        let moved = proxy.documentContextBeforeInput.map { !$0.hasSuffix(last.text.suffix(8)) } ?? !proxy.hasText
+        if moved { session.reset() }
+    }
+
     /// Forget the composition without writing it: the document it was typed
     /// into already holds it as plain text, and the document now in focus
     /// does not own it.
@@ -226,6 +243,7 @@ final class KeyboardViewController: UIInputViewController {
             // Replaces the marked text, if any.
             proxy.insertText(commit)
             marked = nil
+            lastCommit = (commit, Date())
         }
         let text = session.preedit().map(\.text).joined()
         if !text.isEmpty {
@@ -279,6 +297,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
             refresh()
             return
         }
+        forgetStaleBreak()
         if session.preedit().isEmpty {
             session.setPrivateField(fieldIsPrivate())
         }

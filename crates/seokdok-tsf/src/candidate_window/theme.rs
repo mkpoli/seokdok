@@ -1,10 +1,14 @@
-//! The colours of the Fluent candidate window, read from the system on every
-//! show so a change of theme or accent reaches the next popup.
+//! The colours of the candidate window, read from the system on every show so
+//! a change of theme or accent reaches the next popup.
 //!
-//! The values are WinUI's theme resources: `Common_themeresources_any.xaml`
+//! The Windows 11 values are WinUI's theme resources: `Common_themeresources_any.xaml`
 //! for text, fills and strokes, `AcrylicBrush_themeresources.xaml` for the
 //! panel (the fallback colour of the flyout acrylic), and
 //! `ListViewItem_themeresources.xaml` for the selection indicator.
+//!
+//! The classic values are opaque, since GDI cannot blend: a white window with
+//! the system highlight. Windows 10 has no dark list to copy, so the dark
+//! greys are this input method's own.
 
 use windows::core::{w, PCWSTR};
 use windows::Win32::Graphics::Dwm::DwmGetColorizationColor;
@@ -16,6 +20,8 @@ use windows::Win32::UI::Accessibility::{HCF_HIGHCONTRASTON, HIGHCONTRASTW};
 use windows::Win32::UI::WindowsAndMessaging::{
     SystemParametersInfoW, SPI_GETHIGHCONTRAST, SYSTEM_PARAMETERS_INFO_UPDATE_FLAGS,
 };
+
+use crate::config::CandidateTheme;
 
 /// Straight (not premultiplied) RGBA.
 #[derive(Clone, Copy, Debug, PartialEq)]
@@ -33,6 +39,9 @@ const fn argb(v: u32) -> Color {
 /// Windows' default accent shades, for when the system reports none.
 const DEFAULT_DARK1: Color = argb(0xFF00_67C0);
 const DEFAULT_LIGHT2: Color = argb(0xFF4C_C2FF);
+/// `COLOR_HIGHLIGHT` and `COLOR_HIGHLIGHTTEXT` as Windows 10 ships them.
+const DEFAULT_HIGHLIGHT: Color = argb(0xFF00_78D7);
+const DEFAULT_HIGHLIGHT_TEXT: Color = argb(0xFFFF_FFFF);
 
 #[derive(Clone, Copy, Debug, PartialEq)]
 pub struct Palette {
@@ -95,6 +104,45 @@ impl Palette {
         Self::dark(DEFAULT_LIGHT2)
     }
 
+    pub const fn classic_light(highlight: Color, highlight_text: Color) -> Self {
+        Self {
+            dark: false,
+            panel: argb(0xFFFF_FFFF),
+            selection: highlight,
+            text: argb(0xFF00_0000),
+            selected_text: highlight_text,
+            secondary: argb(0xFF5F_5F5F),
+            selected_secondary: highlight_text,
+            divider: argb(0xFFE0_E0E0),
+            outline: argb(0xFF76_7676),
+            accent: highlight,
+        }
+    }
+
+    pub const fn classic_dark(highlight: Color, highlight_text: Color) -> Self {
+        Self {
+            dark: true,
+            panel: argb(0xFF2B_2B2B),
+            selection: highlight,
+            text: argb(0xFFFF_FFFF),
+            selected_text: highlight_text,
+            secondary: argb(0xFFB8_B8B8),
+            selected_secondary: highlight_text,
+            divider: argb(0xFF47_4747),
+            outline: argb(0xFF76_7676),
+            accent: highlight,
+        }
+    }
+
+    /// With Windows 10's default highlight, for previews.
+    pub const fn default_classic_light() -> Self {
+        Self::classic_light(DEFAULT_HIGHLIGHT, DEFAULT_HIGHLIGHT_TEXT)
+    }
+
+    pub const fn default_classic_dark() -> Self {
+        Self::classic_dark(DEFAULT_HIGHLIGHT, DEFAULT_HIGHLIGHT_TEXT)
+    }
+
     /// The user's contrast theme, as WinUI maps it: window colours, with the
     /// selection in the highlight colours.
     fn high_contrast() -> Self {
@@ -114,17 +162,38 @@ impl Palette {
         }
     }
 
-    /// What the system asks for now.
-    pub fn current() -> Self {
+    /// The Windows 11 colours for `theme`. A contrast theme wins over it.
+    pub fn current(theme: CandidateTheme) -> Self {
         if high_contrast_on() {
             return Self::high_contrast();
         }
         let shades = accent_palette().or_else(accent_from_dwm);
-        if apps_use_light_theme() {
-            Self::light(shades.map_or(DEFAULT_DARK1, |s| s.dark1))
-        } else {
+        if wants_dark(theme) {
             Self::dark(shades.map_or(DEFAULT_LIGHT2, |s| s.light2))
+        } else {
+            Self::light(shades.map_or(DEFAULT_DARK1, |s| s.dark1))
         }
+    }
+
+    /// The classic colours for `theme`. A contrast theme wins over it.
+    pub fn classic(theme: CandidateTheme) -> Self {
+        if high_contrast_on() {
+            return Self::high_contrast();
+        }
+        let (highlight, text) = (sys_color(COLOR_HIGHLIGHT), sys_color(COLOR_HIGHLIGHTTEXT));
+        if wants_dark(theme) {
+            Self::classic_dark(highlight, text)
+        } else {
+            Self::classic_light(highlight, text)
+        }
+    }
+}
+
+fn wants_dark(theme: CandidateTheme) -> bool {
+    match theme {
+        CandidateTheme::System => !apps_use_light_theme(),
+        CandidateTheme::Light => false,
+        CandidateTheme::Dark => true,
     }
 }
 
@@ -241,8 +310,29 @@ mod tests {
 
     #[test]
     fn the_current_palette_is_opaque_where_it_must_be() {
-        let p = Palette::current();
+        let p = Palette::current(CandidateTheme::System);
         assert_eq!(p.panel.a, 0xFF);
         assert_eq!(p.accent.a, 0xFF);
+    }
+
+    #[test]
+    fn a_fixed_theme_does_not_ask_the_system() {
+        if high_contrast_on() {
+            return;
+        }
+        for palette in [Palette::current, Palette::classic] {
+            assert!(!palette(CandidateTheme::Light).dark);
+            assert!(palette(CandidateTheme::Dark).dark);
+            assert_eq!(palette(CandidateTheme::System).dark, !apps_use_light_theme());
+        }
+    }
+
+    #[test]
+    fn classic_colours_are_opaque_for_gdi() {
+        for p in [Palette::default_classic_light(), Palette::default_classic_dark()] {
+            for c in [p.panel, p.selection, p.text, p.selected_text, p.secondary, p.selected_secondary, p.divider, p.outline] {
+                assert_eq!(c.a, 0xFF);
+            }
+        }
     }
 }

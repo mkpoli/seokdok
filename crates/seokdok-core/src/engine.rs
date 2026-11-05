@@ -1019,11 +1019,15 @@ impl Engine {
         if around.alone {
             self.alone_edges(comps, &mut edges);
         }
-        self.loan_edges(comps, &mut edges);
+        // A whole loanword is not cut into pieces: 버그를 offers no 버其를.
+        if self.loan_edges(comps, &mut edges) {
+            edges.retain(|e| e.start == 0 && e.end == n);
+        }
         if !around.bound_next {
             self.prefer_whole_noun(comps, &mut edges);
         }
         self.prefer_written_h(&mut edges);
+        self.keep_ending_jido(comps, &mut edges);
         self.prefer_editorial_word(comps, &mut edges);
         self.prefer_word_over_tail(comps, &mut edges);
         edges
@@ -1056,6 +1060,17 @@ impl Engine {
             let connective = label.rsplit('+').next().unwrap_or("");
             if helpers[e.end].iter().any(|&c| HELPERS[c].0 == connective) {
                 e.cost -= MID_WORD_COST;
+            }
+        }
+    }
+
+    /// After ㄹ, 지도 is the ending -ㄹ지도 (그럴지도요, 어질지도요), not a noun.
+    fn keep_ending_jido(&self, comps: &[char], edges: &mut [Edge]) {
+        let jido = decompose("지도");
+        for e in edges.iter_mut() {
+            let starts = e.start > 0 && comps[e.start - 1] == 'ᆯ' && comps[e.start..].starts_with(&jido);
+            if starts && matches!(e.kind, Kind::Sino { .. } | Kind::Nominal { .. }) {
+                e.cost += MID_WORD_COST;
             }
         }
     }
@@ -1166,17 +1181,19 @@ impl Engine {
     /// A loanword (페이지, 파일, 피자), alone or with a particle or the light
     /// verb 하다, is kept in Hangul: it has no Hanja, and its syllables are not
     /// Sino-Korean words.
-    fn loan_edges(&self, comps: &[char], edges: &mut Vec<Edge>) {
+    fn loan_edges(&self, comps: &[char], edges: &mut Vec<Edge>) -> bool {
         let n = comps.len();
         if self.loans.is_empty() || n == 0 || !is_l(comps[0]) {
-            return;
+            return false;
         }
+        let mut whole = false;
         for q in (1..=n).filter(|&q| q == n || is_l(comps[q])) {
             if crate::jamo::syllable_count(&comps[..q]) < 2 || !self.loans.contains(&compose(&comps[..q])) {
                 continue;
             }
             if q == n {
                 edges.push(Edge { start: 0, end: n, cost: LOAN_COST, kind: Kind::Raw });
+                whole = true;
                 continue;
             }
             // 로그인합니다, 빌드하면: the loanword with the light verb 하다 after it.
@@ -1190,9 +1207,11 @@ impl Engine {
                 });
                 if ok {
                     edges.push(Edge { start: 0, end: n, cost: LOAN_COST + 0.2, kind: Kind::Raw });
+                    whole = true;
                 }
             }
         }
+        whole
     }
 
     /// A whole one- or two-syllable token that is a noun of the community,

@@ -7,12 +7,13 @@
 # (artifact seokdok-release-apk of the latest successful push run on main); set
 # SEOKDOK_APK to a local signed app-release.apk to use that instead. The Windows
 # installer takes the settings app the same way: see crates/seokdok-tsf/package.sh.
-# 音讀 takes artifact eumdok-release-apk, or EUMDOK_APK.
+# 音讀 takes artifacts eumdok-release-apk and eumdok-settings-app, or EUMDOK_APK and
+# EUMDOK_SETTINGS_APP.
 set -euo pipefail
 web="$(cd "$(dirname "$0")/.." && pwd)"
 root="$(cd "$web/.." && pwd)"
 "$root/crates/seokdok-tsf/package.sh"
-"$root/crates/seokdok-tsf/package.sh" eumdok
+SEOKDOK_SETTINGS_APP="${EUMDOK_SETTINGS_APP:-}" "$root/crates/seokdok-tsf/package.sh" eumdok
 "$root/crates/seokdok-fcitx5/package.sh"
 "$root/crates/seokdok-fcitx5/package.sh" eumdok
 version=$(cargo metadata --no-deps --format-version 1 --manifest-path "$root/Cargo.toml" | jq -r '.packages[] | select(.name=="seokdok-ffi") | .version')

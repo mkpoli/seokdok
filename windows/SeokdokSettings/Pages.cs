@@ -271,6 +271,26 @@ internal sealed class TypingPage : Page
                 i => Change(layout, Sky, Settings.Patch("input.candidate_layout", layouts[i]))),
             "\uE8FD"));
 
+        string[] styles = { "windows11", "classic" };
+        var style = L("候補 窓의 모양", "Candidate list look");
+        Add(Card(
+            style,
+            L("Windows 11은 모서리가 둥글고, 예전 Windows는 Windows 10까지처럼 네모납니다.", "Windows 11 has rounded corners. Classic is square, like Windows 10 and earlier."),
+            null,
+            Choice(new[] { "Windows 11", L("예전 Windows", "Classic Windows") }, Array.IndexOf(styles, Settings.Str("windows.candidate_style")),
+                i => Change(style, null, Settings.Patch("windows.candidate_style", styles[i]))),
+            "\uE771"));
+
+        string[] themes = { "system", "light", "dark" };
+        var theme = L("候補 窓의 色", "Candidate list colours");
+        Add(Card(
+            theme,
+            L("高對比 테마를 쓰면 그 테마의 色으로 나옵니다.", "A high-contrast theme keeps its own colours."),
+            null,
+            Choice(new[] { L("시스템 設定대로", "Follow system"), L("늘 밝게", "Always light"), L("늘 어둡게", "Always dark") }, Array.IndexOf(themes, Settings.Str("windows.candidate_theme")),
+                i => Change(theme, null, Settings.Patch("windows.candidate_theme", themes[i]))),
+            "\uE790"));
+
         Add(More(
             L("더 보기", "More"),
             L("옛 韓㐎 겹字母, 앱마다 다른 글자 表示", "Old Hangul clusters, and where each app shows typing"),

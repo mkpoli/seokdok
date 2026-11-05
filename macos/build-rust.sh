@@ -10,15 +10,18 @@
 # command-line tools) or an `llvm-lipo` as new as the LLVM of rustc.
 #
 #   rustup target add aarch64-apple-darwin x86_64-apple-darwin
-#   macos/build-rust.sh
+#   macos/build-rust.sh [seokdok|eumdok]
 set -euo pipefail
+id="${1:-seokdok}"
+features=()
+[ "$id" = seokdok ] || features=(--features "$id")
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/.." && pwd)"
 targets=(aarch64-apple-darwin x86_64-apple-darwin)
 # Keep in step with deploymentTarget in project.yml.
 export MACOSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET:-13.0}"
 for t in "${targets[@]}"; do
-  cargo build --release --target "$t" -p seokdok-ffi --manifest-path "$root/Cargo.toml"
+  cargo build --release --target "$t" -p seokdok-ffi --manifest-path "$root/Cargo.toml" ${features[@]+"${features[@]}"}
 done
 
 lipo_bin=""

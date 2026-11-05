@@ -92,7 +92,9 @@ targets:
   SeokdokUITests:
     type: bundle.ui-testing
     platform: iOS
-    sources: [UITests]
+    sources:
+      - UITests
+      - path: Keyboard/KeyLayout.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: li.mkpo.seokdok.uitests

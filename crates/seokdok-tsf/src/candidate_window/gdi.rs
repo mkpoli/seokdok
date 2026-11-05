@@ -58,6 +58,8 @@ enum Op {
 pub struct Paint {
     ops: Vec<Op>,
     panel: Color,
+    outline: Color,
+    stroke: i32,
     font: HFONT,
 }
 
@@ -94,7 +96,8 @@ impl Gdi {
                     FACE,
                 );
             }
-            self.dpi = dpi;
+            // A font that could not be made is tried again at the next show.
+            self.dpi = if self.font.is_invalid() { 0 } else { dpi };
         }
         self.font
     }
@@ -111,10 +114,10 @@ impl Gdi {
         let font = self.font_for(dpi);
         // SAFETY: hdc is valid; the old font is restored below.
         let old = unsafe { SelectObject(hdc, font.into()) };
-        let (ops, width, height) = lay_out(hdc, dpi as i32, preedit, popup, palette);
+        let (ops, stroke, width, height) = lay_out(hdc, dpi as i32, preedit, popup, palette);
         // SAFETY: restores what was selected above.
         unsafe { SelectObject(hdc, old) };
-        (Paint { ops, panel: palette.panel, font }, width, height)
+        (Paint { ops, panel: palette.panel, outline: palette.outline, stroke, font }, width, height)
     }
 }
 
@@ -129,8 +132,15 @@ impl Drop for Gdi {
     }
 }
 
-/// The operations and the window's size, with the font selected in `hdc`.
-fn lay_out(hdc: HDC, dpi: i32, preedit: Option<&[Run]>, popup: Option<&Popup>, palette: &Palette) -> (Vec<Op>, i32, i32) {
+/// The operations, the outline's thickness and the window's size, with the font
+/// selected in `hdc`.
+fn lay_out(
+    hdc: HDC,
+    dpi: i32,
+    preedit: Option<&[Run]>,
+    popup: Option<&Popup>,
+    palette: &Palette,
+) -> (Vec<Op>, i32, i32, i32) {
     let px = |v: i32| v * dpi / 96;
     let extent = |s: &str| text_extent(hdc, s);
     let stroke = px(1).max(1);
@@ -234,17 +244,7 @@ fn lay_out(hdc: HDC, dpi: i32, preedit: Option<&[Run]>, popup: Option<&Popup>, p
         ops.push(Op::Text { x, top: y, bottom: y + row, text: position, color });
         y += row;
     }
-    let height = y + stroke;
-
-    for r in [
-        RECT { left: 0, top: 0, right: width, bottom: stroke },
-        RECT { left: 0, top: height - stroke, right: width, bottom: height },
-        RECT { left: 0, top: 0, right: stroke, bottom: height },
-        RECT { left: width - stroke, top: 0, right: width, bottom: height },
-    ] {
-        ops.push(Op::Fill(r, palette.outline));
-    }
-    (ops, width, height)
+    (ops, stroke, width, y + stroke)
 }
 
 fn fill(hdc: HDC, rect: &RECT, color: Color) {
@@ -280,6 +280,16 @@ pub fn paint(hdc: HDC, rc: RECT, paint: &Paint) {
             }
         }
         SelectObject(hdc, old_font);
+        // On the window's real edge: a list too wide for the monitor is narrowed.
+        let stroke = paint.stroke;
+        for r in [
+            RECT { bottom: stroke, ..rc },
+            RECT { top: rc.bottom - stroke, ..rc },
+            RECT { right: stroke, ..rc },
+            RECT { left: rc.right - stroke, ..rc },
+        ] {
+            fill(hdc, &r, paint.outline);
+        }
         if layout != 0 {
             SetLayout(hdc, DC_LAYOUT(layout));
         }

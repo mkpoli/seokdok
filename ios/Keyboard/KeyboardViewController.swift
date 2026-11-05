@@ -257,7 +257,7 @@ final class KeyboardViewController: UIInputViewController {
         s.candidates = session.candidates()
         s.loading = !Session.ready
         s.returnKey = ReturnKey(textDocumentProxy.returnKeyType ?? .default)
-        s.returnDisabled = returnDisabled
+        s.returnDisabled = returnDisabled && runs.isEmpty
         s.learnMenu = learnMenu
         s.learnOn = hasFullAccess && AppGroup.containerURL != nil ? nil : Session.learn
         keys.render(s)
@@ -327,7 +327,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
 
     func enter() {
         dropForeignComposition()
-        guard !returnDisabled || !session.preedit().isEmpty else { return }
+        guard layout.isPad || !returnDisabled || !session.preedit().isEmpty else { return }
         guard layout.converts else {
             insert("\n")
             return

@@ -42,10 +42,11 @@ final class Key: UIView {
         didSet { refill() }
     }
 
-    /// A Return the field does not accept yet: grey and silent.
+    /// A Return the field does not accept yet.
     var isDisabledLook = false {
         didSet {
             guard isDisabledLook != oldValue else { return }
+            accessibilityTraits = isDisabledLook ? [.keyboardKey, .notEnabled] : .keyboardKey
             refill()
         }
     }
@@ -202,6 +203,7 @@ final class Key: UIView {
     }
 
     override func accessibilityActivate() -> Bool {
+        guard !isDisabledLook else { return false }
         Self.onActivate?()
         action?()
         return true

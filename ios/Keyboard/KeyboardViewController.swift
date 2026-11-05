@@ -344,6 +344,37 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
+    /// While the key is held the system's Korean keyboard takes a composition a
+    /// syllable at a time, where a tap takes one letter.
+    func backspaceRepeat() {
+        let before = session.preedit().map(\.text).joined().count
+        guard before > 0 else {
+            backspace()
+            return
+        }
+        // A syllable has at most a few letters; the bound only guards the loop.
+        for _ in 0..<8 {
+            backspace()
+            if session.preedit().map(\.text).joined().count < before { break }
+        }
+    }
+
+    /// The word before the caret and the spaces after it. With no text to see,
+    /// one character.
+    func backspaceWord() {
+        guard session.preedit().isEmpty else {
+            backspaceRepeat()
+            return
+        }
+        let context = textDocumentProxy.documentContextBeforeInput ?? ""
+        let spaces = context.reversed().prefix(while: \.isWhitespace).count
+        let word = context.reversed().dropFirst(spaces).prefix(while: { !$0.isWhitespace }).count
+        for _ in 0..<max(1, spaces + word) {
+            textDocumentProxy.deleteBackward()
+        }
+        session.reset()
+    }
+
     /// What is being composed goes into the document first, with no word break
     /// owed afterwards: the caret is leaving.
     func beginCursor() {

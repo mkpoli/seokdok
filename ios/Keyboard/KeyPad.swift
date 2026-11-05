@@ -15,6 +15,10 @@ final class Key: UIView {
     var fires = Fires.onRelease
     /// Delete: fire again and again while held.
     var repeats = false
+    /// Delete: each repeat while held, instead of `action`.
+    var repeatAction: (() -> Void)?
+    /// Delete: what it does once held long enough.
+    var repeatsFaster: (() -> Void)?
     /// Show the pop-up preview while held.
     var previews = false
     /// Space: held, it turns the keyboard into a trackpad.
@@ -262,6 +266,13 @@ final class KeyPad: UIView {
     private var tracks: [ObjectIdentifier: Track] = [:]
     private var previewing: Key?
     private var repeatTimer: Timer?
+    /// Held Delete, measured from the system keyboard's held Delete in iOS 18.5
+    /// and iOS 26.5 simulators: it repeats after half a second, ten times a
+    /// second, and after twenty repeats takes whole words, six a second.
+    private static let repeatDelay: TimeInterval = 0.5
+    private static let repeatInterval: TimeInterval = 0.1
+    private static let repeatsBeforeWords = 20
+    private static let wordInterval: TimeInterval = 1.0 / 6
     private var holdTimer: Timer?
     /// The touch steering the caret, and what it has moved short of a character.
     private var cursorTouch: ObjectIdentifier?
@@ -423,9 +434,19 @@ final class KeyPad: UIView {
         if k.fires == .onPress { k.action?() }
         if k.repeats {
             repeatTimer?.invalidate()
-            repeatTimer = Timer.scheduledTimer(withTimeInterval: 0.45, repeats: false) { [weak self, weak k] _ in
-                self?.repeatTimer = Timer.scheduledTimer(withTimeInterval: 0.08, repeats: true) { [weak k] _ in
-                    k?.action?()
+            repeatTimer = Timer.scheduledTimer(withTimeInterval: Self.repeatDelay, repeats: false) { [weak self, weak k] _ in
+                guard let self, let k else { return }
+                k.repeatAction?()
+                var fired = 1
+                self.repeatTimer = Timer.scheduledTimer(withTimeInterval: Self.repeatInterval, repeats: true) { [weak self, weak k] _ in
+                    guard let self, let k else { return }
+                    k.repeatAction?()
+                    fired += 1
+                    guard fired >= Self.repeatsBeforeWords, let words = k.repeatsFaster else { return }
+                    self.repeatTimer?.invalidate()
+                    self.repeatTimer = Timer.scheduledTimer(withTimeInterval: Self.wordInterval, repeats: true) { _ in
+                        words()
+                    }
                 }
             }
         }

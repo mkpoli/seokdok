@@ -6,6 +6,10 @@ protocol KeyboardViewDelegate: AnyObject {
     func space()
     func enter()
     func backspace()
+    /// Held: a whole syllable of what is being composed, or one character.
+    func backspaceRepeat()
+    /// Held long enough: what is being composed by syllables, or the word before the caret.
+    func backspaceWord()
     func toggleShift()
     func cycleMode()
     func pick(_ index: Int)
@@ -376,6 +380,8 @@ final class KeyboardView: UIView {
         k.fires = .onPress
         k.repeats = true
         k.action = { [weak self] in self?.tap { $0.backspace() } }
+        k.repeatAction = { [weak self] in self?.tap { $0.backspaceRepeat() } }
+        k.repeatsFaster = { [weak self] in self?.tap { $0.backspaceWord() } }
         return k
     }
 

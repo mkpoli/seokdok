@@ -24,7 +24,7 @@ protocol KeyboardViewDelegate: AnyObject {
 }
 
 /// What the text field asks for (`textDocumentProxy.keyboardType` and secure
-/// entry). Only `standard` composes and converts; the others type their
+/// entry). Only the Hangul layouts compose and convert; the others type their
 /// characters as they are.
 enum Layout {
     case standard
@@ -117,7 +117,7 @@ final class KeyboardView: UIView {
 
     /// The number pads, measured from the system keyboard's in iOS 18.5 and iOS
     /// 26.5 simulators; the landscape one is our choice, since none was captured.
-    private struct PadMetrics {
+    private struct PadMetrics: Equatable {
         let side, gap, key, between, top, bottom: CGFloat
         static var current: PadMetrics {
             if UIScreen.main.bounds.width > UIScreen.main.bounds.height {
@@ -309,6 +309,8 @@ final class KeyboardView: UIView {
         popup.show(key, over: key.convert(key.bounds, to: self), within: bounds)
     }
 
+    private var enterWidth: NSLayoutConstraint!
+    private var shownPad: PadMetrics?
     private var extraWidths: [NSLayoutConstraint] = []
     private var extraEqual: [NSLayoutConstraint] = []
 
@@ -457,12 +459,18 @@ final class KeyboardView: UIView {
         spaceKey.holdsForCursor = true
         enterKey = Key(title: "改行")
         enterKey.action = { [weak self] in self?.tap { $0.enter() } }
-        enterKey.widthAnchor.constraint(equalToConstant: 94).isActive = true
+        enterWidth = enterKey.widthAnchor.constraint(equalToConstant: 94)
+        enterWidth.isActive = true
         for k in [modeKey!, spaceKey!] + extraKeys + [enterKey!] {
             bottom.addArrangedSubview(k)
         }
         // By the space bar they have a key's width; with no space bar, a third each.
-        extraWidths = extraKeys.map { $0.widthAnchor.constraint(equalToConstant: 40) }
+        extraWidths = extraKeys.map {
+            let width = $0.widthAnchor.constraint(equalToConstant: 40)
+            // On the narrowest screens they give way before the space bar does.
+            width.priority = UILayoutPriority(999)
+            return width
+        }
         extraEqual = [
             extraKeys[1].widthAnchor.constraint(equalTo: extraKeys[0].widthAnchor),
             extraKeys[2].widthAnchor.constraint(equalTo: extraKeys[0].widthAnchor),
@@ -526,7 +534,9 @@ final class KeyboardView: UIView {
         bottomLine.isHidden = pads
         pad.isHidden = !pads
         modeKey.isHidden = !layout.converts
-        layerWidth.constant = layout.converts ? 46 : 94
+        // With a globe in the row the system's 123 and Return are narrower too.
+        layerWidth.constant = layout.converts || globe != nil ? 46 : 94
+        enterWidth.constant = globe != nil && (layout == .twitter || layout == .web) ? 70 : 94
         switch layout {
         case .email: extraTexts = ["@", "."]
         case .url: extraTexts = [".", "/", ".com"]
@@ -539,7 +549,11 @@ final class KeyboardView: UIView {
         NSLayoutConstraint.deactivate(extraWidths + extraEqual)
         for (i, k) in extraKeys.enumerated() {
             k.isHidden = i >= extraTexts.count
-            if i < extraTexts.count { k.set(main: extraTexts[i], hint: nil) }
+            if i < extraTexts.count {
+                k.set(main: extraTexts[i], hint: nil)
+                // The balloon is a key wider than its key: too small for .com.
+                k.previews = extraTexts[i].count == 1
+            }
         }
         if layout == .url {
             NSLayoutConstraint.activate(extraEqual)
@@ -548,7 +562,7 @@ final class KeyboardView: UIView {
         }
         // The symbols first, for a field of numbers and punctuation.
         let wantsSymbols = layout == .numbers
-        if lettersShown == wantsSymbols {
+        if wantsSymbols || lettersShown == wantsSymbols {
             symbolPage = 0
             labelSymbols()
             letters.isHidden = wantsSymbols
@@ -563,10 +577,22 @@ final class KeyboardView: UIView {
         }
     }
 
+    /// A pad follows the rotation; the letters' rows have their own sizes.
+    override func layoutSubviews() {
+        super.layoutSubviews()
+        let metrics = PadMetrics.current
+        guard shownLayout.isPad, shownPad != metrics else { return }
+        keysTop.constant = metrics.top
+        keysBottom.constant = -metrics.bottom
+        keysColumn.spacing = metrics.between
+        buildPad(shownLayout, metrics)
+    }
+
     /// Four rows of three, as on the system's pads: no Return, letters under the
     /// digits, and flat keys beside the 0. With a globe to show it takes the empty
     /// cell, or shares the separator's.
     private func buildPad(_ layout: Layout, _ m: PadMetrics) {
+        shownPad = m
         pad.arrangedSubviews.forEach { $0.removeFromSuperview() }
         pad.spacing = m.between
         pad.isLayoutMarginsRelativeArrangement = true
@@ -592,7 +618,10 @@ final class KeyboardView: UIView {
         var corner: UIView
         switch layout {
         case .phone:
-            corner = key("+", look: .plain)
+            let signs = UIStackView(arrangedSubviews: ["+", "*", "#"].map { key(Character($0), look: .plain) })
+            signs.axis = .horizontal
+            signs.distribution = .fillEqually
+            corner = signs
         case .decimal:
             corner = key(Character(Locale.current.decimalSeparator ?? "."), look: .plain)
         default:

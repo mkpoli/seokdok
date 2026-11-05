@@ -19,7 +19,7 @@ final class KeyboardViewController: UIInputViewController {
     /// Bumped whenever a composition ends or its field changes, so a delayed
     /// check for an earlier text change does nothing.
     private var checkGeneration = 0
-    /// What the focused field asks for; only `.standard` converts.
+    /// What the focused field asks for; only the Hangul layouts convert.
     private var layout = Layout.standard
     /// A long press on the mode key opened the bar's controls for what was
     /// learned. Without Full Access the app cannot reach this keyboard's files.

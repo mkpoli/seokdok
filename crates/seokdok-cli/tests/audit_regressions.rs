@@ -299,6 +299,19 @@ fn november_chat_spellings_lead() {
 }
 
 #[test]
+fn a_loanword_is_not_cut_into_pieces() {
+    let e = engine();
+    for word in ["버그를", "버그", "서버를", "키보드를", "컴퓨터를"] {
+        let list = e.convert(word);
+        assert_eq!(list[0].text, word);
+        let mixed = list.iter().find(|c| c.text.chars().any(|ch| ('\u{4E00}'..='\u{9FFF}').contains(&ch)) && c.text.chars().any(|ch| ('가'..='힣').contains(&ch)) && !c.text.ends_with(['를', '가', '는']));
+        assert!(mixed.is_none(), "{word}: {mixed:?}");
+    }
+    // A Sino-Korean word with the same letters stays on offer.
+    offers(&[("파일을", "八日을")]);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "我ㄹ")]);
 }

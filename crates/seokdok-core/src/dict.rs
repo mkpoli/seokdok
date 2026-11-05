@@ -64,6 +64,8 @@ pub enum Source {
     Eonhae,
     /// Printed with its Hanja in a book of 1882-1945 (`dict/kun-attested.tsv`).
     KunAttested,
+    /// A native place name from Japanese Wikipedia's list (`dict/place-names.tsv`).
+    PlaceName,
     /// Proposed by a language model from word senses and 訓音 glosses;
     /// unreviewed.
     Suggested,
@@ -85,7 +87,7 @@ impl Source {
             Source::Corpus | Source::Editorial => 1,
             Source::Community => 2,
             Source::Eonhae | Source::KunAttested => 3,
-            Source::Suggested => 4,
+            Source::Suggested | Source::PlaceName => 4,
             Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon => 5,
         }
     }
@@ -99,6 +101,7 @@ impl Source {
             "eonhae" => Source::Eonhae,
             "kun-attested" => Source::KunAttested,
             "suggested" => Source::Suggested,
+            "place-name" => Source::PlaceName,
             "gloss" => Source::Gloss,
             "japanese" => Source::Japanese,
             "japanese-weak" => Source::JapaneseWeak,
@@ -157,6 +160,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
         Source::Eonhae => 4.2,
         Source::KunAttested => 4.3,
         Source::Suggested => 4.5,
+        Source::PlaceName => 4.6,
         Source::Gloss => 6.0,
         Source::Japanese => 6.2,
         Source::JapaneseWeak => 7.2,
@@ -172,7 +176,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
         // credited counts are noisy: never rank them above the community tier.
         Source::Suggested => attested.max(2.5),
         // Ranks by the chat's count as Suggested does; the earlier file wins a tie.
-        Source::Eonhae | Source::KunAttested => attested.max(2.5),
+        Source::Eonhae | Source::KunAttested | Source::PlaceName => attested.max(2.5),
         Source::Gloss | Source::Japanese | Source::Lexicon => attested.max(3.0),
         Source::JapaneseWeak => attested.max(4.0),
         _ => attested.min(base),

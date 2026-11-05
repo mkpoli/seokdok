@@ -532,6 +532,7 @@ final class KeyboardView: UIView {
         modeKey.title = s.mode == .seokdok && s.script == 1 ? "混" : ["釋", "한", "A"][Int(s.mode.rawValue)]
         let converts = s.composing && s.mode == .seokdok && (s.spaceConverts || s.candidates != nil)
         spaceKey.title = converts ? "變換" : (KeyMetrics.flat ? "" : "띄어쓰기")
+        spaceKey.spoken = converts ? "變換" : "Space"
         enterKey.title = s.composing ? "確定" : "改行"
         enterKey.look = s.returnIsAction && !s.composing ? .accent : .function
         shownRuns = s.runs

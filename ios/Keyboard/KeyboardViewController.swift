@@ -69,7 +69,8 @@ final class KeyboardViewController: UIInputViewController {
     override func viewWillLayoutSubviews() {
         super.viewWillLayoutSubviews()
         let width = view.bounds.width
-        guard width > 0 else { return }
+        // The table is the iPhone's; an iPad keeps the keys' first layout.
+        guard width > 0, UIDevice.current.userInterfaceIdiom == .phone else { return }
         let screen = UIScreen.main.bounds.size
         let layout = KeyLayout.current(width: width, landscape: screen.width > screen.height)
         keysHeight?.constant = layout.height

@@ -780,12 +780,16 @@ impl Engine {
         matches!(n.source, Source::Editorial | Source::Corpus) && n.lemma != "수" && self.in_sino_table(n)
     }
 
-    /// 推薦하다 or 限定되다: in 國漢文混用 the Sino-Korean word reads by itself, and a
-    /// row for the whole verb would leave it in Hangul.
+    /// 推薦하다 or 限定되다, a row that spells a Sino-Korean word and a light verb. In
+    /// 國漢文混用 that word reads by itself, and a row for the whole verb would leave
+    /// it in Hangul. 사랑하다 is 愛: its homophone 思量 is not what is meant.
     fn sino_word_with_light_verb(&self, n: &Native) -> bool {
         let Some(root) = n.lemma.strip_suffix("하다").or_else(|| n.lemma.strip_suffix("되다")) else { return false };
         let root = decompose(root);
-        crate::jamo::syllable_count(&root) >= 2 && self.sino.prefixes(&root, 0).into_iter().any(|(q, _)| q == root.len())
+        crate::jamo::syllable_count(&root) >= 2
+            && self.sino.prefixes(&root, 0).into_iter().any(|(q, items)| {
+                q == root.len() && items.iter().any(|&i| self.sinos.hanja(i as usize) == n.hanja)
+            })
     }
 
     fn native_cost(&self, n: &Native) -> f32 {
@@ -975,9 +979,15 @@ impl Engine {
             }
             // Inflected verbs and adjectives: stem allomorph + ending.
             for (q, items) in self.stems.prefixes(comps, s) {
+                // Every row of such a verb goes, or 託하다 would keep 부탁해 in Hangul.
+                let sino_verbs: Vec<&str> = if self.options.sino_only {
+                    items.iter().map(|&(i, _)| &self.natives[i as usize]).filter(|n| self.sino_word_with_light_verb(n)).map(|n| n.lemma.as_str()).collect()
+                } else {
+                    Vec::new()
+                };
                 for &(i, a) in items {
                     let entry = &self.natives[i as usize];
-                    if self.options.sino_only && self.sino_word_with_light_verb(entry) {
+                    if sino_verbs.contains(&entry.lemma.as_str()) {
                         continue;
                     }
                     let ctx = entry.allos[a as usize].ctx;

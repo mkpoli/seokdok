@@ -334,8 +334,8 @@ fn spellings_from_the_etymology_stay_on_offer() {
 fn sino_korean_verbs_are_hanja_in_mixed_script_mode() {
     let e = Engine::from_dir(&Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict"), Options { sino_only: true, ..Options::default() }).expect("dict").0;
     for (input, want) in [
-        ("추천해", "推薦해"), ("준비해", "準備해"), ("설명해", "說明해"), ("연습해", "練習해"), ("생각해", "生覺해"), ("공부해", "工夫해"), ("한정되는", "限定되는"),
-        ("말해", "말해"), ("하늘을", "하늘을"), ("보셨다", "보셨다"), ("좋아해", "좋아해"), ("좋은", "좋은"),
+        ("추천해", "推薦해"), ("준비해", "準備해"), ("설명해", "說明해"), ("연습해", "練習해"), ("부탁해", "付託해"), ("공부해", "工夫해"), ("한정되는", "限定되는"), ("인쇄한", "印刷한"),
+        ("말해", "말해"), ("하늘을", "하늘을"), ("보셨다", "보셨다"), ("좋아해", "좋아해"), ("좋은", "좋은"), ("사랑하는", "사랑하는"), ("노래할때", "노래할때"), ("생각해", "생각해"),
     ] {
         assert_eq!(e.convert(input)[0].text, want, "{input}");
     }

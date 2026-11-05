@@ -1,8 +1,8 @@
 [Addon]
-Name=Seokdok
+Name=@LATIN@
 Category=InputMethod
 Version=0.1.0
-Library=libseokdok
+Library=lib@ID@
 Type=SharedLibrary
 OnDemand=True
 Configurable=False

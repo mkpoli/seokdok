@@ -33,6 +33,10 @@ Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc c
 
 音讀 (Eumdok, 음독) is a second input method built from this repository, for 國漢文混用 only: Sino-Korean words in Hanja, native words and everything else in Hangul, with no 訓讀 in the candidates or the settings. It shares the engine, the dictionaries and the session with 釋讀 and installs beside it with its own identifiers and settings folder (`eumdok`). `products/<id>.json` holds what differs; `crates/seokdok-product` makes it available to Rust, where `--features eumdok` selects the product, and the build scripts of each front end read the same file.
 
+## 音讀
+
+音讀 (Eumdok, 음독) is a second input method built from this repository, for 國漢文混用 only: Sino-Korean words in Hanja, native words and everything else in Hangul, with no 訓讀 in the candidates or the settings. It shares the engine, the dictionaries and the session with 釋讀 and installs beside it with its own identifiers and settings folder (`eumdok`). `products/<id>.json` holds what differs; `crates/seokdok-product` makes it available to Rust, where `--features eumdok` selects the product, and the build scripts of each front end read the same file.
+
 ## Mode keys
 
 There are three modes: 釋讀, plain 한글 and Latin. In 釋讀 mode the script is 釋讀, 國漢文混用 or 韓㐎 專用. The keys are the ones people know from the Korean tools on each platform, as far as the system lets an input method see them. They live in `[input.keys]` in `config.toml`, with defaults per platform; a modifier written alone means tapping it with no other key.

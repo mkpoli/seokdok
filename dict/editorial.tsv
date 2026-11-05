@@ -333,3 +333,17 @@ lemma	written	pos	class	source	count	note
 비하면	比하면	adv		editorial		比 as in 비해
 거예요	거예요	bound		editorial	13	the chat writes Hangul 거예요 (13×) against 物예요 (1×)
 지도하다	指導하다	verb		editorial		指導 for the verb; 地圖 is the noun 지도
+고수	高手	noun		editorial	10	the chat writes 高手 (10×) against Hangul 고수 (2×)
+빈도	頻度	noun		editorial	3	the chat writes 頻度 (3×) against Hangul 빈도 (1×)
+점도	點도	noun		editorial	9	the chat writes 點도 (9×) against Hangul 점도 (1×)
+방은	房은	noun		editorial	14	the chat writes 房은 (14×) against Hangul 방은 (4×)
+방이	房이	noun		editorial	10	the chat writes 房이 (10×) against Hangul 방이 (10×)
+훈이	訓이	noun		editorial	10	the chat writes 訓이 (10×) against Hangul 훈이 (3×)
+훈을	訓을	noun		editorial	7	the chat writes 訓을 (7×) against Hangul 훈을 (2×)
+외의	外의	noun		editorial	3	the chat writes 外의 (3×) against Hangul 외의 (1×)
+외에	外에	noun		editorial	28	the chat writes 外에 (28×) against Hangul 외에 (7×)
+초에	初에	noun		editorial	16	the chat writes 初에 (16×) against Hangul 초에 (13×)
+추구하다	追求하다	verb		editorial		the Sino word + 하다, ahead of 搜
+한정되다	限定되다	verb		editorial		the Sino word + 되다, ahead of 限
+우회책	迂廻策	noun		editorial	1	the chat writes 迂廻策 (1×) against Hangul 우회책 (0×)
+것	件ㅅ	bound		editorial	5	the chat writes 件ㅅ for 것 (5× in Nov 2026)

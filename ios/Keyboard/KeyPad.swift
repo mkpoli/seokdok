@@ -481,17 +481,36 @@ final class KeyPad: UIView {
 }
 
 /// The balloon over a held key: the key's own shape grown upward into a larger
-/// cap with the letter in it. One instance moves from key to key.
+/// cap with the letter in it. One instance moves from key to key. Its shape and
+/// timing are measured from the system keyboard's in iOS 18.5 and iOS 26.5
+/// simulators.
 final class KeyPopup: UIView {
     private let shape = CAShapeLayer()
     private let label = UILabel()
+    private var hideWork: DispatchWorkItem?
+
+    private static var flat: Bool {
+        if #available(iOS 26, *) { return true }
+        return false
+    }
+    /// Over the top of the key.
+    private static let rise: CGFloat = flat ? 54 : 64
+    /// To each side of the key.
+    private static let grow: CGFloat = flat ? 12.3 : 13
+    /// The system's pop-up outlives the finger by about this much.
+    private static let linger: TimeInterval = 0.05
+    /// A little lighter than the keys in the dark on iOS 26.
+    private static let fill = UIColor {
+        guard flat, $0.userInterfaceStyle == .dark else { return KeyMetrics.letterFill.resolvedColor(with: $0) }
+        return UIColor(white: 84.0 / 255, alpha: 1)
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         isUserInteractionEnabled = false
         layer.addSublayer(shape)
         shape.shadowColor = UIColor.black.cgColor
-        shape.shadowOpacity = 0.3
+        shape.shadowOpacity = Self.flat ? 0 : 0.3
         shape.shadowRadius = 3
         shape.shadowOffset = CGSize(width: 0, height: 1)
         label.textAlignment = .center
@@ -505,24 +524,21 @@ final class KeyPopup: UIView {
     }
 
     /// Show `key`'s letter over `rect`, the key's frame in this view's
-    /// superview, kept within `bounds` of the keyboard.
+    /// superview, kept within `bounds` of the keyboard: a custom keyboard can draw
+    /// nowhere else, so over the top row its edge shortens the pop-up.
     func show(_ key: Key, over rect: CGRect, within outer: CGRect) {
+        hideWork?.cancel()
+        hideWork = nil
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         frame = outer
-        // Measured from the system keyboard's pop-up on an iOS 18.5 simulator.
-        // Over the top row the keyboard's edge shortens it, since nothing can
-        // be drawn above that edge.
-        let grow: CGFloat = 13
-        let gap: CGFloat = 8
-        let bottom = rect.minY - gap
-        let top = max(bottom - 58, outer.minY)
-        var body = CGRect(x: rect.minX - grow, y: top, width: rect.width + 2 * grow, height: bottom - top)
+        let top = max(rect.minY - Self.rise, outer.minY)
+        var body = CGRect(x: rect.minX - Self.grow, y: top, width: rect.width + 2 * Self.grow, height: rect.minY - Self.shoulder - top)
         body.origin.x = min(max(body.minX, outer.minX + 1), outer.maxX - body.width - 1)
         let path = Self.path(body: body, key: rect)
         shape.path = path
         shape.shadowPath = path
-        shape.fillColor = KeyMetrics.letterFill.resolvedColor(with: traitCollection).cgColor
+        shape.fillColor = Self.fill.resolvedColor(with: traitCollection).cgColor
         label.frame = body
         label.text = key.title
         isHidden = false
@@ -530,30 +546,36 @@ final class KeyPopup: UIView {
     }
 
     func hide() {
-        isHidden = true
+        hideWork?.cancel()
+        let work = DispatchWorkItem { [weak self] in self?.isHidden = true }
+        hideWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.linger, execute: work)
     }
 
-    /// A rounded body, a neck narrowing to the key, and the key's bottom.
+    /// From the bottom of the body's straight sides to the top of the key.
+    private static let shoulder: CGFloat = 14
+
+    /// A rounded body, a short shoulder narrowing to the key, and the key's bottom.
     private static func path(body b: CGRect, key k: CGRect) -> CGPath {
         let r: CGFloat = 10
         let kr = KeyMetrics.corner
-        let neck: CGFloat = 12
+        let end = k.minY - 3
         let p = UIBezierPath()
         p.move(to: CGPoint(x: b.minX + r, y: b.minY))
         p.addLine(to: CGPoint(x: b.maxX - r, y: b.minY))
         p.addQuadCurve(to: CGPoint(x: b.maxX, y: b.minY + r), controlPoint: CGPoint(x: b.maxX, y: b.minY))
-        p.addLine(to: CGPoint(x: b.maxX, y: b.maxY - neck))
-        p.addCurve(to: CGPoint(x: k.maxX, y: k.minY + neck),
-                   controlPoint1: CGPoint(x: b.maxX, y: b.maxY),
-                   controlPoint2: CGPoint(x: k.maxX, y: k.minY))
+        p.addLine(to: CGPoint(x: b.maxX, y: b.maxY))
+        p.addCurve(to: CGPoint(x: k.maxX, y: end),
+                   controlPoint1: CGPoint(x: b.maxX, y: b.maxY + 6),
+                   controlPoint2: CGPoint(x: k.maxX, y: end - 6))
         p.addLine(to: CGPoint(x: k.maxX, y: k.maxY - kr))
         p.addQuadCurve(to: CGPoint(x: k.maxX - kr, y: k.maxY), controlPoint: CGPoint(x: k.maxX, y: k.maxY))
         p.addLine(to: CGPoint(x: k.minX + kr, y: k.maxY))
         p.addQuadCurve(to: CGPoint(x: k.minX, y: k.maxY - kr), controlPoint: CGPoint(x: k.minX, y: k.maxY))
-        p.addLine(to: CGPoint(x: k.minX, y: k.minY + neck))
-        p.addCurve(to: CGPoint(x: b.minX, y: b.maxY - neck),
-                   controlPoint1: CGPoint(x: k.minX, y: k.minY),
-                   controlPoint2: CGPoint(x: b.minX, y: b.maxY))
+        p.addLine(to: CGPoint(x: k.minX, y: end))
+        p.addCurve(to: CGPoint(x: b.minX, y: b.maxY),
+                   controlPoint1: CGPoint(x: k.minX, y: end - 6),
+                   controlPoint2: CGPoint(x: b.minX, y: b.maxY + 6))
         p.addLine(to: CGPoint(x: b.minX, y: b.minY + r))
         p.addQuadCurve(to: CGPoint(x: b.minX + r, y: b.minY), controlPoint: CGPoint(x: b.minX, y: b.minY))
         p.close()

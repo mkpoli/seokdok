@@ -106,7 +106,7 @@ internal sealed class ConversionPage : Page
     public override string Title => L("變換", "Conversion");
     public override string Glyph => "\uE8D2";
 
-    static readonly Sample Sentence = new("선생님께서 공부하셨다", Examples.Keys("script.seokdok"));
+    static readonly Sample Sentence = new("선생님께서 공부하셨다", Examples.Keys("script.sino_only"));
     static readonly Sample Saw = new("봤다", Examples.Keys("ending.drop"));
     static readonly Sample Be = new("있다", Examples.Keys("itda.yu"));
     static readonly Sample Eat = new("먹으면", Examples.Keys("final.on"));
@@ -121,26 +121,75 @@ internal sealed class ConversionPage : Page
         Preview = new PreviewCard();
         Preview.Show(L("미리 보기", "Preview"), Sentence);
 
-        string[] scripts = { "seokdok", "sino_only", "hangul_only" };
+        var scripts = Product.Scripts.ToArray();
+        string Label(string script) => script switch
+        {
+            "seokdok" => L("釋讀: 固有語까지 漢字로", "釋讀: native words in Hanja too"),
+            "sino_only" => L("國漢文混用: 漢字語만 漢字로", "國漢文混用: Sino-Korean words only"),
+            _ => L("韓㐎 專用: 變換하지 않음", "Hangul only: no conversion"),
+        };
         Add(Card(
             L("韓㐎을 무엇으로 變換하나", "What your Hangul becomes"),
-            L("Space를 押면 이렇게 變합니다. 作業 표시줄 아이콘의 釋 混 한입니다.", "Space turns what you typed into this. The taskbar icon shows it as 釋, 混 or 한."),
-            "선생님께서 공부하셨다 →\n" + Examples.Text("script.seokdok") + "\n" + Examples.Text("script.sino_only") + "\n" + Examples.Text("script.hangul_only"),
+            Product.HasKun
+                ? L("Space를 押면 이렇게 變합니다. 作業 표시줄 아이콘의 釋 混 한입니다.", "Space turns what you typed into this. The taskbar icon shows it as 釋, 混 or 한.")
+                : L("Space를 누르면 이렇게 變합니다. 作業 표시줄 아이콘의 混 한입니다.", "Space turns what you typed into this. The taskbar icon shows it as 混 or 한."),
+            "선생님께서 공부하셨다 →\n" + string.Join("\n", scripts.Select(s => Examples.Text("script." + s))),
             Choice(
-                new[] { L("釋讀: 固有語까지 漢字로", "釋讀: native words in Hanja too"), L("國漢文混用: 漢字語만 漢字로", "國漢文混用: Sino-Korean words only"), L("韓㐎 專用: 變換하지 않음", "Hangul only: no conversion") },
+                scripts.Select(Label).ToArray(),
                 Array.IndexOf(scripts, Settings.Str("conversion.script")),
                 i => Change(L("韓㐎을 무엇으로 變換하나", "What your Hangul becomes"), Sentence, Settings.Patch("conversion.script", scripts[i]))),
             "\uE8D2"));
 
         Add(More(
             L("表記 더 보기", "More spelling options"),
-            L("語尾, 받침, 있다와 하다를 적는 法", "Endings, final consonants, 있다 and 하다"),
+            Product.HasKun
+                ? L("語尾, 받침, 있다와 하다를 적는 法", "Endings, final consonants, 있다 and 하다")
+                : L("하를 적는 法, 候補 數", "How 하 is written, how many candidates"),
             Spelling(), Open.Contains(Id), on => { if (on) Open.Add(Id); else Open.Remove(Id); }));
         Refresh();
     }
 
     IEnumerable<UIElement> Spelling()
     {
+        foreach (var card in KunSpelling()) yield return card;
+
+        // hada_kun and old_ha: both decide how 하 comes out. The one with 爲 stays
+        // out of a product that hides it.
+        var kun = Settings.Bool("conversion.hada_kun");
+        var old = Settings.Bool("conversion.old_ha");
+        var ha = L("하를 적는 法", "How 하 is written");
+        yield return Product.Hides("hada_kun")
+            ? Card(
+                ha,
+                L("먼저 나오는 表記입니다. 다른 表記도 候補에 남습니다.", "Listed first. The others stay among the candidates."),
+                Examples.Line("하고", "ha.modern", "ha.old"),
+                Choice(
+                    new[] { L("그대로 하고", "As it is: 하고"), L("옛 表記로 ᄒᆞ고", "Old spelling: ᄒᆞ고") },
+                    old ? 1 : 0,
+                    i => Change(ha, Do, Settings.Patch("conversion.old_ha", i == 1))))
+            : Card(
+                ha,
+                L("먼저 나오는 表記입니다. 다른 表記도 候補에 남습니다.", "Listed first. The others stay among the candidates."),
+                Examples.Line("하고", "ha.modern", "ha.kun", "ha.old") + "  ·  " + Examples.Line("공부했다", "ha.both"),
+                Choice(
+                    new[] { L("그대로 하고", "As it is: 하고"), L("漢字로 爲고", "In Hanja: 爲고"), L("옛 表記로 ᄒᆞ고", "Old spelling: ᄒᆞ고"), L("옛 表記로, 했다만 爲ㅆ다", "Old spelling, and 爲ㅆ다 for 했다") },
+                    old ? (kun ? 3 : 2) : (kun ? 1 : 0),
+                    i => Change(ha, i == 3 ? Studied : Do, Settings.Patch(("conversion.hada_kun", i is 1 or 3), ("conversion.old_ha", i >= 2)))));
+
+        var count = L("候補 數", "How many candidates");
+        var box = new NumberBox { Minimum = 1, Maximum = 99, Value = Settings.Int("conversion.max_candidates"), SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Compact, MinWidth = 120 };
+        box.ValueChanged += (_, e) =>
+        {
+            if (!double.IsNaN(e.NewValue)) Change(count, Product.HasKun ? Saw : Sentence, Settings.Patch("conversion.max_candidates", (int)e.NewValue));
+        };
+        yield return Card(count, L("句節 全體를 變換한 候補의 上限입니다. 낱말 候補는 그대로여서 目錄의 맨 끝만 조금 달라집니다. 미리 보기에 全部 몇 個인지 나옵니다.", "A limit on conversions of the whole phrase. Word candidates are not affected, so only the end of the list changes a little. The preview shows the total."), null, box);
+    }
+
+    /// <summary>How 訓讀 is spelled; none of this exists in a product without it.</summary>
+    IEnumerable<UIElement> KunSpelling()
+    {
+        if (!Product.HasKun) yield break;
+
         // style and fragment: the leftover vowel only exists in the short ending.
         var morpheme = Settings.Str("conversion.style") == "morpheme";
         var letter = Settings.Str("conversion.fragment") == "letter";
@@ -182,27 +231,6 @@ internal sealed class ConversionPage : Page
             Examples.Line("먹으면", "carry.off", "carry.on"),
             carrySwitch);
         yield return carry;
-
-        // hada_kun and old_ha: both decide how 하 comes out.
-        var kun = Settings.Bool("conversion.hada_kun");
-        var old = Settings.Bool("conversion.old_ha");
-        var ha = L("하를 적는 法", "How 하 is written");
-        yield return Card(
-            ha,
-            L("먼저 나오는 表記입니다. 다른 表記도 候補에 남습니다.", "Listed first. The others stay among the candidates."),
-            Examples.Line("하고", "ha.modern", "ha.kun", "ha.old") + "  ·  " + Examples.Line("공부했다", "ha.both"),
-            Choice(
-                new[] { L("그대로 하고", "As it is: 하고"), L("漢字로 爲고", "In Hanja: 爲고"), L("옛 表記로 ᄒᆞ고", "Old spelling: ᄒᆞ고"), L("옛 表記로, 했다만 爲ㅆ다", "Old spelling, and 爲ㅆ다 for 했다") },
-                old ? (kun ? 3 : 2) : (kun ? 1 : 0),
-                i => Change(ha, i == 3 ? Studied : Do, Settings.Patch(("conversion.hada_kun", i is 1 or 3), ("conversion.old_ha", i >= 2)))));
-
-        var count = L("候補 數", "How many candidates");
-        var box = new NumberBox { Minimum = 1, Maximum = 99, Value = Settings.Int("conversion.max_candidates"), SpinButtonPlacementMode = NumberBoxSpinButtonPlacementMode.Compact, MinWidth = 120 };
-        box.ValueChanged += (_, e) =>
-        {
-            if (!double.IsNaN(e.NewValue)) Change(count, Saw, Settings.Patch("conversion.max_candidates", (int)e.NewValue));
-        };
-        yield return Card(count, L("句節 全體를 變換한 候補의 上限입니다. 낱말 候補는 그대로여서 目錄의 맨 끝만 조금 달라집니다. 미리 보기에 全部 몇 個인지 나옵니다.", "A limit on conversions of the whole phrase. Word candidates are not affected, so only the end of the list changes a little. The preview shows the total."), null, box);
     }
 
     protected override void Refresh()
@@ -219,7 +247,7 @@ internal sealed class TypingPage : Page
     public override string Title => L("入力", "Typing");
     public override string Glyph => "\uE70F";
 
-    static readonly Sample Sky = new("하늘을", "gksmfdmf");
+    static readonly Sample Sky = Product.HasKun ? new("하늘을", "gksmfdmf") : new("공부를", "rhdqnfmf");
 
     protected override void Build()
     {
@@ -238,15 +266,19 @@ internal sealed class TypingPage : Page
         Add(Card(
             start,
             L("키로 언제든 바꿀 수 있습니다. 變換할 때 쓰는 文字는 「變換」 쪽에서 定합니다.", "Keys switch this at any time. What conversion writes is set under Conversion."),
-            "gksmf → " + Examples.Text("start.seokdok") + " · " + Examples.Text("start.hangul") + " · " + Examples.Text("start.latin"),
-            Choice(labels, at, i => Change(start, new Sample("gksmf", "gksmf", FollowStartMode: true), Settings.Patch("input.default_mode", modes[i]))),
+            Product.HasKun
+                ? "gksmf → " + Examples.Text("start.seokdok") + " · " + Examples.Text("start.hangul") + " · " + Examples.Text("start.latin")
+                : "rhdqn → " + Examples.Text("start.sino") + " · " + Examples.Text("start.sino.hangul") + " · " + Examples.Text("start.sino.latin"),
+            Choice(labels, at, i => Change(start, Product.HasKun ? new Sample("gksmf", "gksmf", FollowStartMode: true) : new Sample("rhdqn", "rhdqn", FollowStartMode: true), Settings.Patch("input.default_mode", modes[i]))),
             "\uE768"));
 
         var space = L("Space로 變換", "Space converts");
         Add(Card(
             space,
             L("끄면 Space는 띄어쓰기이고, 「키」의 變換 키와 Tab으로 變換합니다.", "Off: Space types a space, and the convert keys under Keys or Tab convert."),
-            "하늘을 + Space → " + Examples.Text("space.on") + " · " + Examples.Text("space.off"),
+            Product.HasKun
+                ? "하늘을 + Space → " + Examples.Text("space.on") + " · " + Examples.Text("space.off")
+                : "공부를 + Space → " + Examples.Text("space.sino.on") + " · " + Examples.Text("space.sino.off"),
             Toggle(Settings.Bool("input.space_converts"), on => Change(space, Sky with { Trigger = Native.SpaceKey }, Settings.Patch("input.space_converts", on))),
             "\uE75D"));
 
@@ -370,8 +402,10 @@ internal sealed class KeysPage : Page
     static readonly KeyList[] Common =
     {
         new("input.keys.toggle", L("韓㐎과 英字 사이 바꾸기", "Switch between Hangul and English letters"), L("하늘 ↔ gksmf", "하늘 ↔ gksmf")),
-        new("input.keys.convert", L("變換", "Convert"), L("하늘 → 天", "하늘 → 天")),
-        new("input.keys.script_cycle", L("韓㐎을 무엇으로 變換하나, 차례로 바꾸기", "Step through what your Hangul becomes"), L("釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀. 바꾼 것은 設定에 남습니다.", "釋讀 → 國漢文混用 → Hangul only → 釋讀. The choice stays in the settings.")),
+        new("input.keys.convert", L("變換", "Convert"), Product.HasKun ? L("하늘 → 天", "하늘 → 天") : L("공부 → 工夫", "공부 → 工夫")),
+        new("input.keys.script_cycle", L("韓㐎을 무엇으로 變換하나, 차례로 바꾸기", "Step through what your Hangul becomes"), Product.HasKun
+            ? L("釋讀 → 國漢文混用 → 韓㐎 專用 → 釋讀. 바꾼 것은 設定에 남습니다.", "釋讀 → 國漢文混用 → Hangul only → 釋讀. The choice stays in the settings.")
+            : L("國漢文混用 ↔ 韓㐎 專用. 바꾼 것은 設定에 남습니다.", "國漢文混用 ↔ Hangul only. The choice stays in the settings.")),
     };
 
     static readonly KeyList[] Rare =
@@ -530,11 +564,12 @@ internal sealed class MenuPage : Page
     protected override void Build()
     {
         chosen = Settings.List("windows.menu_items");
-        Add(Caption(L("作業 표시줄의 釋 아이콘을 右클릭하면 나오는 메뉴에 보일 것을 고릅니다. 값은 메뉴에서 바로 바꿉니다.", "Choose what appears when you right-click the 釋 icon on the taskbar. Each entry changes its setting right there.")));
+        var icon = Product.HasKun ? "釋" : "混";
+        Add(Caption(L($"作業 표시줄의 {icon} 아이콘을 右클릭하면 나오는 메뉴에 보일 것을 고릅니다. 값은 메뉴에서 바로 바꿉니다.", $"Choose what appears when you right-click the {icon} icon on the taskbar. Each entry changes its setting right there.")));
         Add(Section(L("자주 쓰는 것", "Common")));
         foreach (var (key, label, where) in Items.Take(4)) Add(Item(key, label, where));
         Add(Section(L("表記", "Spelling")));
-        foreach (var (key, label, where) in Items.Skip(4)) Add(Item(key, label, where));
+        foreach (var (key, label, where) in Items.Skip(4).Where(i => !Product.Hides(i.Key))) Add(Item(key, label, where));
     }
 
     static readonly (string Key, string Label, string Where)[] Items =
@@ -558,7 +593,7 @@ internal sealed class MenuPage : Page
         {
             if (on) chosen.Add(key);
             else chosen.Remove(key);
-            var next = Items.Select(i => i.Key).Where(chosen.Contains);
+            var next = Items.Select(i => i.Key).Where(k => chosen.Contains(k) && !Product.Hides(k));
             Change("", null, Settings.Patch("windows.menu_items", Settings.Array(next)));
         }));
     }
@@ -573,8 +608,8 @@ internal sealed class AboutPage : Page
     protected override void Build()
     {
         var version = typeof(AboutPage).Assembly.GetName().Version;
-        Add(Card(L("釋讀", "Seokdok (釋讀)"), L("版 ", "Version ") + version?.ToString(3), null, null));
-        Add(Card(L("説明과 使用法", "Guide"), "seokdok.mkpo.li", null, Link("https://seokdok.mkpo.li/")));
+        Add(Card(L(Product.Hanja, $"{Product.Latin} ({Product.Hanja})"), L("版 ", "Version ") + version?.ToString(3), null, null));
+        Add(Card(L("説明과 使用法", "Guide"), "seokdok.mkpo.li", null, Link(Product.Guide)));
         Add(Card(L("소스와 辭典 出處", "Source and dictionary credits"), "github.com/mkpoli/seokdok", null, Link("https://github.com/mkpoli/seokdok")));
         var folder = new Button { Content = L("폴더 열기", "Open folder") };
         folder.Click += (_, _) => Program.OpenFolder();

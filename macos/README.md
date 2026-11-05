@@ -5,6 +5,13 @@ the other front ends through the C interface in `crates/seokdok-ffi`: keys
 go to the session, the text being composed is the document's marked text,
 and the candidates open in a window under it.
 
+## Download
+
+seokdok.mkpo.li/#install offers the ad-hoc signed app that CI builds, as a zip,
+with the commands that install it. Without a Developer ID it is not notarized,
+so macOS blocks a browser's download until `xattr` clears its quarantine flag.
+Xcode is only needed to build it yourself.
+
 ## Build
 
 On a Mac with Xcode 15 or later and Rust installed through rustup:

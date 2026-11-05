@@ -31,7 +31,7 @@ function load() {
 
 export const options = $state(load())
 
-/** Where readings sit, on every page: `above` as furigana, `right` as 漢字(한자). */
+/** Where readings sit, on every page: `above` as furigana, `right` as 文書문서. */
 export function showRubyPosition() {
   if (typeof document !== 'undefined') document.documentElement.dataset.ruby = options.rubyPosition
 }

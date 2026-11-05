@@ -546,8 +546,12 @@ final class KeyPopup: UIView {
     }
 
     func hide() {
-        hideWork?.cancel()
-        let work = DispatchWorkItem { [weak self] in self?.isHidden = true }
+        // Each move off the keys asks again; the first request's time stands.
+        guard hideWork == nil, !isHidden else { return }
+        let work = DispatchWorkItem { [weak self] in
+            self?.isHidden = true
+            self?.hideWork = nil
+        }
         hideWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.linger, execute: work)
     }

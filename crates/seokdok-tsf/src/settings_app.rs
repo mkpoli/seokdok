@@ -1,4 +1,4 @@
-//! Opens the settings app, `settings\SeokdokSettings.exe` beside the DLL, for
+//! Opens the settings app, the product's exe in `settings` beside the DLL, for
 //! the input indicator's menu and the Options button of the language settings.
 //!
 //! The DLL runs inside whatever application is being typed in, so the app is
@@ -26,7 +26,7 @@ fn wide(text: &std::ffi::OsStr) -> Vec<u16> {
 }
 
 fn app_path() -> Option<PathBuf> {
-    Some(crate::dll::dll_dir()?.join("settings").join("SeokdokSettings.exe"))
+    Some(crate::dll::dll_dir()?.join("settings").join(format!("{}.exe", seokdok_product::CURRENT.windows.settings_exe)))
 }
 
 fn start(exe: &Path, flags: PROCESS_CREATION_FLAGS) -> windows::core::Result<()> {
@@ -81,10 +81,11 @@ fn report() {
     let shown = std::thread::Builder::new().spawn(|| {
         // SAFETY: no pointers; asks for the language of the user interface.
         let korean = unsafe { GetUserDefaultUILanguage() } & 0x3ff == KOREAN;
+        let (hanja, latin) = (seokdok_product::CURRENT.hanja, seokdok_product::CURRENT.latin);
         let (title, text) = if korean {
-            ("釋讀 設定", "設定 앱을 찾지 못했습니다. 釋讀을 다시 設置해 주세요.")
+            (format!("{hanja} 設定"), format!("設定 앱을 찾지 못했습니다. {hanja}을 다시 設置해 주세요."))
         } else {
-            ("Seokdok settings", "The settings app could not be opened. Please reinstall Seokdok.")
+            (format!("{latin} settings"), format!("The settings app could not be opened. Please reinstall {latin}."))
         };
         let (title, text) = (wide(title.as_ref()), wide(text.as_ref()));
         // SAFETY: the strings are NUL-terminated and outlive the call.

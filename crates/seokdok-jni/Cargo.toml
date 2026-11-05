@@ -11,6 +11,10 @@ publish = false
 name = "seokdok_jni"
 crate-type = ["cdylib", "rlib"]
 
+[features]
+# Build 音讀 instead of 釋讀; see crates/seokdok-product.
+eumdok = ["seokdok-ffi/eumdok", "seokdok-session/eumdok"]
+
 [dependencies]
 jni = { version = "0.21", default-features = false }
 seokdok-ffi = { path = "../seokdok-ffi" }

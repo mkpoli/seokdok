@@ -3,7 +3,7 @@ name: iOS
 on:
   push:
     branches: [main, "ci/ios*"]
-    paths: ["ios/**", "crates/**", "dict/**", "Cargo.toml", "Cargo.lock", ".github/workflows/ios.yml"]
+    paths: ["ios/**", "crates/**", "dict/**", "products/**", "Cargo.toml", "Cargo.lock", ".github/workflows/ios.yml"]
   workflow_dispatch:
 
 concurrency:
@@ -168,3 +168,46 @@ jobs:
           name: simulator-screenshots
           path: ios/shots/
           if-no-files-found: ignore
+
+  eumdok:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust targets
+        run: rustup target add aarch64-apple-ios aarch64-apple-ios-sim
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: ios-eumdok
+
+      - name: Rust library (SeokdokCore.xcframework)
+        run: ios/build-rust.sh eumdok
+
+      - name: Xcode project
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen
+          ios/product.sh eumdok
+
+      - name: Build for device
+        working-directory: ios
+        run: |
+          xcodebuild -quiet build -project Seokdok.xcodeproj -scheme Seokdok \
+            -configuration Release -destination 'generic/platform=iOS' \
+            -derivedDataPath build CODE_SIGNING_ALLOWED=NO
+
+      - name: Package unsigned IPA
+        working-directory: ios
+        run: |
+          app=build/Build/Products/Release-iphoneos/Seokdok.app
+          ./adhoc-sign.sh "$app"
+          rm -rf Payload && mkdir Payload && cp -R "$app" Payload/
+          ditto -c -k --sequesterRsrc --keepParent Payload Eumdok-unsigned.ipa
+          ls -l Eumdok-unsigned.ipa
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Eumdok-unsigned-ipa
+          path: ios/Eumdok-unsigned.ipa
+          if-no-files-found: error

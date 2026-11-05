@@ -12,6 +12,7 @@
   import Words from './ui/Words.svelte'
   import Join from './ui/Join.svelte'
   import Install from './ui/Install.svelte'
+  import Eumdok from './ui/Eumdok.svelte'
   import OldHangul from './ui/OldHangul.svelte'
   import Footer from './ui/Footer.svelte'
   import Samples from './ui/Samples.svelte'
@@ -61,6 +62,7 @@
   <Convert />
   <Reader />
   <Install />
+  <Eumdok />
   <Join />
 </main>
 <Footer />

@@ -69,17 +69,19 @@ fn mode_of(m: InputMode) -> Mode {
     }
 }
 
-/// Where the dictionaries are: $SEOKDOK_DICT, then the XDG data directories.
+/// Where the dictionaries are: $SEOKDOK_DICT, then the product's folder in the
+/// XDG data directories.
 fn find_dict(explicit: Option<PathBuf>) -> PathBuf {
+    let folder = format!("{}/dict", seokdok_product::CURRENT.config_dir);
     let mut dirs: Vec<PathBuf> = Vec::new();
     dirs.extend(explicit);
     dirs.extend(std::env::var_os("SEOKDOK_DICT").map(PathBuf::from));
     let home = std::env::var_os("HOME").map(PathBuf::from);
     let data_home = std::env::var_os("XDG_DATA_HOME").map(PathBuf::from).or_else(|| home.map(|h| h.join(".local/share")));
-    dirs.extend(data_home.map(|d| d.join("seokdok/dict")));
+    dirs.extend(data_home.map(|d| d.join(&folder)));
     let data_dirs = std::env::var("XDG_DATA_DIRS").unwrap_or_else(|_| "/usr/local/share:/usr/share".into());
-    dirs.extend(data_dirs.split(':').filter(|s| !s.is_empty()).map(|d| PathBuf::from(d).join("seokdok/dict")));
-    dirs.iter().find(|d| d.join("sino.tsv").exists()).cloned().unwrap_or_else(|| PathBuf::from("/usr/share/seokdok/dict"))
+    dirs.extend(data_dirs.split(':').filter(|s| !s.is_empty()).map(|d| PathBuf::from(d).join(&folder)));
+    dirs.iter().find(|d| d.join("sino.tsv").exists()).cloned().unwrap_or_else(|| PathBuf::from("/usr/share").join(&folder))
 }
 
 impl Ime {
@@ -674,6 +676,13 @@ pub unsafe extern "C" fn seokdok_config_update_json(patch: *const c_char) -> *mu
     }
 }
 
+/// The definition of the product this library was built as: the JSON of
+/// `products/<id>.json`. Free the result with [`seokdok_string_free`].
+#[no_mangle]
+pub extern "C" fn seokdok_product_json() -> *mut c_char {
+    owned(seokdok_product::CURRENT.json.to_string())
+}
+
 /// Whether `text` is an entry the `[input.keys]` lists understand.
 ///
 /// # Safety
@@ -741,7 +750,53 @@ pub unsafe extern "C" fn seokdok_string_free(s: *mut c_char) {
     }
 }
 
-#[cfg(test)]
+/// 音讀 through the C interface: `cargo test -p seokdok-ffi --features eumdok`.
+#[cfg(all(test, feature = "eumdok"))]
+mod eumdok_tests {
+    use super::*;
+
+    unsafe fn convert(ime: *mut Ime, keys: &str) -> String {
+        for k in keys.chars() {
+            assert!(seokdok_key(ime, SK_LETTER, k as u32, false));
+        }
+        assert!(seokdok_key(ime, SK_SPACE, 0, false));
+        assert!(seokdok_key(ime, SK_ENTER, 0, false));
+        CStr::from_ptr(seokdok_take_commit(ime)).to_str().unwrap().to_string()
+    }
+
+    #[test]
+    fn sound_readings_only_and_two_scripts() {
+        let dir = std::env::temp_dir().join(format!("eumdok-ffi-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
+        std::env::set_var("SEOKDOK_CONFIG_DIR", &dir);
+        config::reload();
+        let dict = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+        let c = CString::new(dict.to_str().unwrap()).unwrap();
+        unsafe {
+            let ime = seokdok_new(c.as_ptr());
+            while !seokdok_ready() {
+                std::thread::sleep(std::time::Duration::from_millis(20));
+            }
+            assert_eq!(convert(ime, "rhdqn"), "工夫");
+            assert_eq!(convert(ime, "gksmf").trim(), "하늘");
+            assert_eq!(convert(ime, "gkrh").trim(), "하고");
+            let mut seen = Vec::new();
+            for _ in 0..4 {
+                seokdok_mode_control(ime);
+                seen.push((seokdok_script(), seokdok_mode(ime)));
+            }
+            assert_eq!(seen, [(2, 1), (2, 2), (1, 0), (2, 1)]);
+            seokdok_free(ime);
+            let json = CStr::from_ptr(seokdok_product_json()).to_str().unwrap();
+            assert!(json.contains("\"id\": \"eumdok\""));
+        }
+        std::env::remove_var("SEOKDOK_CONFIG_DIR");
+        config::reload();
+        let _ = std::fs::remove_dir_all(&dir);
+    }
+}
+
+#[cfg(all(test, not(feature = "eumdok")))]
 mod tests {
     use super::*;
 

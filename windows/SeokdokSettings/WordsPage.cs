@@ -70,7 +70,7 @@ internal sealed class WordsPage : Page
             return;
         }
         var bar = new SelectorBar();
-        foreach (var (id, label) in new[] { ("phrases", L("自作 個言", "Phrases")), ("words", L("訓讀 個言", "Words that inflect")), ("rules", L("規則", "Rules")), ("share", L("共有", "Share")) })
+        foreach (var (id, label) in new[] { ("phrases", L("自作 個言", "Phrases")), ("words", L("訓讀 個言", "Words that inflect")), ("rules", L("規則", "Rules")), ("share", L("共有", "Share")) }.Where(t => t.Item1 != "words" || !Product.Hides("kun_words")))
         {
             var item = new SelectorBarItem { Text = label, Tag = id };
             bar.Items.Add(item);

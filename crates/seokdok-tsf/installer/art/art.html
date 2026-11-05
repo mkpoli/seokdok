@@ -1,6 +1,6 @@
 <!doctype html>
 <!-- Installer artwork, rendered to BMP by crates/seokdok-tsf/installer/art/render.md.
-     ?kind=side|mark  &theme=light|dark  &w=…&h=… -->
+     ?kind=side|mark  &theme=light|dark  &product=seokdok|eumdok  &w=…&h=… -->
 <html lang="ko">
 <head>
 <meta charset="utf-8" />
@@ -8,6 +8,8 @@
 <style>
   :root { --bg: #24348c; --ink: #ffffff; --soft: rgb(255 255 255 / 0.72); --wall: rgb(255 255 255 / 0.10); }
   :root[data-theme='dark'] { --bg: #0c1124; --ink: #9db0ff; --soft: rgb(190 200 240 / 0.7); --wall: rgb(157 176 255 / 0.08); }
+  :root[data-product='eumdok'] { --bg: #7c2d23; }
+  :root[data-product='eumdok'][data-theme='dark'] { --bg: #1d0e0b; --ink: #ffb8a3; --soft: rgb(240 205 195 / 0.7); --wall: rgb(255 184 163 / 0.08); }
   html, body { margin: 0; background: var(--bg); overflow: hidden; }
   .side { position: relative; width: 100vw; height: 100vh; color: var(--ink); font-family: 'Noto Serif KR', serif; }
   /* A faint wall of 訓讀 words behind, as on the site. */
@@ -21,6 +23,7 @@
     color: #fff; font: 900 calc(100vw * 0.62) / 1 'Noto Serif KR', serif; }
   :root[data-kind='mark'] body { background: transparent; }
   :root[data-kind='mark'][data-theme='dark'] .mark span { background: #9db0ff; color: #0c1124; }
+  :root[data-kind='mark'][data-product='eumdok'][data-theme='dark'] .mark span { background: #ffb8a3; color: #1d0e0b; }
 </style>
 </head>
 <body>
@@ -28,13 +31,18 @@
   const q = new URLSearchParams(location.search)
   document.documentElement.dataset.theme = q.get('theme') || 'light'
   document.documentElement.dataset.kind = q.get('kind') || 'side'
+  const eumdok = q.get('product') === 'eumdok'
+  document.documentElement.dataset.product = eumdok ? 'eumdok' : 'seokdok'
+  const seokdokWall = '在다 見다 讀다 天 書다 成다 知다 言하다 無다 好다 去다 來다 生다 作다 食다 新롭다 歡갑다 異다'.split(' ').concat('在다 見다 讀다 天 書다 成다 知다 言하다 無다 好다 去다 來다 生다 作다 食다 新롭다 歡갑다 異다'.split(' '), '在다 見다 讀다 天 書다 成다 知다 言하다 無다 好다 去다 來다'.split(' '))
+  const eumdokWall = Array(4).fill('工夫 先生 學校 歷史 文字 言語 世上 事實 時間 人間 生活 問題 文章 自然').join(' ').split(' ')
+  const words = eumdok ? eumdokWall : seokdokWall
   document.body.innerHTML = q.get('kind') === 'mark'
-    ? '<div class="mark"><span>釋</span></div>'
+    ? `<div class="mark"><span>${eumdok ? '音' : '釋'}</span></div>`
     : `<div class="side">
-         <div class="wall">${'在다 見다 讀다 天 書다 成다 知다 言하다 無다 好다 去다 來다 生다 作다 食다 新롭다 歡갑다 異다'.split(' ').concat('在다 見다 讀다 天 書다 成다 知다 言하다 無다 好다 去다 來다 生다 作다 食다 新롭다 歡갑다 異다'.split(' '), '在다 見다 讀다 天 書다 成다 知다 言하다 無다 好다 去다 來다'.split(' ')).map(w => `<span>${w}</span>`).join('')}</div>
-         <div class="title">釋讀</div>
-         <div class="club">釋讀會 御製</div>
-         <div class="foot">seokdok</div>
+         <div class="wall">${words.map(w => `<span>${w}</span>`).join('')}</div>
+         <div class="title">${eumdok ? '音讀' : '釋讀'}</div>
+         <div class="club">${eumdok ? '國漢文混用' : '釋讀會 御製'}</div>
+         <div class="foot">${eumdok ? 'eumdok' : 'seokdok'}</div>
        </div>`
 </script>
 </body>

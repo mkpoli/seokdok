@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">音讀</string>
+    <string name="ime_name">音讀</string>
+    <string name="subtype">音讀 (두벌식)</string>
+    <string name="enable_help">설정에서 音讀 키보드를 켜고, 入力 方法으로 고릅니다.\nTurn on the 音讀 keyboard in Settings, then pick it as the input method.</string>
+    <string name="keys_script_cycle">國漢文混用 ↔ 韓㐎 專用</string>
+
+    <string-array name="mode_labels">
+        <item>音讀</item>
+        <item>한글 · Hangul</item>
+        <item>Latin</item>
+    </string-array>
+    <string-array name="script_labels">
+        <item>國漢文混用 · Hanja for Sino-Korean words only</item>
+        <item>韓㐎 專用 · Hangul only</item>
+    </string-array>
+</resources>

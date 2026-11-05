@@ -447,7 +447,7 @@ final class KeyboardView: UIView {
             k.isHidden = true
             extraKeys.append(k)
         }
-        modeKey = Key(title: "釋")
+        modeKey = Key(title: Product.hasKun ? "釋" : "混")
         modeKey.spoken = "Input mode"
         modeKey.action = { [weak self] in self?.tap { $0.cycleMode() } }
         modeKey.widthAnchor.constraint(equalToConstant: 46).isActive = true

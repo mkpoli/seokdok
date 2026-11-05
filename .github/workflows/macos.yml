@@ -3,9 +3,9 @@ name: macOS
 on:
   push:
     branches: [main, "ci/macos*"]
-    paths: ["macos/**", "crates/**", "dict/**", "Cargo.toml", "Cargo.lock", ".github/workflows/macos.yml"]
+    paths: ["macos/**", "crates/**", "dict/**", "products/**", "Cargo.toml", "Cargo.lock", ".github/workflows/macos.yml"]
   pull_request:
-    paths: ["macos/**", "crates/**", "dict/**", "Cargo.toml", "Cargo.lock", ".github/workflows/macos.yml"]
+    paths: ["macos/**", "crates/**", "dict/**", "products/**", "Cargo.toml", "Cargo.lock", ".github/workflows/macos.yml"]
   workflow_dispatch:
 
 concurrency:
@@ -67,8 +67,68 @@ jobs:
           ditto -c -k --sequesterRsrc --keepParent "$app" Seokdok-unsigned.zip
           ls -l Seokdok-unsigned.zip
 
+      # The commands the site gives, on the zip the site serves.
+      - name: Install from the zip and register
+        working-directory: macos
+        run: |
+          mkdir -p ~/Library/Input\ Methods
+          ditto -xk Seokdok-unsigned.zip ~/Library/Input\ Methods
+          xattr -dr com.apple.quarantine ~/Library/Input\ Methods/Seokdok.app
+          codesign --verify --deep ~/Library/Input\ Methods/Seokdok.app
+          ~/Library/Input\ Methods/Seokdok.app/Contents/MacOS/Seokdok --register
+
       - uses: actions/upload-artifact@v4
         with:
           name: Seokdok-unsigned-app
           path: macos/Seokdok-unsigned.zip
+          if-no-files-found: error
+
+  eumdok:
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Rust targets
+        run: rustup target add aarch64-apple-darwin x86_64-apple-darwin
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: macos-eumdok
+
+      - name: Rust library
+        run: macos/build-rust.sh eumdok
+
+      - name: Xcode project
+        run: |
+          command -v xcodegen >/dev/null || brew install xcodegen
+          macos/product.sh eumdok
+
+      - name: Build
+        working-directory: macos
+        run: |
+          xcodebuild -quiet build -project Seokdok.xcodeproj -scheme Seokdok \
+            -configuration Release -derivedDataPath build/DerivedData \
+            CODE_SIGNING_ALLOWED=NO
+
+      - name: Smoke test
+        working-directory: macos
+        run: |
+          app=build/DerivedData/Build/Products/Release/Eumdok.app
+          plutil -lint "$app/Contents/Info.plist"
+          clang -Ibuild/include smoke/smoke.c build/lib/libseokdok_ffi.a -o build/smoke
+          build/smoke "$app"
+
+      - name: Package unsigned app
+        working-directory: macos
+        run: |
+          app=build/DerivedData/Build/Products/Release/Eumdok.app
+          codesign --force --deep --sign - "$app"
+          ditto -c -k --sequesterRsrc --keepParent "$app" Eumdok-unsigned.zip
+          ls -l Eumdok-unsigned.zip
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Eumdok-unsigned-app
+          path: macos/Eumdok-unsigned.zip
           if-no-files-found: error

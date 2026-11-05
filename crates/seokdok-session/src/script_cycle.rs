@@ -59,12 +59,13 @@ fn step_after(session: &mut Session, script: Script, rotated: impl FnOnce(&mut S
     }
 }
 
-/// An on-screen mode key, where Latin has no key of its own: 釋 → 混 → 한 → A → 釋.
+/// An on-screen mode key, where Latin has no key of its own: 釋 → 混 → 한 → A → 釋,
+/// or in 音讀, which has no 釋, 混 → 한 → A → 混.
 pub fn step_on_screen(session: &mut Session, conv: &dyn Converter) -> Stepped {
     step_after(session, config::current().conversion.script, |s| rotate(s, conv))
 }
 
-#[cfg(test)]
+#[cfg(all(test, not(feature = "eumdok")))]
 mod tests {
     use super::*;
     use crate::quick_menu::Indicator;

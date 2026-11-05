@@ -11,7 +11,12 @@ publish = false
 name = "seokdok_ffi"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
+[features]
+# Build 音讀 instead of 釋讀; see crates/seokdok-product.
+eumdok = ["seokdok-session/eumdok", "seokdok-product/eumdok"]
+
 [dependencies]
 seokdok-core = { path = "../seokdok-core" }
 seokdok-session = { path = "../seokdok-session" }
+seokdok-product = { path = "../seokdok-product" }
 serde_json = "1"

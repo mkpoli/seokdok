@@ -33,6 +33,7 @@ mod app {
 
     use seokdok::candidate_window::preview::{self, Image};
     use seokdok::candidate_window::{CandidateWindow, Palette};
+    use seokdok::placement::Caret;
     use seokdok::session::{Attr, Popup, Run};
     use windows::core::w;
     use windows::Win32::Foundation::{COLORREF, HWND, LPARAM, LRESULT, RECT, WPARAM};
@@ -53,6 +54,8 @@ mod app {
         IsWindowVisible, PeekMessageW, RegisterClassExW, SetCursorPos, SetForegroundWindow, ShowWindow, TranslateMessage,
         GWL_EXSTYLE, MSG, PM_REMOVE, SW_SHOW, WINDOW_EX_STYLE, WNDCLASSEXW, WS_EX_NOACTIVATE, WS_OVERLAPPEDWINDOW,
     };
+
+    const SAMPLE_CARET: Caret = Caret { x: 120, top: 120, bottom: 140 };
 
     struct Sample {
         name: &'static str,
@@ -333,7 +336,7 @@ mod app {
         let window = CandidateWindow::new().expect("candidate window");
         let mut failures = 0;
         for sample in samples() {
-            window.show(sample.preedit.as_deref(), sample.popup.as_ref(), Some((120, 140)));
+            window.show(sample.preedit.as_deref(), sample.popup.as_ref(), Some(SAMPLE_CARET));
             pump(Duration::from_millis(400));
             capture(window.hwnd(), &out.join(format!("real-{label}-{}.png", sample.name)));
             let mut rc = RECT::default();
@@ -397,16 +400,16 @@ mod app {
         };
 
         let missing = CandidateWindow::without_direct2d().expect("window");
-        missing.show(None, list.popup.as_ref(), Some((120, 140)));
+        missing.show(None, list.popup.as_ref(), Some(SAMPLE_CARET));
         check("missing-libraries", &missing);
         drop(missing);
 
         let failing = CandidateWindow::new().expect("window");
-        failing.show(None, list.popup.as_ref(), Some((120, 140)));
+        failing.show(None, list.popup.as_ref(), Some(SAMPLE_CARET));
         pump(Duration::from_millis(300));
         assert!(failing.is_fluent(), "Direct2D should start here");
         failing.fail_next_paint();
-        failing.show(None, list.popup.as_ref(), Some((120, 140)));
+        failing.show(None, list.popup.as_ref(), Some(SAMPLE_CARET));
         check("paint-failure", &failing);
     }
 
@@ -427,19 +430,19 @@ mod app {
         pump(Duration::from_millis(200));
         let (ws0, private0) = memory_counters();
         let start = Instant::now();
-        window.show(None, list.popup.as_ref(), Some((120, 140)));
+        window.show(None, list.popup.as_ref(), Some(SAMPLE_CARET));
         let first = start.elapsed();
         pump(Duration::from_millis(200));
         let (ws1, private1) = memory_counters();
         let start = Instant::now();
         for _ in 0..1000 {
-            window.show(None, list.popup.as_ref(), Some((120, 140)));
+            window.show(None, list.popup.as_ref(), Some(SAMPLE_CARET));
         }
         let per = start.elapsed() / 1000;
         pump(Duration::from_millis(200));
         let (ws2, private2) = memory_counters();
         for _ in 0..9000 {
-            window.show(None, list.popup.as_ref(), Some((120, 140)));
+            window.show(None, list.popup.as_ref(), Some(SAMPLE_CARET));
         }
         pump(Duration::from_millis(200));
         let (ws3, private3) = memory_counters();

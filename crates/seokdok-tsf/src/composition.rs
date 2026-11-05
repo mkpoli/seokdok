@@ -24,6 +24,7 @@ use windows::Win32::UI::TextServices::{
 use crate::config::Surface;
 use crate::edit_session::run_sync;
 use crate::engine_host::HOST;
+use crate::placement::Caret;
 use crate::session::{Attr, Effect, Mode, Run};
 use crate::surface::{at_boundary, choose, classify_end, commits_plainly, composes_as_interim, replays_after_drained_commit, undelivered, AtBoundary, End, Facts};
 use crate::text_service::TextService_Impl;
@@ -33,7 +34,7 @@ static NEEDS_FLOATING: AtomicBool = AtomicBool::new(false);
 
 /// What came of writing the preedit into the document.
 enum Written {
-    Shown(ITfComposition, Option<(i32, i32)>),
+    Shown(ITfComposition, Option<Caret>),
     /// The document would not start a composition; nothing reached it.
     NotStarted,
     /// The composition is open but its text is gone; it has been ended.
@@ -397,7 +398,7 @@ impl TextService_Impl {
                     comp.EndComposition(ec)?;
                     return Ok(Written::Vanished);
                 }
-                let write = || -> windows::core::Result<Option<(i32, i32)>> {
+                let write = || -> windows::core::Result<Option<Caret>> {
                     if !finished.is_empty() {
                         // Text pushed out of the composition is finished text.
                         let range = comp.GetRange()?;
@@ -699,11 +700,11 @@ impl TextService_Impl {
     }
 }
 
-/// Screen position (left, bottom) of `range`, if the application can say.
+/// Screen position of `range`, if the application can say.
 ///
 /// # Safety
 /// `ec` must be a valid edit cookie for `ctx` inside an edit session.
-unsafe fn text_position(ctx: &ITfContext, ec: u32, range: &ITfRange) -> Option<(i32, i32)> {
+unsafe fn text_position(ctx: &ITfContext, ec: u32, range: &ITfRange) -> Option<Caret> {
     let view = ctx.GetActiveView().ok()?;
     let mut rect = RECT::default();
     let mut clipped = false.into();
@@ -711,7 +712,7 @@ unsafe fn text_position(ctx: &ITfContext, ec: u32, range: &ITfRange) -> Option<(
     if rect.left == 0 && rect.bottom == 0 {
         return None;
     }
-    Some((rect.left, rect.bottom))
+    Some(Caret { x: rect.left, top: rect.top, bottom: rect.bottom })
 }
 
 impl ITfCompositionSink_Impl for TextService_Impl {

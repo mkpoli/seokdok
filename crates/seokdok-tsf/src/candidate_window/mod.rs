@@ -26,20 +26,21 @@ use windows::Win32::Graphics::Dwm::{
     DWMWCP_ROUND, DWM_WINDOW_CORNER_PREFERENCE,
 };
 use windows::Win32::Graphics::Gdi::{
-    BeginPaint, ClientToScreen, EndPaint, GetDC, GetDeviceCaps, InvalidateRect, MonitorFromPoint, ReleaseDC,
-    UpdateWindow, LOGPIXELSY, MONITOR_DEFAULTTONEAREST, PAINTSTRUCT,
+    BeginPaint, ClientToScreen, EndPaint, GetDC, GetDeviceCaps, GetMonitorInfoW, InvalidateRect, MonitorFromPoint,
+    ReleaseDC, UpdateWindow, HMONITOR, LOGPIXELSY, MONITORINFO, MONITOR_DEFAULTTONEAREST, PAINTSTRUCT,
 };
 use windows::Win32::UI::HiDpi::{GetDpiForMonitor, MDT_EFFECTIVE_DPI};
 use windows::Win32::UI::WindowsAndMessaging::{
-    CreateWindowExW, DefWindowProcW, DestroyWindow, GetClassLongPtrW, GetClientRect, GetGUIThreadInfo,
-    GetSystemMetrics, GetWindowLongPtrW, LoadCursorW, RegisterClassExW, SetClassLongPtrW, SetWindowLongPtrW,
+    CreateWindowExW, DefWindowProcW, DestroyWindow, GetClassLongPtrW, GetClientRect, GetForegroundWindow, GetGUIThreadInfo,
+    GetWindowLongPtrW, LoadCursorW, RegisterClassExW, SetClassLongPtrW, SetWindowLongPtrW,
     SetWindowPos, ShowWindow, CS_DROPSHADOW, GCL_STYLE, GUITHREADINFO, GWLP_USERDATA, GWL_STYLE, HWND_TOPMOST,
-    IDC_ARROW, MA_NOACTIVATE, SM_CXSCREEN, SM_CYSCREEN, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER,
+    IDC_ARROW, MA_NOACTIVATE, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER,
     SW_HIDE, SW_SHOWNOACTIVATE, WM_MOUSEACTIVATE, WM_PAINT, WNDCLASSEXW, WS_BORDER, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_EX_TOPMOST,
     WS_POPUP,
 };
 
 use crate::dll_instance;
+use crate::placement::{self, Area, Caret};
 use crate::session::{Popup, Run};
 
 pub use theme::{Color, Palette};
@@ -90,7 +91,7 @@ enum Paint {
 struct Content {
     preedit: Option<Vec<Run>>,
     popup: Option<Popup>,
-    anchor: Option<(i32, i32)>,
+    anchor: Option<Caret>,
 }
 
 struct Inner {
@@ -156,10 +157,9 @@ impl CandidateWindow {
         Some(Self { hwnd, inner })
     }
 
-    /// Show the preedit line (if any) and `popup` (if any) below `anchor`
-    /// (screen coordinates), or near the focus caret when the application did
-    /// not report a position.
-    pub fn show(&self, preedit: Option<&[Run]>, popup: Option<&Popup>, anchor: Option<(i32, i32)>) {
+    /// Show the preedit line (if any) and `popup` (if any) by `anchor`, or by
+    /// the focus caret when the application did not report a position.
+    pub fn show(&self, preedit: Option<&[Run]>, popup: Option<&Popup>, anchor: Option<Caret>) {
         self.inner.borrow_mut().content =
             Some(Content { preedit: preedit.map(<[Run]>::to_vec), popup: popup.cloned(), anchor });
         present(self.hwnd, &self.inner);
@@ -238,7 +238,7 @@ fn present(hwnd: HWND, cell: &RefCell<Inner>) {
                 result
             };
             inner.paint = Some(Paint::Gdi(paint));
-            let (x, y, width) = place(anchor, width, height, inner.gdi.line_height);
+            let (x, y, width) = placement::place(anchor, width, height, work_area_at(anchor));
             // The border is outside the client area.
             Some((x, y, width + 2, height + 2))
         }
@@ -247,6 +247,7 @@ fn present(hwnd: HWND, cell: &RefCell<Inner>) {
         set_frame(hwnd, true, DWMWCP_DONOTROUND);
         return present(hwnd, cell);
     };
+    crate::debug_log::log(|| format!("popup at {x},{y} size {width}x{height}"));
     // SAFETY: hwnd is valid for this object's lifetime. No borrow is held
     // here: the window procedure paints during UpdateWindow.
     unsafe {
@@ -257,73 +258,42 @@ fn present(hwnd: HWND, cell: &RefCell<Inner>) {
     }
 }
 
-/// Lay out for the monitor the popup lands on. The position depends on the
-/// size and the size on the monitor's dpi, so when clamping moves the popup to
-/// another monitor it is laid out once more for that one.
+/// Lay out for the monitor the text is on, which the popup stays on.
 fn layout_fluent(
     renderer: &fluent::Renderer,
     preedit: Option<&[Run]>,
     popup: Option<&Popup>,
     palette: &Palette,
-    anchor: (i32, i32),
+    anchor: Caret,
 ) -> windows::core::Result<(fluent::Scene, (i32, i32, i32, i32))> {
-    let mut dpi = dpi_at(anchor);
-    let mut scene = renderer.layout(preedit, popup, palette, dpi as f32)?;
-    let mut placed = place_scene(&scene, anchor, dpi);
-    let landed = dpi_at((placed.0, placed.1));
-    if landed != dpi {
-        dpi = landed;
-        scene = renderer.layout(preedit, popup, palette, dpi as f32)?;
-        placed = place_scene(&scene, anchor, dpi);
-    }
-    Ok((scene, placed))
+    let scene = renderer.layout(preedit, popup, palette, dpi_at(anchor) as f32)?;
+    let (width, height) = scene.pixel_size();
+    let (x, y, width) = placement::place(anchor, width, height, work_area_at(anchor));
+    Ok((scene, (x, y, width, height)))
 }
 
-fn place_scene(scene: &fluent::Scene, anchor: (i32, i32), dpi: u32) -> (i32, i32, i32, i32) {
-    let (width, height) = scene.pixel_size();
-    let line_height = 26 * dpi as i32 / 96;
-    let (x, y, width) = place(anchor, width, height, line_height);
-    (x, y, width, height)
+fn monitor_at(anchor: Caret) -> HMONITOR {
+    // SAFETY: MonitorFromPoint takes plain values.
+    unsafe { MonitorFromPoint(POINT { x: anchor.x, y: anchor.top }, MONITOR_DEFAULTTONEAREST) }
 }
 
 /// The dpi of the monitor at a point, as this thread's awareness sees it.
-fn dpi_at((x, y): (i32, i32)) -> u32 {
+fn dpi_at(anchor: Caret) -> u32 {
     let (mut dpi_x, mut dpi_y) = (96, 96);
     // SAFETY: the outputs are valid for the call.
-    unsafe {
-        let monitor = MonitorFromPoint(POINT { x, y }, MONITOR_DEFAULTTONEAREST);
-        if GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &mut dpi_x, &mut dpi_y).is_err() {
-            return 96;
-        }
+    if unsafe { GetDpiForMonitor(monitor_at(anchor), MDT_EFFECTIVE_DPI, &mut dpi_x, &mut dpi_y) }.is_err() {
+        return 96;
     }
     dpi_x.max(96)
 }
 
-fn place(anchor: (i32, i32), width: i32, height: i32, line_height: i32) -> (i32, i32, i32) {
-    // SAFETY: GetSystemMetrics is always safe.
-    let screen = unsafe { (GetSystemMetrics(SM_CXSCREEN), GetSystemMetrics(SM_CYSCREEN)) };
-    place_on_screen(anchor, width, height, line_height, screen)
-}
-
-/// Where the popup goes for an anchor at the left end of the text's bottom
-/// edge: below it and kept on the screen. Returns x, y and the clamped width.
-fn place_on_screen(
-    (mut x, mut y): (i32, i32),
-    width: i32,
-    height: i32,
-    line_height: i32,
-    (sw, sh): (i32, i32),
-) -> (i32, i32, i32) {
-    y += 2;
-    let width = width.min(sw);
-    if x + width > sw {
-        x = (sw - width).max(0);
-    }
-    if y + height > sh {
-        // Flip above the line when there is no room below.
-        y = (y - height - line_height - 4).max(0);
-    }
-    (x, y, width)
+/// The monitor's area outside the taskbar.
+fn work_area_at(anchor: Caret) -> Area {
+    let mut info = MONITORINFO { cbSize: std::mem::size_of::<MONITORINFO>() as u32, ..Default::default() };
+    // SAFETY: info is sized and valid for the call. The nearest monitor always exists.
+    let _ = unsafe { GetMonitorInfoW(monitor_at(anchor), &mut info) };
+    let work = info.rcWork;
+    Area { left: work.left, top: work.top, right: work.right, bottom: work.bottom }
 }
 
 /// Decide the backend on the first popup.
@@ -398,19 +368,28 @@ fn tell_frame_theme(hwnd: HWND, dark: bool) {
     }
 }
 
-/// Focus caret in screen coordinates, with a corner as the last resort.
-fn caret_screen_pos() -> (i32, i32) {
+/// The focus caret, or failing that the bottom left of the foreground window,
+/// nearer most message fields than its top.
+fn caret_screen_pos() -> Caret {
     let mut gti = GUITHREADINFO { cbSize: std::mem::size_of::<GUITHREADINFO>() as u32, ..Default::default() };
-    // SAFETY: gti is sized; thread id 0 = the foreground thread.
+    // SAFETY: gti is sized; thread id 0 = the foreground thread. The points are
+    // valid outputs and the windows were just named by the system.
     unsafe {
         if GetGUIThreadInfo(0, &mut gti).is_ok() && !gti.hwndCaret.is_invalid() {
-            let mut pt = POINT { x: gti.rcCaret.left, y: gti.rcCaret.bottom };
+            let mut pt = POINT { x: gti.rcCaret.left, y: gti.rcCaret.top };
             if ClientToScreen(gti.hwndCaret, &mut pt).as_bool() {
-                return (pt.x, pt.y);
+                return Caret { x: pt.x, top: pt.y, bottom: pt.y + gti.rcCaret.bottom - gti.rcCaret.top };
             }
         }
+        let foreground = GetForegroundWindow();
+        let mut client = RECT::default();
+        let mut pt = POINT::default();
+        if GetClientRect(foreground, &mut client).is_ok() {
+            pt.y = client.bottom;
+            let _ = ClientToScreen(foreground, &mut pt);
+        }
+        Caret { x: pt.x, top: pt.y, bottom: pt.y }
     }
-    (120, 120)
 }
 
 unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: LPARAM) -> LRESULT {
@@ -596,28 +575,6 @@ pub mod preview {
 mod tests {
     use super::*;
 
-    const SCREEN: (i32, i32) = (1920, 1080);
-
-    #[test]
-    fn the_popup_opens_below_the_anchor() {
-        assert_eq!(place_on_screen((100, 200), 300, 200, 26, SCREEN), (100, 202, 300));
-    }
-
-    #[test]
-    fn it_stays_on_the_screen_at_the_right_edge() {
-        assert_eq!(place_on_screen((1800, 200), 300, 200, 26, SCREEN), (1620, 202, 300));
-    }
-
-    #[test]
-    fn it_flips_above_the_line_at_the_bottom_edge() {
-        assert_eq!(place_on_screen((100, 1000), 300, 200, 26, SCREEN), (100, 1002 - 200 - 26 - 4, 300));
-    }
-
-    #[test]
-    fn it_is_never_wider_than_the_screen() {
-        assert_eq!(place_on_screen((100, 200), 3000, 200, 26, SCREEN), (0, 202, 1920));
-    }
-
     fn sample() -> Popup {
         Popup { items: vec![("家".into(), "집 가".into())], selected: 0, position: 1, total: 1, horizontal: false }
     }
@@ -625,7 +582,7 @@ mod tests {
     #[test]
     fn missing_libraries_fall_back_to_gdi() {
         let window = CandidateWindow::without_direct2d().unwrap();
-        window.show(None, Some(&sample()), Some((10, 10)));
+        window.show(None, Some(&sample()), Some(Caret { x: 10, top: 10, bottom: 30 }));
         assert!(!window.is_fluent());
         assert!(matches!(window.inner.borrow().paint, Some(Paint::Gdi(_))));
     }
@@ -633,10 +590,10 @@ mod tests {
     #[test]
     fn a_failed_paint_falls_back_to_gdi() {
         let window = CandidateWindow::new().unwrap();
-        window.show(None, Some(&sample()), Some((10, 10)));
+        window.show(None, Some(&sample()), Some(Caret { x: 10, top: 10, bottom: 30 }));
         assert!(window.is_fluent());
         window.fail_next_paint();
-        window.show(None, Some(&sample()), Some((10, 10)));
+        window.show(None, Some(&sample()), Some(Caret { x: 10, top: 10, bottom: 30 }));
         assert!(!window.is_fluent());
         assert!(matches!(window.inner.borrow().paint, Some(Paint::Gdi(_))));
     }

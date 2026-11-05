@@ -18,6 +18,7 @@ use windows::Win32::UI::TextServices::{
 use crate::candidate_window::CandidateWindow;
 use crate::lang_bar::ModeShared;
 use crate::keys::Key;
+use crate::placement::Caret;
 use crate::session::{Mode, Popup, Run, Session};
 use crate::surface::Refusals;
 
@@ -34,8 +35,8 @@ pub struct TextServiceState {
     pub mode: Rc<ModeShared>,
     pub langbar_item: Option<ITfLangBarItem>,
     pub candidate_window: Option<CandidateWindow>,
-    /// Screen position (left, bottom) of the focused segment, for the popup.
-    pub anchor: Option<(i32, i32)>,
+    /// Where the focused segment is on the screen, for the popup.
+    pub anchor: Option<Caret>,
     /// Text being composed, drawn in the popup instead of the document when a
     /// converting composition goes through IMM32 (see `surface.rs`).
     pub floating: Option<Vec<Run>>,

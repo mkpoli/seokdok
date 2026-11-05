@@ -316,7 +316,10 @@ final class KeyboardView: UIView {
                 let k = letterKey { [weak self] in
                     guard let self else { return }
                     let row = Array(Self.symbolRows[self.symbolPage][r])
-                    if i < row.count { self.tap { $0.symbol(row[i]) } }
+                    guard i < row.count else { return }
+                    self.tap { $0.symbol(row[i]) }
+                    // An apostrophe leads back into a word, as on the system keyboard.
+                    if row[i] == "'" { self.layerKey.action?() }
                 }
                 symbolKeys.append(k)
                 keys.append(k)

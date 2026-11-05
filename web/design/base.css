@@ -222,13 +222,17 @@ kbd {
   vertical-align: 0.05em;
 }
 
-/* Readings to the right at half size, as 文書문서. The top bar and the tiles have
-   no room for them and keep theirs above. */
-[data-ruby='right'] ruby:not(.bar ruby, .tile ruby) {
+/* Readings to the right at half size, as 文書문서. The top bar, the tiles and the
+   on-screen keys have no room for them and keep theirs above. */
+[data-ruby='right'] ruby:not(.bar ruby, .tile ruby, .key ruby) {
   display: inline;
   white-space: nowrap;
 }
-[data-ruby='right'] ruby:not(.bar ruby, .tile ruby) > rt {
+/* A card's heading is narrow, and its long words may break. */
+[data-ruby='right'] h3 ruby:not(.bar ruby) {
+  white-space: normal;
+}
+[data-ruby='right'] ruby:not(.bar ruby, .tile ruby, .key ruby) > rt {
   display: inline;
   font-size: max(0.5em, 8px);
   ruby-position: unset;

@@ -589,6 +589,7 @@ pub mod preview {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use crate::session::Attr;
 
     fn sample() -> Popup {
         Popup { items: vec![("家".into(), "집 가".into())], selected: 0, position: 1, total: 1, horizontal: false }
@@ -604,6 +605,15 @@ mod tests {
         window.show_as(CLASSIC, None, Some(&sample()), Some(CARET));
         assert!(!window.is_fluent());
         assert!(matches!(window.inner.borrow().fluent, Fluent::Unstarted(_)));
+    }
+
+    #[test]
+    fn the_classic_style_draws_empty_text() {
+        let window = CandidateWindow::new().unwrap();
+        let popup = Popup { items: vec![("家".into(), String::new()), ("𠮷".into(), String::new())], ..sample() };
+        let preedit = [Run { text: String::new(), attr: Attr::Input }];
+        window.show_as(CLASSIC, Some(&preedit), Some(&popup), Some(CARET));
+        assert!(!window.is_fluent());
     }
 
     #[test]

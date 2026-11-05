@@ -26,15 +26,21 @@ const COLUMN_GAP: i32 = 16;
 
 const SINGLE_LINE: DRAW_TEXT_FORMAT = DRAW_TEXT_FORMAT(DT_LEFT.0 | DT_SINGLELINE.0 | DT_NOPREFIX.0);
 
-fn wide(s: &str) -> Vec<u16> {
-    s.encode_utf16().collect()
+/// `DrawTextW` reads the text even when told its length is zero, and an empty
+/// slice points at nothing, so empty text never reaches it.
+fn draw_text(hdc: HDC, s: &str, r: &mut RECT, format: DRAW_TEXT_FORMAT) {
+    if s.is_empty() {
+        return;
+    }
+    let mut text: Vec<u16> = s.encode_utf16().collect();
+    // SAFETY: hdc is a valid device context with a font selected.
+    unsafe { DrawTextW(hdc, &mut text, r, format) };
 }
 
 /// The width `DrawTextW` gives the text, with its shaping of old Hangul.
 fn text_extent(hdc: HDC, s: &str) -> i32 {
     let mut r = RECT::default();
-    // SAFETY: hdc is a valid device context with a font selected.
-    unsafe { DrawTextW(hdc, &mut wide(s), &mut r, SINGLE_LINE | DT_CALCRECT) };
+    draw_text(hdc, s, &mut r, SINGLE_LINE | DT_CALCRECT);
     r.right - r.left
 }
 
@@ -269,7 +275,7 @@ pub fn paint(hdc: HDC, rc: RECT, paint: &Paint) {
                 Op::Text { x, top, bottom, text, color } => {
                     SetTextColor(hdc, colorref(*color));
                     let mut r = RECT { left: *x, top: *top, right: rc.right, bottom: *bottom };
-                    DrawTextW(hdc, &mut wide(text), &mut r, SINGLE_LINE | DT_VCENTER | DT_NOCLIP);
+                    draw_text(hdc, text, &mut r, SINGLE_LINE | DT_VCENTER | DT_NOCLIP);
                 }
             }
         }

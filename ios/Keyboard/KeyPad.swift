@@ -20,9 +20,9 @@ final class Key: UIView {
     /// 123 and Shift: a finger that started here can slide onto a letter and type
     /// it where it lifts. `slideReturn` then runs, so 123 restores its layer.
     var slides = false
+    var slideReturn: (() -> Void)?
     /// False for a key that changes the keys under the finger as it lands.
     var showsPress = true
-    var slideReturn: (() -> Void)?
     /// Space: held, it turns the keyboard into a trackpad.
     var holdsForCursor = false
     var action: (() -> Void)?

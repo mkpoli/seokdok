@@ -16,7 +16,7 @@ targets=(aarch64-apple-ios aarch64-apple-ios-sim)
 # Match the deployment target in project.yml.
 export IPHONEOS_DEPLOYMENT_TARGET=16.0
 for t in "${targets[@]}"; do
-  cargo build --release --target "$t" -p seokdok-ffi --manifest-path "$root/Cargo.toml" "${features[@]}"
+  cargo build --release --target "$t" -p seokdok-ffi --manifest-path "$root/Cargo.toml" ${features[@]+"${features[@]}"}
 done
 
 headers="$root/target/ios-headers"

@@ -97,8 +97,16 @@ final class KeyboardViewController: UIInputViewController {
         waitForDictionaries()
     }
 
+    /// What is being composed already stands in the document as marked text, so
+    /// it is confirmed there. Inserting it instead wrote it a second time into the
+    /// next field when the app replaced the field in focus.
     override func viewWillDisappear(_ animated: Bool) {
         session.flush()
+        if marked != nil {
+            _ = session.takeCommit()
+            textDocumentProxy.unmarkText()
+            marked = nil
+        }
         apply()
         loadTimer?.invalidate()
         super.viewWillDisappear(animated)

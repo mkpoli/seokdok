@@ -102,6 +102,13 @@ Raw downloads. Nothing here is executed. "MIT/BSD repo" asks whether the file ma
 - Format: `新增類合` rows of entry number, character, gloss with reading (`314 / 芋 / 토란 우`); 新增類合 has 1,000 entries in 상권 and 2,000 in 하권, numbered 1 to 3000. `훈몽자회/상권` has rows of character and gloss under section headings (`松 / 솔〮 쇼ᇰ`), and the gloss often links to the article on the modern word (`솔` → 소나무).
 - Weakness: an anonymously edited wiki's transcription, naming no copy and no scan, with no folios for 新增類合; a few cells carry the editors' notes (`처엄 초 원간 초`, `旦 아ᄎᆞᆷ 단 今音 됴`), and row 2397 has stray markup (`[[偸`). Which printing the 원간 note compares against is uncertain.
 
+## Place names — `ja-wikipedia/`
+
+- `朝鮮地名音訓一覧-rev111083341.wikitext`: https://ja.wikipedia.org/w/index.php?oldid=111083341, revision 111083341 by 曾禰越後守, 2026-09-20T09:32:17Z, fetched 2026-11-05 with `action=raw`, sha256 `9c2b5fd5b1696f71e5dc2496edd92b2ab6273328578ac8cb876c85c8c779961d`.
+- License: CC BY-SA 4.0. Read by `tools/place_names.py`.
+- Content: 3,000 rows of Hanja, a 小藤・金澤 romanization and a province. The columns for 訓民正音, M-R, Yale, 1992 and 2000 are empty. The only reference is 朝鮮総督府「朝鮮地方行政区画一覧（明治四十四年）」『朝鮮地名資料集成〔3〕』草風館、1994年.
+- Weakness: a single-source warning on the page, and Hanja that look misread from print (ロ for 口, 長瑞 for 長湍). Not compared with the printed book.
+
 ## 5. Other sources (reported, not downloaded)
 
 - ᄎᆞ자쎠 / Chocassye (https://find.됬.xyz, by ᄎᆞᆷ괴): robots.txt allows everything; the About page states no licence or terms for its text and says the Hangul texts come from 국립국어원 역사 자료 종합 정비, 석독구결 from kohico.kr (sktot), some from 디지털 장서각. The code is MIT (github.com/chom-kwoy/chocassye). The corpus, github.com/chom-kwoy/chocassye-corpus, has 1,502 files by century (`data/16C/1527_훈몽자회_예산문고본.xml`, `1576_신증유합.xml`, `1583_천자문석봉.xml`, `data/18C/1730_유합(송광사판).xml`, …) and no licence file. Used here only to find books; nothing from it is included.

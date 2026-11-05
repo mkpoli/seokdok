@@ -23,12 +23,9 @@ steps use Sideloadly on Windows.
 3. On the iPhone, turn on Settings → Privacy & Security → Developer Mode (iOS
    16 or later) and let it restart. Without a switch there, try step 5 once:
    installing a signed app can make it appear.
-4. Open the
-   [iOS workflow](https://github.com/mkpoli/seokdok/actions/workflows/ios.yml)
-   while signed in to GitHub, choose the newest green run on `main`, download
-   the `Seokdok-unsigned-ipa` artifact and unzip it to get
-   `Seokdok-unsigned.ipa`. Artifacts expire; with none left, the repository's
-   owner can start a new build with **Run workflow** on that page.
+4. Download the IPA from [seokdok.mkpo.li](https://seokdok.mkpo.li/#install), or
+   the `Seokdok-unsigned-ipa` artifact of the newest green run of the
+   [iOS workflow](https://github.com/mkpoli/seokdok/actions/workflows/ios.yml).
 5. Drag the IPA onto Sideloadly, enter your Apple ID and press **Start**. Keep
    the app extensions: removing them removes the keyboard.
 6. On the iPhone, open Settings → General → VPN & Device Management, tap your

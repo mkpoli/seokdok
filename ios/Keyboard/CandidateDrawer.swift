@@ -259,7 +259,7 @@ final class CandidateCell: UIControl {
     private let label = UILabel()
     private static let inset: CGFloat = 9
     /// A key's colour, as on the system keyboard's candidate bar.
-    private static let selectedFill = UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 0.42, alpha: 1) : .white }
+    private static let selectedFill = KeyMetrics.letterFill
 
     init(_ item: Session.Candidates.Item) {
         super.init(frame: .zero)

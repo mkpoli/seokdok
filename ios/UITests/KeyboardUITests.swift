@@ -470,19 +470,24 @@ final class KeyboardUITests: XCTestCase {
         // The steps the app gives, followed in Settings itself.
         settings.terminate()
         settings.launch()
-        sleep(3)
-        settings.staticTexts["General"].firstMatch.tap()
-        sleep(1)
+        // Settings can take many seconds to bring up a page on a busy runner, so each
+        // step waits for what it taps. A fixed pause made this test fail now and then.
+        func tapWhenThere(_ element: XCUIElement, _ name: String) {
+            XCTAssertTrue(element.waitForExistence(timeout: 30), "\(name) is not in Settings")
+            element.tap()
+            sleep(1)
+        }
+        tapWhenThere(settings.staticTexts["General"].firstMatch, "General")
+        let keyboard = settings.staticTexts["Keyboard"].firstMatch
+        XCTAssertTrue(keyboard.waitForExistence(timeout: 30), "Keyboard is not in Settings")
         shot("settings-general")
-        settings.staticTexts["Keyboard"].firstMatch.tap()
-        sleep(2)
+        tapWhenThere(keyboard, "Keyboard")
         // The page and its first row are both called Keyboards.
-        settings.cells.containing(.staticText, identifier: "Keyboards").firstMatch.tap()
-        sleep(2)
-        shot("settings-keyboards")
+        tapWhenThere(settings.cells.containing(.staticText, identifier: "Keyboards").firstMatch, "Keyboards")
         let add = settings.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Add New Keyboard'")).firstMatch
-        XCTAssertTrue(add.waitForExistence(timeout: 5), "the step the app gives is not in Settings")
-        add.tap()
+        XCTAssertTrue(add.waitForExistence(timeout: 30), "the step the app gives is not in Settings")
+        shot("settings-keyboards")
+        tapWhenThere(add, "the step the app gives")
         sleep(2)
         shot("settings-add-keyboard")
         settings.terminate()

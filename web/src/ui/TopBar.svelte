@@ -243,12 +243,10 @@
       height: 30px;
     }
   }
+  /* Too narrow for both labels; the switch still reads as 釋讀 on or off. */
   @media (max-width: 380px) {
-    .mark {
+    .side:first-child {
       display: none;
-    }
-    .tools {
-      margin-left: auto;
     }
   }
 </style>

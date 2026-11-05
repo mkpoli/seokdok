@@ -210,3 +210,13 @@ fn an_is_negation_on_its_own() {
     assert_eq!(e.convert("안에")[0].text, "內에");
     assert_eq!(e.convert("무언가")[0].text, "何ㄴ가");
 }
+
+#[test]
+fn the_common_word_leads_a_homophone_set() {
+    first(&[
+        ("전역", "轉役"), ("의사", "醫師"), ("신상", "身上"), ("기물", "器物"), ("진사", "進士"),
+        ("호두", "胡桃"), ("호두과자", "胡桃菓子"),
+    ]);
+    // 지도 stays open to -을지도.
+    first(&[("먹을지도", "食을지도"), ("있을지도", "有을지도"), ("을지도", "을지도")]);
+}

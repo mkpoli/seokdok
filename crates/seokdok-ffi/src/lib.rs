@@ -69,17 +69,19 @@ fn mode_of(m: InputMode) -> Mode {
     }
 }
 
-/// Where the dictionaries are: $SEOKDOK_DICT, then the XDG data directories.
+/// Where the dictionaries are: $SEOKDOK_DICT, then the product's folder in the
+/// XDG data directories.
 fn find_dict(explicit: Option<PathBuf>) -> PathBuf {
+    let folder = format!("{}/dict", seokdok_product::CURRENT.config_dir);
     let mut dirs: Vec<PathBuf> = Vec::new();
     dirs.extend(explicit);
     dirs.extend(std::env::var_os("SEOKDOK_DICT").map(PathBuf::from));
     let home = std::env::var_os("HOME").map(PathBuf::from);
     let data_home = std::env::var_os("XDG_DATA_HOME").map(PathBuf::from).or_else(|| home.map(|h| h.join(".local/share")));
-    dirs.extend(data_home.map(|d| d.join("seokdok/dict")));
+    dirs.extend(data_home.map(|d| d.join(&folder)));
     let data_dirs = std::env::var("XDG_DATA_DIRS").unwrap_or_else(|_| "/usr/local/share:/usr/share".into());
-    dirs.extend(data_dirs.split(':').filter(|s| !s.is_empty()).map(|d| PathBuf::from(d).join("seokdok/dict")));
-    dirs.iter().find(|d| d.join("sino.tsv").exists()).cloned().unwrap_or_else(|| PathBuf::from("/usr/share/seokdok/dict"))
+    dirs.extend(data_dirs.split(':').filter(|s| !s.is_empty()).map(|d| PathBuf::from(d).join(&folder)));
+    dirs.iter().find(|d| d.join("sino.tsv").exists()).cloned().unwrap_or_else(|| PathBuf::from("/usr/share").join(&folder))
 }
 
 impl Ime {

@@ -10,7 +10,11 @@
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseWinUI>true</UseWinUI>
     <ApplicationManifest>app.manifest</ApplicationManifest>
-    <ApplicationIcon>icon.ico</ApplicationIcon>
+    <!-- windows/build.ps1 picks the product, and passes its AssemblyName from products/<id>.json. -->
+    <SeokdokProduct Condition="'$(SeokdokProduct)' == ''">seokdok</SeokdokProduct>
+    <SeokdokIcon>icon.ico</SeokdokIcon>
+    <SeokdokIcon Condition="'$(SeokdokProduct)' != 'seokdok'">..\..\crates\seokdok-tsf\assets\$(SeokdokProduct)\icon.ico</SeokdokIcon>
+    <ApplicationIcon>$(SeokdokIcon)</ApplicationIcon>
     <DefineConstants>$(DefineConstants);DISABLE_XAML_GENERATED_MAIN</DefineConstants>
 
     <!-- Nothing to download on the user's machine, and the smallest installer:
@@ -33,6 +37,7 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="examples.tsv" CopyToOutputDirectory="PreserveNewest" />
-    <Content Include="icon.ico" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="$(SeokdokIcon)" Link="icon.ico" CopyToOutputDirectory="PreserveNewest" />
+    <EmbeddedResource Include="..\..\products\$(SeokdokProduct).json" LogicalName="product.json" />
   </ItemGroup>
 </Project>

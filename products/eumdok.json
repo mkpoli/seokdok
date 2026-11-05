@@ -1,0 +1,35 @@
+{
+  "id": "eumdok",
+  "hanja": "音讀",
+  "hangul": "음독",
+  "latin": "Eumdok",
+  "glyph": "音",
+  "color": "#7c2d23",
+  "config_dir": "eumdok",
+  "conversion_label": "音讀",
+  "menu_conversion": "音讀 / Conversion",
+  "scripts": ["sino_only", "hangul_only"],
+  "default_script": "sino_only",
+  "hidden_settings": ["style", "fragment", "coda_always", "resyllabify", "hada_kun", "itda", "kun_words"],
+  "windows": {
+    "clsid": "03459DBD-7699-41C0-838C-B0FC5DE305F2",
+    "profile": "71F024CC-14F4-4154-AA13-2C938659440C",
+    "da_input": "DAD3697C-2728-410B-9797-7446E00BA7E7",
+    "da_converted": "94FDD735-EA5A-4A67-8981-7E270DC27D58",
+    "da_focus": "9CC74570-0E40-402B-A52B-89842ED1BAA2",
+    "app_id": "0AAB2BA2-A1F2-4525-8D0B-A77694483561",
+    "dll": "eumdok",
+    "settings_exe": "EumdokSettings",
+    "service_name": "eumdokTextService",
+    "candidate_class": "EumdokCandidateWindow",
+    "display_name": "音讀 (eumdok)"
+  },
+  "android": { "application_id": "li.mkpo.eumdok", "flavor": "eumdok" },
+  "ios": {
+    "bundle_id": "li.mkpo.eumdok",
+    "keyboard_bundle_id": "li.mkpo.eumdok.keyboard",
+    "app_group": "group.li.mkpo.eumdok"
+  },
+  "macos": { "bundle_id": "li.mkpo.inputmethod.eumdok", "app_name": "Eumdok" },
+  "fcitx5": { "addon": "eumdok" }
+}

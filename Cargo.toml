@@ -1,6 +1,6 @@
 [workspace]
 resolver = "2"
-members = ["crates/seokdok-core", "crates/seokdok-cli", "crates/seokdok-session", "crates/seokdok-tsf", "crates/seokdok-ffi", "crates/seokdok-jni", "crates/seokdok-wasm"]
+members = ["crates/seokdok-core", "crates/seokdok-product", "crates/seokdok-cli", "crates/seokdok-session", "crates/seokdok-tsf", "crates/seokdok-ffi", "crates/seokdok-jni", "crates/seokdok-wasm"]
 
 [workspace.package]
 version = "0.1.0"

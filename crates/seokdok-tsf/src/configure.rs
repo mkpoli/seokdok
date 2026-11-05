@@ -1,5 +1,5 @@
 //! Settings entry point: `ITfFunctionProvider` + `ITfFnConfigure` so the
-//! "Options" button next to seokdok in the Windows language settings opens the
+//! "Options" button next to the input method in the Windows language settings opens the
 //! settings app.
 //!
 //! The system finds it by QI-ing the activated TIP object and calling
@@ -16,7 +16,7 @@ use crate::text_service::TextService_Impl;
 
 impl ITfFunction_Impl for TextService_Impl {
     fn GetDisplayName(&self) -> windows::core::Result<BSTR> {
-        Ok(BSTR::from("seokdok Configuration"))
+        Ok(BSTR::from(format!("{} Configuration", seokdok_product::CURRENT.id).as_str()))
     }
 }
 
@@ -26,7 +26,7 @@ impl ITfFunctionProvider_Impl for TextService_Impl {
     }
 
     fn GetDescription(&self) -> windows::core::Result<BSTR> {
-        Ok(BSTR::from("seokdok"))
+        Ok(BSTR::from(seokdok_product::CURRENT.id))
     }
 
     fn GetFunction(

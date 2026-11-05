@@ -338,6 +338,7 @@ name = "seokdok-ffi"
 version = "0.1.0"
 dependencies = [
  "seokdok-core",
+ "seokdok-product",
  "seokdok-session",
  "serde_json",
 ]
@@ -353,10 +354,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "seokdok-product"
+version = "0.1.0"
+dependencies = [
+ "serde_json",
+]
+
+[[package]]
 name = "seokdok-session"
 version = "0.1.0"
 dependencies = [
  "seokdok-core",
+ "seokdok-product",
  "serde",
  "toml 0.8.23",
 ]
@@ -368,6 +377,7 @@ dependencies = [
  "embed-resource",
  "png",
  "seokdok-core",
+ "seokdok-product",
  "seokdok-session",
  "serde",
  "toml 0.8.23",

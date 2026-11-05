@@ -393,6 +393,7 @@ final class KeyboardView: UIView {
         layerKey = Key(title: "123")
         layerKey.fires = .onPress
         layerKey.slides = true
+        layerKey.showsPress = false
         layerKey.slideReturn = { [weak self] in
             guard let self else { return }
             self.showLayer(letters: self.lettersBeforeLayerKey)
@@ -466,7 +467,7 @@ final class KeyboardView: UIView {
     private var lastMode: Session.Mode = .seokdok
 
     private func relabelLayerKey() {
-        layerKey.title = lettersShown ? "123" : (lastMode == .latin ? "ABC" : "가")
+        layerKey.title = lettersShown ? "123" : (lastMode == .latin ? "ABC" : "한글")
     }
 
     /// Show the keyboard state: key labels and the candidate bar.

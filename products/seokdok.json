@@ -5,6 +5,7 @@
   "latin": "Seokdok",
   "glyph": "釋",
   "color": "#24348c",
+  "guide": "https://seokdok.mkpo.li/",
   "config_dir": "seokdok",
   "conversion_label": "釋讀",
   "menu_conversion": "釋讀 / Conversion",

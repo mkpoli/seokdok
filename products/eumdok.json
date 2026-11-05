@@ -5,6 +5,7 @@
   "latin": "Eumdok",
   "glyph": "音",
   "color": "#7c2d23",
+  "guide": "https://seokdok.mkpo.li/#eumdok",
   "config_dir": "eumdok",
   "conversion_label": "音讀",
   "menu_conversion": "音讀 / Conversion",

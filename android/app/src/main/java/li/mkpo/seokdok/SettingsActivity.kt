@@ -76,13 +76,17 @@ class SettingsActivity : Activity() {
         column.addView(keyList(R.string.keys_convert, "input.keys.convert"))
 
         column.addView(header(R.string.section_conversion))
-        column.addView(choice(R.string.script, R.array.script_labels, SCRIPT, listOf("seokdok", "sino_only", "hangul_only")))
-        column.addView(choice(R.string.style, R.array.style_labels, "conversion.style", listOf("surface", "morpheme")))
-        column.addView(choice(R.string.fragment, R.array.fragment_labels, "conversion.fragment", listOf("absorb", "letter")))
-        column.addView(toggle(R.string.coda_always, "conversion.coda_always"))
-        column.addView(toggle(R.string.resyllabify, "conversion.resyllabify"))
-        column.addView(toggle(R.string.hada_kun, "conversion.hada_kun"))
-        column.addView(choice(R.string.itda, R.array.itda_labels, "conversion.itda", listOf("有", "在", "在ㅆ")))
+        val hasKun = resources.getBoolean(R.bool.has_kun)
+        val scripts = if (hasKun) listOf("seokdok", "sino_only", "hangul_only") else listOf("sino_only", "hangul_only")
+        column.addView(choice(R.string.script, R.array.script_labels, SCRIPT, scripts))
+        if (hasKun) {
+            column.addView(choice(R.string.style, R.array.style_labels, "conversion.style", listOf("surface", "morpheme")))
+            column.addView(choice(R.string.fragment, R.array.fragment_labels, "conversion.fragment", listOf("absorb", "letter")))
+            column.addView(toggle(R.string.coda_always, "conversion.coda_always"))
+            column.addView(toggle(R.string.resyllabify, "conversion.resyllabify"))
+            column.addView(toggle(R.string.hada_kun, "conversion.hada_kun"))
+            column.addView(choice(R.string.itda, R.array.itda_labels, "conversion.itda", listOf("有", "在", "在ㅆ")))
+        }
         column.addView(toggle(R.string.old_ha, "conversion.old_ha"))
         column.addView(number(R.string.max_candidates, "conversion.max_candidates"))
 
@@ -104,7 +108,7 @@ class SettingsActivity : Activity() {
         })
         showCustom()
 
-        column.addView(body("https://seokdok.mkpo.li/").apply { setTextIsSelectable(true) })
+        column.addView(body(getString(R.string.guide)).apply { setTextIsSelectable(true) })
 
         val scroll = ScrollView(this).apply { addView(column) }
         scroll.setOnApplyWindowInsetsListener { v, insets ->

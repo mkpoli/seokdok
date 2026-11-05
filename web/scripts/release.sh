@@ -5,7 +5,7 @@
 # Needs cargo-xwin (Windows), the fcitx5 headers (FCITX5_INCLUDE or pkg-config)
 # and gh. The APK is the signed release build from the Android workflow
 # (artifact seokdok-release-apk of the latest successful push run on main); set
-# SEOKDOK_APK to a local signed app-release.apk to use that instead. The Windows
+# SEOKDOK_APK to a local signed app-seokdok-release.apk to use that instead. The Windows
 # installer takes the settings app the same way: see crates/seokdok-tsf/package.sh.
 set -euo pipefail
 web="$(cd "$(dirname "$0")/.." && pwd)"
@@ -24,7 +24,7 @@ if [ -z "$apk" ]; then
   run=$(gh run list --workflow android.yml --branch main --status success --json databaseId,event -q '[.[] | select(.event == "push")][0].databaseId')
   gh run download "$run" --name seokdok-release-apk --dir "$tmp" ||
     { echo "run $run has no seokdok-release-apk; the signing secrets are not set" >&2; exit 1; }
-  apk="$tmp/app-release.apk"
+  apk="$tmp/app-seokdok-release.apk"
 fi
 [ -f "$apk" ] || { echo "no APK at $apk" >&2; exit 1; }
 

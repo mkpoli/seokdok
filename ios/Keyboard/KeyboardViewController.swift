@@ -90,7 +90,7 @@ final class KeyboardViewController: UIInputViewController {
     /// button clears them; a table already there wins.
     private func adoptOwnPicks(into group: String) {
         let manager = FileManager.default
-        let own = NSHomeDirectory() + "/.config/seokdok/learned.tsv"
+        let own = NSHomeDirectory() + "/.config/\(Product.dir)/learned.tsv"
         guard manager.fileExists(atPath: own) else { return }
         let shared = group + "/learned.tsv"
         if manager.fileExists(atPath: shared) {

@@ -128,7 +128,7 @@ const fn m(kind: Kind, body: &'static str) -> Morph {
 const FINALS: &[Morph] = &[
     // K
     m(Kind::K, "다"), m(Kind::K, "고"), m(Kind::K, "지"), m(Kind::K, "지만"), m(Kind::K, "지요"),
-    m(Kind::K, "죠"), m(Kind::K, "게"), m(Kind::K, "기"), m(Kind::K, "기도"), m(Kind::K, "기에"),
+    m(Kind::K, "죠"), m(Kind::K, "게"), m(Kind::K, "게도"), m(Kind::K, "게는"), m(Kind::K, "게만"), m(Kind::K, "기"), m(Kind::K, "기도"), m(Kind::K, "기에"),
     m(Kind::K, "기는"), m(Kind::K, "기로"), m(Kind::K, "기를"), m(Kind::K, "기가"), m(Kind::K, "긴"),
     m(Kind::K, "던"), m(Kind::K, "던데"), m(Kind::K, "던데요"), m(Kind::K, "네"), m(Kind::K, "네요"),
     m(Kind::K, "는"), m(Kind::K, "는데"), m(Kind::K, "는데요"), m(Kind::K, "는지"), m(Kind::K, "는구나"),
@@ -147,8 +147,12 @@ const FINALS: &[Morph] = &[
     // Endings the chat runs into the next word without a space (듯, 는거, 고도 …).
     m(Kind::K, "듯"), m(Kind::K, "는듯"), m(Kind::K, "다란"), m(Kind::K, "는거"), m(Kind::K, "는건"), m(Kind::K, "는것"),
     m(Kind::K, "고는"), m(Kind::K, "고도"), m(Kind::K, "고만"), m(Kind::K, "냐고"), m(Kind::K, "지마"), m(Kind::K, "지만요"),
+    m(Kind::K, "듯요"), m(Kind::K, "는듯요"), m(Kind::K, "는것도"), m(Kind::K, "는줄"), m(Kind::K, "는지도"),
+    m(Kind::K, "긴한데"), m(Kind::K, "긴하지만"), m(Kind::K, "긴해요"), m(Kind::K, "긴하네요"), m(Kind::K, "긴합니다"), m(Kind::K, "긴했는데"), m(Kind::K, "긴했어요"), m(Kind::K, "긴했지만"), m(Kind::K, "는것은"), m(Kind::K, "는것을"), m(Kind::K, "는것이"),
+    // A dictionary form quoted in a sentence: 不知다라는, 敎다의.
+    m(Kind::K, "다라는"), m(Kind::K, "다라고"), m(Kind::K, "다의"), m(Kind::K, "다로"), m(Kind::K, "다든지"),
     // N
-    m(Kind::N, "ㄴ다"), m(Kind::N, "ㄴ다고"), m(Kind::N, "ㄴ다는"), m(Kind::N, "ㄴ대요"), m(Kind::N, "ㄴ다면"),
+    m(Kind::N, "ㄴ다"), m(Kind::N, "ㄴ다고"), m(Kind::N, "ㄴ다는"), m(Kind::N, "ㄴ대요"), m(Kind::N, "ㄴ다면"), m(Kind::N, "ㄴ다든지"),
     // E
     m(Kind::E, "면"), m(Kind::E, "면서"), m(Kind::E, "며"), m(Kind::E, "니"), m(Kind::E, "니까"),
     m(Kind::E, "니까요"), m(Kind::E, "니깐"), m(Kind::E, "ㄴ"), m(Kind::E, "ㄴ데"), m(Kind::E, "ㄴ데요"),
@@ -161,12 +165,19 @@ const FINALS: &[Morph] = &[
     m(Kind::E, "십시오"), m(Kind::E, "소서"), m(Kind::E, "옵소서"), m(Kind::E, "ㄹ지라도"), m(Kind::E, "ㄴ데도"),
     m(Kind::E, "ㄴ듯"), m(Kind::E, "ㄴ거"), m(Kind::E, "ㄴ건"), m(Kind::E, "ㄴ것"), m(Kind::E, "ㄹ지도"), m(Kind::E, "ㄹ수도"),
     m(Kind::E, "ㄹ때"), m(Kind::E, "나"), m(Kind::E, "려나"),
+    m(Kind::E, "ㄴ듯요"), m(Kind::E, "ㄹ듯요"), m(Kind::E, "ㄴ것도"), m(Kind::E, "ㄴ것은"), m(Kind::E, "ㄴ것을"), m(Kind::E, "ㄴ것이"), m(Kind::E, "ㄴ지도"), m(Kind::E, "ㄹ것도"), m(Kind::E, "ㄴ줄"), m(Kind::E, "ㄹ줄"),
     // S
     m(Kind::S, "ㅂ니다"), m(Kind::S, "ㅂ니까"), m(Kind::S, "ㅂ디다"),
     // A
     m(Kind::A, ""), m(Kind::A, "서"), m(Kind::A, "요"), m(Kind::A, "도"), m(Kind::A, "야"),
     m(Kind::A, "라"), m(Kind::A, "야지"), m(Kind::A, "서는"), m(Kind::A, "서도"), m(Kind::A, "다가"),
-    m(Kind::A, "서요"), m(Kind::A, "야겠다"), m(Kind::A, "야겠어요"), m(Kind::A, "야겠네요"),
+    m(Kind::A, "서요"), m(Kind::A, "야겠다"), m(Kind::A, "야겠어요"), m(Kind::A, "야겠네요"), m(Kind::A, "야겠군요"),
+    // 야 하다 typed as one word: 書야하는.
+    m(Kind::A, "야하는"), m(Kind::A, "야하는지"), m(Kind::A, "야하는지도"), m(Kind::A, "야하는데"), m(Kind::A, "야하고"), m(Kind::A, "야하니"),
+    m(Kind::A, "야하나"), m(Kind::A, "야하나요"), m(Kind::A, "야하면"), m(Kind::A, "야하지만"), m(Kind::A, "야할"), m(Kind::A, "야한다"), m(Kind::A, "야한다고"),
+    m(Kind::A, "야합니다"), m(Kind::A, "야해요"), m(Kind::A, "야해서"), m(Kind::A, "야하네요"), m(Kind::A, "야함"),
+    m(Kind::A, "야했다"), m(Kind::A, "야했어요"), m(Kind::A, "야했는데"), m(Kind::A, "야했네요"), m(Kind::A, "야할까요"), m(Kind::A, "야할까"), m(Kind::A, "야할지"),
+    m(Kind::A, "야하는데요"), m(Kind::A, "야합니까"), m(Kind::A, "야하죠"), m(Kind::A, "야하지요"), m(Kind::A, "야하고요"),
     m(Kind::A, "야겠습니다"), m(Kind::A, "야지요"), m(Kind::A, "야죠"),
 ];
 

@@ -178,7 +178,7 @@ struct Config: Codable, Equatable {
 
     struct Conversion: Codable, Equatable {
         /// "seokdok", "sino_only" or "hangul_only".
-        var script = "seokdok"
+        var script = Product.defaultScript
         var style = "surface"
         var fragment = "absorb"
         var codaAlways = false

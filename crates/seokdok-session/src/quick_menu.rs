@@ -4,6 +4,7 @@
 
 use crate::config::{Config, FragmentOpt, Layout, Script, StyleOpt};
 use crate::session::Mode;
+use seokdok_product::{Product, CURRENT};
 
 /// What `windows.menu_items` can name, in the menu's order.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -217,13 +218,22 @@ const SCRIPTS: [(Script, &str); 3] = [
     (Script::HangulOnly, "한 韓㐎 專用 / Hangul only"),
 ];
 
-const MODES: [(Mode, &str); 3] =
-    [(Mode::Seokdok, "釋讀 / Conversion"), (Mode::Hangul, "한글 / Hangul"), (Mode::Latin, "A / Latin")];
+fn mode_label(mode: Mode, product: &Product) -> &'static str {
+    match mode {
+        Mode::Seokdok => product.menu_conversion,
+        Mode::Hangul => "한글 / Hangul",
+        Mode::Latin => "A / Latin",
+    }
+}
 
 /// The menu for these settings, with `shown` the input mode in use. Settings…
 /// is always there, so what `windows.menu_items` removes can be brought back.
 /// `jis` says the keyboard is Japanese, for the keys the hints name.
 pub fn entries(config: &Config, shown: Mode, jis: bool) -> Vec<Entry> {
+    entries_for(&CURRENT, config, shown, jis)
+}
+
+fn entries_for(product: &Product, config: &Config, shown: Mode, jis: bool) -> Vec<Entry> {
     let keys = &config.input.keys;
     let mode_hint = |m: Mode| match m {
         Mode::Seokdok => hint(&[&keys.seokdok], jis),
@@ -231,7 +241,7 @@ pub fn entries(config: &Config, shown: Mode, jis: bool) -> Vec<Entry> {
         Mode::Latin => hint(&[&keys.latin, &keys.toggle], jis),
     };
     let heading = |label| Entry::Heading { label, hint: String::new() };
-    let chosen = |item: MenuItem| config.windows.menu_items.iter().any(|k| k == item.key());
+    let chosen = |item: MenuItem| !product.hides(item.key()) && config.windows.menu_items.iter().any(|k| k == item.key());
     let script = config.conversion.script;
     let mut out = Vec::new();
     let mut group = |group: &[Entry]| {
@@ -245,7 +255,7 @@ pub fn entries(config: &Config, shown: Mode, jis: bool) -> Vec<Entry> {
 
     if chosen(MenuItem::Script) {
         let mut g = vec![heading(MenuItem::Script.label())];
-        g.extend(SCRIPTS.map(|(s, label)| Entry::Choice {
+        g.extend(SCRIPTS.into_iter().filter(|(s, _)| product.offers_script(s.key())).map(|(s, label)| Entry::Choice {
             action: Action::Script(s),
             label,
             check: Check::Radio(s == script),
@@ -256,8 +266,8 @@ pub fn entries(config: &Config, shown: Mode, jis: bool) -> Vec<Entry> {
     if chosen(MenuItem::InputMode) {
         let mut g = vec![heading(MenuItem::InputMode.label())];
         // 韓㐎 專用 has no 釋讀 to tell from 한글.
-        g.extend(MODES.iter().filter(|(m, _)| script != Script::HangulOnly || *m != Mode::Seokdok).map(
-            |(m, label)| Entry::Choice { action: Action::Mode(*m), label, check: Check::Radio(*m == shown), hint: mode_hint(*m) },
+        g.extend([Mode::Seokdok, Mode::Hangul, Mode::Latin].into_iter().filter(|m| script != Script::HangulOnly || *m != Mode::Seokdok).map(
+            |m| Entry::Choice { action: Action::Mode(m), label: mode_label(m, product), check: Check::Radio(m == shown), hint: mode_hint(m) },
         ));
         let convert = hint(&[&keys.convert], jis);
         if !convert.is_empty() {
@@ -305,13 +315,14 @@ impl Indicator {
         }
     }
 
-    pub fn tooltip(self) -> &'static str {
-        match self {
-            Indicator::Seokdok => "釋讀 (seokdok): 釋讀",
-            Indicator::Mixed => "釋讀 (seokdok): 國漢文混用",
-            Indicator::Hangul => "釋讀 (seokdok): 한글",
-            Indicator::Latin => "釋讀 (seokdok): A Latin",
-        }
+    pub fn tooltip(self) -> String {
+        let what = match self {
+            Indicator::Seokdok => "釋讀",
+            Indicator::Mixed => "國漢文混用",
+            Indicator::Hangul => "한글",
+            Indicator::Latin => "A Latin",
+        };
+        format!("{}: {what}", CURRENT.windows.display_name)
     }
 }
 
@@ -327,6 +338,35 @@ pub fn click_target(shown: Mode, script: Script) -> Mode {
 }
 
 #[cfg(test)]
+mod product_tests {
+    use super::*;
+    use seokdok_product::EUMDOK;
+
+    fn choices(e: &[Entry]) -> Vec<Action> {
+        e.iter().filter_map(|e| if let Entry::Choice { action, .. } = e { Some(*action) } else { None }).collect()
+    }
+
+    #[test]
+    fn eumdok_menu_has_no_seokdok_script_and_no_kun_settings() {
+        let mut c = Config::default();
+        c.conversion.script = Script::SinoOnly;
+        c.windows.menu_items = MenuItem::ALL.map(|i| i.key().to_string()).to_vec();
+        let e = entries_for(&EUMDOK, &c, Mode::Seokdok, false);
+        let a = choices(&e);
+        assert!(a.contains(&Action::Script(Script::SinoOnly)));
+        assert!(a.contains(&Action::Script(Script::HangulOnly)));
+        assert!(!a.contains(&Action::Script(Script::Seokdok)));
+        for item in [MenuItem::Style, MenuItem::Fragment, MenuItem::CodaAlways, MenuItem::Resyllabify, MenuItem::HadaKun] {
+            assert!(!a.contains(&Action::Flip(item)), "{item:?}");
+        }
+        assert!(a.contains(&Action::Flip(MenuItem::OldHa)));
+        let labels: Vec<&str> = e.iter().filter_map(|e| if let Entry::Choice { label, .. } = e { Some(*label) } else { None }).collect();
+        assert!(labels.contains(&"音讀 / Conversion"), "{labels:?}");
+        assert!(labels.iter().all(|l| !l.contains('釋')), "{labels:?}");
+    }
+}
+
+#[cfg(all(test, not(feature = "eumdok")))]
 mod tests {
     use super::*;
     use crate::session::Session;
@@ -355,7 +395,7 @@ mod tests {
     fn every_action_has_its_own_id() {
         let mut all: Vec<Action> = vec![Action::Settings];
         all.extend(SCRIPTS.map(|(s, _)| Action::Script(s)));
-        all.extend(MODES.map(|(m, _)| Action::Mode(m)));
+        all.extend([Mode::Seokdok, Mode::Hangul, Mode::Latin].map(Action::Mode));
         all.extend(MenuItem::ALL.map(Action::Flip));
         let mut ids: Vec<u32> = all.iter().map(|a| a.id()).collect();
         for a in &all {

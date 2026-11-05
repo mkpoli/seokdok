@@ -297,6 +297,10 @@ final class KeyboardView: UIView {
                 letterKeys.append((ch, k))
                 keys.append(k)
             }
+            if r == 1 {
+                (keys.first as? Key)?.reachesMargin = true
+                (keys.last as? Key)?.reachesMargin = true
+            }
             if r == 2 {
                 shiftKey = Key(symbol: "shift")
                 shiftKey.spoken = "Shift"

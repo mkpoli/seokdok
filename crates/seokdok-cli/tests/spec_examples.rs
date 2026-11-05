@@ -814,3 +814,14 @@ fn the_word_a_writer_means_leads_its_readings() {
     assert_eq!(e.convert("시기를")[0].text, "時期를");
     assert_eq!(e.convert("수도")[0].text, "手도");
 }
+
+#[test]
+fn a_demonstrative_runs_into_its_word() {
+    let e = engine(Options::default());
+    assert!(offers(&e, "그화를", "其話를"));
+    assert!(offers(&e, "저화를", "彼話를"));
+    assert_eq!(e.convert("그화를")[0].text, "그화를");
+    let list: Vec<String> = e.segments("그화를")[0].candidates.iter().map(|c| c.text.clone()).collect();
+    assert!(list.iter().position(|t| t == "其話를").unwrap() < list.iter().position(|t| t == "그話를").unwrap(), "{list:?}");
+    assert!(offers(&e, "이화를", "梨花를"));
+}

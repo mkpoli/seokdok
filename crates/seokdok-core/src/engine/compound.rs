@@ -18,7 +18,31 @@ const COMPOUND_DETERMINERS: &[&str] = &["옛", "첫", "새", "맨", "헌", "온"
 /// How far a part in Hangul alone ranks behind its Hanja choices.
 const HANGUL_PENALTY: usize = 3;
 
+/// Demonstratives, which run straight into the word they point at (그화를).
+const DEMONSTRATIVES: [(char, char); 3] = [('그', '其'), ('이', '此'), ('저', '彼')];
+/// How many of the word's own choices follow one.
+const AFTER_DEMONSTRATIVE: usize = 12;
+
 impl Engine {
+    /// A run left whole that starts with a demonstrative also reads as it plus
+    /// a word: 그화를 as 其化를, 其話를. The word's choices come from its own analysis.
+    pub(super) fn demonstrative_choices(&self, run: &str) -> Vec<Candidate> {
+        let mut chars = run.chars();
+        let Some(first) = chars.next() else { return Vec::new() };
+        let Some(&(_, hanja)) = DEMONSTRATIVES.iter().find(|(d, _)| *d == first) else { return Vec::new() };
+        let rest = chars.as_str();
+        if self.options.sino_only || rest.is_empty() {
+            return Vec::new();
+        }
+        self.convert_plain(rest, false, false, Around::default())
+            .whole
+            .into_iter()
+            .filter(|c| c.text.chars().any(is_han))
+            .take(AFTER_DEMONSTRATIVE)
+            .map(|c| Candidate { text: format!("{hanja}{}", c.text), note: c.note })
+            .collect()
+    }
+
     /// The particle closing edge `e`, if any.
     fn edge_particle(e: &Edge) -> Option<u32> {
         match e.kind {

@@ -1692,6 +1692,22 @@ impl Engine {
                 }
             }
         }
+        // Right behind a first choice still in Hangul, and otherwise last.
+        if full && no_hun && segments.len() <= 1 {
+            let more = self.demonstrative_choices(run);
+            if !more.is_empty() {
+                let at = |list: &[Candidate]| if list.first().is_some_and(|c| c.text.starts_with(run.chars().next().unwrap_or(' '))) { 1.min(list.len()) } else { list.len() };
+                let weave = |list: &mut Vec<Candidate>| {
+                    let at = at(list);
+                    let new: Vec<Candidate> = more.iter().filter(|c| !list.iter().any(|x| x.text == c.text)).cloned().collect();
+                    list.splice(at..at, new);
+                };
+                if let Some(seg) = segments.first_mut() {
+                    weave(&mut seg.candidates);
+                }
+                weave(&mut whole);
+            }
+        }
         // The literal input always stays selectable.
         let keep = self.options.max_candidates.max(2);
         if whole.len() > keep {

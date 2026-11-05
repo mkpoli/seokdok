@@ -5,6 +5,7 @@
   "latin": "Seokdok",
   "glyph": "釋",
   "color": "#24348c",
+  "guide": "https://seokdok.mkpo.li/",
   "config_dir": "seokdok",
   "conversion_label": "釋讀",
   "menu_conversion": "釋讀 / Conversion",
@@ -22,6 +23,9 @@
     "settings_exe": "SeokdokSettings",
     "service_name": "seokdokTextService",
     "candidate_class": "SeokdokCandidateWindow",
+    "setup_guide": "https://seokdok.mkpo.li/#install",
+    "setup_back_light": "#24348c",
+    "setup_back_dark": "#0c1124",
     "display_name": "釋讀 (seokdok)"
   },
   "android": { "application_id": "li.mkpo.seokdok", "flavor": "seokdok" },

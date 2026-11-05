@@ -3,7 +3,9 @@
 //! clicks and takes the foreground.
 //!
 //!   candidate_preview offscreen OUT   every sample at 100%, 150% and 200%, light
-//!                                     and dark, plus the GDI drawing
+//!                                     and dark, in both styles
+//!   candidate_preview switch OUT      the live window following config.toml as it
+//!                                     changes: both styles in each colour choice
 //!   candidate_preview real LABEL OUT  the live window over a document window,
 //!                                     captured from the screen, checking that
 //!                                     focus never moves
@@ -32,14 +34,15 @@ mod app {
     use std::time::{Duration, Instant};
 
     use seokdok::candidate_window::preview::{self, Image};
-    use seokdok::candidate_window::{CandidateWindow, Palette};
+    use seokdok::candidate_window::{CandidateWindow, Color, Palette};
+    use seokdok::config::{self, CandidateStyle, CandidateTheme, Config};
     use seokdok::placement::Caret;
     use seokdok::session::{Attr, Popup, Run};
     use windows::core::w;
     use windows::Win32::Foundation::{COLORREF, HWND, LPARAM, LRESULT, RECT, WPARAM};
     use windows::Win32::Graphics::Gdi::{
         BitBlt, CreateCompatibleBitmap, CreateCompatibleDC, CreateSolidBrush, DeleteDC, DeleteObject, GetDC, GetDIBits,
-        ReleaseDC, SelectObject, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, CAPTUREBLT, DIB_RGB_COLORS, HBRUSH, SRCCOPY,
+        GetPixel, ReleaseDC, SelectObject, BITMAPINFO, BITMAPINFOHEADER, BI_RGB, CAPTUREBLT, DIB_RGB_COLORS, HBRUSH, SRCCOPY,
     };
     use windows::Win32::System::ProcessStatus::{K32GetProcessMemoryInfo, PROCESS_MEMORY_COUNTERS_EX};
     use windows::Win32::System::Threading::GetCurrentProcess;
@@ -205,8 +208,10 @@ mod app {
                         save(&compose(&image, (dpi / 96) as i32, palette.dark), &out.join(format!("composed-{name}.png")));
                     }
                 }
-                let image = preview::gdi(preedit, popup, dpi).expect("GDI paint");
-                save(&image, &out.join(format!("gdi-{}-{percent}.png", sample.name)));
+                for (palette, theme) in [(Palette::default_classic_light(), "light"), (Palette::default_classic_dark(), "dark")] {
+                    let image = preview::gdi(preedit, popup, &palette, dpi).expect("GDI paint");
+                    save(&image, &out.join(format!("classic-{}-{theme}-{percent}.png", sample.name)));
+                }
             }
         }
     }
@@ -327,7 +332,7 @@ mod app {
         unsafe {
             let _ = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
         }
-        let palette = Palette::current();
+        let palette = Palette::current(CandidateTheme::System);
         println!("{label}: system palette {palette:?}");
         let doc = document(palette.dark);
         pump(Duration::from_millis(600));
@@ -413,6 +418,63 @@ mod app {
         check("paint-failure", &failing);
     }
 
+    /// The panel colour a look should show on this machine.
+    fn expected_panel(style: CandidateStyle, theme: CandidateTheme) -> Color {
+        match style {
+            CandidateStyle::Windows11 => Palette::current(theme).panel,
+            CandidateStyle::Classic => Palette::classic(theme).panel,
+        }
+    }
+
+    /// Write each look to config.toml the way the settings app does, take it in
+    /// the way the key handler does, and read the panel back from the screen.
+    fn switch(out: &Path) {
+        // SAFETY: called before any window exists.
+        unsafe {
+            let _ = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
+        }
+        std::env::set_var("SEOKDOK_CONFIG_DIR", out.canonicalize().expect("output directory").join("config"));
+        let path = Config::path().expect("config path");
+        let list = samples().remove(0);
+        let doc = document(false);
+        pump(Duration::from_millis(600));
+        println!("document {doc:?}");
+        let window = CandidateWindow::new().expect("window");
+        let mut failures = 0;
+        for style in [CandidateStyle::Windows11, CandidateStyle::Classic] {
+            for theme in [CandidateTheme::System, CandidateTheme::Light, CandidateTheme::Dark] {
+                Config::update_file(&path, |c| {
+                    c.windows.candidate_style = style;
+                    c.windows.candidate_theme = theme;
+                })
+                .expect("write config.toml");
+                config::refresh();
+                window.show(None, list.popup.as_ref(), Some(SAMPLE_CARET));
+                pump(Duration::from_millis(400));
+                let name = format!("{style:?}-{theme:?}").to_lowercase();
+                capture(window.hwnd(), &out.join(format!("switch-{name}.png")));
+                let mut rc = RECT::default();
+                // SAFETY: valid output; the screen DC is released at once.
+                let pixel = unsafe {
+                    let _ = GetWindowRect(window.hwnd(), &mut rc);
+                    let screen = GetDC(None);
+                    let pixel = GetPixel(screen, rc.right - 3, (rc.top + rc.bottom) / 2);
+                    ReleaseDC(None, screen);
+                    pixel.0
+                };
+                let want = expected_panel(style, theme);
+                let want = want.r as u32 | (want.g as u32) << 8 | (want.b as u32) << 16;
+                let fluent = style == CandidateStyle::Windows11;
+                let ok = pixel == want && window.is_fluent() == fluent;
+                println!("switch/{name}: fluent={} panel {pixel:06x} want {want:06x} {}", window.is_fluent(), if ok { "ok" } else { "FAIL" });
+                failures += !ok as i32;
+            }
+        }
+        if failures > 0 {
+            std::process::exit(1);
+        }
+    }
+
     fn memory_counters() -> (usize, usize) {
         let mut counters = PROCESS_MEMORY_COUNTERS_EX::default();
         counters.cb = std::mem::size_of_val(&counters) as u32;
@@ -473,9 +535,10 @@ mod app {
             ["offscreen", _] => offscreen(&dir(&args[1])),
             ["real", label, _] => real(label, &dir(&args[2])),
             ["fallback", _] => fallback(&dir(&args[1])),
+            ["switch", _] => switch(&dir(&args[1])),
             ["memory", kind] => memory(kind),
             _ => {
-                eprintln!("usage: candidate_preview offscreen OUT | real LABEL OUT | fallback OUT | memory fluent|gdi");
+                eprintln!("usage: candidate_preview offscreen OUT | real LABEL OUT | fallback OUT | switch OUT | memory fluent|gdi");
                 std::process::exit(2);
             }
         }

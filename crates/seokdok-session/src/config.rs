@@ -128,6 +128,28 @@ pub enum Layout {
     Horizontal,
 }
 
+/// How the Windows candidate window is drawn.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CandidateStyle {
+    /// Rounded, with an accent mark on the selected row.
+    #[default]
+    Windows11,
+    /// Square, with the selected row filled, as in Windows 10 and earlier.
+    Classic,
+}
+
+/// The colours of the Windows candidate window.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Default, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
+pub enum CandidateTheme {
+    /// The default app mode in Windows' colour settings.
+    #[default]
+    System,
+    Light,
+    Dark,
+}
+
 #[derive(Debug, Clone, PartialEq, Serialize, Deserialize)]
 #[serde(default)]
 pub struct Input {
@@ -199,11 +221,17 @@ pub struct Windows {
     /// What the input indicator's menu shows: the keys of
     /// [`crate::quick_menu::MenuItem`]. Other entries are ignored.
     pub menu_items: Vec<String>,
+    pub candidate_style: CandidateStyle,
+    pub candidate_theme: CandidateTheme,
 }
 
 impl Default for Windows {
     fn default() -> Self {
-        Windows { menu_items: ["script", "input_mode", "candidate_layout", "old_ha"].map(String::from).to_vec() }
+        Windows {
+            menu_items: ["script", "input_mode", "candidate_layout", "old_ha"].map(String::from).to_vec(),
+            candidate_style: CandidateStyle::Windows11,
+            candidate_theme: CandidateTheme::System,
+        }
     }
 }
 
@@ -501,6 +529,15 @@ max_candidates = {max}
 #   resyllabify      = conversion.resyllabify
 #   hada_kun         = conversion.hada_kun
 menu_items = {menu_items}
+# How the candidate window looks.
+#   windows11 = rounded, with an accent mark on the selected row
+#   classic   = square, with the selected row filled, as in Windows 10 and earlier
+candidate_style = \"{candidate_style}\"
+# The candidate window's colours.  A high-contrast theme keeps its own.
+#   system = follow the default app mode in Windows' colour settings
+#   light  = always light
+#   dark   = always dark
+candidate_theme = \"{candidate_theme}\"
 
 # Windows: where the text being typed is drawn, by executable name.
 #   inline   = in the document
@@ -534,6 +571,15 @@ menu_items = {menu_items}
             script = script,
             max = c.max_candidates,
             menu_items = toml_list(&self.windows.menu_items),
+            candidate_style = match self.windows.candidate_style {
+                CandidateStyle::Windows11 => "windows11",
+                CandidateStyle::Classic => "classic",
+            },
+            candidate_theme = match self.windows.candidate_theme {
+                CandidateTheme::System => "system",
+                CandidateTheme::Light => "light",
+                CandidateTheme::Dark => "dark",
+            },
             composition = composition,
         );
         keep_documented(&text, product)
@@ -817,7 +863,11 @@ mod tests {
                 script: Script::HangulOnly,
                 max_candidates: 5,
             },
-            windows: Windows { menu_items: vec!["script".into(), "no such item".into()] },
+            windows: Windows {
+                menu_items: vec!["script".into(), "no such item".into()],
+                candidate_style: CandidateStyle::Classic,
+                candidate_theme: CandidateTheme::Dark,
+            },
             composition: BTreeMap::from([
                 ("Telegram.exe".to_string(), Surface::Floating),
                 ("vivaldi.exe".to_string(), Surface::Inline),
@@ -898,6 +948,17 @@ mod tests {
         assert_eq!(c.input, Input::default());
         assert_eq!(Config::parse("").windows, Windows::default());
         assert!(Config::parse("[windows]\nmenu_items = []\n").windows.menu_items.is_empty());
+    }
+
+    #[test]
+    fn the_candidate_look_is_read_and_defaults_to_windows11_following_the_system() {
+        let c = Config::parse("[windows]\ncandidate_style = \"classic\"\ncandidate_theme = \"light\"\n");
+        assert_eq!(c.windows.candidate_style, CandidateStyle::Classic);
+        assert_eq!(c.windows.candidate_theme, CandidateTheme::Light);
+        assert_eq!(c.windows.menu_items, Windows::default().menu_items);
+        let d = Config::parse("");
+        assert_eq!(d.windows.candidate_style, CandidateStyle::Windows11);
+        assert_eq!(d.windows.candidate_theme, CandidateTheme::System);
     }
 
     fn scratch(name: &str) -> PathBuf {

@@ -85,6 +85,11 @@ final class KeyboardView: UIView {
     private let keyPad = KeyPad()
     private let popup = KeyPopup()
     private var keysTop: NSLayoutConstraint!
+    private var keysLeading: NSLayoutConstraint!
+    private var keysTrailing: NSLayoutConstraint!
+    private var keysBottom: NSLayoutConstraint!
+    private var barHeight: NSLayoutConstraint!
+    private let keysColumn = UIStackView()
     private let keysArea = UIStackView()
     private let letters = UIStackView()
     private let symbols = UIStackView()
@@ -103,6 +108,14 @@ final class KeyboardView: UIView {
     private var layerKey: Key!
     private var spaceKey: Key!
     private var enterKey: Key!
+    private var layout: KeyLayout?
+    private var plainRows: [UIStackView] = []
+    private var edgeRows: [(row: UIStackView, middle: UIStackView, widths: [NSLayoutConstraint])] = []
+    private var insetRow: UIStackView?
+    private var layerWidth: NSLayoutConstraint!
+    private var modeWidth: NSLayoutConstraint!
+    private var enterWidth: NSLayoutConstraint!
+    private var bottomStack: UIStackView { bottomLine as! UIStackView }
 
     private static let padKeyHeight: CGFloat = 46.8
     private static let rows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
@@ -137,18 +150,15 @@ final class KeyboardView: UIView {
         // under the bar type too. A nearly clear fill, because a keyboard gets
         // no touches where it draws nothing.
         keyPad.backgroundColor = UIColor(white: 1, alpha: 0.01)
-        let keysColumn = UIStackView()
         keysColumn.axis = .vertical
         keysColumn.spacing = 12
         keysColumn.translatesAutoresizingMaskIntoConstraints = false
         keyPad.addSubview(keysColumn)
         keysTop = keysColumn.topAnchor.constraint(equalTo: keyPad.topAnchor, constant: 9)
-        NSLayoutConstraint.activate([
-            keysTop,
-            keysColumn.leadingAnchor.constraint(equalTo: keyPad.leadingAnchor, constant: 3),
-            keysColumn.trailingAnchor.constraint(equalTo: keyPad.trailingAnchor, constant: -3),
-            keysColumn.bottomAnchor.constraint(equalTo: keyPad.bottomAnchor, constant: -3),
-        ])
+        keysLeading = keysColumn.leadingAnchor.constraint(equalTo: keyPad.leadingAnchor, constant: 3)
+        keysTrailing = keysColumn.trailingAnchor.constraint(equalTo: keyPad.trailingAnchor, constant: -3)
+        keysBottom = keysColumn.bottomAnchor.constraint(equalTo: keyPad.bottomAnchor, constant: -3)
+        NSLayoutConstraint.activate([keysTop, keysLeading, keysTrailing, keysBottom])
         keyPad.onPress = { [weak self] in self?.feedback.key() }
         Key.onActivate = { [weak self] in self?.feedback.key() }
         keyPad.onPreview = { [weak self] key in self?.showPopup(key) }
@@ -268,7 +278,8 @@ final class KeyboardView: UIView {
         row.spacing = 4
         row.isLayoutMarginsRelativeArrangement = true
         row.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: 3, bottom: 0, trailing: 3)
-        row.heightAnchor.constraint(equalToConstant: height).isActive = true
+        barHeight = row.heightAnchor.constraint(equalToConstant: height)
+        barHeight.isActive = true
         return row
     }
 
@@ -354,23 +365,26 @@ final class KeyboardView: UIView {
             middle.spacing = 6
             middle.distribution = .fillEqually
             [first, middle, last].forEach(row.addArrangedSubview)
-            first.widthAnchor.constraint(equalToConstant: 45).isActive = true
-            last.widthAnchor.constraint(equalToConstant: 45).isActive = true
+            let widths = [first.widthAnchor.constraint(equalToConstant: 45), last.widthAnchor.constraint(equalToConstant: 45)]
+            NSLayoutConstraint.activate(widths)
             row.spacing = 15
+            edgeRows.append((row, middle, widths))
         } else {
             row.distribution = .fillEqually
             keys.forEach(row.addArrangedSubview)
+            plainRows.append(row)
         }
         guard inset > 0 else { return row }
         // The middle letter row is set in by half a key, as on a real keyboard.
         let wrap = UIStackView(arrangedSubviews: [row])
         wrap.isLayoutMarginsRelativeArrangement = true
         wrap.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: inset, bottom: 0, trailing: inset)
+        insetRow = wrap
         return wrap
     }
 
     /// Backspace fires as the finger lands and repeats while held.
-    private func backspaceKey(height: CGFloat = KeyMetrics.keyHeight) -> Key {
+    private func backspaceKey(height: CGFloat = 42) -> Key {
         let k = Key(symbol: "delete.left", height: height)
         k.spoken = "Delete"
         k.fires = .onPress
@@ -392,7 +406,8 @@ final class KeyboardView: UIView {
             self.symbols.isHidden = !self.letters.isHidden
             self.relabelLayerKey()
         }
-        layerKey.widthAnchor.constraint(equalToConstant: 46).isActive = true
+        layerWidth = layerKey.widthAnchor.constraint(equalToConstant: 46)
+        layerWidth.isActive = true
         bottom.addArrangedSubview(layerKey)
         if needsGlobe {
             let g = GlobeKey()
@@ -410,25 +425,76 @@ final class KeyboardView: UIView {
                 self.tap { $0.symbol(ch) }
             }
             k.isHidden = true
-            k.widthAnchor.constraint(equalToConstant: 40).isActive = true
+            k.widthConstraint = k.widthAnchor.constraint(equalToConstant: 40)
+            k.widthConstraint?.isActive = true
             extraKeys.append(k)
             bottom.addArrangedSubview(k)
         }
         modeKey = Key(title: "釋")
         modeKey.spoken = "Input mode"
         modeKey.action = { [weak self] in self?.tap { $0.cycleMode() } }
-        modeKey.widthAnchor.constraint(equalToConstant: 46).isActive = true
+        modeWidth = modeKey.widthAnchor.constraint(equalToConstant: 46)
+        modeWidth.isActive = true
         modeKey.onHold = { [weak self] in self?.tap { $0.toggleLearnMenu() } }
         spaceKey = Key(title: "띄어쓰기", look: .letter)
         spaceKey.action = { [weak self] in self?.tap { $0.space() } }
         spaceKey.holdsForCursor = true
         enterKey = Key(title: "改行")
         enterKey.action = { [weak self] in self?.tap { $0.enter() } }
-        enterKey.widthAnchor.constraint(equalToConstant: 94).isActive = true
+        enterWidth = enterKey.widthAnchor.constraint(equalToConstant: 94)
+        enterWidth.isActive = true
         for k in [modeKey!, spaceKey!, enterKey!] {
             bottom.addArrangedSubview(k)
         }
         return bottom
+    }
+
+    /// Sizes for this width and orientation, as the system keyboard has them.
+    func apply(_ l: KeyLayout, width: CGFloat) {
+        guard l != layout || width != appliedWidth else { return }
+        layout = l
+        appliedWidth = width
+        keysLeading.constant = l.margin
+        keysTrailing.constant = -l.margin
+        keysBottom.constant = -l.bottom
+        barHeight.constant = l.barHeight
+        if !shownLayout.isPad { keysTop.constant = l.firstRow - l.barHeight }
+        let between = l.rowPitch - l.keyHeight
+        keysColumn.spacing = shownLayout.isPad ? 6 : between
+        letters.spacing = between
+        symbols.spacing = between
+        for row in plainRows { row.spacing = l.gap }
+        let edge = l.edgeKeyWidth(in: width)
+        for e in edgeRows {
+            e.row.spacing = l.edgeGap
+            e.middle.spacing = l.gap
+            e.widths.forEach { $0.constant = edge }
+        }
+        let halfColumn = l.columnPitch(in: width) / 2
+        insetRow?.directionalLayoutMargins = NSDirectionalEdgeInsets(top: 0, leading: halfColumn, bottom: 0, trailing: halfColumn)
+        bottomStack.spacing = l.gap
+        let slot = l.bottomSlotWidth(in: width)
+        // 123 and the mode key share the slot the system's 123 has alone.
+        layerWidth.constant = (slot - l.gap) / 2
+        modeWidth.constant = (slot - l.gap) / 2
+        enterWidth.constant = slot
+        for k in rowKeys() { k.heightConstraint.constant = l.keyHeight }
+        for k in extraKeys { k.widthConstraint?.constant = l.keyWidth(in: width) }
+        if !shownLayout.isPad { sizeGlobe(width: l.keyWidth(in: width), height: l.keyHeight) }
+    }
+
+    private var appliedWidth: CGFloat = 0
+
+    private func rowKeys() -> [Key] {
+        var out: [Key] = []
+        func walk(_ v: UIView) {
+            for sub in v.subviews {
+                if let k = sub as? Key { out.append(k) } else { walk(sub) }
+            }
+        }
+        walk(keysArea)
+        walk(bottomLine)
+        return out
     }
 
     private func tap(_ act: (KeyboardViewDelegate) -> Void) {
@@ -464,7 +530,7 @@ final class KeyboardView: UIView {
         shiftKey.setSymbol(s.shift == .locked ? "capslock.fill" : shifted ? "shift.fill" : "shift")
         modeKey.title = s.mode == .seokdok && s.script == 1 ? "混" : ["釋", "한", "A"][Int(s.mode.rawValue)]
         let converts = s.composing && s.mode == .seokdok && (s.spaceConverts || s.candidates != nil)
-        spaceKey.title = converts ? "變換" : "띄어쓰기"
+        spaceKey.title = converts ? "變換" : (KeyMetrics.flat ? "" : "띄어쓰기")
         enterKey.title = s.composing ? "確定" : "改行"
         enterKey.look = s.returnIsAction && !s.composing ? .accent : .function
         shownRuns = s.runs
@@ -474,12 +540,14 @@ final class KeyboardView: UIView {
     /// Switch between the Hangul keyboard, the Latin one for ASCII fields and
     /// the number pads. A field that cannot take Hangul has no mode key or
     /// candidates.
-    private func showLayout(_ layout: Layout) {
-        guard layout != shownLayout else { return }
-        shownLayout = layout
+    private func showLayout(_ kind: Layout) {
+        guard kind != shownLayout else { return }
+        shownLayout = kind
+        let layout = kind
         let pads = layout.isPad
         barRow.isHidden = pads
-        keysTop.constant = pads ? 0 : 9
+        keysTop.constant = pads ? 0 : (self.layout.map { $0.firstRow - $0.barHeight } ?? 8)
+        keysColumn.spacing = pads ? 6 : (self.layout.map { $0.rowPitch - $0.keyHeight } ?? 12)
         keysArea.isHidden = pads
         bottomLine.isHidden = pads
         pad.isHidden = !pads
@@ -493,7 +561,7 @@ final class KeyboardView: UIView {
             buildPad(layout)
         } else if let g = globe, let bottom = bottomLine as? UIStackView {
             bottom.insertArrangedSubview(g, at: 1)
-            sizeGlobe(width: 40, height: KeyMetrics.keyHeight)
+            sizeGlobe(width: self.layout?.keyWidth(in: bounds.width) ?? 40, height: self.layout?.keyHeight ?? 42)
         }
     }
 

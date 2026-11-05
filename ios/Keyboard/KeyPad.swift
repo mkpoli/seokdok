@@ -32,6 +32,8 @@ final class Key: UIView {
     private var symbol: String?
     /// The key's height, changed in place when a row needs another.
     private(set) var heightConstraint: NSLayoutConstraint!
+    /// Its width, when the row does not decide it.
+    var widthConstraint: NSLayoutConstraint?
 
     var look: Look {
         didSet { refill() }
@@ -51,7 +53,7 @@ final class Key: UIView {
             label.alpha = alpha
             icon.alpha = alpha
             hint.alpha = alpha
-            layer.shadowOpacity = isDimmed ? 0 : 0.35
+            layer.shadowOpacity = isDimmed ? 0 : KeyMetrics.shadow
             refill()
         }
     }
@@ -70,12 +72,13 @@ final class Key: UIView {
         }
     }
 
-    init(title: String? = nil, symbol: String? = nil, look: Look = .function, height: CGFloat = KeyMetrics.keyHeight) {
+    init(title: String? = nil, symbol: String? = nil, look: Look = .function, height: CGFloat = 42) {
         self.look = look
         super.init(frame: .zero)
         layer.cornerRadius = KeyMetrics.corner
+        layer.cornerCurve = .continuous
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.35
+        layer.shadowOpacity = KeyMetrics.shadow
         layer.shadowOffset = CGSize(width: 0, height: 1)
         layer.shadowRadius = 0
         isUserInteractionEnabled = false
@@ -122,7 +125,9 @@ final class Key: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: layer.cornerRadius).cgPath
+        if KeyMetrics.shadow > 0 {
+            layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: layer.cornerRadius).cgPath
+        }
     }
 
     var title: String? {
@@ -168,10 +173,14 @@ final class Key: UIView {
         let down = isPressed && !previews
         switch look {
         case .letter:
-            backgroundColor = down ? KeyMetrics.functionFill : KeyMetrics.letterFill
+            backgroundColor = down ? KeyMetrics.pressedFill : KeyMetrics.letterFill
             label.textColor = .label
         case .function:
-            backgroundColor = down != isOn ? KeyMetrics.letterFill : KeyMetrics.functionFill
+            if KeyMetrics.flat {
+                backgroundColor = down ? KeyMetrics.pressedFill : KeyMetrics.functionFill
+            } else {
+                backgroundColor = down != isOn ? KeyMetrics.letterFill : KeyMetrics.functionFill
+            }
             label.textColor = .label
         case .accent:
             backgroundColor = down ? UIColor.systemBlue.withAlphaComponent(0.7) : .systemBlue
@@ -190,20 +199,31 @@ final class Key: UIView {
     }
 }
 
-/// Sizes and colours of the keys. The key height and both fills are measured
-/// from the system keyboard's screenshots on an iOS 18.5 simulator; the corner
-/// radius and font sizes are our choice.
+/// Corners, shadow and colours of the keys, measured from the system keyboard's
+/// screenshots: iOS 18.5 and iOS 26.5, iPhone 16 Pro simulators. iOS 26's keys are
+/// flat, rounder and share one fill. The sizes are in `KeyLayout`.
 enum KeyMetrics {
-    static let keyHeight: CGFloat = 42
-    static let corner: CGFloat = 5
+    static let flat = KeyLayout.flat
+    static let corner: CGFloat = flat ? 8 : 5
+    static let shadow: Float = flat ? 0 : 0.35
     static let letterSize: CGFloat = 22
-    static let titleSize: CGFloat = 16
-    static let letterFill = UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 107.0 / 255, alpha: 1) : .white }
-    static let functionFill = UIColor {
+    static let titleSize: CGFloat = flat ? 18 : 16
+    static let letterFill = UIColor {
+        $0.userInterfaceStyle == .dark
+            ? UIColor(white: (flat ? 61.0 : 107.0) / 255, alpha: 1)
+            : .white
+    }
+    static let functionFill = flat ? letterFill : UIColor {
         $0.userInterfaceStyle == .dark
             ? UIColor(white: 75.0 / 255, alpha: 1)
             : UIColor(red: 169.0 / 255, green: 175.0 / 255, blue: 186.0 / 255, alpha: 1)
     }
+    /// A held key that shows no pop-up.
+    static let pressedFill = flat ? UIColor {
+        $0.userInterfaceStyle == .dark
+            ? UIColor(white: 125.0 / 255, alpha: 1)
+            : UIColor(red: 193.0 / 255, green: 193.0 / 255, blue: 198.0 / 255, alpha: 1)
+    } : functionFill
 }
 
 /// The next-keyboard key: a real control, because the system's
@@ -214,15 +234,16 @@ final class GlobeKey: UIButton {
     init() {
         super.init(frame: .zero)
         layer.cornerRadius = KeyMetrics.corner
+        layer.cornerCurve = .continuous
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.35
+        layer.shadowOpacity = KeyMetrics.shadow
         layer.shadowOffset = CGSize(width: 0, height: 1)
         layer.shadowRadius = 0
         backgroundColor = KeyMetrics.functionFill
         setImage(UIImage(systemName: "globe"), for: .normal)
         tintColor = .label
         accessibilityLabel = "Next keyboard"
-        heightConstraint = heightAnchor.constraint(equalToConstant: KeyMetrics.keyHeight)
+        heightConstraint = heightAnchor.constraint(equalToConstant: 42)
         heightConstraint.isActive = true
     }
 
@@ -231,7 +252,10 @@ final class GlobeKey: UIButton {
     }
 
     override var isHighlighted: Bool {
-        didSet { backgroundColor = isHighlighted ? KeyMetrics.letterFill : KeyMetrics.functionFill }
+        didSet {
+            let down = KeyMetrics.flat ? KeyMetrics.pressedFill : KeyMetrics.letterFill
+            backgroundColor = isHighlighted ? down : KeyMetrics.functionFill
+        }
     }
 }
 

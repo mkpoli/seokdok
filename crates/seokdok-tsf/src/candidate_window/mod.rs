@@ -17,9 +17,9 @@ mod gdi;
 mod theme;
 
 use std::cell::RefCell;
-use std::sync::Once;
+use std::sync::{Once, OnceLock};
 
-use windows::core::{w, BOOL, PCWSTR};
+use windows::core::{BOOL, PCWSTR};
 use windows::Win32::Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, POINT, RECT, WPARAM};
 use windows::Win32::Graphics::Dwm::{
     DwmSetWindowAttribute, DWMWA_USE_IMMERSIVE_DARK_MODE, DWMWA_WINDOW_CORNER_PREFERENCE, DWMWCP_DONOTROUND,
@@ -45,7 +45,10 @@ use crate::session::{Popup, Run};
 
 pub use theme::{Color, Palette};
 
-const CLASS_NAME: PCWSTR = w!("SeokdokCandidateWindow");
+fn class_name() -> PCWSTR {
+    static NAME: OnceLock<Vec<u16>> = OnceLock::new();
+    PCWSTR(NAME.get_or_init(|| seokdok_product::CURRENT.windows.candidate_class.encode_utf16().chain(std::iter::once(0)).collect()).as_ptr())
+}
 
 static REGISTER: Once = Once::new();
 
@@ -59,7 +62,7 @@ fn register_class() {
             cbSize: std::mem::size_of::<WNDCLASSEXW>() as u32,
             lpfnWndProc: Some(wndproc),
             hInstance: hinstance(),
-            lpszClassName: CLASS_NAME,
+            lpszClassName: class_name(),
             // SAFETY: IDC_ARROW is a built-in cursor.
             hCursor: unsafe { LoadCursorW(None, IDC_ARROW).unwrap_or_default() },
             ..Default::default()
@@ -134,7 +137,7 @@ impl CandidateWindow {
         let hwnd = unsafe {
             CreateWindowExW(
                 WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW,
-                CLASS_NAME,
+                class_name(),
                 PCWSTR::null(),
                 WS_POPUP | WS_BORDER,
                 0,
@@ -319,7 +322,7 @@ fn start_backend(hwnd: HWND, cell: &RefCell<Inner>) {
 /// `gdi-candidates` beside the debug trace's `debug` file.
 fn gdi_requested() -> bool {
     std::env::var_os("LOCALAPPDATA")
-        .is_some_and(|d| std::path::Path::new(&d).join("seokdok").join("gdi-candidates").exists())
+        .is_some_and(|d| std::path::Path::new(&d).join(seokdok_product::CURRENT.config_dir).join("gdi-candidates").exists())
 }
 
 /// Switch between the two looks. The Fluent frame has no border of its own: on

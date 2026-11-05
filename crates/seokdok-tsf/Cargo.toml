@@ -11,9 +11,14 @@ publish = false
 name = "seokdok"
 crate-type = ["cdylib", "rlib"]
 
+[features]
+# Build 音讀 instead of 釋讀; see crates/seokdok-product.
+eumdok = ["seokdok-session/eumdok", "seokdok-product/eumdok"]
+
 [dependencies]
 seokdok-core = { path = "../seokdok-core" }
 seokdok-session = { path = "../seokdok-session" }
+seokdok-product = { path = "../seokdok-product" }
 serde = { version = "1", features = ["derive"] }
 toml = "0.8"
 
@@ -56,3 +61,4 @@ features = ["Win32_System_ProcessStatus", "Win32_System_Threading"]
 
 [build-dependencies]
 embed-resource = "3"
+seokdok-product = { path = "../seokdok-product" }

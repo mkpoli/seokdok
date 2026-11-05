@@ -101,11 +101,12 @@ after changing `project.yml`.
   only types a space).
 - The drawer's top row holds the composition's segments. Tap one to focus it;
   − and + shorten or lengthen the focused one. The drawer stays open meanwhile.
-- Hold Space for 0.6 s to turn the keyboard into a trackpad, then slide
+- Hold Space for 0.45 s to turn the keyboard into a trackpad, then slide
   to move the caret. What is being composed is committed first. The caret moves
   along the line only: `adjustTextPosition` has no up and down.
 - 確定 (Return) confirms everything. Backspace undoes the conversion, then
-  deletes letters; hold it to repeat.
+  deletes letters. Held, it repeats, a syllable at a time while composing, and
+  after twenty repeats by whole words.
 - The mode key cycles 釋 (釋讀) → 混 (國漢文混用) → 한 (韓㐎 專用) → A (Latin), writing
   the script to the settings. Without a folder to write them to, it moves between
   Korean and Latin.
@@ -200,6 +201,12 @@ records this in the `simulator-screenshots` artifact). A simulator applies no
 such limit, and its figures differ from a device's, so this has to be tried on
 an iPhone. It lies inside the range of those published estimates, so a device
 may still end the keyboard.
+
+The process outlives the apps it serves, so whatever one appearance leaves behind
+adds up: an old controller's views are released when it goes. Over six launches
+of the app in focus the footprint held at 60-61 MB on iOS 26.5 and rose from 57 to
+59 MB on iOS 18.5 (`footprint`, simulator). A phone moving between different apps
+has not been measured.
 
 The engine alone peaks at about 44.5 MB, and the highest of 50 runs was
 44.6 MB (Linux, 2026-11-04, `VmHWM` from

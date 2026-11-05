@@ -23,7 +23,7 @@ LEMMAS = ROOT / "tools/place_lemmas.tsv"
 OUT = ROOT / "dict/place-names.tsv"
 BOOK = "ja.wikipedia 朝鮮地名音訓一覧"
 
-HEADER = f"""# Native Korean place names: Hanja as the page prints them, with the name in Hangul.
+HEADER = f"""# Native Korean place names: Hanja in their traditional forms, with the name in Hangul.
 # Secondary source: Japanese Wikipedia, 朝鮮地名音訓一覧, revision {REV} of {REV_DATE}, column 小藤・金澤, CC BY-SA 4.0,
 # https://ja.wikipedia.org/w/index.php?oldid={REV}. The page cites 朝鮮総督府「朝鮮地方行政区画一覧（明治四十四年）」『朝鮮地名資料集成〔3〕』草風館、1994年
 # and carries a single-source warning. It gives romanization only: the Hangul here is transliterated from it by
@@ -47,6 +47,16 @@ ROMAN_VOWEL = "aăäiouöey"
 # Japanese forms on the page, for finding a character's Korean sound.
 OLD_FORM = dict(zip("辺霊渓広鉄満済麦楽鶏旧宝沢鉱関竜帰県台区画応駅塩価会絵岳気挙峡郷経継権国黒斎参残歯児実写寿収従処将称焼証乗条状図数声静専浅戦銭総双壮装増蔵続体単断遅昼庁鎮転伝灯当徳独読発豊万薬訳余与様乱覧両緑礼歴恋炉労郎湾",
                     "邊靈溪廣鐵滿濟麥樂鷄舊寶澤鑛關龍歸縣臺區畫應驛鹽價會繪嶽氣擧峽鄕經繼權國黑齋參殘齒兒實寫壽收從處將稱燒證乘條狀圖數聲靜專淺戰錢總雙壯裝增藏續體單斷遲晝廳鎭轉傳燈當德獨讀發豐萬藥譯餘與樣亂覽兩綠禮歷戀爐勞郞灣"))
+
+
+TRADITIONAL = {**OLD_FORM, **dict(zip("仏国徳楼黒", "佛國德樓黑"))}
+
+
+def traditional(row):
+    """A row with its Hanja column in traditional forms."""
+    f = row.split("\t")
+    f[1] = "".join(TRADITIONAL.get(c, c) for c in f[1])
+    return "\t".join(f)
 
 
 def syllables(piece):
@@ -167,6 +177,8 @@ def build():
         literal = "".join(to_hangul(roman))
         spelled = "" if literal == lemma else f"; transliterates as {literal}"
         rows.append(f"{lemma}\t{hanja}\tnoun\t\tplace-name\t\t{BOOK} rev{REV} (secondary, Wikipedia), 小藤・金澤: {hanja} {roman}, {provinces}{spelled}")
+    # The page prints Japanese forms; Korean writes the traditional ones.
+    rows = [traditional(r) for r in rows]
     OUT.write_text(HEADER + "\n".join(sorted(rows)) + "\n", encoding="utf-8")
     print(len(rows), "rows")
 

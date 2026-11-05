@@ -1,4 +1,4 @@
-# Native Korean place names: Hanja as the page prints them, with the name in Hangul.
+# Native Korean place names: Hanja in their traditional forms, with the name in Hangul.
 # Secondary source: Japanese Wikipedia, 朝鮮地名音訓一覧, revision 111083341 of 2026-09-20, column 小藤・金澤, CC BY-SA 4.0,
 # https://ja.wikipedia.org/w/index.php?oldid=111083341. The page cites 朝鮮総督府「朝鮮地方行政区画一覧（明治四十四年）」『朝鮮地名資料集成〔3〕』草風館、1994年
 # and carries a single-source warning. It gives romanization only: the Hangul here is transliterated from it by
@@ -15,7 +15,7 @@ lemma	written	pos	class	source	count	note
 감개	甘浦	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 甘浦 Kam-kai, 慶尚
 감골	柿洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 柿洞 Kam-gol, 慶尚
 감나무치	柿峙	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 柿峙 Kam-namu-chhi, 全羅
-감물계	甘水渓	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 甘水渓 Kam-mul-kyöi, 江原
+감물계	甘水溪	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 甘水渓 Kam-mul-kyöi, 江原
 갑바위	甲巌	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 甲巌 Kap-bahoi, 平安; transliterates as 갑바회
 갓암산성	笠岩山城	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 笠岩山城 Kat-am-san-syöng, 全羅; transliterates as 갇암산성
 강동다리	江東橋	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 江東橋 Kang-tong-tari, 平安
@@ -24,16 +24,16 @@ lemma	written	pos	class	source	count	note
 고래산	鯨山	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 鯨山 Korai-san, 慶尚
 고성골	古城洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 古城洞 Ko-syöng-gol, 咸鏡
 곤디바위	昆地岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 昆地岩 Kon-ti-bahoi, 京畿; transliterates as 곤디바회
-곰덕산	熊徳山	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 熊徳山 Kom-dök-san, 咸鏡
+곰덕산	熊德山	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 熊徳山 Kom-dök-san, 咸鏡
 곰창	熊倉	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 熊倉 Kom-chhang, 慶尚
 곱은다리	曲橋	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 曲橋 Kopheun-tari, 江原; transliterates as 곱흔다리
 공골	孔洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 孔洞 Kong-gol, 忠清
-광석고개	広石峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 広石峴 Koang-syök-kokăi, 黄海
+광석고개	廣石峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 広石峴 Koang-syök-kokăi, 黄海
 괴나무장	槐木場	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 槐木場 Koi-namu-jyang, 全羅
 괴인돌	撐石	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 撐石 Koi-in-dol, 黄海
 구고개	狗峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 狗峴 Ku-kokăi, 平安
 구리치	銅峙	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 銅峙 Kuri-chhi, 江原
-국수고개	国守峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 国守峴 Kuk-syu-kokăi, 平安
+국수고개	國守峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 国守峴 Kuk-syu-kokăi, 平安
 군머리	軍頭	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 軍頭 Kun-möri, 全羅
 굴목	屈項	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 屈項 Kul-mok, 咸鏡
 굴뫼산	窟山	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 窟山 Kul-moi-san, 黄海
@@ -47,11 +47,11 @@ lemma	written	pos	class	source	count	note
 길고개	吉峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 吉峴 Kil-kokăi, 平安
 길골	路洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 路洞 Kil-gol, 江原
 깊은개	深浦	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 深浦 Kipheun-gai, 咸鏡; transliterates as 깁흔개
-깊은계	深渓	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 深渓 Kipheun-gyöi, 咸鏡; transliterates as 깁흔계
+깊은계	深溪	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 深渓 Kipheun-gyöi, 咸鏡; transliterates as 깁흔계
 깊은실	深谷	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 深谷 Kipheun-sil, 江原; transliterates as 깁흔실
 까치골	鵲洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 鵲洞 Kkachhi-gol, 咸鏡
 까치원	鵲院	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 鵲院 Kkachhi-uön, 慶尚
-까치원관	鵲院関	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 鵲院関 Kkachhi-uön-koan, 慶尚
+까치원관	鵲院關	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 鵲院関 Kkachhi-uön-koan, 慶尚
 꽃벼루	花硯	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 花硯 Kkot-pyöru, 京畿; transliterates as 꼳벼루
 낙들	落坪	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 落坪 Nak-teul, 慶尚
 난들	蘭坪	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 蘭坪 Nan-deul, 慶尚
@@ -59,8 +59,8 @@ lemma	written	pos	class	source	count	note
 남산고개	南山峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 南山峴 Nam-san-kokăi, 平安
 널골	板洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 板洞 Nöl-kol, 平安
 널다리	板橋	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 板橋 Nöl-tari, 慶尚
-넓고개	広峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 広峴 Nölp-kokăi, 忠清
-넓돌리	広岩里	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 広岩里 Nölp-dol-li, 慶尚
+넓고개	廣峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 広峴 Nölp-kokăi, 忠清
+넓돌리	廣岩里	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 広岩里 Nölp-dol-li, 慶尚
 노로골	獐洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 獐洞 Noro-kol, 慶尚
 노로목	獐項	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 獐項 Noro-mok, 咸鏡
 노로치	獐峙	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 獐峙 Noro-chhi, 慶尚
@@ -72,7 +72,7 @@ lemma	written	pos	class	source	count	note
 누을뫼	臥峰	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 臥峰 Nueul-moi, 露領
 느름평	楡坪	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 楡坪 Neureum-phyöng, 咸鏡
 능골	陵洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 陵洞 Neung-kol, 平安
-다락원	楼院	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 楼院 Tarak-uön, 京畿
+다락원	樓院	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 楼院 Tarak-uön, 京畿
 다리바위	橋岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 橋岩 Tari-bahoi, 江原; transliterates as 다리바회
 당고개	堂峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 堂峴 Tang-kokăi, 江原
 당골	堂洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 堂洞 Tang-gol, 平安
@@ -81,10 +81,10 @@ lemma	written	pos	class	source	count	note
 대뫼	大岱	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 大岱 Tai-moi, 慶尚
 대바위	大岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 大岩 Tai-bahoi, 平安; transliterates as 대바회
 대바위봉	大岩峰	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 大岩峰 Tai-bahoi-bong, 平安; transliterates as 대바회봉
-덕실	徳谷	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 徳谷 Tök-sil, 慶尚
+덕실	德谷	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 徳谷 Tök-sil, 慶尚
 도동바위	道洞岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 道洞岩 To-dong-bahoi, 慶尚; transliterates as 도동바회
 독골	篤洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 篤洞 Tok-kol, 咸鏡
-돈개포	銭浦	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 銭浦 Ton-gai-pho, 黄海
+돈개포	錢浦	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 銭浦 Ton-gai-pho, 黄海
 돌고개	石峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 石峴 Tol-kokăi, 慶尚
 돌골	石洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 石洞 Tol-gol, 咸鏡
 돌곶	石串	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 石串 Tol-kot, 慶尚; transliterates as 돌곧
@@ -97,7 +97,7 @@ lemma	written	pos	class	source	count	note
 돌장승	石張承	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 石張承 Tol-chyang-seung, 黄海
 마돌모루	馬石隅	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 馬石隅 Ma-tol-moru, 京畿
 마산골	馬山洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 馬山洞 Ma-san-kol, 黄海
-만세다리	万世橋	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 万世橋 Man-syöi-tari, 京畿
+만세다리	萬世橋	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 万世橋 Man-syöi-tari, 京畿
 말골	馬洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 馬洞 Măl-gol, 慶尚
 말모리산	馬頭山	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 馬頭山 Mal-mori-san, 平安
 말섬	馬島	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 馬島 Măl-syöm, 咸鏡
@@ -115,7 +115,7 @@ lemma	written	pos	class	source	count	note
 물구비	水曲	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 水曲 Mul-kubi, 咸鏡
 물다리장터	水橋場基	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 水橋場基 Mul-dari-jyang-thö, 黄海
 미륵고개	弥勒峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 弥勒峴 Mi-reuk-kokăi, 黄海
-밀바위	麦岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 麦岩 Mil-bahoi, 慶尚; transliterates as 밀바회
+밀바위	麥岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 麦岩 Mil-bahoi, 慶尚; transliterates as 밀바회
 박천골	朴泉洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 朴泉洞 Pak-chhyön-gol, 咸鏡
 발개	鉢浦	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 鉢浦 Pal-kai, 忠清
 밤개	栗浦	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 栗浦 Pam-gai, 黄海
@@ -136,7 +136,7 @@ lemma	written	pos	class	source	count	note
 별학바위	別鶴岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 別鶴岩 Pyöl-hak-bahoi, 江原; transliterates as 별학바회
 복터바위	伏基岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 伏基岩 Pok-thö-bahoi, 慶尚; transliterates as 복터바회
 부산원고개	斧山院峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 斧山院峴 Pu-san-uön-kokăi, 平安
-불당골	仏堂洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 仏堂洞 Pul-tang-gol, 京畿
+불당골	佛堂洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 仏堂洞 Pul-tang-gol, 京畿
 붉은고개	赤峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 赤峴 Pulgeun-kokăi, 平安; transliterates as 불근고개
 붉은섬	赤島	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 赤島 Pulgeun-syöm, 咸鏡; transliterates as 불근섬
 비달기바위	鳩岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 鳩岩 Pitälki-bahoi, 平安; transliterates as 비달기바회
@@ -193,7 +193,7 @@ lemma	written	pos	class	source	count	note
 안골령	内洞嶺	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 内洞嶺 An-kol-lyöng, 咸鏡
 암고개	庵峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 庵峴 Am-kogăi, 江原
 앞은산	前殷山	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 前殷山 Ap-eun-san, 平安; transliterates as 압은산
-양고개	両峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 両峴 Yang-kokăi, 平安
+양고개	兩峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 両峴 Yang-kokăi, 平安
 양섬	羊島	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 羊島 Yang-syöm, 全羅
 어미고개	魚尾峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 魚尾峴 Ö-mi-kogăi, 慶尚
 어파고개	漁披峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 漁披峴 Ö-pha-kokăi, 平安
@@ -234,7 +234,7 @@ lemma	written	pos	class	source	count	note
 장밭	長田	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 長田 Chyang-bat, 慶尚; transliterates as 장받
 장승고개	張承峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 張承峴 Chyang-seung-kokăi, 平安
 장승골	長承洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 長承洞 Chyang-seung-gol, 黄海
-전구비	伝曲	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 伝曲 Chyön-gubi, 平安
+전구비	傳曲	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 伝曲 Chyön-gubi, 平安
 주나루	舟渡	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 舟渡 Chyu-naru, 江原
 중골령	中洞嶺	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 中洞嶺 Chyung-kol-lyöng, 平安
 중나드리	中出入里	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 中出入里 Chyung-na-teuri, 慶尚
@@ -245,7 +245,7 @@ lemma	written	pos	class	source	count	note
 청바위	青岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 青岩 Chhyöng-bahoi, 咸鏡; transliterates as 청바회
 청석고개	青石峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 青石峴 Chhyöng-syök-kokăi, 咸鏡
 칠성바위	七星岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 七星岩 Chhil-syöng-bahoi, 忠清; transliterates as 칠성바회
-침대바위	針台岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 針台岩 Chhim-tăi-bahoi, 平安; transliterates as 침대바회
+침대바위	針臺岩	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 針台岩 Chhim-tăi-bahoi, 平安; transliterates as 침대바회
 칼산	刀山	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 刀山 Khal-san, 咸鏡
 큰고개	大峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 大峴 Kheun-kokăi, 京畿
 토내	兎川	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 兎川 Tho-nai, 慶尚
@@ -261,7 +261,7 @@ lemma	written	pos	class	source	count	note
 황다리	黄橋	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 黄橋 Hoang-dari, 慶尚
 황산여울	黄山灘	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 黄山灘 Hoang-san-yöul, 慶尚
 회골	檜洞	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 檜洞 Hoi-kol, 平安
-회덕고개	会徳峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 会徳峴 Hoi-dök-kokăi, 平安
-흑석고개	黒石峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 黒石峴 Heuk-syök-kokăi, 咸鏡
+회덕고개	會德峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 会徳峴 Hoi-dök-kokăi, 平安
+흑석고개	黑石峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 黒石峴 Heuk-syök-kokăi, 咸鏡
 흙고개	泥峴	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 泥峴 Heulk-kokăi, 京畿
 흰돌	白石	noun		place-name		ja.wikipedia 朝鮮地名音訓一覧 rev111083341 (secondary, Wikipedia), 小藤・金澤: 白石 Heuin-dol, 慶尚

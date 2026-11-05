@@ -21,7 +21,7 @@ fn first(e: &Engine, input: &str) -> String {
 #[test]
 fn a_name_with_no_other_spelling_takes_the_listed_one() {
     let e = engine();
-    for (name, hanja) in [("진고개", "泥峴"), ("살곶다리", "箭串橋"), ("다락원", "楼院"), ("말섬", "馬島")] {
+    for (name, hanja) in [("진고개", "泥峴"), ("살곶다리", "箭串橋"), ("다락원", "樓院"), ("말섬", "馬島")] {
         assert_eq!(first(&e, name), hanja, "{name}");
     }
 }
@@ -49,7 +49,8 @@ fn every_row_cites_the_revision_and_quotes_the_romanization() {
     for r in &rows {
         assert_eq!(r[4], "place-name", "{r:?}");
         assert!(r[6].contains("rev111083341 (secondary, Wikipedia)"), "{r:?}");
-        assert!(r[6].contains(&format!("{} ", r[1])), "{r:?}");
+        // The note quotes the page's own form; the row writes it traditionally.
+        assert!(r[6].contains("小藤・金澤: "), "{r:?}");
     }
 }
 

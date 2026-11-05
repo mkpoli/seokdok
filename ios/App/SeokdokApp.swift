@@ -54,6 +54,7 @@ struct RootView: View {
         case "phone": return .phonePad
         case "email": return .emailAddress
         case "url": return .URL
+        case "ascii": return .asciiCapable
         default: return .default
         }
     }

@@ -8,18 +8,33 @@ import UIKit
 final class KeyboardViewController: UIInputViewController {
     private var session: Session!
     private var keys: KeyboardView!
+    private var keysHeight: NSLayoutConstraint?
     private var shift = KeyboardState.Shift.off
     private var lastShiftTap = Date.distantPast
+    /// Shift is on because the field asked for a capital, and the next letter or a
+    /// change of place may take it off again.
+    private var shiftIsAuto = false
+    /// Shift was tapped off with this text before the caret; it stays off while the
+    /// caret stays there.
+    private var shiftDeclined: String?
+    /// The last key was a Space that typed a space.
+    private var lastKeyWasSpace = false
+    /// The end of the text before the caret as that Space left it, to tell whether
+    /// the caret or the field has changed since.
+    private var textAfterSpace = ""
     /// The marked text this keyboard last wrote into the document, if any.
     private var marked: String?
     /// The document the marked text was written into
     /// (`textDocumentProxy.documentIdentifier`).
     private var composingDocument: UUID?
+    /// The text last confirmed here and when, while a word break may be owed
+    /// after it.
+    private var lastCommit: (text: String, at: Date)?
     private var loadTimer: Timer?
     /// Bumped whenever a composition ends or its field changes, so a delayed
     /// check for an earlier text change does nothing.
     private var checkGeneration = 0
-    /// What the focused field asks for; only `.standard` converts.
+    /// What the focused field asks for; only the Hangul layouts convert.
     private var layout = Layout.standard
     /// A long press on the mode key opened the bar's controls for what was
     /// learned. Without Full Access the app cannot reach this keyboard's files.
@@ -36,6 +51,14 @@ final class KeyboardViewController: UIInputViewController {
         #endif
     }
 
+    /// The system keeps each controller's input view alive after the controller
+    /// goes, in a keyboard process that outlives the apps it served. Without this,
+    /// every keys view stayed with it: about 3 MB more each time the app in focus
+    /// was launched again (`footprint` on an iOS 26.5 simulator).
+    deinit {
+        keys?.removeFromSuperview()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         let dict = Bundle.main.bundleURL.appendingPathComponent("dict").path
@@ -48,6 +71,7 @@ final class KeyboardViewController: UIInputViewController {
         view.addSubview(keys)
         // As tall as the system keyboard with its suggestion bar.
         let height = keys.heightAnchor.constraint(equalToConstant: 261)
+        keysHeight = height
         // Below required, so it gives way to the system's own height while
         // the keyboard is being set up.
         height.priority = UILayoutPriority(999)
@@ -61,6 +85,18 @@ final class KeyboardViewController: UIInputViewController {
         if let globe = keys.globe {
             globe.addTarget(self, action: #selector(handleInputModeList(from:with:)), for: .allTouchEvents)
         }
+    }
+
+    /// The keys follow the width and the orientation, as the system's do.
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        let width = view.bounds.width
+        // The table is the iPhone's; an iPad keeps the keys' first layout.
+        guard width > 0, UIDevice.current.userInterfaceIdiom == .phone else { return }
+        let screen = UIScreen.main.bounds.size
+        let layout = KeyLayout.current(width: width, landscape: screen.width > screen.height)
+        keysHeight?.constant = layout.height
+        keys.apply(layout, width: width)
     }
 
     /// The App Group container holding the app's settings. Reading it needs
@@ -97,8 +133,18 @@ final class KeyboardViewController: UIInputViewController {
         waitForDictionaries()
     }
 
+    /// What is being composed already stands in the document as marked text, so
+    /// it is confirmed there. Inserting it instead wrote it a second time into the
+    /// next field when the app replaced the field in focus.
     override func viewWillDisappear(_ animated: Bool) {
         session.flush()
+        if marked != nil {
+            _ = session.takeCommit()
+            textDocumentProxy.unmarkText()
+            marked = nil
+            // The caret may be anywhere when the keyboard returns; no word break is owed.
+            session.reset()
+        }
         apply()
         loadTimer?.invalidate()
         super.viewWillDisappear(animated)
@@ -113,10 +159,20 @@ final class KeyboardViewController: UIInputViewController {
     /// off a word (ㄱㅏ for 가). A change of field is told apart by its layout
     /// or its document identifier, ends the composition at once and cancels any
     /// check still waiting.
+    override func selectionDidChange(_ textInput: UITextInput?) {
+        super.selectionDidChange(textInput)
+        if marked == nil { refresh() }
+    }
+
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
         if updateLayout() || dropForeignComposition() { return }
-        guard marked != nil else { return }
+        guard marked != nil else {
+            // Another field or caret place may want another Shift, and a field's traits
+            // and whether it has text decide the Return key.
+            refresh()
+            return
+        }
         checkGeneration += 1
         checkComposition(generation: checkGeneration, looksLeft: 4)
     }
@@ -153,6 +209,28 @@ final class KeyboardViewController: UIInputViewController {
         return true
     }
 
+    /// A word break is owed after what was confirmed, and only there: if the
+    /// app has since sent or cleared the text, or the caret was tapped elsewhere,
+    /// the next word starts where it stands. The proxy's context can lag behind
+    /// the keyboard's own insert, so a commit is taken on trust for as long as
+    /// `checkComposition` allows that lag, and a field with text but no context to
+    /// show keeps the break. Text just like the commit before a tapped caret looks
+    /// the same from here, and keeps it too.
+    private func forgetStaleBreak() {
+        guard let last = lastCommit, session.preedit().isEmpty else { return }
+        lastCommit = nil
+        guard Date().timeIntervalSince(last.at) > 0.8 else { return }
+        let proxy = textDocumentProxy
+        let moved: Bool
+        if let before = proxy.documentContextBeforeInput, !before.isEmpty {
+            // Either may be the shorter: the proxy can offer only part of a sentence.
+            moved = !before.hasSuffix(last.text.suffix(8)) && !last.text.hasSuffix(before)
+        } else {
+            moved = !proxy.hasText || !(proxy.documentContextAfterInput ?? "").isEmpty
+        }
+        if moved { session.reset() }
+    }
+
     /// Forget the composition without writing it: the document it was typed
     /// into already holds it as plain text, and the document now in focus
     /// does not own it.
@@ -177,7 +255,10 @@ final class KeyboardViewController: UIInputViewController {
         case .phonePad: return .phone
         case .emailAddress: return .email
         case .URL: return .url
-        case .asciiCapable, .namePhonePad: return .ascii
+        case .asciiCapable: return .ascii
+        case .numbersAndPunctuation: return .numbers
+        case .twitter: return .twitter
+        case .webSearch: return .web
         default: return .standard
         }
     }
@@ -226,6 +307,7 @@ final class KeyboardViewController: UIInputViewController {
             // Replaces the marked text, if any.
             proxy.insertText(commit)
             marked = nil
+            lastCommit = (commit, Date())
         }
         let text = session.preedit().map(\.text).joined()
         if !text.isEmpty {
@@ -240,7 +322,43 @@ final class KeyboardViewController: UIInputViewController {
         refresh()
     }
 
+    /// Latin letters capitalize as the field asks, as on the system's English
+    /// keyboard; its Korean keyboard does nothing of the kind on Hangul, nor do its
+    /// email and web fields here. `autocapitalizationType` is the field's own trait;
+    /// Apple's custom keyboard guide puts the Settings switch out of a keyboard's reach.
+    /// A field with text and no context to show gets no capital from here.
+    private func updateAutoShift() {
+        guard layout == .ascii || (layout.converts && session.mode == .latin) else {
+            if shiftIsAuto { shift = .off }
+            shiftIsAuto = false
+            return
+        }
+        guard shift != .locked else { return }
+        let before = textDocumentProxy.documentContextBeforeInput ?? ""
+        let unseen = before.isEmpty && textDocumentProxy.hasText
+        if shiftDeclined != before { shiftDeclined = nil }
+        let wanted: Bool
+        switch textDocumentProxy.autocapitalizationType ?? .sentences {
+        case .none: wanted = false
+        case .allCharacters: wanted = true
+        case _ where unseen: wanted = false
+        case .words: wanted = before.isEmpty || before.last?.isWhitespace == true
+        default:
+            let trimmed = before.reversed().drop { $0 == " " }
+            wanted = before.isEmpty || trimmed.isEmpty || trimmed.first?.isNewline == true
+                || (before.last == " " && [".", "!", "?"].contains(trimmed.first))
+        }
+        if wanted, shift == .off, shiftDeclined == nil {
+            shift = .once
+            shiftIsAuto = true
+        } else if !wanted, shiftIsAuto {
+            shift = .off
+            shiftIsAuto = false
+        }
+    }
+
     private func refresh() {
+        updateAutoShift()
         let runs = session.preedit()
         var s = KeyboardState()
         s.layout = layout
@@ -252,15 +370,16 @@ final class KeyboardViewController: UIInputViewController {
         s.runs = runs
         s.candidates = session.candidates()
         s.loading = !Session.ready
-        switch textDocumentProxy.returnKeyType ?? .default {
-        case .go, .google, .join, .route, .search, .send, .yahoo, .done, .emergencyCall, .continue:
-            s.returnIsAction = true
-        default:
-            s.returnIsAction = false
-        }
+        s.returnKey = ReturnKey(textDocumentProxy.returnKeyType ?? .default)
+        s.returnDisabled = returnDisabled && runs.isEmpty
         s.learnMenu = learnMenu
         s.learnOn = hasFullAccess && AppGroup.containerURL != nil ? nil : Session.learn
         keys.render(s)
+    }
+
+    /// The field wants text before its Return does anything, and has none.
+    private var returnDisabled: Bool {
+        (textDocumentProxy.enablesReturnKeyAutomatically ?? false) && !textDocumentProxy.hasText
     }
 
     /// Insert text the session did not take.
@@ -271,14 +390,17 @@ final class KeyboardViewController: UIInputViewController {
 
 extension KeyboardViewController: KeyboardViewDelegate {
     func letter(_ key: Character) {
+        lastKeyWasSpace = false
         dropForeignComposition()
         let shifted = shift != .off
         guard layout.converts else {
             insert(String(shifted ? Character(key.uppercased()) : key))
             if shift == .once { shift = .off }
+            shiftIsAuto = false
             refresh()
             return
         }
+        forgetStaleBreak()
         if session.preedit().isEmpty {
             session.setPrivateField(fieldIsPrivate())
         }
@@ -288,13 +410,39 @@ extension KeyboardViewController: KeyboardViewDelegate {
         if shift == .once {
             shift = .off
         }
+        shiftIsAuto = false
         apply()
     }
 
-    func symbol(_ ch: Character) {
+    func letterFlipped(_ key: Character) {
+        let was = shift
+        shift = was == .off ? .once : .off
+        letter(key)
+        if was == .locked { shift = .locked }
+        refresh()
+    }
+
+    /// Straight quotes curl in fields of prose, on the field's say-so, as the system's
+    /// keyboards do: closing after a letter or digit, or when one of the kind is still
+    /// open, and opening elsewhere (Apple's typed `‘` after `.,?!` with none open).
+    /// Addresses, names and passwords keep the straight quote they mean.
+    private func curled(_ ch: Character) -> Character {
+        guard ch == "'" || ch == "\"", layout.converts, !fieldIsPrivate(),
+              textDocumentProxy.smartQuotesType != .no else { return ch }
+        let text = (textDocumentProxy.documentContextBeforeInput ?? "") + session.preedit().map(\.text).joined()
+        let (opening, closing): (Character, Character) = ch == "'" ? ("‘", "’") : ("“", "”")
+        let open = text.filter { $0 == opening }.count > text.filter { $0 == closing }.count
+        let closes = open || text.last.map { $0.isLetter || $0.isNumber } ?? false
+        return closes ? closing : opening
+    }
+
+    func symbol(_ typed: Character) {
+        lastKeyWasSpace = false
         dropForeignComposition()
+        let ch = curled(typed)
         guard layout.converts else {
             insert(String(ch))
+            refresh()
             return
         }
         // Digits pick candidates after Space has walked the list; close it
@@ -308,34 +456,80 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
+    func literal(_ text: String) {
+        dropForeignComposition()
+        insert(text)
+    }
+
     func space() {
         dropForeignComposition()
-        guard layout.converts else {
-            insert(" ")
+        if lastKeyWasSpace, session.preedit().isEmpty, typePeriodForSpaces() {
+            lastKeyWasSpace = false
+            apply()
             return
         }
-        if !session.key(Session.Key.space) {
+        let before = textDocumentProxy.documentContextBeforeInput ?? ""
+        guard layout.converts else {
             insert(" ")
+            noteSpace(after: before)
+            refresh()
+            return
         }
+        let composed = session.preedit().map(\.text).joined()
+        let used = session.key(Session.Key.space)
+        if !used { insert(" ") }
         apply()
+        // A Space that opens or walks a conversion typed no space; in 한 mode one
+        // that ends a composition did.
+        if session.preedit().isEmpty {
+            noteSpace(after: before + composed)
+        } else {
+            lastKeyWasSpace = false
+        }
+    }
+
+    private func noteSpace(after before: String) {
+        lastKeyWasSpace = true
+        textAfterSpace = String((before + " ").suffix(16))
+    }
+
+    /// Two Spaces after a word make a period and a space, at any pace, as on the
+    /// system's Korean and English keyboards (none after punctuation, a space or
+    /// nothing). The Settings switch for it is out of a keyboard's reach.
+    private func typePeriodForSpaces() -> Bool {
+        let proxy = textDocumentProxy
+        let before = proxy.documentContextBeforeInput ?? ""
+        guard proxy.isSecureTextEntry != true, proxy.selectedText == nil, before.hasSuffix(textAfterSpace),
+              before.last == " ", let word = before.dropLast().last, word.isLetter || word.isNumber else { return false }
+        textDocumentProxy.deleteBackward()
+        insert(". ")
+        return true
     }
 
     func enter() {
+        lastKeyWasSpace = false
         dropForeignComposition()
+        guard layout.isPad || !returnDisabled || !session.preedit().isEmpty else { return }
         guard layout.converts else {
             insert("\n")
+            refresh()
             return
         }
-        if !session.key(Session.Key.enter) {
+        // Only 釋 and 混 stop at confirming; see `KeyboardView.render`.
+        let confirmsOnly = session.mode == .seokdok
+        let used = session.key(Session.Key.enter)
+        apply()
+        if !used || !confirmsOnly {
             insert("\n")
         }
-        apply()
     }
 
     func backspace() {
+        lastKeyWasSpace = false
         dropForeignComposition()
         guard layout.converts else {
             textDocumentProxy.deleteBackward()
+            refresh()
             return
         }
         if !session.key(Session.Key.backspace) {
@@ -344,9 +538,41 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
+    /// While the key is held the system's Korean keyboard takes a composition a
+    /// syllable at a time, where a tap takes one letter.
+    func backspaceRepeat() {
+        let before = session.preedit().map(\.text).joined().count
+        guard before > 0 else {
+            backspace()
+            return
+        }
+        // A syllable has at most a few letters; the bound only guards the loop.
+        for _ in 0..<8 {
+            backspace()
+            if session.preedit().map(\.text).joined().count < before { break }
+        }
+    }
+
+    /// The word before the caret and the spaces after it. With no text to see,
+    /// one character.
+    func backspaceWord() {
+        guard session.preedit().isEmpty else {
+            backspaceRepeat()
+            return
+        }
+        let context = textDocumentProxy.documentContextBeforeInput ?? ""
+        let spaces = context.reversed().prefix(while: \.isWhitespace).count
+        let word = context.reversed().dropFirst(spaces).prefix(while: { !$0.isWhitespace }).count
+        for _ in 0..<max(1, spaces + word) {
+            textDocumentProxy.deleteBackward()
+        }
+        session.reset()
+    }
+
     /// What is being composed goes into the document first, with no word break
     /// owed afterwards: the caret is leaving.
     func beginCursor() {
+        lastKeyWasSpace = false
         session.flush()
         apply()
         session.reset()
@@ -374,13 +600,18 @@ extension KeyboardViewController: KeyboardViewDelegate {
         let now = Date()
         switch shift {
         case .off:
-            shift = .once
+            // The second of two quick taps locks, also when the first took off a capital
+            // the field had asked for.
+            shift = shiftDeclined != nil && now.timeIntervalSince(lastShiftTap) < 0.35 ? .locked : .once
         case .once:
-            shift = now.timeIntervalSince(lastShiftTap) < 0.35 ? .locked : .off
+            shift = now.timeIntervalSince(lastShiftTap) < 0.35 && !shiftIsAuto ? .locked : .off
+            if shift == .off { shiftDeclined = textDocumentProxy.documentContextBeforeInput ?? "" }
         case .locked:
             shift = .off
+            shiftDeclined = textDocumentProxy.documentContextBeforeInput ?? ""
         }
         lastShiftTap = now
+        shiftIsAuto = false
         refresh()
     }
 

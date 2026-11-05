@@ -197,6 +197,10 @@ such limit, and its figures differ from a device's, so this has to be tried on
 an iPhone. It lies inside the range of those published estimates, so a device
 may still end the keyboard.
 
+The process outlives the apps it serves, so whatever one appearance leaves behind
+adds up: each new controller's views are released when the old one goes, and the
+footprint stays level over repeated launches of the app in focus.
+
 The engine alone peaks at about 44.5 MB, and the highest of 50 runs was
 44.6 MB (Linux, 2026-11-04, `VmHWM` from
 `cargo run --release -p seokdok-core --example memory -- dict`). Over half of

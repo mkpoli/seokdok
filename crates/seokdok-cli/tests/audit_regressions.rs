@@ -172,6 +172,11 @@ fn words_that_look_like_a_loanword_or_an_ending_keep_their_reading() {
 }
 
 #[test]
+fn example_is_written_in_hanja_with_a_particle() {
+    first(&[("예를", "例를"), ("예가", "例가"), ("예로는", "例로는"), ("예로부터", "예로부터"), ("예에서", "例에서"), ("예의", "禮儀")]);
+}
+
+#[test]
 fn the_pronoun_with_a_particle_is_not_a_particle_alone() {
     first(&[
         ("이를", "此를"), ("이는", "此는"), ("이가", "此가"), ("이도", "此도"), ("이의", "此의"), ("이에게", "此에게"),

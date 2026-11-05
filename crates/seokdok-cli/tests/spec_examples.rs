@@ -825,3 +825,11 @@ fn a_demonstrative_runs_into_its_word() {
     assert!(list.iter().position(|t| t == "其話를").unwrap() < list.iter().position(|t| t == "그話를").unwrap(), "{list:?}");
     assert!(offers(&e, "이화를", "梨花를"));
 }
+
+#[test]
+fn hana_alone_is_one() {
+    let e = engine(Options::default());
+    assert_eq!(e.convert("하나")[0].text, "一");
+    assert_eq!(e.convert("하나를")[0].text, "一를");
+    assert!(offers(&e, "하나", "하나"));
+}

@@ -1070,6 +1070,14 @@ impl Engine {
         if n == 0 || !is_l(comps[0]) {
             return;
         }
+        // 하나 typed alone is the numeral, not 하다 + -나.
+        if compose(comps) == "하나" {
+            for e in edges.iter_mut().filter(|e| e.start == 0 && e.end == n) {
+                if matches!(e.kind, Kind::Verb { entry, .. } if self.natives[entry as usize].hanja.is_empty()) {
+                    e.cost += 3.0;
+                }
+            }
+        }
         let alone = self.particle_trie.prefixes(comps, 0).into_iter().any(|(r, pis)| r == n && pis.iter().any(|&pi| is_l(self.particles[pi as usize].comps[0])));
         if alone && !HOMOGRAPH_PARTICLES.contains(&compose(comps).as_str()) {
             edges.push(Edge { start: 0, end: n, cost: ALONE_COST, kind: Kind::Raw });

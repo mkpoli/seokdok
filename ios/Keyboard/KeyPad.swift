@@ -617,6 +617,18 @@ final class KeyPopup: UIView {
     private var tray = CGRect.zero
     private(set) var selectedAlternate = 0
 
+    /// iOS 26's tray floats clear of the key, which stays in view.
+    private static var trayFloats: Bool {
+        if #available(iOS 26, *) { return true }
+        return false
+    }
+    /// A floating tray's measures, from the system's on iOS 26.5: its top and bottom
+    /// over the key, the room around the cells, and the choice's room above and below.
+    private static let trayRise: CGFloat = 73
+    private static let trayDrop: CGFloat = 5
+    private static let trayPad: CGFloat = 8.3
+    private static let choicePad: CGFloat = 10
+
     /// A tray over the key, with the key itself over its own place and chosen. Keys
     /// on the right half read towards the middle, as on the system keyboard.
     func showAlternates(_ key: Key, over rect: CGRect, within outer: CGRect) {
@@ -629,28 +641,37 @@ final class KeyPopup: UIView {
             order.reverse()
             main = 1
         }
-        let cell = min(max(rect.width + 4, 34), (outer.width - 2) / CGFloat(order.count))
+        let floats = Self.trayFloats
+        let side = floats ? Self.trayPad : 0
+        let cell = min(max(rect.width + (floats ? 4.5 : 4), 34), (outer.width - 2 - 2 * side) / CGFloat(order.count))
         let width = cell * CGFloat(order.count)
-        let x = min(max(rect.midX - cell * (CGFloat(main) + 0.5), outer.minX + 1), outer.maxX - width - 1)
-        let top = max(rect.minY - 54, outer.minY)
-        let height = rect.minY - 14 - top
-        tray = CGRect(x: x, y: top, width: width, height: height)
-        let path = Self.path(body: tray, key: rect)
+        let x = min(max(rect.midX - cell * (CGFloat(main) + 0.5) - side, outer.minX + 1), outer.maxX - width - 2 * side - 1) + side
+        let wanted = rect.minY - (floats ? Self.trayRise : 54)
+        let top = max(wanted, outer.minY)
+        let bottom = rect.minY - (floats ? Self.trayDrop : 14)
+        // Under the keyboard's top edge the choice gives up some of its room.
+        let cramped = top > wanted
+        let cellTop = floats ? top + (cramped ? 4 : Self.choicePad) : top
+        let height = bottom - (floats ? (cramped ? 5 : Self.choicePad) : 0) - cellTop
+        tray = CGRect(x: x, y: cellTop, width: width, height: height)
+        let path = floats
+            ? UIBezierPath(roundedRect: CGRect(x: x - side, y: top, width: width + 2 * side, height: bottom - top), cornerRadius: 11).cgPath
+            : Self.path(body: tray, key: rect)
         shape.path = path
         shape.shadowPath = path
         shape.fillColor = KeyMetrics.letterFill.resolvedColor(with: traitCollection).cgColor
         label.isHidden = true
         if selection.superlayer == nil {
             selection.backgroundColor = UIColor.systemBlue.cgColor
-            selection.cornerRadius = 6
+            selection.cornerRadius = floats ? 12 : 6
             layer.addSublayer(selection)
         }
         cells.forEach { $0.removeFromSuperview() }
         cells = order.enumerated().map { i, index in
-            let l = UILabel(frame: CGRect(x: x + CGFloat(i) * cell, y: top, width: cell, height: height))
+            let l = UILabel(frame: CGRect(x: x + CGFloat(i) * cell, y: cellTop, width: cell, height: height))
             l.text = key.alternates[index]
             l.textAlignment = .center
-            l.font = OldHangul.font(ofSize: 24)
+            l.font = OldHangul.font(ofSize: floats ? 26 : 24)
             l.adjustsFontSizeToFitWidth = true
             addSubview(l)
             return l
@@ -671,7 +692,7 @@ final class KeyPopup: UIView {
         selectedAlternate = order[i]
         CATransaction.begin()
         CATransaction.setDisableActions(true)
-        selection.frame = cells[i].frame.insetBy(dx: 2, dy: 3)
+        selection.frame = Self.trayFloats ? cells[i].frame : cells[i].frame.insetBy(dx: 2, dy: 3)
         CATransaction.commit()
         for (j, l) in cells.enumerated() {
             l.textColor = j == i ? .white : .label

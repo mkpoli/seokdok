@@ -319,7 +319,7 @@ final class KeyboardView: UIView {
                     guard i < row.count else { return }
                     self.tap { $0.symbol(row[i]) }
                     // An apostrophe leads back into a word, as on the system keyboard.
-                    if row[i] == "'" { self.layerKey.action?() }
+                    if row[i] == "'" { self.showLayer(letters: true) }
                 }
                 symbolKeys.append(k)
                 keys.append(k)
@@ -393,14 +393,14 @@ final class KeyboardView: UIView {
         layerKey = Key(title: "123")
         layerKey.fires = .onPress
         layerKey.slides = true
-        layerKey.slideReturns = true
+        layerKey.slideReturn = { [weak self] in
+            guard let self else { return }
+            self.showLayer(letters: self.lettersBeforeLayerKey)
+        }
         layerKey.action = { [weak self] in
             guard let self else { return }
-            self.symbolPage = 0
-            self.labelSymbols()
-            self.letters.isHidden.toggle()
-            self.symbols.isHidden = !self.letters.isHidden
-            self.relabelLayerKey()
+            self.lettersBeforeLayerKey = self.lettersShown
+            self.showLayer(letters: !self.lettersShown)
         }
         layerKey.widthAnchor.constraint(equalToConstant: 46).isActive = true
         bottom.addArrangedSubview(layerKey)
@@ -433,7 +433,7 @@ final class KeyboardView: UIView {
         spaceKey.action = { [weak self] in
             self?.tap { $0.space() }
             // Space ends a run of symbols, as on the system keyboard.
-            if let self, !self.lettersShown { self.layerKey.action?() }
+            self?.showLayer(letters: true)
         }
         spaceKey.holdsForCursor = true
         enterKey = Key(title: "改行")
@@ -443,6 +443,19 @@ final class KeyboardView: UIView {
             bottom.addArrangedSubview(k)
         }
         return bottom
+    }
+
+    private var lettersBeforeLayerKey = true
+
+    /// Sets the layer rather than toggling it: a slide, Space and an apostrophe can
+    /// each ask for the letters on the same lift.
+    private func showLayer(letters showLetters: Bool) {
+        guard showLetters != lettersShown else { return }
+        symbolPage = 0
+        labelSymbols()
+        letters.isHidden = !showLetters
+        symbols.isHidden = showLetters
+        relabelLayerKey()
     }
 
     private func tap(_ act: (KeyboardViewDelegate) -> Void) {

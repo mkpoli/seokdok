@@ -18,10 +18,9 @@ final class Key: UIView {
     /// Show the pop-up preview while held.
     var previews = false
     /// 123 and Shift: a finger that started here can slide onto a letter and type
-    /// it where it lifts. `slideReturns` runs `action` again after that letter, so
-    /// 123 goes back to the letters.
+    /// it where it lifts. `slideReturn` then runs, so 123 restores its layer.
     var slides = false
-    var slideReturns = false
+    var slideReturn: (() -> Void)?
     /// Space: held, it turns the keyboard into a trackpad.
     var holdsForCursor = false
     var action: (() -> Void)?
@@ -372,7 +371,7 @@ final class KeyPad: UIView {
             if t.key.slides {
                 guard let next = key(at: p), next.previews else { continue }
                 t.key.isPressed = false
-                if t.key.slideReturns { t.returnTo = t.key }
+                if t.key.slideReturn != nil { t.returnTo = t.key }
                 t.key = next
                 next.isPressed = true
                 preview(next)
@@ -410,7 +409,7 @@ final class KeyPad: UIView {
             guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
             if t.inside, t.key.fires == .onRelease { t.key.action?() }
-            t.returnTo?.action?()
+            t.returnTo?.slideReturn?()
         }
     }
 
@@ -423,16 +422,18 @@ final class KeyPad: UIView {
             }
             guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
+            t.returnTo?.slideReturn?()
         }
     }
 
-    /// A new touch while a letter is held: type that letter now.
+    /// A new touch while a letter or Space is held: type it now, so two thumbs stay
+    /// in order and the new key is found on the layer that key leads to.
     private func rollOver() {
-        for (id, t) in tracks where t.key.previews {
+        for (id, t) in tracks where t.key.previews || t.key.holdsForCursor {
             tracks[id] = nil
             release(t.key)
             if t.inside { t.key.action?() }
-            t.returnTo?.action?()
+            t.returnTo?.slideReturn?()
         }
     }
 
@@ -458,6 +459,7 @@ final class KeyPad: UIView {
         for (other, held) in tracks {
             tracks[other] = nil
             release(held.key)
+            held.returnTo?.slideReturn?()
         }
         cursorTouch = id
         cursorX = x

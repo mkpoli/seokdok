@@ -291,20 +291,23 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
-    /// Straight quotes curl, on the field's say-so, as the system's keyboards do:
-    /// closing after a letter or digit, opening elsewhere.
+    /// Straight quotes curl in fields of prose, on the field's say-so, as the system's
+    /// keyboards do: closing after a letter or digit, or when one of the kind is still
+    /// open, and opening elsewhere (Apple's typed `‘` after `.,?!` with none open).
+    /// Addresses, names and passwords keep the straight quote they mean.
     private func curled(_ ch: Character) -> Character {
-        guard ch == "'" || ch == "\"", textDocumentProxy.smartQuotesType != .no else { return ch }
-        let composing = session.preedit().map(\.text).joined().last
-        let previous = composing ?? textDocumentProxy.documentContextBeforeInput?.last
-        let closes = previous.map { $0.isLetter || $0.isNumber } ?? false
-        if ch == "'" { return closes ? "’" : "‘" }
-        return closes ? "”" : "“"
+        guard ch == "'" || ch == "\"", layout.converts, !fieldIsPrivate(),
+              textDocumentProxy.smartQuotesType != .no else { return ch }
+        let text = (textDocumentProxy.documentContextBeforeInput ?? "") + session.preedit().map(\.text).joined()
+        let (opening, closing): (Character, Character) = ch == "'" ? ("‘", "’") : ("“", "”")
+        let open = text.filter { $0 == opening }.count > text.filter { $0 == closing }.count
+        let closes = open || text.last.map { $0.isLetter || $0.isNumber } ?? false
+        return closes ? closing : opening
     }
 
     func symbol(_ typed: Character) {
-        let ch = curled(typed)
         dropForeignComposition()
+        let ch = curled(typed)
         guard layout.converts else {
             insert(String(ch))
             return

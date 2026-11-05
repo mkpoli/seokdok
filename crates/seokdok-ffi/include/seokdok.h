@@ -52,6 +52,10 @@ bool seokdok_space_converts(void);
 char *seokdok_config_json(void);
 bool seokdok_config_save_json(const char *json);
 char *seokdok_config_dir(void);
+
+/* The definition of the product this library was built as: the JSON of
+   products/<id>.json. Free with seokdok_string_free. */
+char *seokdok_product_json(void);
 char *seokdok_config_defaults_json(void);
 char *seokdok_config_error(void);
 char *seokdok_config_update_json(const char *patch);

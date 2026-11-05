@@ -65,6 +65,7 @@ impl ITfTextInputProcessor_Impl for TextService_Impl {
         state.display_atoms = [0; 3];
         state.client_id = 0;
         state.anchor = None;
+        state.carets = Default::default();
         // Release the thread manager last.
         state.thread_mgr = None;
         Ok(())

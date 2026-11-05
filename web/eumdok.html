@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko" data-product="eumdok">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>音讀(음독) 입력기 · 국한문혼용 | Eumdok</title>
+    <meta name="description" content="한글로 치면 한자어는 한자로, 고유어는 한글로. 국한문혼용을 위한 입력기 音讀. An input method for Korean mixed script." />
+    <link rel="canonical" href="https://seokdok.mkpo.li/eumdok" />
+    <meta name="theme-color" content="#7c2d23" />
+    <link rel="icon" href="/favicon-eumdok.svg" type="image/svg+xml" />
+    <script>
+      try {
+        const t = localStorage.getItem('seokdok:theme')
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/eumdok.js"></script>
+  </body>
+</html>

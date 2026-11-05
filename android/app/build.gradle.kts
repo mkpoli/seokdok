@@ -1,3 +1,4 @@
+import groovy.json.JsonSlurper
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 import javax.inject.Inject
 
@@ -8,6 +9,10 @@ plugins {
 
 /** The repository root: the Cargo workspace and `dict/`. */
 val repoRoot: File = rootProject.projectDir.parentFile
+
+/** One flavor per file in `products/`: its package name, and what its settings offer. */
+fun product(id: String): Map<*, *> = JsonSlurper().parse(repoRoot.resolve("products/$id.json")) as Map<*, *>
+val products = listOf("seokdok", "eumdok")
 
 android {
     packaging {
@@ -21,11 +26,23 @@ android {
     ndkVersion = "28.0.13004108"
 
     defaultConfig {
-        applicationId = "li.mkpo.seokdok"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
         versionName = "0.1.0"
+    }
+
+    flavorDimensions += "product"
+    productFlavors {
+        products.forEach { id ->
+            create(id) {
+                dimension = "product"
+                val definition = product(id)
+                applicationId = (definition["android"] as Map<*, *>)["application_id"] as String
+                resValue("bool", "has_kun", (definition["scripts"] as List<*>).contains("seokdok").toString())
+                resValue("string", "guide", definition["guide"] as String)
+            }
+        }
     }
 
     // The release key comes from the environment (set by the CI workflow from
@@ -82,6 +99,10 @@ abstract class CargoNdk : DefaultTask() {
     @get:Input
     abstract val platform: Property<Int>
 
+    /** Cargo features of the flavor. */
+    @get:Input
+    abstract val features: ListProperty<String>
+
     @get:OutputDirectory
     abstract val outputDir: DirectoryProperty
 
@@ -99,6 +120,7 @@ abstract class CargoNdk : DefaultTask() {
             // Release even for debug APKs: an unoptimised engine loads the
             // dictionaries many times slower.
             args += listOf("build", "--release", "-p", "seokdok-jni")
+            features.get().forEach { args += listOf("--features", it) }
             commandLine(args)
             environment("ANDROID_NDK_HOME", ndkDirectory.get().asFile.path)
             // 16 KB pages (Android 15 devices): align the library's segments.
@@ -142,6 +164,7 @@ androidComponents {
                 fileTree(repoRoot.resolve("crates")) { include("**/*.rs", "**/Cargo.toml") },
                 repoRoot.resolve("Cargo.toml"),
                 repoRoot.resolve("Cargo.lock"),
+                repoRoot.resolve("products"),
             )
             workspace.set(repoRoot)
             // The pinned NDK; sdkComponents.ndkDirectory has no value without an
@@ -149,6 +172,7 @@ androidComponents {
             ndkDirectory.set(sdkComponents.sdkDirectory.map { it.dir("ndk/${android.ndkVersion}") })
             abis.set(listOf("arm64-v8a", "armeabi-v7a", "x86_64"))
             platform.set(26)
+            features.set(variant.productFlavors.map { it.second }.filter { it != "seokdok" })
             outputDir.set(layout.buildDirectory.dir("generated/seokdok/jniLibs/${variant.name}"))
         }
         variant.sources.jniLibs?.addGeneratedSourceDirectory(cargo, CargoNdk::outputDir)

@@ -100,7 +100,7 @@ public:
     explicit SeokdokEngine(fcitx::Instance *instance)
         : instance_(instance),
           factory_([](fcitx::InputContext &) { return new State; }) {
-        instance_->inputContextManager().registerProperty("seokdokState", &factory_);
+        instance_->inputContextManager().registerProperty(SEOKDOK_ADDON "State", &factory_);
     }
 
     State *state(fcitx::InputContext *ic) { return ic->propertyFor(&factory_); }

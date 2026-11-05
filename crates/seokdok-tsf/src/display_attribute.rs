@@ -33,12 +33,13 @@ impl Kind {
         }
     }
 
-    fn description(self) -> &'static str {
-        match self {
-            Kind::Input => "seokdok input",
-            Kind::Converted => "seokdok converted",
-            Kind::Focus => "seokdok focused segment",
-        }
+    fn description(self) -> String {
+        let what = match self {
+            Kind::Input => "input",
+            Kind::Converted => "converted",
+            Kind::Focus => "focused segment",
+        };
+        format!("{} {what}", seokdok_product::CURRENT.id)
     }
 
     fn attribute(self) -> TF_DISPLAYATTRIBUTE {

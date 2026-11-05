@@ -262,7 +262,7 @@ pub extern "system" fn Java_li_mkpo_seokdok_Native_reload<'l>(mut env: JNIEnv<'l
     }
 }
 
-#[cfg(test)]
+#[cfg(all(test, not(feature = "eumdok")))]
 mod tests {
     use super::*;
     use seokdok_session::config::{InputMode, StyleOpt};

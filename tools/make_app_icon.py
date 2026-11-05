@@ -1,13 +1,15 @@
-"""Draw the app icon on every platform: white 釋 on the site's indigo.
+"""Draw a product's app icon on every platform: its white character on its color.
 
-Usage: uv run --no-project --with pillow --with fonttools tools/make_app_icon.py
+Usage: uv run --no-project --with pillow --with fonttools tools/make_app_icon.py [seokdok|eumdok]
 
-The glyph is an outline from Noto Serif CJK KR Black (SIL OFL 1.1), so no device
-needs the font. Writes web/public/favicon.svg, the iOS and macOS asset catalogs,
-the Android adaptive icon and the Windows crates/seokdok-tsf/assets/icon.ico.
+The character and the color are in products/<id>.json: 釋 on the site's indigo,
+音 on brick red. The glyph is an outline from Noto Serif CJK KR Black (SIL OFL
+1.1), so no device needs the font. Writes the favicon in web/public, the iOS and
+macOS asset catalogs, the Android adaptive icon and the Windows icon.ico.
 """
 
 import json
+import sys
 from pathlib import Path
 
 from fontTools.pens.svgPathPen import SVGPathPen
@@ -18,8 +20,13 @@ from PIL import Image, ImageDraw
 
 ROOT = Path(__file__).resolve().parent.parent
 FONT = "/usr/share/fonts/opentype/noto/NotoSerifCJK-Black.ttc"
-INDIGO = "#24348c"
+ID = sys.argv[1] if len(sys.argv) > 1 else "seokdok"
+PRODUCT = json.loads((ROOT / "products" / f"{ID}.json").read_text(encoding="utf-8"))
+GLYPH = PRODUCT["glyph"]
+BACK = PRODUCT["color"]
 WHITE = "#ffffff"
+# 釋讀 came first and keeps the plain paths; another product has its own.
+OWN = "" if ID == "seokdok" else ID
 # Share of the icon's width taken by the glyph on a full-bleed square.
 GLYPH_SHARE = 0.72
 
@@ -32,10 +39,10 @@ def font():
 
 
 def outline(size: float, share: float, y_down: bool = True, pad: float = 0.0) -> str:
-    """SVG path of 釋, centred by its ink in a size-wide square."""
+    """SVG path of the product's character, centred by its ink in a size-wide square."""
     f = font()
     glyphs = f.getGlyphSet()
-    glyph = glyphs[f.getBestCmap()[ord("釋")]]
+    glyph = glyphs[f.getBestCmap()[ord(GLYPH)]]
     box = BoundsPen(glyphs)
     glyph.draw(box)
     x0, y0, x1, y1 = box.bounds
@@ -53,7 +60,7 @@ def raster(size: int, radius: float = 0.0, inset: float = 0.0, share: float = GL
     big = size * k
     f = font()
     glyphs = f.getGlyphSet()
-    glyph = glyphs[f.getBestCmap()[ord("釋")]]
+    glyph = glyphs[f.getBestCmap()[ord(GLYPH)]]
     box = BoundsPen(glyphs)
     glyph.draw(box)
     x0, y0, x1, y1 = box.bounds
@@ -61,11 +68,11 @@ def raster(size: int, radius: float = 0.0, inset: float = 0.0, share: float = GL
     scale = tile * share / max(x1 - x0, y1 - y0)
     dx = big / 2 - scale * (x0 + x1) / 2
     dy = big / 2 + scale * (y0 + y1) / 2
-    canvas = Image.new("RGBA" if alpha else "RGB", (big, big), (0, 0, 0, 0) if alpha else INDIGO)
+    canvas = Image.new("RGBA" if alpha else "RGB", (big, big), (0, 0, 0, 0) if alpha else BACK)
     d = ImageDraw.Draw(canvas)
     if alpha:
         m = big * inset
-        d.rounded_rectangle((m, m, big - m, big - m), radius=tile * radius, fill=INDIGO)
+        d.rounded_rectangle((m, m, big - m, big - m), radius=tile * radius, fill=BACK)
     mask = Image.new("L", (big, big), 0)
     contours = flatten(glyph, glyphs, scale, dx, dy)
     draw_evenodd(mask, contours)
@@ -118,8 +125,9 @@ def write_json(p: Path, data) -> None:
 
 def favicon() -> None:
     path = outline(64, 0.68)
-    (ROOT / "web/public/favicon.svg").write_text(
-        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="{INDIGO}"/><path fill="{WHITE}" d="{path}"/></svg>\n',
+    name = f"favicon-{OWN}.svg" if OWN else "favicon.svg"
+    (ROOT / "web/public" / name).write_text(
+        f'<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="14" fill="{BACK}"/><path fill="{WHITE}" d="{path}"/></svg>\n',
         encoding="utf-8",
     )
 
@@ -127,7 +135,7 @@ def favicon() -> None:
 def ios() -> None:
     d = ROOT / "ios/App/Assets.xcassets"
     write_json(d / "Contents.json", {"info": {"author": "xcode", "version": 1}})
-    s = d / "AppIcon.appiconset"
+    s = d / f"AppIcon{OWN.capitalize()}.appiconset"
     s.mkdir(parents=True, exist_ok=True)
     # App Store icons are square, opaque and full-bleed; iOS rounds them.
     raster(1024).convert("RGB").save(s / "icon-1024.png")
@@ -140,7 +148,7 @@ def ios() -> None:
 def macos() -> None:
     d = ROOT / "macos/Seokdok/Assets.xcassets"
     write_json(d / "Contents.json", {"info": {"author": "xcode", "version": 1}})
-    s = d / "AppIcon.appiconset"
+    s = d / f"AppIcon{OWN.capitalize()}.appiconset"
     s.mkdir(parents=True, exist_ok=True)
     images = []
     # Apple's macOS grid: an 824-point rounded tile on a 1024-point canvas.
@@ -155,12 +163,14 @@ def macos() -> None:
 
 
 def android() -> None:
-    res = ROOT / "android/app/src/main/res"
+    res = ROOT / f"android/app/src/{OWN or 'main'}/res"
+    (res / "drawable").mkdir(parents=True, exist_ok=True)
+    (res / "values").mkdir(parents=True, exist_ok=True)
     # Adaptive icons draw 108dp and may crop to the middle 66dp.
     path = outline(108, 0.46)
     (res / "drawable/ic_launcher_foreground.xml").write_text(
         '<?xml version="1.0" encoding="utf-8"?>\n'
-        '<!-- 釋 from Noto Serif CJK KR Black (SIL OFL 1.1); drawn by tools/make_app_icon.py. -->\n'
+        f'<!-- {GLYPH} from Noto Serif CJK KR Black (SIL OFL 1.1); drawn by tools/make_app_icon.py. -->\n'
         '<vector xmlns:android="http://schemas.android.com/apk/res/android"\n'
         '    android:width="108dp"\n    android:height="108dp"\n'
         '    android:viewportWidth="108"\n    android:viewportHeight="108">\n'
@@ -181,7 +191,7 @@ def android() -> None:
     )
     colors = res / "values/ic_launcher_colors.xml"
     colors.write_text(
-        f'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#FF24348C</color>\n</resources>\n',
+        f'<?xml version="1.0" encoding="utf-8"?>\n<resources>\n    <color name="ic_launcher_background">#FF{BACK[1:].upper()}</color>\n</resources>\n',
         encoding="utf-8",
     )
 
@@ -189,7 +199,9 @@ def android() -> None:
 def windows() -> None:
     sizes = (16, 20, 24, 32, 40, 48, 64, 128, 256)
     frames = [raster(s, radius=0.18, alpha=True, share=0.82 if s <= 32 else GLYPH_SHARE) for s in sizes]
-    frames[-1].save(ROOT / "crates/seokdok-tsf/assets/icon.ico", format="ICO", append_images=frames[:-1], sizes=[(s, s) for s in sizes])
+    folder = ROOT / "crates/seokdok-tsf/assets" / OWN
+    folder.mkdir(parents=True, exist_ok=True)
+    frames[-1].save(folder / "icon.ico", format="ICO", append_images=frames[:-1], sizes=[(s, s) for s in sizes])
 
 
 def main() -> None:

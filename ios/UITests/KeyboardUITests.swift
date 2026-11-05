@@ -472,12 +472,15 @@ final class KeyboardUITests: XCTestCase {
             sleep(1)
         }
         tapWhenThere(settings.staticTexts["General"].firstMatch, "General")
+        let keyboard = settings.staticTexts["Keyboard"].firstMatch
+        XCTAssertTrue(keyboard.waitForExistence(timeout: 30), "Keyboard is not in Settings")
         shot("settings-general")
-        tapWhenThere(settings.staticTexts["Keyboard"].firstMatch, "Keyboard")
+        tapWhenThere(keyboard, "Keyboard")
         // The page and its first row are both called Keyboards.
         tapWhenThere(settings.cells.containing(.staticText, identifier: "Keyboards").firstMatch, "Keyboards")
-        shot("settings-keyboards")
         let add = settings.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Add New Keyboard'")).firstMatch
+        XCTAssertTrue(add.waitForExistence(timeout: 30), "the step the app gives is not in Settings")
+        shot("settings-keyboards")
         tapWhenThere(add, "the step the app gives")
         sleep(2)
         shot("settings-add-keyboard")

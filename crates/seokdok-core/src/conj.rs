@@ -128,7 +128,7 @@ const fn m(kind: Kind, body: &'static str) -> Morph {
 const FINALS: &[Morph] = &[
     // K
     m(Kind::K, "다"), m(Kind::K, "고"), m(Kind::K, "지"), m(Kind::K, "지만"), m(Kind::K, "지요"),
-    m(Kind::K, "죠"), m(Kind::K, "게"), m(Kind::K, "기"), m(Kind::K, "기도"), m(Kind::K, "기에"),
+    m(Kind::K, "죠"), m(Kind::K, "게"), m(Kind::K, "게도"), m(Kind::K, "게는"), m(Kind::K, "게만"), m(Kind::K, "기"), m(Kind::K, "기도"), m(Kind::K, "기에"),
     m(Kind::K, "기는"), m(Kind::K, "기로"), m(Kind::K, "기를"), m(Kind::K, "기가"), m(Kind::K, "긴"),
     m(Kind::K, "던"), m(Kind::K, "던데"), m(Kind::K, "던데요"), m(Kind::K, "네"), m(Kind::K, "네요"),
     m(Kind::K, "는"), m(Kind::K, "는데"), m(Kind::K, "는데요"), m(Kind::K, "는지"), m(Kind::K, "는구나"),

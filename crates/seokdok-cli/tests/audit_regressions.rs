@@ -156,6 +156,14 @@ fn endings_the_chat_runs_into_the_next_word() {
 }
 
 #[test]
+fn an_adverbial_ending_takes_a_particle() {
+    first(&[
+        ("안타깝게도", "惜깝게도"), ("아쉽게도", "惜게도"), ("슬프게도", "悲게도"), ("좋게도", "好게도"),
+        ("크게는", "大게는"), ("많게만", "多게만"),
+    ]);
+}
+
+#[test]
 fn words_that_look_like_a_loanword_or_an_ending_keep_their_reading() {
     // 올리고 and 알리고 are verb forms, not the loanwords oligo- and Aligot.
     first(&[("올리고", "昇고"), ("알리고", "告리고"), ("가자", "去자"), ("그러나", "其러나")]);
@@ -201,6 +209,11 @@ fn context_decides_between_a_verb_and_a_noun_or_particle() {
 }
 
 #[test]
+fn book_is_written_in_hanja_with_or_without_a_particle() {
+    first(&[("책", "冊"), ("책을", "冊을"), ("책이", "冊이"), ("책임", "責任"), ("책상", "冊床")]);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "我ㄹ")]);
 }
@@ -214,4 +227,14 @@ fn an_is_negation_on_its_own() {
     // With a particle it is still the inside of something.
     assert_eq!(e.convert("안에")[0].text, "內에");
     assert_eq!(e.convert("무언가")[0].text, "何ㄴ가");
+}
+
+#[test]
+fn the_common_word_leads_a_homophone_set() {
+    first(&[
+        ("전역", "轉役"), ("의사", "醫師"), ("신상", "身上"), ("기물", "器物"), ("진사", "進士"),
+        ("호두", "胡桃"), ("호두과자", "胡桃菓子"),
+    ]);
+    // 지도 stays open to -을지도.
+    first(&[("먹을지도", "食을지도"), ("있을지도", "有을지도"), ("을지도", "을지도")]);
 }

@@ -64,8 +64,7 @@
           {#each segs as seg, si}
             {#if seg.candidates.length > 1}
               <span class="word" role="presentation" onpointerenter={fit} onfocusin={fit}>
-                <button class="w" class:changed={seg.pick > 0} aria-haspopup="listbox" title={seg.reading}>{seg.candidates[seg.pick].text}</button>
-                <span class="menu card" role="listbox" aria-label={seg.reading}>
+                <button class="w" class:changed={seg.pick > 0} aria-haspopup="listbox" title={seg.reading}>{seg.candidates[seg.pick].text}</button><span class="menu card" role="listbox" aria-label={seg.reading}>
                   {#each seg.candidates.slice(0, 30) as c, ci}
                     <button
                       role="option"

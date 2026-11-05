@@ -10,6 +10,11 @@ final class KeyboardViewController: UIInputViewController {
     private var keys: KeyboardView!
     private var shift = KeyboardState.Shift.off
     private var lastShiftTap = Date.distantPast
+    /// Shift is on because the field asked for a capital, and the next letter or a
+    /// change of place may take it off again.
+    private var shiftIsAuto = false
+    /// Shift was tapped off where the field wanted a capital; it stays off for one letter.
+    private var shiftDeclined = false
     /// The marked text this keyboard last wrote into the document, if any.
     private var marked: String?
     /// The document the marked text was written into
@@ -240,7 +245,39 @@ final class KeyboardViewController: UIInputViewController {
         refresh()
     }
 
+    /// Latin letters capitalize as the field asks, as on the system's English
+    /// keyboard; its Korean keyboard does nothing of the kind on Hangul, nor do its
+    /// email and web fields here. `autocapitalizationType` is the field's own trait,
+    /// though the Settings switch is out of a keyboard's reach (see ios/README.md).
+    private func updateAutoShift() {
+        guard layout == .ascii || (layout.converts && session.mode == .latin) else {
+            if shiftIsAuto { shift = .off }
+            shiftIsAuto = false
+            return
+        }
+        guard shift != .locked else { return }
+        let before = textDocumentProxy.documentContextBeforeInput ?? ""
+        let wanted: Bool
+        switch textDocumentProxy.autocapitalizationType ?? .sentences {
+        case .none: wanted = false
+        case .allCharacters: wanted = true
+        case .words: wanted = before.isEmpty || before.last?.isWhitespace == true
+        default:
+            let trimmed = before.reversed().drop { $0 == " " }
+            wanted = before.isEmpty || trimmed.isEmpty || trimmed.first?.isNewline == true
+                || (before.last == " " && [".", "!", "?"].contains(trimmed.first))
+        }
+        if wanted, shift == .off, !shiftDeclined {
+            shift = .once
+            shiftIsAuto = true
+        } else if !wanted, shiftIsAuto {
+            shift = .off
+            shiftIsAuto = false
+        }
+    }
+
     private func refresh() {
+        updateAutoShift()
         let runs = session.preedit()
         var s = KeyboardState()
         s.layout = layout
@@ -276,6 +313,8 @@ extension KeyboardViewController: KeyboardViewDelegate {
         guard layout.converts else {
             insert(String(shifted ? Character(key.uppercased()) : key))
             if shift == .once { shift = .off }
+            shiftIsAuto = false
+            shiftDeclined = false
             refresh()
             return
         }
@@ -288,6 +327,8 @@ extension KeyboardViewController: KeyboardViewDelegate {
         if shift == .once {
             shift = .off
         }
+        shiftIsAuto = false
+        shiftDeclined = false
         apply()
     }
 
@@ -295,6 +336,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
         dropForeignComposition()
         guard layout.converts else {
             insert(String(ch))
+            refresh()
             return
         }
         // Digits pick candidates after Space has walked the list; close it
@@ -312,6 +354,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
         dropForeignComposition()
         guard layout.converts else {
             insert(" ")
+            refresh()
             return
         }
         if !session.key(Session.Key.space) {
@@ -324,6 +367,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
         dropForeignComposition()
         guard layout.converts else {
             insert("\n")
+            refresh()
             return
         }
         if !session.key(Session.Key.enter) {
@@ -336,6 +380,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
         dropForeignComposition()
         guard layout.converts else {
             textDocumentProxy.deleteBackward()
+            refresh()
             return
         }
         if !session.key(Session.Key.backspace) {
@@ -376,11 +421,13 @@ extension KeyboardViewController: KeyboardViewDelegate {
         case .off:
             shift = .once
         case .once:
-            shift = now.timeIntervalSince(lastShiftTap) < 0.35 ? .locked : .off
+            shift = now.timeIntervalSince(lastShiftTap) < 0.35 && !shiftIsAuto ? .locked : .off
+            shiftDeclined = shift == .off && shiftIsAuto
         case .locked:
             shift = .off
         }
         lastShiftTap = now
+        shiftIsAuto = false
         refresh()
     }
 

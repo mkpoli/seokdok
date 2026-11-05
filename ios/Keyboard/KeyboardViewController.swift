@@ -10,6 +10,8 @@ final class KeyboardViewController: UIInputViewController {
     private var keys: KeyboardView!
     private var shift = KeyboardState.Shift.off
     private var lastShiftTap = Date.distantPast
+    /// The last key was a Space that typed a space.
+    private var lastKeyWasSpace = false
     /// The marked text this keyboard last wrote into the document, if any.
     private var marked: String?
     /// The document the marked text was written into
@@ -271,6 +273,7 @@ final class KeyboardViewController: UIInputViewController {
 
 extension KeyboardViewController: KeyboardViewDelegate {
     func letter(_ key: Character) {
+        lastKeyWasSpace = false
         dropForeignComposition()
         let shifted = shift != .off
         guard layout.converts else {
@@ -292,6 +295,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func symbol(_ ch: Character) {
+        lastKeyWasSpace = false
         dropForeignComposition()
         guard layout.converts else {
             insert(String(ch))
@@ -310,17 +314,36 @@ extension KeyboardViewController: KeyboardViewDelegate {
 
     func space() {
         dropForeignComposition()
-        guard layout.converts else {
-            insert(" ")
+        if lastKeyWasSpace, session.preedit().isEmpty, typePeriodForSpaces() {
+            lastKeyWasSpace = false
+            apply()
             return
         }
+        guard layout.converts else {
+            insert(" ")
+            lastKeyWasSpace = true
+            return
+        }
+        lastKeyWasSpace = session.preedit().isEmpty
         if !session.key(Session.Key.space) {
             insert(" ")
         }
         apply()
     }
 
+    /// Two Spaces after a word make a period and a space, at any pace, as on the
+    /// system's Korean and English keyboards (none after punctuation, a space or
+    /// nothing). The Settings switch for it is out of a keyboard's reach.
+    private func typePeriodForSpaces() -> Bool {
+        let before = textDocumentProxy.documentContextBeforeInput ?? ""
+        guard before.last == " ", let word = before.dropLast().last, word.isLetter || word.isNumber else { return false }
+        textDocumentProxy.deleteBackward()
+        insert(". ")
+        return true
+    }
+
     func enter() {
+        lastKeyWasSpace = false
         dropForeignComposition()
         guard layout.converts else {
             insert("\n")
@@ -333,6 +356,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
     }
 
     func backspace() {
+        lastKeyWasSpace = false
         dropForeignComposition()
         guard layout.converts else {
             textDocumentProxy.deleteBackward()

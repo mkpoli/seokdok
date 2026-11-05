@@ -267,9 +267,10 @@ final class KeyPad: UIView {
     private var previewing: Key?
     private var repeatTimer: Timer?
     /// Held Delete, measured from the system keyboard's held Delete in iOS 18.5
-    /// and iOS 26.5 simulators: it repeats after half a second, ten times a
-    /// second, and after twenty repeats takes whole words, six a second.
-    private static let repeatDelay: TimeInterval = 0.5
+    /// and iOS 26.5 simulators: on the clock of those runs its first repeat came
+    /// 0.1 s after this keyboard's at 0.5 s, then ten times a second, and after
+    /// twenty repeats whole words, six a second.
+    private static let repeatDelay: TimeInterval = 0.6
     private static let repeatInterval: TimeInterval = 0.1
     private static let repeatsBeforeWords = 20
     private static let wordInterval: TimeInterval = 1.0 / 6

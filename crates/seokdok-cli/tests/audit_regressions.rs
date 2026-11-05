@@ -196,6 +196,11 @@ fn context_decides_between_a_verb_and_a_noun_or_particle() {
 }
 
 #[test]
+fn book_is_written_in_hanja_with_or_without_a_particle() {
+    first(&[("책", "冊"), ("책을", "冊을"), ("책이", "冊이"), ("책임", "責任"), ("책상", "冊床")]);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "我ㄹ")]);
 }

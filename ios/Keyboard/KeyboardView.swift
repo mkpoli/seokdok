@@ -465,14 +465,16 @@ final class KeyboardView: UIView {
 
     private var lettersShown: Bool { !letters.isHidden }
     private var lastMode: Session.Mode = .seokdok
+    private var layoutConverts = true
 
     private func relabelLayerKey() {
-        layerKey.title = lettersShown ? "123" : (lastMode == .latin ? "ABC" : "한글")
+        layerKey.title = lettersShown ? "123" : (lastMode == .latin || !layoutConverts ? "ABC" : "한글")
     }
 
     /// Show the keyboard state: key labels and the candidate bar.
     func render(_ s: KeyboardState) {
         lastMode = s.mode
+        layoutConverts = s.layout.converts
         showLayout(s.layout)
         relabelLayerKey()
         let shifted = s.shift != .off

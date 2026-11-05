@@ -277,6 +277,12 @@ fn book_is_written_in_hanja_with_or_without_a_particle() {
 }
 
 #[test]
+fn geoyeyo_stays_hangul_like_geoeyo() {
+    first(&[("거예요", "거예요"), ("거에요", "거에요"), ("할 거예요", "할 거예요"), ("먹을 거예요", "食을 거예요"), ("우길 거예요", "拗ㄹ 거예요"), ("이거예요", "此거예요")]);
+    offers(&[("거예요", "物예요"), ("거예요", "事예요")]);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "我ㄹ")]);
 }

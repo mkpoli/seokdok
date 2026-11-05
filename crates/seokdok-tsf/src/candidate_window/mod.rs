@@ -3,10 +3,10 @@
 //! For IMM32 applications it also carries the text being composed on a line
 //! of its own above the candidates (see `composition.rs`).
 //!
-//! `fluent.rs` draws it the way Windows 11 draws its own IME's list. If that
-//! cannot start or fails while painting, `gdi.rs` takes over for the rest of
-//! the window's life. A file named `gdi-candidates` in
-//! %LOCALAPPDATA%\seokdok asks for `gdi.rs` from the start.
+//! `windows.candidate_style` picks the drawing at every show: `fluent.rs` the
+//! way Windows 11 draws its own IME's list, `gdi.rs` the classic one. If Direct2D
+//! cannot start or fails while painting, `gdi.rs` takes over for the rest of the
+//! window's life.
 //!
 //! Display only: `WS_EX_NOACTIVATE`, `SW_SHOWNOACTIVATE` and `MA_NOACTIVATE`
 //! keep focus in the document. The key handler drives selection through the session; this
@@ -23,22 +23,21 @@ use windows::core::{w, BOOL, PCWSTR};
 use windows::Win32::Foundation::{HINSTANCE, HWND, LPARAM, LRESULT, POINT, RECT, WPARAM};
 use windows::Win32::Graphics::Dwm::{
     DwmSetWindowAttribute, DWMWA_USE_IMMERSIVE_DARK_MODE, DWMWA_WINDOW_CORNER_PREFERENCE, DWMWCP_DONOTROUND,
-    DWMWCP_ROUND, DWM_WINDOW_CORNER_PREFERENCE,
+    DWMWCP_ROUND,
 };
 use windows::Win32::Graphics::Gdi::{
-    BeginPaint, ClientToScreen, EndPaint, GetDC, GetDeviceCaps, GetMonitorInfoW, InvalidateRect, MonitorFromPoint,
-    ReleaseDC, UpdateWindow, HMONITOR, LOGPIXELSY, MONITORINFO, MONITOR_DEFAULTTONEAREST, PAINTSTRUCT,
+    BeginPaint, ClientToScreen, EndPaint, GetDC, GetMonitorInfoW, InvalidateRect, MonitorFromPoint, ReleaseDC,
+    UpdateWindow, HMONITOR, MONITORINFO, MONITOR_DEFAULTTONEAREST, PAINTSTRUCT,
 };
 use windows::Win32::UI::HiDpi::{GetDpiForMonitor, MDT_EFFECTIVE_DPI};
 use windows::Win32::UI::WindowsAndMessaging::{
-    CreateWindowExW, DefWindowProcW, DestroyWindow, GetClassLongPtrW, GetClientRect, GetForegroundWindow, GetGUIThreadInfo,
-    GetWindowLongPtrW, LoadCursorW, RegisterClassExW, SetClassLongPtrW, SetWindowLongPtrW,
-    SetWindowPos, ShowWindow, CS_DROPSHADOW, GCL_STYLE, GUITHREADINFO, GWLP_USERDATA, GWL_STYLE, HWND_TOPMOST,
-    IDC_ARROW, MA_NOACTIVATE, SWP_FRAMECHANGED, SWP_NOACTIVATE, SWP_NOMOVE, SWP_NOSIZE, SWP_NOZORDER,
-    SW_HIDE, SW_SHOWNOACTIVATE, WM_MOUSEACTIVATE, WM_PAINT, WNDCLASSEXW, WS_BORDER, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_EX_TOPMOST,
-    WS_POPUP,
+    CreateWindowExW, DefWindowProcW, DestroyWindow, GetClientRect, GetForegroundWindow, GetGUIThreadInfo,
+    GetWindowLongPtrW, LoadCursorW, RegisterClassExW, SetWindowLongPtrW, SetWindowPos, ShowWindow, CS_DROPSHADOW,
+    GUITHREADINFO, GWLP_USERDATA, HWND_TOPMOST, IDC_ARROW, MA_NOACTIVATE, SWP_NOACTIVATE, SW_HIDE, SW_SHOWNOACTIVATE,
+    WM_MOUSEACTIVATE, WM_PAINT, WNDCLASSEXW, WS_EX_NOACTIVATE, WS_EX_TOOLWINDOW, WS_EX_TOPMOST, WS_POPUP,
 };
 
+use crate::config::{CandidateStyle, CandidateTheme};
 use crate::dll_instance;
 use crate::placement::{self, Area, Caret};
 use crate::session::{Popup, Run};
@@ -60,6 +59,7 @@ fn register_class() {
             lpfnWndProc: Some(wndproc),
             hInstance: hinstance(),
             lpszClassName: CLASS_NAME,
+            style: CS_DROPSHADOW,
             // SAFETY: IDC_ARROW is a built-in cursor.
             hCursor: unsafe { LoadCursorW(None, IDC_ARROW).unwrap_or_default() },
             ..Default::default()
@@ -71,15 +71,50 @@ fn register_class() {
     });
 }
 
-/// Which drawing the window uses. The first popup decides.
-enum Backend {
+/// Direct2D, started on the first popup that asks for it.
+enum Fluent {
     Unstarted(&'static fluent::Libraries),
-    Fluent {
-        renderer: Box<fluent::Renderer>,
-        /// The theme the frame was last told about.
-        dark: Option<bool>,
-    },
-    Gdi,
+    Running(Box<fluent::Renderer>),
+    Failed,
+}
+
+impl Fluent {
+    fn renderer(&mut self) -> Option<&mut fluent::Renderer> {
+        if let Fluent::Unstarted(libraries) = *self {
+            *self = match fluent::Renderer::start(libraries) {
+                Ok(renderer) => Fluent::Running(Box::new(renderer)),
+                Err(error) => {
+                    crate::debug_log::log(|| format!("Direct2D did not start, drawing with GDI: {error}"));
+                    Fluent::Failed
+                }
+            };
+        }
+        match self {
+            Fluent::Running(renderer) => Some(renderer),
+            _ => None,
+        }
+    }
+}
+
+/// How a popup is drawn: the settings as they stood when it was shown.
+#[derive(Clone, Copy, PartialEq, Eq, Debug)]
+pub struct Look {
+    pub style: CandidateStyle,
+    pub theme: CandidateTheme,
+}
+
+impl Look {
+    fn configured() -> Self {
+        let windows = crate::config::current().windows;
+        Look { style: windows.candidate_style, theme: windows.candidate_theme }
+    }
+}
+
+/// What the compositor was last told about the window.
+#[derive(Clone, Copy, PartialEq, Eq)]
+struct Frame {
+    rounded: bool,
+    dark: bool,
 }
 
 /// What the window procedure paints.
@@ -92,11 +127,13 @@ struct Content {
     preedit: Option<Vec<Run>>,
     popup: Option<Popup>,
     anchor: Option<Caret>,
+    look: Look,
 }
 
 struct Inner {
     gdi: gdi::Gdi,
-    backend: Backend,
+    fluent: Fluent,
+    frame: Option<Frame>,
     paint: Option<Paint>,
     /// The latest `show`, for drawing it again after a fallback.
     content: Option<Content>,
@@ -122,25 +159,17 @@ impl CandidateWindow {
 
     fn with_libraries(libraries: &'static fluent::Libraries) -> Option<Self> {
         register_class();
-        // SAFETY: GetDC(None) is the screen; released below.
-        let dpi = unsafe {
-            let hdc = GetDC(None);
-            let dpi = GetDeviceCaps(Some(hdc), LOGPIXELSY).max(96);
-            ReleaseDC(None, hdc);
-            dpi
-        };
-        let gdi = gdi::Gdi::new(dpi);
         // SAFETY: the class is registered; a popup has no parent.
         let hwnd = unsafe {
             CreateWindowExW(
                 WS_EX_TOPMOST | WS_EX_NOACTIVATE | WS_EX_TOOLWINDOW,
                 CLASS_NAME,
                 PCWSTR::null(),
-                WS_POPUP | WS_BORDER,
+                WS_POPUP,
                 0,
                 0,
                 100,
-                gdi.line_height,
+                26,
                 None,
                 None,
                 Some(hinstance()),
@@ -148,8 +177,13 @@ impl CandidateWindow {
             )
             .ok()?
         };
-        let inner =
-            Box::new(RefCell::new(Inner { gdi, backend: Backend::Unstarted(libraries), paint: None, content: None }));
+        let inner = Box::new(RefCell::new(Inner {
+            gdi: gdi::Gdi::default(),
+            fluent: Fluent::Unstarted(libraries),
+            frame: None,
+            paint: None,
+            content: None,
+        }));
         // SAFETY: the box outlives the window, which Drop destroys first.
         unsafe {
             SetWindowLongPtrW(hwnd, GWLP_USERDATA, &*inner as *const RefCell<Inner> as isize);
@@ -160,8 +194,14 @@ impl CandidateWindow {
     /// Show the preedit line (if any) and `popup` (if any) by `anchor`, or by
     /// the focus caret when the application did not report a position.
     pub fn show(&self, preedit: Option<&[Run]>, popup: Option<&Popup>, anchor: Option<Caret>) {
+        self.show_as(Look::configured(), preedit, popup, anchor);
+    }
+
+    /// The same in a look of the caller's choosing.
+    #[doc(hidden)]
+    pub fn show_as(&self, look: Look, preedit: Option<&[Run]>, popup: Option<&Popup>, anchor: Option<Caret>) {
         self.inner.borrow_mut().content =
-            Some(Content { preedit: preedit.map(<[Run]>::to_vec), popup: popup.cloned(), anchor });
+            Some(Content { preedit: preedit.map(<[Run]>::to_vec), popup: popup.cloned(), anchor, look });
         present(self.hwnd, &self.inner);
     }
 
@@ -177,16 +217,16 @@ impl CandidateWindow {
         self.hwnd
     }
 
-    /// Whether the Fluent drawing is in use.
+    /// Whether the latest popup was laid out with the Fluent drawing.
     #[doc(hidden)]
     pub fn is_fluent(&self) -> bool {
-        matches!(self.inner.borrow().backend, Backend::Fluent { .. })
+        matches!(self.inner.borrow().paint, Some(Paint::Fluent(_)))
     }
 
     /// Make the next paint fail, as a broken driver would.
     #[doc(hidden)]
     pub fn fail_next_paint(&self) {
-        if let Backend::Fluent { renderer, .. } = &self.inner.borrow().backend {
+        if let Fluent::Running(renderer) = &self.inner.borrow().fluent {
             renderer.fail_next_paint();
         }
     }
@@ -201,51 +241,52 @@ impl Drop for CandidateWindow {
     }
 }
 
-/// Lay out the latest content with the current backend and show it.
+/// Lay out the latest content in its look and show it.
 fn present(hwnd: HWND, cell: &RefCell<Inner>) {
-    start_backend(hwnd, cell);
-    let placed = {
+    let (x, y, width, height) = {
         let mut inner = cell.borrow_mut();
         let inner = &mut *inner;
         let Some(content) = &inner.content else { return };
         let preedit = content.preedit.as_deref();
         let popup = content.popup.as_ref();
         let anchor = content.anchor.unwrap_or_else(caret_screen_pos);
-        if let Backend::Fluent { renderer, dark } = &mut inner.backend {
-            let palette = Palette::current();
-            if *dark != Some(palette.dark) {
-                *dark = Some(palette.dark);
-                tell_frame_theme(hwnd, palette.dark);
-            }
-            match layout_fluent(renderer, preedit, popup, &palette, anchor) {
-                Ok((scene, placed)) => {
-                    inner.paint = Some(Paint::Fluent(scene));
-                    Some(placed)
+        let look = content.look;
+        let dpi = dpi_at(anchor);
+
+        let mut drawn = None;
+        if look.style == CandidateStyle::Windows11 {
+            if let Some(renderer) = inner.fluent.renderer() {
+                let palette = Palette::current(look.theme);
+                match renderer.layout(preedit, popup, &palette, dpi as f32) {
+                    Ok(scene) => {
+                        let (width, height) = scene.pixel_size();
+                        drawn = Some((Paint::Fluent(scene), width, height, Frame { rounded: true, dark: palette.dark }));
+                    }
+                    Err(error) => {
+                        crate::debug_log::log(|| format!("Fluent candidate layout failed, drawing with GDI: {error}"));
+                        inner.fluent = Fluent::Failed;
+                    }
                 }
-                Err(error) => {
-                    crate::debug_log::log(|| format!("Fluent candidate layout failed, drawing with GDI: {error}"));
-                    inner.backend = Backend::Gdi;
-                    inner.paint = None;
-                    None
-                }
             }
-        } else {
+        }
+        let (paint, width, height, frame) = drawn.unwrap_or_else(|| {
+            let palette = Palette::classic(look.theme);
             // SAFETY: hwnd valid; the DC is released below.
             let (paint, width, height) = unsafe {
                 let hdc = GetDC(Some(hwnd));
-                let result = inner.gdi.layout(hdc, preedit, popup);
+                let result = inner.gdi.layout(hdc, preedit, popup, &palette, dpi);
                 ReleaseDC(Some(hwnd), hdc);
                 result
             };
-            inner.paint = Some(Paint::Gdi(paint));
-            let (x, y, width) = placement::place(anchor, width, height, work_area_at(anchor));
-            // The border is outside the client area.
-            Some((x, y, width + 2, height + 2))
+            (Paint::Gdi(paint), width, height, Frame { rounded: false, dark: palette.dark })
+        });
+        inner.paint = Some(paint);
+        if inner.frame != Some(frame) {
+            inner.frame = Some(frame);
+            set_frame(hwnd, frame);
         }
-    };
-    let Some((x, y, width, height)) = placed else {
-        set_frame(hwnd, true, DWMWCP_DONOTROUND);
-        return present(hwnd, cell);
+        let (x, y, width) = placement::place(anchor, width, height, work_area_at(anchor));
+        (x, y, width, height)
     };
     crate::debug_log::log(|| format!("popup at {x},{y} size {width}x{height}"));
     // SAFETY: hwnd is valid for this object's lifetime. No borrow is held
@@ -256,20 +297,6 @@ fn present(hwnd: HWND, cell: &RefCell<Inner>) {
         let _ = InvalidateRect(Some(hwnd), None, true);
         let _ = UpdateWindow(hwnd);
     }
-}
-
-/// Lay out for the monitor the text is on, which the popup stays on.
-fn layout_fluent(
-    renderer: &fluent::Renderer,
-    preedit: Option<&[Run]>,
-    popup: Option<&Popup>,
-    palette: &Palette,
-    anchor: Caret,
-) -> windows::core::Result<(fluent::Scene, (i32, i32, i32, i32))> {
-    let scene = renderer.layout(preedit, popup, palette, dpi_at(anchor) as f32)?;
-    let (width, height) = scene.pixel_size();
-    let (x, y, width) = placement::place(anchor, width, height, work_area_at(anchor));
-    Ok((scene, (x, y, width, height)))
 }
 
 fn monitor_at(anchor: Caret) -> HMONITOR {
@@ -296,74 +323,26 @@ fn work_area_at(anchor: Caret) -> Area {
     Area { left: work.left, top: work.top, right: work.right, bottom: work.bottom }
 }
 
-/// Decide the backend on the first popup.
-fn start_backend(hwnd: HWND, cell: &RefCell<Inner>) {
-    let mut inner = cell.borrow_mut();
-    let Backend::Unstarted(libraries) = inner.backend else { return };
-    if gdi_requested() {
-        inner.backend = Backend::Gdi;
-        return;
-    }
-    inner.backend = match fluent::Renderer::start(libraries) {
-        Ok(renderer) => {
-            set_frame(hwnd, false, DWMWCP_ROUND);
-            Backend::Fluent { renderer: Box::new(renderer), dark: None }
-        }
-        Err(error) => {
-            crate::debug_log::log(|| format!("Direct2D did not start, drawing with GDI: {error}"));
-            Backend::Gdi
-        }
-    };
-}
-
-/// `gdi-candidates` beside the debug trace's `debug` file.
-fn gdi_requested() -> bool {
-    std::env::var_os("LOCALAPPDATA")
-        .is_some_and(|d| std::path::Path::new(&d).join("seokdok").join("gdi-candidates").exists())
-}
-
-/// Switch between the two looks. The Fluent frame has no border of its own: on
-/// Windows 11 the compositor rounds the window and adds its edge, and the class
-/// shadow follows the rounded shape. Windows 10 refuses the corner preference
-/// and keeps the corners square.
-fn set_frame(hwnd: HWND, border: bool, corners: DWM_WINDOW_CORNER_PREFERENCE) {
-    // SAFETY: hwnd is valid. Only frame bits change, and the flags keep
-    // activation, position and z-order as they are.
+/// Tell the compositor about the look. On Windows 11 it rounds the window and
+/// adds its edge, in the theme's colour, and the class shadow follows the shape.
+/// Windows 10 refuses the corner preference and keeps the corners square.
+fn set_frame(hwnd: HWND, frame: Frame) {
+    let corners = if frame.rounded { DWMWCP_ROUND } else { DWMWCP_DONOTROUND };
+    let dark = BOOL::from(frame.dark);
+    // SAFETY: hwnd is valid and both values live through the calls. Failing
+    // only costs the corners or the edge colour.
     unsafe {
-        let style = GetWindowLongPtrW(hwnd, GWL_STYLE);
-        let bit = WS_BORDER.0 as isize;
-        SetWindowLongPtrW(hwnd, GWL_STYLE, if border { style | bit } else { style & !bit });
-        let class = GetClassLongPtrW(hwnd, GCL_STYLE);
-        let shadow = CS_DROPSHADOW.0 as usize;
-        SetClassLongPtrW(hwnd, GCL_STYLE, (if border { class & !shadow } else { class | shadow }) as isize);
         let _ = DwmSetWindowAttribute(
             hwnd,
             DWMWA_WINDOW_CORNER_PREFERENCE,
             &corners as *const _ as *const _,
             std::mem::size_of_val(&corners) as u32,
         );
-        let _ = SetWindowPos(
-            hwnd,
-            None,
-            0,
-            0,
-            0,
-            0,
-            SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED,
-        );
-    }
-}
-
-/// So the compositor's edge and shadow match the panel.
-fn tell_frame_theme(hwnd: HWND, dark: bool) {
-    let value = BOOL::from(dark);
-    // SAFETY: value lives through the call. Failing only costs the edge colour.
-    unsafe {
         let _ = DwmSetWindowAttribute(
             hwnd,
             DWMWA_USE_IMMERSIVE_DARK_MODE,
-            &value as *const _ as *const _,
-            std::mem::size_of_val(&value) as u32,
+            &dark as *const _ as *const _,
+            std::mem::size_of_val(&dark) as u32,
         );
     }
 }
@@ -413,8 +392,8 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
     // take the host application down.
     if let Some(Ok(mut inner)) = cell.as_ref().map(RefCell::try_borrow_mut) {
         let inner = &mut *inner;
-        match (&mut inner.backend, &inner.paint) {
-            (Backend::Fluent { renderer, .. }, Some(Paint::Fluent(scene))) => {
+        match (&mut inner.fluent, &inner.paint) {
+            (Fluent::Running(renderer), Some(Paint::Fluent(scene))) => {
                 if let Err(error) = renderer.paint(hdc, &rc, scene) {
                     crate::debug_log::log(|| format!("Direct2D paint failed, drawing with GDI: {error}"));
                     failed = true;
@@ -424,13 +403,12 @@ unsafe extern "system" fn wndproc(hwnd: HWND, msg: u32, wparam: WPARAM, lparam: 
             _ => {}
         }
         if failed {
-            inner.backend = Backend::Gdi;
+            inner.fluent = Fluent::Failed;
             inner.paint = None;
         }
     }
     let _ = EndPaint(hwnd, &ps);
     if failed {
-        set_frame(hwnd, true, DWMWCP_DONOTROUND);
         present(hwnd, &*cell);
     }
     LRESULT(0)
@@ -512,12 +490,17 @@ pub mod preview {
         render(width, height, |dc, rc| renderer.paint(dc, rc, &scene))
     }
 
-    pub fn gdi(preedit: Option<&[Run]>, popup: Option<&Popup>, dpi: u32) -> windows::core::Result<Image> {
-        let gdi = gdi::Gdi::new(dpi as i32);
+    pub fn gdi(
+        preedit: Option<&[Run]>,
+        popup: Option<&Popup>,
+        palette: &Palette,
+        dpi: u32,
+    ) -> windows::core::Result<Image> {
+        let mut gdi = gdi::Gdi::default();
         // SAFETY: a throwaway DC for measuring, deleted below.
         let (paint, width, height) = unsafe {
             let dc = CreateCompatibleDC(None);
-            let result = gdi.layout(dc, preedit, popup);
+            let result = gdi.layout(dc, preedit, popup, palette, dpi);
             let _ = DeleteDC(dc);
             result
         };
@@ -568,6 +551,38 @@ pub mod preview {
             .unwrap();
             assert!(plain.bgra == mirrored.bgra);
         }
+
+        #[test]
+        fn a_mirrored_device_context_does_not_mirror_the_classic_popup() {
+            let popup = Popup {
+                items: vec![("家".into(), "집 가".into())],
+                selected: 0,
+                position: 1,
+                total: 9,
+                horizontal: false,
+            };
+            let palette = Palette::default_classic_light();
+            let mut gdi = gdi::Gdi::default();
+            // SAFETY: a throwaway DC for measuring, deleted below.
+            let (paint, width, height) = unsafe {
+                let dc = CreateCompatibleDC(None);
+                let result = gdi.layout(dc, None, Some(&popup), &palette, 96);
+                let _ = DeleteDC(dc);
+                result
+            };
+            let draw = |dc, rc: &RECT| {
+                gdi::paint(dc, *rc, &paint);
+                Ok(())
+            };
+            let plain = render(width, height, draw).unwrap();
+            let mirrored = render(width, height, |dc, rc| {
+                // SAFETY: dc is the render's own.
+                unsafe { SetLayout(dc, LAYOUT_RTL) };
+                draw(dc, rc)
+            })
+            .unwrap();
+            assert!(plain.bgra == mirrored.bgra);
+        }
     }
 }
 
@@ -577,6 +592,37 @@ mod tests {
 
     fn sample() -> Popup {
         Popup { items: vec![("家".into(), "집 가".into())], selected: 0, position: 1, total: 1, horizontal: false }
+    }
+
+    const CARET: Caret = Caret { x: 10, top: 10, bottom: 30 };
+    const MODERN: Look = Look { style: CandidateStyle::Windows11, theme: CandidateTheme::Light };
+    const CLASSIC: Look = Look { style: CandidateStyle::Classic, theme: CandidateTheme::Dark };
+
+    #[test]
+    fn the_classic_style_never_starts_direct2d() {
+        let window = CandidateWindow::new().unwrap();
+        window.show_as(CLASSIC, None, Some(&sample()), Some(CARET));
+        assert!(!window.is_fluent());
+        assert!(matches!(window.inner.borrow().fluent, Fluent::Unstarted(_)));
+    }
+
+    #[test]
+    fn the_style_can_change_between_shows() {
+        let window = CandidateWindow::new().unwrap();
+        for (look, fluent) in [(MODERN, true), (CLASSIC, false), (MODERN, true)] {
+            window.show_as(look, None, Some(&sample()), Some(CARET));
+            assert_eq!(window.is_fluent(), fluent);
+        }
+    }
+
+    #[test]
+    fn a_failed_paint_stays_classic_whatever_the_setting() {
+        let window = CandidateWindow::new().unwrap();
+        window.show_as(MODERN, None, Some(&sample()), Some(CARET));
+        window.fail_next_paint();
+        window.show_as(MODERN, None, Some(&sample()), Some(CARET));
+        window.show_as(MODERN, None, Some(&sample()), Some(CARET));
+        assert!(!window.is_fluent());
     }
 
     #[test]

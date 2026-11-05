@@ -1,236 +1,281 @@
-//! The plain GDI drawing, used when Direct2D cannot start or stops working.
+//! The classic drawing, after the Windows 10 and earlier candidate lists: a
+//! square panel with a thin outline and the selected row filled. Plain GDI, so
+//! it also stands in when Direct2D cannot start or stops working.
+//!
+//! Measurements are in pixels at 96 dpi, scaled for the monitor at each show.
 
 use windows::core::{w, PCWSTR};
-use windows::Win32::Foundation::{COLORREF, RECT, SIZE};
+use windows::Win32::Foundation::{COLORREF, RECT};
 use windows::Win32::Graphics::Gdi::{
-    CreateFontW, CreateSolidBrush, DeleteObject, DrawTextW, FillRect, GetTextExtentPoint32W, SelectObject,
-    SetBkMode, SetTextColor, CLEARTYPE_QUALITY, CLIP_DEFAULT_PRECIS, DEFAULT_CHARSET, DT_LEFT, DT_NOPREFIX,
-    DT_SINGLELINE, DT_VCENTER, FF_DONTCARE, FW_NORMAL, HDC, HFONT, OUT_DEFAULT_PRECIS, TRANSPARENT,
+    CreateFontW, CreateSolidBrush, DeleteObject, DrawTextW, FillRect, GetLayout, SelectObject, SetBkMode, SetLayout,
+    SetTextColor, CLEARTYPE_QUALITY, CLIP_DEFAULT_PRECIS, DC_LAYOUT, DEFAULT_CHARSET, DRAW_TEXT_FORMAT, DT_CALCRECT,
+    DT_LEFT, DT_NOCLIP, DT_NOPREFIX, DT_SINGLELINE, DT_VCENTER, FF_DONTCARE, FW_NORMAL, HDC, HFONT,
+    OUT_DEFAULT_PRECIS, TRANSPARENT,
 };
 
+use super::theme::{Color, Palette};
 use crate::session::{Attr, Popup, Run};
 
 const FACE: PCWSTR = w!("Malgun Gothic");
-const PAD: i32 = 6;
-const GAP: i32 = 14;
+const TEXT_SIZE: i32 = 16;
+const ROW: i32 = 24;
+/// Panel edge to the text.
+const MARGIN: i32 = 8;
+const NUMBER_GAP: i32 = 6;
+const COLUMN_GAP: i32 = 16;
 
-/// What the window procedure paints.
-pub struct Paint {
-    /// Text being composed, drawn on the first line, and its height.
-    preedit: Option<Vec<Run>>,
-    top: i32,
-    popup: Option<Popup>,
-    font: HFONT,
-    row_height: i32,
-    /// Horizontal layout: left edge and width of each item.
-    cells: Vec<(i32, i32)>,
-    number_width: i32,
-    text_width: i32,
-}
+const SINGLE_LINE: DRAW_TEXT_FORMAT = DRAW_TEXT_FORMAT(DT_LEFT.0 | DT_SINGLELINE.0 | DT_NOPREFIX.0);
 
 fn wide(s: &str) -> Vec<u16> {
     s.encode_utf16().collect()
 }
 
+/// The width `DrawTextW` gives the text, with its shaping of old Hangul.
 fn text_extent(hdc: HDC, s: &str) -> i32 {
-    let w = wide(s);
-    let mut size = SIZE::default();
+    let mut r = RECT::default();
     // SAFETY: hdc is a valid device context with a font selected.
-    unsafe {
-        let _ = GetTextExtentPoint32W(hdc, &w, &mut size);
-    }
-    size.cx
+    unsafe { DrawTextW(hdc, &mut wide(s), &mut r, SINGLE_LINE | DT_CALCRECT) };
+    r.right - r.left
 }
 
-fn colorref(r: u8, g: u8, b: u8) -> COLORREF {
-    COLORREF(r as u32 | (g as u32) << 8 | (b as u32) << 16)
+fn colorref(c: Color) -> COLORREF {
+    COLORREF(c.r as u32 | (c.g as u32) << 8 | (c.b as u32) << 16)
 }
 
-/// The font and line height, scaled to the screen once.
+/// One rectangle or line of text, in paint order.
+enum Op {
+    Fill(RECT, Color),
+    Text { x: i32, top: i32, bottom: i32, text: String, color: Color },
+}
+
+/// What the window procedure paints.
+pub struct Paint {
+    ops: Vec<Op>,
+    panel: Color,
+    font: HFONT,
+}
+
+/// The font for the dpi last asked for.
+#[derive(Default)]
 pub struct Gdi {
     font: HFONT,
-    /// Pixel height of a line (96 dpi scaled to the screen).
-    pub line_height: i32,
+    dpi: u32,
 }
 
 impl Gdi {
-    pub fn new(dpi: i32) -> Self {
-        let height = -(18 * dpi / 96);
-        // SAFETY: plain font creation; deleted in Drop.
-        let font = unsafe {
-            CreateFontW(
-                height,
-                0,
-                0,
-                0,
-                FW_NORMAL.0 as i32,
-                0,
-                0,
-                0,
-                DEFAULT_CHARSET,
-                OUT_DEFAULT_PRECIS,
-                CLIP_DEFAULT_PRECIS,
-                CLEARTYPE_QUALITY,
-                FF_DONTCARE.0 as u32,
-                FACE,
-            )
-        };
-        Self { font, line_height: 26 * dpi / 96 }
+    fn font_for(&mut self, dpi: u32) -> HFONT {
+        if self.dpi != dpi {
+            // SAFETY: plain font creation. The old font is only in the Paint
+            // that the caller's layout is about to replace.
+            unsafe {
+                if !self.font.is_invalid() {
+                    let _ = DeleteObject(self.font.into());
+                }
+                self.font = CreateFontW(
+                    -(TEXT_SIZE * dpi as i32 / 96),
+                    0,
+                    0,
+                    0,
+                    FW_NORMAL.0 as i32,
+                    0,
+                    0,
+                    0,
+                    DEFAULT_CHARSET,
+                    OUT_DEFAULT_PRECIS,
+                    CLIP_DEFAULT_PRECIS,
+                    CLEARTYPE_QUALITY,
+                    FF_DONTCARE.0 as u32,
+                    FACE,
+                );
+            }
+            self.dpi = dpi;
+        }
+        self.font
     }
 
-    /// Measure on `hdc`. Returns what to paint and the client size.
-    pub fn layout(&self, hdc: HDC, preedit: Option<&[Run]>, popup: Option<&Popup>) -> (Paint, i32, i32) {
-        let empty = Popup { items: Vec::new(), selected: 0, position: 0, total: 0, horizontal: false };
-        let list = popup.unwrap_or(&empty);
+    /// Measure on `hdc`. Returns what to paint and the window's size.
+    pub fn layout(
+        &mut self,
+        hdc: HDC,
+        preedit: Option<&[Run]>,
+        popup: Option<&Popup>,
+        palette: &Palette,
+        dpi: u32,
+    ) -> (Paint, i32, i32) {
+        let font = self.font_for(dpi);
         // SAFETY: hdc is valid; the old font is restored below.
-        let old = unsafe { SelectObject(hdc, self.font.into()) };
-        let number_width = text_extent(hdc, "9.");
-        let text_width = list.items.iter().map(|i| text_extent(hdc, &i.0)).max().unwrap_or(0);
-        let note_width = list.items.iter().map(|i| text_extent(hdc, &i.1)).max().unwrap_or(0);
-        let preedit_width = preedit.map_or(0, |runs| runs.iter().map(|r| text_extent(hdc, &r.text)).sum());
-        let top = if preedit.is_some() { self.line_height + if popup.is_some() { PAD } else { 0 } } else { 0 };
-        // Horizontal: the candidates in one row, the note and position below.
-        let mut cells = Vec::new();
-        let (width, height) = if popup.is_none() {
-            (0, PAD * 2)
-        } else if list.horizontal {
-            let widths: Vec<i32> =
-                list.items.iter().map(|i| number_width + GAP / 2 + text_extent(hdc, &i.0) + GAP).collect();
-            let mut x = PAD;
-            for w in &widths {
-                cells.push((x, *w));
-                x += w;
-            }
-            let row = x + PAD;
-            let foot = PAD * 2 + note_width + GAP + number_width * 4;
-            (row.max(foot), PAD * 2 + 2 * self.line_height)
-        } else {
-            let footer = list.total > list.items.len();
-            let rows = list.items.len() as i32 + footer as i32;
-            (
-                PAD * 2 + number_width + GAP + text_width + if note_width > 0 { GAP + note_width } else { 0 },
-                PAD * 2 + rows * self.line_height,
-            )
-        };
+        let old = unsafe { SelectObject(hdc, font.into()) };
+        let (ops, width, height) = lay_out(hdc, dpi as i32, preedit, popup, palette);
         // SAFETY: restores what was selected above.
         unsafe { SelectObject(hdc, old) };
-        let width = width.max(PAD * 2 + preedit_width);
-        let height = height + top;
-        let paint = Paint {
-            preedit: preedit.map(<[Run]>::to_vec),
-            top,
-            popup: popup.cloned(),
-            font: self.font,
-            row_height: self.line_height,
-            cells,
-            number_width,
-            text_width,
-        };
-        (paint, width, height)
+        (Paint { ops, panel: palette.panel, font }, width, height)
     }
 }
 
 impl Drop for Gdi {
     fn drop(&mut self) {
-        // SAFETY: font was created in `new`.
-        unsafe {
-            let _ = DeleteObject(self.font.into());
+        if !self.font.is_invalid() {
+            // SAFETY: the font was created in `font_for`.
+            unsafe {
+                let _ = DeleteObject(self.font.into());
+            }
         }
+    }
+}
+
+/// The operations and the window's size, with the font selected in `hdc`.
+fn lay_out(hdc: HDC, dpi: i32, preedit: Option<&[Run]>, popup: Option<&Popup>, palette: &Palette) -> (Vec<Op>, i32, i32) {
+    let px = |v: i32| v * dpi / 96;
+    let extent = |s: &str| text_extent(hdc, s);
+    let stroke = px(1).max(1);
+    let (row, margin, number_gap, column_gap) = (px(ROW), px(MARGIN), px(NUMBER_GAP), px(COLUMN_GAP));
+    let horizontal = popup.is_some_and(|p| p.horizontal);
+    let items = popup.map_or(&[][..], |p| &p.items[..]);
+    let number_width = extent("9.");
+    let text_width = items.iter().map(|i| extent(&i.0)).max().unwrap_or(0);
+    let note_width = items.iter().map(|i| extent(&i.1)).max().unwrap_or(0);
+    let cell_width = |text: &str| margin + number_width + number_gap + extent(text);
+
+    let footer = popup.filter(|p| horizontal || p.total > p.items.len()).map(|p| {
+        let note = if horizontal { p.items.get(p.selected).map_or("", |i| i.1.as_str()) } else { "" };
+        (note.to_string(), format!("{} / {}", p.position, p.total))
+    });
+
+    // Everything that sets the panel's width.
+    let mut content = 0;
+    if let Some(runs) = preedit {
+        content = content.max(margin * 2 + runs.iter().map(|r| extent(&r.text)).sum::<i32>());
+    }
+    if let Some((note, position)) = &footer {
+        let note = if note.is_empty() { 0 } else { extent(note) + column_gap };
+        content = content.max(margin * 2 + note + extent(position));
+    }
+    if horizontal {
+        content = content.max(items.iter().map(|i| cell_width(&i.0)).sum());
+    } else if popup.is_some() {
+        let note = if note_width > 0 { column_gap + note_width } else { 0 };
+        content = content.max(margin * 2 + number_width + number_gap + text_width + note);
+    }
+    let width = content + stroke * 2;
+    let inner = |top: i32, bottom: i32| RECT { left: stroke, top, right: width - stroke, bottom };
+
+    let mut ops = Vec::new();
+    let mut y = stroke;
+    if let Some(runs) = preedit {
+        let mut x = stroke + margin;
+        for run in runs {
+            let w = extent(&run.text);
+            let focus = run.attr == Attr::Focus;
+            if focus {
+                ops.push(Op::Fill(RECT { left: x, top: y, right: x + w, bottom: y + row }, palette.selection));
+            }
+            let color = if focus { palette.selected_text } else { palette.text };
+            ops.push(Op::Text { x, top: y, bottom: y + row, text: run.text.clone(), color });
+            if run.attr == Attr::Input {
+                let under = y + row - px(3);
+                ops.push(Op::Fill(RECT { left: x, top: under, right: x + w, bottom: under + stroke }, palette.secondary));
+            }
+            x += w;
+        }
+        y += row;
+        if popup.is_some() {
+            ops.push(Op::Fill(inner(y, y + stroke), palette.divider));
+            y += stroke;
+        }
+    }
+
+    let selected = popup.map_or(usize::MAX, |p| p.selected);
+    let ink = |i: usize| if i == selected { palette.selected_text } else { palette.text };
+    let dim = |i: usize| if i == selected { palette.selected_secondary } else { palette.secondary };
+    if horizontal {
+        let mut x = stroke;
+        for (i, (text, _)) in items.iter().enumerate() {
+            let w = cell_width(text);
+            if i == selected {
+                ops.push(Op::Fill(RECT { left: x, top: y, right: x + w, bottom: y + row }, palette.selection));
+            }
+            let number_x = x + margin / 2;
+            ops.push(Op::Text { x: number_x, top: y, bottom: y + row, text: format!("{}.", i + 1), color: dim(i) });
+            let text_x = number_x + number_width + number_gap;
+            ops.push(Op::Text { x: text_x, top: y, bottom: y + row, text: text.clone(), color: ink(i) });
+            x += w;
+        }
+        y += row;
+    } else if popup.is_some() {
+        let text_x = stroke + margin + number_width + number_gap;
+        let note_x = text_x + text_width + column_gap;
+        for (i, (text, note)) in items.iter().enumerate() {
+            if i == selected {
+                ops.push(Op::Fill(inner(y, y + row), palette.selection));
+            }
+            ops.push(Op::Text { x: stroke + margin, top: y, bottom: y + row, text: format!("{}.", i + 1), color: dim(i) });
+            ops.push(Op::Text { x: text_x, top: y, bottom: y + row, text: text.clone(), color: ink(i) });
+            if !note.is_empty() {
+                ops.push(Op::Text { x: note_x, top: y, bottom: y + row, text: note.clone(), color: dim(i) });
+            }
+            y += row;
+        }
+    }
+
+    if let Some((note, position)) = footer {
+        ops.push(Op::Fill(inner(y, y + stroke), palette.divider));
+        y += stroke;
+        let color = palette.secondary;
+        if !note.is_empty() {
+            ops.push(Op::Text { x: stroke + margin, top: y, bottom: y + row, text: note, color });
+        }
+        let x = if horizontal { width - stroke - margin - extent(&position) } else { stroke + margin };
+        ops.push(Op::Text { x, top: y, bottom: y + row, text: position, color });
+        y += row;
+    }
+    let height = y + stroke;
+
+    for r in [
+        RECT { left: 0, top: 0, right: width, bottom: stroke },
+        RECT { left: 0, top: height - stroke, right: width, bottom: height },
+        RECT { left: 0, top: 0, right: stroke, bottom: height },
+        RECT { left: width - stroke, top: 0, right: width, bottom: height },
+    ] {
+        ops.push(Op::Fill(r, palette.outline));
+    }
+    (ops, width, height)
+}
+
+fn fill(hdc: HDC, rect: &RECT, color: Color) {
+    // SAFETY: hdc is valid for this paint; the brush is deleted here.
+    unsafe {
+        let brush = CreateSolidBrush(colorref(color));
+        FillRect(hdc, rect, brush);
+        let _ = DeleteObject(brush.into());
     }
 }
 
 /// Paint `paint` into the client rectangle `rc` of `hdc`.
 pub fn paint(hdc: HDC, rc: RECT, paint: &Paint) {
-    // SAFETY: hdc is valid for the duration of the paint; every object created
-    // here is deleted and the old font restored before returning.
+    // SAFETY: hdc is valid for the duration of the paint. The layout and the
+    // font are restored before returning. A popup inherits a right-to-left
+    // host's mirrored layout, which would reverse the text.
     unsafe {
-        let bg = CreateSolidBrush(colorref(0xFF, 0xFF, 0xFF));
-        FillRect(hdc, &rc, bg);
-        let _ = DeleteObject(bg.into());
-
+        let layout = GetLayout(hdc);
+        if layout != 0 {
+            SetLayout(hdc, DC_LAYOUT(0));
+        }
+        fill(hdc, &rc, paint.panel);
         let old_font = SelectObject(hdc, paint.font.into());
         SetBkMode(hdc, TRANSPARENT);
-        let highlight = CreateSolidBrush(colorref(0xCC, 0xE4, 0xF7));
-
-        // The text being composed: input underlined, the focused segment
-        // highlighted, converted text plain.
-        if let Some(runs) = &paint.preedit {
-            let mut x = PAD;
-            let line = CreateSolidBrush(colorref(0x40, 0x40, 0x40));
-            for run in runs {
-                let w = text_extent(hdc, &run.text);
-                let cell = RECT { left: x, top: PAD, right: x + w, bottom: PAD + paint.row_height };
-                if run.attr == Attr::Focus {
-                    FillRect(hdc, &cell, highlight);
+        for op in &paint.ops {
+            match op {
+                Op::Fill(rect, color) => fill(hdc, rect, *color),
+                Op::Text { x, top, bottom, text, color } => {
+                    SetTextColor(hdc, colorref(*color));
+                    let mut r = RECT { left: *x, top: *top, right: rc.right, bottom: *bottom };
+                    DrawTextW(hdc, &mut wide(text), &mut r, SINGLE_LINE | DT_VCENTER | DT_NOCLIP);
                 }
-                SetTextColor(hdc, colorref(0x10, 0x10, 0x10));
-                let mut t = wide(&run.text);
-                let mut r = cell;
-                DrawTextW(hdc, &mut t, &mut r, DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
-                let under = RECT { left: x, top: cell.bottom - 2, right: x + w, bottom: cell.bottom - 1 };
-                FillRect(hdc, &under, line);
-                x += w;
-            }
-            let _ = DeleteObject(line.into());
-        }
-        let Some(popup) = &paint.popup else {
-            let _ = DeleteObject(highlight.into());
-            SelectObject(hdc, old_font);
-            return;
-        };
-        let base = paint.top;
-
-        if popup.horizontal {
-            let draw = |s: &str, r: RECT, color: COLORREF| {
-                SetTextColor(hdc, color);
-                let mut line = wide(s);
-                let mut r = r;
-                DrawTextW(hdc, &mut line, &mut r, DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
-            };
-            for (i, ((text, _), (x, w))) in popup.items.iter().zip(&paint.cells).enumerate() {
-                let cell = RECT { left: *x, top: base + PAD, right: x + w - GAP / 2, bottom: base + PAD + paint.row_height };
-                if i == popup.selected {
-                    FillRect(hdc, &cell, highlight);
-                }
-                draw(&format!("{}", i + 1), RECT { left: x + 4, ..cell }, colorref(0x70, 0x70, 0x70));
-                draw(text, RECT { left: x + 4 + paint.number_width, ..cell }, colorref(0x10, 0x10, 0x10));
-            }
-            let top = base + PAD + paint.row_height;
-            let foot = RECT { left: PAD, top, right: rc.right - PAD, bottom: top + paint.row_height };
-            let note = popup.items.get(popup.selected).map(|i| i.1.as_str()).unwrap_or("");
-            draw(&format!("{}  {} / {}", note, popup.position, popup.total), foot, colorref(0x80, 0x80, 0x80));
-            let _ = DeleteObject(highlight.into());
-            SelectObject(hdc, old_font);
-            return;
-        }
-        let text_x = PAD + paint.number_width + GAP;
-        let note_x = text_x + paint.text_width + GAP;
-        for (i, (text, note)) in popup.items.iter().enumerate() {
-            let top = base + PAD + i as i32 * paint.row_height;
-            let row = RECT { left: 1, top, right: rc.right - 1, bottom: top + paint.row_height };
-            if i == popup.selected {
-                FillRect(hdc, &row, highlight);
-            }
-            let draw = |s: &str, x: i32, color: COLORREF| {
-                SetTextColor(hdc, color);
-                let mut line = wide(s);
-                let mut r = RECT { left: x, ..row };
-                DrawTextW(hdc, &mut line, &mut r, DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
-            };
-            draw(&format!("{}.", i + 1), PAD, colorref(0x70, 0x70, 0x70));
-            draw(text, text_x, colorref(0x10, 0x10, 0x10));
-            if !note.is_empty() {
-                draw(note, note_x, colorref(0x80, 0x80, 0x80));
             }
         }
-        if popup.total > popup.items.len() {
-            let top = base + PAD + popup.items.len() as i32 * paint.row_height;
-            let mut r = RECT { left: PAD, top, right: rc.right - PAD, bottom: top + paint.row_height };
-            SetTextColor(hdc, colorref(0x80, 0x80, 0x80));
-            let mut line = wide(&format!("{} / {}", popup.position, popup.total));
-            DrawTextW(hdc, &mut line, &mut r, DT_LEFT | DT_SINGLELINE | DT_VCENTER | DT_NOPREFIX);
-        }
-        let _ = DeleteObject(highlight.into());
         SelectObject(hdc, old_font);
+        if layout != 0 {
+            SetLayout(hdc, DC_LAYOUT(layout));
+        }
     }
 }

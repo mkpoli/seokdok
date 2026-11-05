@@ -14,7 +14,10 @@ use windows::Win32::Foundation::{E_FAIL, RECT};
 use windows::Win32::System::Variant::{
     VARIANT, VARIANT_0, VARIANT_0_0, VARIANT_0_0_0, VT_I4,
 };
-use windows::Win32::UI::WindowsAndMessaging::GetClassNameW;
+use windows::Win32::UI::Input::KeyboardAndMouse::GetFocus;
+use windows::Win32::UI::WindowsAndMessaging::{
+    GetClassNameW, SendMessageW, WM_IME_ENDCOMPOSITION, WM_IME_STARTCOMPOSITION,
+};
 use windows::Win32::UI::TextServices::{
     ITfComposition, ITfCompositionSink, ITfCompositionSink_Impl, ITfContext, ITfContextComposition,
     ITfInsertAtSelection, ITfRange, GUID_PROP_ATTRIBUTE, TF_AE_NONE, TF_ANCHOR_END,
@@ -24,9 +27,9 @@ use windows::Win32::UI::TextServices::{
 use crate::config::Surface;
 use crate::edit_session::run_sync;
 use crate::engine_host::HOST;
-use crate::placement::Caret;
+use crate::placement::{believable, Area, Caret};
 use crate::session::{Attr, Effect, Mode, Run};
-use crate::surface::{at_boundary, choose, classify_end, commits_plainly, composes_as_interim, replays_after_drained_commit, undelivered, AtBoundary, End, Facts};
+use crate::surface::{at_boundary, choose, classify_end, commits_plainly, composes_as_interim, replays_after_drained_commit, reports_caret_only_when_composing, undelivered, AtBoundary, End, Facts};
 use crate::text_service::TextService_Impl;
 
 /// This process refused a composition, so it gets the floating preedit.
@@ -654,24 +657,49 @@ impl TextService_Impl {
 
     /// Draw the preedit in the popup at the caret.
     fn float_preedit(&self, context: &ITfContext, runs: Vec<Run>) {
-        let cid = self.inner().client_id;
+        let (cid, starting, through_imm32) = {
+            let state = self.inner();
+            (state.client_id, state.floating.is_none(), state.imm32_context == Some(context.as_raw() as usize))
+        };
+        if starting && through_imm32 && reports_caret_only_when_composing(&window_class(context)) {
+            ask_application_for_caret();
+        }
         let ctx = context.clone();
-        let anchor = run_sync(cid, context, move |ec| {
+        let read = run_sync(cid, context, move |ec| {
             // SAFETY: ec valid inside the session; ctx valid.
             unsafe {
                 let mut sel = [TF_SELECTION::default()];
                 let mut fetched = 0;
                 ctx.GetSelection(ec, TF_DEFAULT_SELECTION, &mut sel, &mut fetched)?;
                 let range = ManuallyDrop::into_inner(std::mem::take(&mut sel[0].range));
-                Ok(range.and_then(|r| text_position(&ctx, ec, &r)))
+                let client = ctx.GetActiveView()?.GetScreenExt().unwrap_or_default();
+                Ok((range.and_then(|r| text_position(&ctx, ec, &r)), client))
             }
         })
-        .ok()
-        .flatten();
+        .ok();
+        let window = window_of(context);
         let mut state = self.inner_mut();
-        if anchor.is_some() || state.floating.is_none() {
-            state.anchor = anchor;
+        let mut anchor = if starting { None } else { state.anchor };
+        if let Some((caret, client)) = read {
+            let origin = (client.left, client.top);
+            let area = Area { left: client.left, top: client.top, right: client.right, bottom: client.bottom };
+            // Relative to the window, which a failed `GetScreenExt` leaves unknown.
+            let known_window = window.filter(|_| client.right > client.left && client.bottom > client.top);
+            match caret.filter(|c| believable(*c, area)) {
+                Some(caret) => {
+                    if let Some(window) = known_window {
+                        state.carets.remember(window, origin, caret);
+                    }
+                    anchor = Some(caret);
+                }
+                None if starting => anchor = known_window.and_then(|window| state.carets.recall(window, origin)),
+                None => {}
+            }
+            if starting {
+                crate::debug_log::log(|| format!("floating caret: read {caret:?}, window {client:?}, using {anchor:?}"));
+            }
         }
+        state.anchor = anchor;
         state.floating = (!runs.is_empty()).then_some(runs);
         drop(state);
         self.redraw();
@@ -698,6 +726,30 @@ impl TextService_Impl {
         }
         self.redraw();
     }
+}
+
+/// With no composition open, the bridge's `GetTextExt` gives the corner of the
+/// work area or wherever the last composition was (see
+/// [`reports_caret_only_when_composing`]). An empty composition through TSF
+/// sends no `WM_IME_STARTCOMPOSITION`, so the pair goes straight to the window,
+/// around no text at all, and the bridge then answers with the caret. RichEdit
+/// deletes its selection on this pair, so only Qt gets it.
+fn ask_application_for_caret() {
+    // SAFETY: GetFocus returns a window of this thread or none, and nothing of
+    // the text service is borrowed during the application's handling.
+    unsafe {
+        let focus = GetFocus();
+        if !focus.is_invalid() {
+            SendMessageW(focus, WM_IME_STARTCOMPOSITION, None, None);
+            SendMessageW(focus, WM_IME_ENDCOMPOSITION, None, None);
+        }
+    }
+}
+
+/// The window a context's view belongs to.
+fn window_of(context: &ITfContext) -> Option<usize> {
+    // SAFETY: context is a valid ITfContext.
+    unsafe { context.GetActiveView().and_then(|view| view.GetWnd()) }.ok().map(|hwnd| hwnd.0 as usize)
 }
 
 /// Screen position of `range`, if the application can say.

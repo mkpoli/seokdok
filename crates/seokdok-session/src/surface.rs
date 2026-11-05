@@ -57,6 +57,13 @@ pub fn composes_as_interim(transitory: bool, through_imm32: bool) -> bool {
     transitory && through_imm32
 }
 
+/// Whether a window belongs to Qt, whose class names read `Qt<version>QWindow…`.
+/// Qt tells IMM32 where its caret is only while a composition is open
+/// (`QWindowsInputContext::cursorRectChanged`).
+pub fn reports_caret_only_when_composing(window_class: &str) -> bool {
+    window_class.starts_with("Qt") && window_class.contains("QWindow")
+}
+
 /// How a composition came to an end without the input method asking.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 pub enum End {
@@ -227,6 +234,15 @@ mod tests {
         assert_eq!(at_boundary(false, false), AtBoundary::Drop);
         assert_eq!(at_boundary(false, true), AtBoundary::Commit);
         assert_eq!(at_boundary(true, false), AtBoundary::Commit);
+    }
+
+    #[test]
+    fn only_a_qt_window_is_asked_for_its_caret() {
+        assert!(reports_caret_only_when_composing("Qt51515QWindowIcon"));
+        assert!(reports_caret_only_when_composing("Qt6120QWindowToolSaveBits"));
+        assert!(!reports_caret_only_when_composing("RICHEDIT50W"));
+        assert!(!reports_caret_only_when_composing("Edit"));
+        assert!(!reports_caret_only_when_composing("SunAwtFrame"));
     }
 
     #[test]

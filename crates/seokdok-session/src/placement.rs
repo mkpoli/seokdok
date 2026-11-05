@@ -43,6 +43,42 @@ pub fn place(caret: Caret, width: i32, height: i32, area: Area) -> (i32, i32, i3
     (x, y.min(area.bottom - height).max(area.top), width)
 }
 
+/// Whether a position the application gave can be the text in its window
+/// (`client`, in screen pixels; empty if the application does not say). Without
+/// a caret to report, the IMM32 bridge answers with a line of no height at the
+/// corner of the work area, which a maximized window contains.
+pub fn believable(caret: Caret, client: Area) -> bool {
+    let inside = client.left >= client.right
+        || client.top >= client.bottom
+        || (client.left..=client.right).contains(&caret.x) && caret.top >= client.top && caret.bottom <= client.bottom;
+    caret.bottom > caret.top && inside
+}
+
+/// How many windows are remembered.
+const REMEMBERED: usize = 8;
+
+/// Where each window's caret last was, kept relative to the window so that it
+/// follows when the window moves. The latest is last.
+#[derive(Debug, Default)]
+pub struct CaretMemory {
+    windows: Vec<(usize, Caret)>,
+}
+
+impl CaretMemory {
+    pub fn remember(&mut self, window: usize, (x, y): (i32, i32), caret: Caret) {
+        self.windows.retain(|(w, _)| *w != window);
+        if self.windows.len() == REMEMBERED {
+            self.windows.remove(0);
+        }
+        self.windows.push((window, Caret { x: caret.x - x, top: caret.top - y, bottom: caret.bottom - y }));
+    }
+
+    pub fn recall(&self, window: usize, (x, y): (i32, i32)) -> Option<Caret> {
+        let (_, caret) = self.windows.iter().find(|(w, _)| *w == window)?;
+        Some(Caret { x: caret.x + x, top: caret.top + y, bottom: caret.bottom + y })
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -53,6 +89,54 @@ mod tests {
 
     fn line(x: i32, top: i32) -> Caret {
         Caret { x, top, bottom: top + 20 }
+    }
+
+    const WINDOW: Area = Area { left: 112, top: 35, right: 912, bottom: 660 };
+
+    #[test]
+    fn a_caret_in_the_window_is_believed() {
+        assert!(believable(Caret { x: 398, top: 131, bottom: 149 }, WINDOW));
+    }
+
+    #[test]
+    fn the_bridge_corner_is_not_believed_outside_or_inside_the_window() {
+        let corner = Caret { x: 1023, top: 719, bottom: 719 };
+        assert!(!believable(corner, WINDOW));
+        assert!(!believable(corner, Area { left: 0, top: 0, right: 1024, bottom: 720 }));
+    }
+
+    #[test]
+    fn a_line_outside_the_window_is_not_believed() {
+        assert!(!believable(Caret { x: 1000, top: 100, bottom: 120 }, WINDOW));
+        assert!(!believable(Caret { x: 200, top: 650, bottom: 670 }, WINDOW));
+    }
+
+    #[test]
+    fn a_window_that_gives_no_rectangle_is_taken_at_its_word() {
+        assert!(believable(Caret { x: 5, top: 5, bottom: 25 }, Area { left: 0, top: 0, right: 0, bottom: 0 }));
+    }
+
+    #[test]
+    fn a_remembered_caret_follows_its_window() {
+        let mut memory = CaretMemory::default();
+        memory.remember(1, (100, 100), Caret { x: 150, top: 400, bottom: 420 });
+        assert_eq!(memory.recall(1, (100, 100)), Some(Caret { x: 150, top: 400, bottom: 420 }));
+        assert_eq!(memory.recall(1, (300, 50)), Some(Caret { x: 350, top: 350, bottom: 370 }));
+        assert_eq!(memory.recall(2, (100, 100)), None);
+    }
+
+    #[test]
+    fn a_window_keeps_one_caret_and_the_oldest_window_goes_first() {
+        let mut memory = CaretMemory::default();
+        let at = |top| Caret { x: 0, top, bottom: top + 20 };
+        memory.remember(1, (0, 0), at(10));
+        memory.remember(1, (0, 0), at(20));
+        assert_eq!(memory.recall(1, (0, 0)), Some(at(20)));
+        for window in 2..=9 {
+            memory.remember(window, (0, 0), at(30));
+        }
+        assert_eq!(memory.recall(1, (0, 0)), None);
+        assert_eq!(memory.recall(9, (0, 0)), Some(at(30)));
     }
 
     #[test]

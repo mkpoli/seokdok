@@ -33,12 +33,16 @@ reading	hanja	count	source
 자음	子音		editorial
 예시	例示		editorial
 연초	煙草		editorial
+# 身上 for personal details; 身相 is the Diamond Sutra's word, the only place the chat has it.
+신상	身上		editorial
 신상	身相		editorial
 공유	共有		editorial
-기물	其物		editorial
+# 器物損壞, kli.korean.go.kr/term/trgtWord/indexTrgtWord.do?trgtWordNo=223105828. The chat's 其物 reads 그것.
+기물	器物		editorial
 합당	合當		editorial
 충실	忠實		editorial
-진사	進賜		editorial
+# 進士, encykorea.aks.ac.kr/Article/E0054718. The chat's 進賜 is the 吏讀 spelling of 나리.
+진사	進士		editorial
 전무	全無		editorial
 모방	模倣		editorial
 공조	空調		editorial
@@ -266,3 +270,10 @@ reading	hanja	count	source
 # Written whole, so 신기 inside it does not split as 神奇.
 아이신기오로	愛新覺羅		editorial
 신기	神奇		editorial
+# 胡桃: 山林廳's walnut reference gives 호도(胡桃), forest.go.kr/kfs/images/data/down/imsan/imsan_01_05.pdf;
+# 胡桃菓子 in a historical document, minjok.or.kr/archives/144553. 국립국어원 records 호두과자(-菓子), the second candidate.
+호두과자	胡桃菓子		editorial
+# 地圖 (the chat 16×, 指導 once). The engine keeps 지도 after ㄹ for the ending -ㄹ지도.
+지도	地圖		editorial
+지도교수	指導敎授		editorial
+지도자	指導者		editorial

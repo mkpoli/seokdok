@@ -1024,6 +1024,7 @@ impl Engine {
             self.prefer_whole_noun(comps, &mut edges);
         }
         self.prefer_written_h(&mut edges);
+        self.keep_ending_jido(comps, &mut edges);
         self.prefer_editorial_word(comps, &mut edges);
         self.prefer_word_over_tail(comps, &mut edges);
         edges
@@ -1056,6 +1057,17 @@ impl Engine {
             let connective = label.rsplit('+').next().unwrap_or("");
             if helpers[e.end].iter().any(|&c| HELPERS[c].0 == connective) {
                 e.cost -= MID_WORD_COST;
+            }
+        }
+    }
+
+    /// After ㄹ, 지도 is the ending -ㄹ지도 (그럴지도요, 어질지도요), not a noun.
+    fn keep_ending_jido(&self, comps: &[char], edges: &mut [Edge]) {
+        let jido = decompose("지도");
+        for e in edges.iter_mut() {
+            let starts = e.start > 0 && comps[e.start - 1] == 'ᆯ' && comps[e.start..].starts_with(&jido);
+            if starts && matches!(e.kind, Kind::Sino { .. } | Kind::Nominal { .. }) {
+                e.cost += MID_WORD_COST;
             }
         }
     }

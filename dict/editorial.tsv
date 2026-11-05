@@ -307,3 +307,23 @@ lemma	written	pos	class	source	count	note
 예로는	例로는	noun		editorial		例 with a particle, as 예를
 예에서	例에서	noun		editorial	2	the chat writes 例에서 (2×)
 책	冊	noun		editorial		冊 for 책 (mkpoli's request, 2026-11-05); the chat writes 冊 48 times, 책 17
+감사합니다	感謝합니다	interj		editorial	34	the chat writes 感謝합니다 (34×)
+주로	主로	adv		editorial	31	the chat writes 主로 (31×)
+고로	故로	adv		editorial	15	the chat writes 故로 (15×)
+의외로	意外로	adv		editorial	11	the chat writes 意外로 (11×)
+실은	實은	adv		editorial	10	the chat writes 實은 (10×)
+혹은	或은	adv		editorial	10	the chat writes 或은 (10×)
+여전히	如前히	adv		editorial	9	the chat writes 如前히 (9×)
+나중에	乃終에	adv		editorial	9	the chat writes 乃終에 (9×)
+대체로	大體로	adv		editorial	7	the chat writes 大體로 (7×)
+당연히	當然히	adv		editorial	5	the chat writes 當然히 (5×)
+방	房	noun		editorial		the chat writes 房에 (31×) against Hangul 방에 (8×)
+점	點	noun		editorial		the chat writes 點이 (31×) against Hangul 점이 (5×)
+식으로	式으로	noun		editorial	43	the chat writes 式으로 (43×) against Hangul 식으로 (12×)
+식의	式의	noun		editorial		式 with a particle, as 식으로
+식이	式이	noun		editorial		式 with a particle, as 식으로
+이런식	此런式	noun		editorial	9	the chat writes 이런式 (9×)
+북	北	noun		editorial		the chat writes 北에서 (22×) against Hangul 북에서 (0×)
+설	說	noun		editorial	22	the chat writes 說이 (22×) against Hangul 설이 (6×)
+비하다	比하다	verb		editorial	11	the chat writes 比해 (11×) against Hangul 비해 (2×)
+묘하다	妙하다	adj		editorial	20	the chat writes 妙한 (20×) against Hangul 묘한 (3×)

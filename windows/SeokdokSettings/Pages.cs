@@ -588,7 +588,7 @@ internal sealed class AboutPage : Page
     protected override void Build()
     {
         var version = typeof(AboutPage).Assembly.GetName().Version;
-        Add(Card(Product.Hanja, L("版 ", "Version ") + version?.ToString(3), null, null));
+        Add(Card(L(Product.Hanja, $"{Product.Latin} ({Product.Hanja})"), L("版 ", "Version ") + version?.ToString(3), null, null));
         Add(Card(L("説明과 使用法", "Guide"), "seokdok.mkpo.li", null, Link(Product.Guide)));
         Add(Card(L("소스와 辭典 出處", "Source and dictionary credits"), "github.com/mkpoli/seokdok", null, Link("https://github.com/mkpoli/seokdok")));
         var folder = new Button { Content = L("폴더 열기", "Open folder") };

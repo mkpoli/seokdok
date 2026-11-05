@@ -222,20 +222,14 @@ kbd {
   vertical-align: 0.05em;
 }
 
-/* Readings to the right, the Korean way: 漢字(한자). Labels and tiles that have
-   no room for them keep theirs above. */
-[data-ruby='right'] ruby:not(button ruby, label ruby, a ruby, summary ruby, .tile ruby, .slogan ruby) {
+/* Readings to the right at half size, as 文書문서. The top bar and the tiles have
+   no room for them and keep theirs above. */
+[data-ruby='right'] ruby:not(.bar ruby, .tile ruby) {
   display: inline;
   white-space: nowrap;
 }
-[data-ruby='right'] ruby:not(button ruby, label ruby, a ruby, summary ruby, .tile ruby, .slogan ruby) > rt {
+[data-ruby='right'] ruby:not(.bar ruby, .tile ruby) > rt {
   display: inline;
-  font-size: 0.72em;
+  font-size: max(0.5em, 8px);
   ruby-position: unset;
-}
-[data-ruby='right'] ruby:not(button ruby, label ruby, a ruby, summary ruby, .tile ruby, .slogan ruby) > rt::before {
-  content: '(';
-}
-[data-ruby='right'] ruby:not(button ruby, label ruby, a ruby, summary ruby, .tile ruby, .slogan ruby) > rt::after {
-  content: ')';
 }

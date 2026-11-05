@@ -302,3 +302,8 @@ lemma	written	pos	class	source	count	note
 곁에	傍에	adv		editorial	6	the chat writes 傍에 (6×) and 側에 (5×) against Hangul 곁에 (3×)
 곁에	側에	adv		editorial	5	the chat writes 側에 (5×)
 맘에	心에	adv		editorial	9	the chat writes 心에 (9×) against Hangul 맘에 (7×)
+예를	例를	noun		editorial	10	the chat writes 例를 (10×) against Hangul 예를 (5×); mkpoli's request (2026-11-05)
+예가	例가	noun		editorial	4	the chat writes 例가 (4×)
+예로	例로	noun		editorial		例 with a particle, as 예를
+예로는	例로는	noun		editorial		例 with a particle, as 예를
+예에서	例에서	noun		editorial	2	the chat writes 例에서 (2×)

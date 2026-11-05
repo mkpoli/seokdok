@@ -270,6 +270,8 @@ final class KeyPad: UIView {
     /// The touch choosing among a held key's alternates.
     private var alternatesTouch: ObjectIdentifier?
     private var alternatesTimer: Timer?
+    /// The touch the timer is for.
+    private var alternatesArmed: ObjectIdentifier?
     /// The system's alternates came up between 0.3 s and 0.4 s into a press, in
     /// shots on an iOS 26.5 simulator.
     private static let alternatesHold: TimeInterval = 0.35
@@ -341,8 +343,10 @@ final class KeyPad: UIView {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // Other fingers do nothing while one steers the caret or chooses an alternate.
-        guard cursorTouch == nil, alternatesTouch == nil else { return }
+        // Other fingers do nothing while one steers the caret.
+        guard cursorTouch == nil else { return }
+        // A new finger ends a tray, typing what it had chosen, as with a held letter.
+        endAlternates(typed: true)
         for touch in touches.sorted(by: { $0.timestamp < $1.timestamp }) {
             rollOver()
             guard let k = key(at: touch.location(in: self)) else { continue }
@@ -391,14 +395,18 @@ final class KeyPad: UIView {
                 t.inside = next != nil
                 t.key.isPressed = t.inside
                 preview(t.inside ? t.key : nil)
+                let wasInside = tracks[id]?.inside == true
                 if let next, next !== t.key, next.previews {
                     t.key.isPressed = false
                     t.key = next
                     next.isPressed = true
                     preview(next)
                     armAlternates(next, id)
-                } else if !t.inside {
-                    alternatesTimer?.invalidate()
+                } else if next !== t.key {
+                    // Off the keys, or over one that offers nothing.
+                    if alternatesArmed == id { disarmAlternates() }
+                } else if !wasInside {
+                    armAlternates(t.key, id)
                 }
             } else {
                 t.inside = distance(p, t.key) < Self.slop
@@ -416,9 +424,7 @@ final class KeyPad: UIView {
                 continue
             }
             if id == alternatesTouch {
-                alternatesTouch = nil
-                if let t = tracks.removeValue(forKey: id) { release(t.key) }
-                onAlternatesEnd?(true)
+                endAlternates(typed: true)
                 continue
             }
             guard let t = tracks.removeValue(forKey: id) else { continue }
@@ -435,9 +441,7 @@ final class KeyPad: UIView {
                 continue
             }
             if id == alternatesTouch {
-                alternatesTouch = nil
-                if let t = tracks.removeValue(forKey: id) { release(t.key) }
-                onAlternatesEnd?(false)
+                endAlternates(typed: false)
                 continue
             }
             guard let t = tracks.removeValue(forKey: id) else { continue }
@@ -446,14 +450,33 @@ final class KeyPad: UIView {
     }
 
     private func armAlternates(_ k: Key, _ id: ObjectIdentifier) {
-        alternatesTimer?.invalidate()
+        disarmAlternates()
         guard !k.alternates.isEmpty else { return }
+        alternatesArmed = id
         alternatesTimer = Timer.scheduledTimer(withTimeInterval: Self.alternatesHold, repeats: false) { [weak self, weak k] _ in
-            guard let self, let k, let t = self.tracks[id], t.key === k, t.inside else { return }
+            guard let self, let k, !k.alternates.isEmpty, let t = self.tracks[id], t.key === k, t.inside else { return }
+            self.alternatesArmed = nil
             self.alternatesTouch = id
             self.preview(nil)
+            // Keys held by other fingers must not change the tray's key under it.
+            for (other, held) in self.tracks where other != id {
+                self.tracks[other] = nil
+                self.release(held.key)
+            }
             self.onAlternatesShow?(k)
         }
+    }
+
+    private func disarmAlternates() {
+        alternatesTimer?.invalidate()
+        alternatesArmed = nil
+    }
+
+    private func endAlternates(typed: Bool) {
+        guard let id = alternatesTouch else { return }
+        alternatesTouch = nil
+        if let t = tracks.removeValue(forKey: id) { release(t.key) }
+        onAlternatesEnd?(typed)
     }
 
     /// A new touch while a letter is held: type that letter now.
@@ -481,6 +504,7 @@ final class KeyPad: UIView {
     }
 
     private func beginCursor(_ id: ObjectIdentifier, at x: CGFloat) {
+        endAlternates(typed: false)
         guard let t = tracks.removeValue(forKey: id) else { return }
         t.key.isPressed = false
         // Other keys still down (a thumb on a letter) end with it.
@@ -512,7 +536,8 @@ final class KeyPad: UIView {
         // Another finger may still hold the same key.
         if tracks.values.contains(where: { $0.key === k }) { return }
         k.isPressed = false
-        alternatesTimer?.invalidate()
+        // Only the finger the timer is for: another's lift must not cancel a tray.
+        if let armed = alternatesArmed, tracks[armed] == nil { disarmAlternates() }
         if k.holdsForCursor || k.onHold != nil {
             holdTimer?.invalidate()
             holdTimer = nil
@@ -656,7 +681,10 @@ final class KeyPopup: UIView {
     private func hideAlternates() {
         cells.forEach { $0.removeFromSuperview() }
         cells = []
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
         selection.isHidden = true
+        CATransaction.commit()
         label.isHidden = false
     }
 

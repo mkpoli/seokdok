@@ -166,7 +166,8 @@ final class KeyboardViewController: UIInputViewController {
         lastCommit = nil
         guard Date().timeIntervalSince(last.at) > 0.3 else { return }
         let proxy = textDocumentProxy
-        let moved = proxy.documentContextBeforeInput.map { !$0.hasSuffix(last.text.suffix(8)) } ?? !proxy.hasText
+        let moved = proxy.documentContextBeforeInput.map { !$0.hasSuffix(last.text.suffix(8)) }
+            ?? (!proxy.hasText || proxy.documentContextAfterInput != nil)
         if moved { session.reset() }
     }
 

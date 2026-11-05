@@ -325,6 +325,12 @@ fn numerals_read_as_numerals() {
 }
 
 #[test]
+fn spellings_from_the_etymology_stay_on_offer() {
+    first(&[("안타깝다", "惜깝다"), ("답답하다", "鬱하다"), ("아깝다", "惜다")]);
+    offers(&[("안타깝다", "內悶깝다"), ("안타깝게도", "內悶깝게도"), ("답답하다", "鬱鬱하다"), ("답답한", "鬱鬱한"), ("아깝다", "惜깝다")]);
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "我ㄹ")]);
 }

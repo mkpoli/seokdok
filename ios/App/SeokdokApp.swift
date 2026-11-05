@@ -353,7 +353,7 @@ private struct TypingPage: View {
             }
 
             SettingGroup(
-                about: L("learned.tsv를 지웁니다. 끈 뒤에도 파일은 지울 때까지 남습니다. 전체 접근 없이 쓸 때는 키보드의 \(Product.hasKun ? "釋" : "混") 키를 길게 눌러 지웁니다.", "Deletes learned.tsv. Turning learning off keeps the file until you delete it. Without Full Access, hold the keyboard's 釋 key to clear it.")
+                about: L("learned.tsv를 지웁니다. 끈 뒤에도 파일은 지울 때까지 남습니다. 전체 접근 없이 쓸 때는 키보드의 \(Product.hasKun ? "釋" : "混") 키를 길게 눌러 지웁니다.", "Deletes learned.tsv. Turning learning off keeps the file until you delete it. Without Full Access, hold the keyboard's \(Product.hasKun ? "釋" : "混") key to clear it.")
             ) {
                 Button(forgotten ? L("지웠습니다", "Forgotten") : L("고른 것 잊기", "Forget what I picked")) {
                     Settings.forgetPicks()

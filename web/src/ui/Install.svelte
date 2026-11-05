@@ -37,6 +37,17 @@
       remove: '設定 › 앱 › 釋讀',
       where: '釋讀 앱 › 내 낱말 › 가져오기',
     },
+    {
+      key: 'macos',
+      name: 'macOS',
+      req: 'macOS 13+, Apple silicon · Intel',
+      file: downloads.macos.file,
+      size: downloads.macos.size,
+      run: `mkdir -p ~/Library/Input\\ Methods\nditto -xk ~/Downloads/${downloads.macos.file} ~/Library/Input\\ Methods\nxattr -dr com.apple.quarantine ~/Library/Input\\ Methods/Seokdok.app\n~/Library/Input\\ Methods/Seokdok.app/Contents/MacOS/Seokdok --register`,
+      system: null,
+      remove: 'rm -rf ~/Library/Input\\ Methods/Seokdok.app',
+      where: '~/Library/Application Support/seokdok/custom.json',
+    },
   ]
 </script>
 
@@ -81,10 +92,10 @@
   <h3 class="more" use:reveal={5}>{@html r(t().install.more)}</h3>
   <p class="more-note" use:reveal={5}>{@html r(t().install.moreNote)}</p>
   <div class="cards small">
-    {#each ['ios', 'macos'] as key, i (key)}
+    {#each ['ios'] as key, i (key)}
       <article class="card plat" use:reveal={6 + i}>
         <header>
-          <h3>{{ ios: 'iOS', macos: 'macOS' }[key]}</h3>
+          <h3>iOS</h3>
         </header>
         <ol>
           {#each t().install[key] as step}

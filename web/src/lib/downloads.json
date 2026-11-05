@@ -11,5 +11,9 @@
   "android": {
     "file": "seokdok-0.1.0-android.apk",
     "size": 17245287
+  },
+  "macos": {
+    "file": "seokdok-0.1.0-macos.zip",
+    "size": 11162239
   }
 }

@@ -250,7 +250,7 @@ const ko = {
       'fcitx5를 {再|다시} {始作|시작}하고, fcitx5-configtool에서 「Only Show Current Language」를 {解除|해제}한 {後|뒤} {釋讀|석독}을 {加|더}합니다.',
       'Hangul 키나 Shift+Space로 {韓|한}과 A를 {轉換|전환}하고, Hanja 키나 F9로 {變換|변환}합니다.',
     ],
-    more: 'iOS · macOS',
+    more: 'iOS',
     moreNote: '{尙|아직} {配布|배포}{前|전}입니다. 소스에서 {直接|직접} 빌드하여 {試驗|시험}해 {見|보}ㄹ {手|수} {有|있}습니다.',
     source: '소스와 {案內|안내}',
     ios: [
@@ -259,7 +259,7 @@ const ko = {
       '지구본 키로 {釋讀|석독}을 {選|고르}ㅂ니다. Space로 {變換|변환}하고, {候補|후보}를 {押|눌러} {確定|확정}합니다.',
     ],
     macos: [
-      'Mac의 Xcode로 빌드하여 ~/Library/Input Methods에 {入|넣}고, {再|다시} 로그인합니다. 빌드는 CI에서 {確認|확인}했으나 {實際|실제} {入力|입력} {環境|환경}에서는 {尙|아직} {試驗|시험}하지 않았습니다.',
+      '{下|내}려{受|받}은 ZIP을 터미널에서 {下|아래} {命令|명령}으로 {設置|설치}합니다. {開發者|개발자} {署名|서명}이 {無|없}어 xattr이 {必要|필요}합니다. {實際|실제} Mac에서는 {尙|아직} {試驗|시험}하지 {不|않}았습니다.',
       '시스템 설정 › 키보드 › 입력 소스 › 편집…에서 +를 {押|눌러} 한국어의 {釋讀|석독}을 {加|더}합니다.',
       '메뉴 막대의 입력 메뉴에서 {釋讀|석독}을 {選|고르}ㅂ니다.',
     ],
@@ -531,8 +531,8 @@ const en = {
       'Restart fcitx5, then add 釋讀 in fcitx5-configtool (untick “Only Show Current Language” to find it).',
       'The Hangul key or Shift+Space switches between Korean and Latin. The Hanja key or F9 converts.',
     ],
-    more: 'iOS · macOS',
-    moreNote: 'Not released yet. You can build them from source and try them.',
+    more: 'iOS',
+    moreNote: 'Not released yet. You can build it from source and try it.',
     source: 'Source and guide',
     ios: [
       'Build it with Xcode on a Mac.',
@@ -540,7 +540,7 @@ const en = {
       'Pick 釋讀 with the globe key. Space converts; tap a candidate to confirm.',
     ],
     macos: [
-      'Build it with Xcode on a Mac, copy it to ~/Library/Input Methods and log in again. CI builds it, but it has not been run as an input method yet.',
+      'Install the downloaded ZIP with the commands below in Terminal. It has no developer signature, so xattr is needed. It has not been tried on a real Mac yet.',
       'In System Settings › Keyboard › Input Sources › Edit…, press + and add 釋讀 under Korean.',
       'Pick 釋讀 in the input menu of the menu bar.',
     ],

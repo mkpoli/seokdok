@@ -12,6 +12,7 @@ comments; the header line names the columns.
 | `eonhae.tsv` | 訓讀 attested in historical books: character primers and 諺解 | Korean Wikisource and 나무위키 transcriptions, English Wiktionary | CC BY-SA 4.0; citations of 나무위키 CC BY-NC-SA 2.0 KR |
 | `kun-attested.tsv` | 訓讀 printed with a native reading beside the Hanja in books of 1882-1945 | Korean Wikisource transcriptions | CC BY-SA 4.0 |
 | `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested, and words the chat types most, each with its source | language model, unreviewed; English Wiktionary, JMdict, libhangul | MIT; the rows from `tools/chat_gaps.tsv` CC BY-SA 4.0 |
+| `place-names.tsv` | Native Korean place names with their Hanja, spelled in Hangul from a romanized list | Japanese Wikipedia, 朝鮮地名音訓一覧 | CC BY-SA 4.0 |
 | `kun-ja.tsv` | 訓讀 found through Japanese 訓読み words with the same English gloss | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `kun-ja-weak.tsv` | weaker Japanese links, kept so no candidate is lost | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
@@ -44,7 +45,7 @@ lemma	written	pos	class	source	count	note
   (명사, 동사 …).
 - `class`: inflection class, guessed when blank: `reg`, `b` (ㅂ), `d` (ㄷ),
   `s` (ㅅ), `h` (ㅎ), `reu` (르), `reo` (러), `ani` (아니다).
-- `source`: `user`, `corpus`, `editorial`, `community`, `eonhae`, `kun-attested`, `suggested`, `gloss`.
+- `source`: `user`, `corpus`, `editorial`, `community`, `eonhae`, `kun-attested`, `suggested`, `place-name`, `gloss`.
 - `count`: corpus attestations, refreshed by `tools/attest.py`. Attested
   entries rank by count.
 
@@ -129,6 +130,20 @@ with `source` set to `user`. Check a file with
   transcription (dump of 2026-11-01), CC BY-SA 4.0, and most pages are unproofread
   there. A hand check of 120 random usage rows against their pages found 5 wrong
   (4.2%), all removed with others of the same kind; a second sample of 100 found 1 (1.0%), also removed.
+
+- **Place names** (`place-names.tsv`, `tools/place_names.py`, `tools/place_lemmas.tsv`): Japanese
+  Wikipedia, 朝鮮地名音訓一覧, revision 111083341 of 2026-09-20, CC BY-SA 4.0,
+  https://ja.wikipedia.org/w/index.php?oldid=111083341. A secondary source with one reference,
+  朝鮮総督府「朝鮮地方行政区画一覧（明治四十四年）」『朝鮮地名資料集成〔3〕』草風館、1994年, and the page carries
+  a single-source warning. Of its eight columns only Hanja, 小藤・金澤 romanization and province are
+  filled, so no Hangul is attested there: each lemma is transliterated from the romanization, with
+  ă read as ㅏ and ăi as ㅐ, and a plain word given today's spelling (바회 바위, 놉흔 높은); the note then
+  gives the literal form. The Hanja are as the page has them, Japanese forms included (広, 仏), and
+  some are visibly misread from print (長瑞 for Chyang-dan); rows like that are left out. The file
+  has only readings a character's sound does not explain, read by hand. A word that already has a
+  common meaning is left out (금실, 사물, 배치). Every row was reread against the page: 1 of 262 wrong
+  (0.4%), 九月山 paired with its alternative name's reading, removed.
+  The rows serve typing only: reading Hanja back into Hangul keeps the sound (高亭 고정).
 
 - **Wiktionary** (`etym.tsv`, `tools/etym_hanja.py`): English Wiktionary's
   Korean entries as extracted by kaikki.org (wiktextract; enwiktionary dump of

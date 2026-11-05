@@ -4,6 +4,9 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 
 ## 2026-11-06
 
+### 音讀
+- A second input method, 音讀 (Eumdok), for 國漢文混用 only: Sino-Korean words in Hanja, native words in Hangul, with no 訓讀 in the candidates or settings. It installs beside 釋讀 with its own settings on Windows, Linux, macOS, Android and iOS.
+
 ### Conversion
 - Numerals typed as their own word rank high: 삼 and 세 give 三, 이 and 사 offer 二 and 四 second, and 세 사람 gives 三 人, 오 분 gives 五 分.
 

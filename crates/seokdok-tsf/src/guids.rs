@@ -1,21 +1,23 @@
-//! GUIDs, names and resource ids. The GUIDs are specific to seokdok.
+//! GUIDs, names and resource ids. The GUIDs and names are the product's own
+//! (products/<id>.json), so the input methods install side by side.
 
-use windows::core::{w, GUID, PCWSTR};
+use seokdok_product::CURRENT;
+use windows::core::GUID;
 
-/// Text-service CLSID: {AAF18869-67ED-48A1-A3F6-42E961E994A1}
-pub const GUID_TEXT_SERVICE: GUID = GUID::from_u128(0xAAF18869_67ED_48A1_A3F6_42E961E994A1);
+/// Text-service CLSID.
+pub const GUID_TEXT_SERVICE: GUID = GUID::from_u128(CURRENT.windows.clsid);
 
-/// Language profile: {5A2C201D-E01B-475F-A23D-3A6A64D996A4}
-pub const GUID_PROFILE: GUID = GUID::from_u128(0x5A2C201D_E01B_475F_A23D_3A6A64D996A4);
+/// Language profile.
+pub const GUID_PROFILE: GUID = GUID::from_u128(CURRENT.windows.profile);
 
 /// Display attribute of Hangul that has not been converted.
-pub const GUID_DA_INPUT: GUID = GUID::from_u128(0x120E3069_68A8_441A_A00A_C8DC2DA5D954);
+pub const GUID_DA_INPUT: GUID = GUID::from_u128(CURRENT.windows.da_input);
 
 /// Display attribute of a converted segment.
-pub const GUID_DA_CONVERTED: GUID = GUID::from_u128(0xA824E0C2_E97A_449C_855B_2F9D484E07F4);
+pub const GUID_DA_CONVERTED: GUID = GUID::from_u128(CURRENT.windows.da_converted);
 
 /// Display attribute of the focused converted segment.
-pub const GUID_DA_FOCUS: GUID = GUID::from_u128(0xA63357BA_AF96_4DB0_82B6_86778F0E8A24);
+pub const GUID_DA_FOCUS: GUID = GUID::from_u128(CURRENT.windows.da_focus);
 
 /// Icon resource ids (see `resources.rc`); the profile icon is id 101.
 pub const IDI_MODE_SEOKDOK: u16 = 102;
@@ -23,10 +25,10 @@ pub const IDI_MODE_HANGUL: u16 = 103;
 pub const IDI_MODE_LATN: u16 = 104;
 pub const IDI_MODE_SINO: u16 = 105;
 
-pub const SERVICE_NAME: PCWSTR = w!("seokdokTextService");
+pub const SERVICE_NAME: &str = CURRENT.windows.service_name;
 
 /// Name shown in the language switcher.
-pub const DISPLAY_DESCRIPTION: PCWSTR = w!("釋讀 (seokdok)");
+pub const DISPLAY_DESCRIPTION: &str = CURRENT.windows.display_name;
 
 /// LANGID of ko-KR.
 pub const LANGID_KO_KR: u16 = 0x0412;

@@ -780,6 +780,14 @@ impl Engine {
         matches!(n.source, Source::Editorial | Source::Corpus) && n.lemma != "수" && self.in_sino_table(n)
     }
 
+    /// 推薦하다 or 限定되다: in 國漢文混用 the Sino-Korean word reads by itself, and a
+    /// row for the whole verb would leave it in Hangul.
+    fn sino_word_with_light_verb(&self, n: &Native) -> bool {
+        let Some(root) = n.lemma.strip_suffix("하다").or_else(|| n.lemma.strip_suffix("되다")) else { return false };
+        let root = decompose(root);
+        crate::jamo::syllable_count(&root) >= 2 && self.sino.prefixes(&root, 0).into_iter().any(|(q, _)| q == root.len())
+    }
+
     fn native_cost(&self, n: &Native) -> f32 {
         // Hangul-only helper entries (the light verb 하다) are cheap.
         let mut c = if n.hanja.is_empty() { 0.5 } else { n.cost };
@@ -969,6 +977,9 @@ impl Engine {
             for (q, items) in self.stems.prefixes(comps, s) {
                 for &(i, a) in items {
                     let entry = &self.natives[i as usize];
+                    if self.options.sino_only && self.sino_word_with_light_verb(entry) {
+                        continue;
+                    }
                     let ctx = entry.allos[a as usize].ctx;
                     let Some(et) = self.endings.get(&ctx) else { continue };
                     // A bare stem at the end of the input: the stem as the

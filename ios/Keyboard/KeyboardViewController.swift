@@ -159,15 +159,22 @@ final class KeyboardViewController: UIInputViewController {
     /// A word break is owed after what was confirmed, and only there: if the
     /// app has since sent or cleared the text, or the caret was tapped elsewhere,
     /// the next word starts where it stands. The proxy's context can lag behind
-    /// the keyboard's own insert for a moment, so a fresh commit is taken on
-    /// trust, and a field with text but no context to show keeps the break.
+    /// the keyboard's own insert, so a commit is taken on trust for as long as
+    /// `checkComposition` allows that lag, and a field with text but no context to
+    /// show keeps the break. Text just like the commit before a tapped caret looks
+    /// the same from here, and keeps it too.
     private func forgetStaleBreak() {
         guard let last = lastCommit, session.preedit().isEmpty else { return }
         lastCommit = nil
-        guard Date().timeIntervalSince(last.at) > 0.3 else { return }
+        guard Date().timeIntervalSince(last.at) > 0.8 else { return }
         let proxy = textDocumentProxy
-        let moved = proxy.documentContextBeforeInput.map { !$0.hasSuffix(last.text.suffix(8)) }
-            ?? (!proxy.hasText || proxy.documentContextAfterInput != nil)
+        let moved: Bool
+        if let before = proxy.documentContextBeforeInput, !before.isEmpty {
+            // Either may be the shorter: the proxy can offer only part of a sentence.
+            moved = !before.hasSuffix(last.text.suffix(8)) && !last.text.hasSuffix(before)
+        } else {
+            moved = !proxy.hasText || !(proxy.documentContextAfterInput ?? "").isEmpty
+        }
         if moved { session.reset() }
     }
 

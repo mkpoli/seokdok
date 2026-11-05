@@ -495,6 +495,8 @@ final class KeyPopup: UIView {
     }
     /// Over the top of the key.
     private static let rise: CGFloat = flat ? 66 : 64
+    /// From the middle of the letter to the top of the key.
+    private static let letterRise: CGFloat = flat ? 32.8 : 36.8
     /// To each side of the key.
     private static let grow: CGFloat = flat ? 12.3 : 13
     /// The system's pop-up outlives the finger by about this much.
@@ -514,7 +516,7 @@ final class KeyPopup: UIView {
         shape.shadowRadius = 3
         shape.shadowOffset = CGSize(width: 0, height: 1)
         label.textAlignment = .center
-        label.font = OldHangul.font(ofSize: 34)
+        label.font = OldHangul.font(ofSize: 37)
         addSubview(label)
         isHidden = true
     }
@@ -539,7 +541,9 @@ final class KeyPopup: UIView {
         shape.path = path
         shape.shadowPath = path
         shape.fillColor = Self.fill.resolvedColor(with: traitCollection).cgColor
-        label.frame = body
+        // Where the edge shortens the pop-up, the letter stays inside what is left.
+        let letterY = max(rect.minY - Self.letterRise, body.midY)
+        label.frame = CGRect(x: body.minX, y: letterY - 25, width: body.width, height: 50)
         label.text = key.title
         isHidden = false
         CATransaction.commit()

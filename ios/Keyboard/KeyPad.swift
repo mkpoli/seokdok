@@ -187,7 +187,12 @@ final class Key: UIView {
         }
         icon.tintColor = look == .accent ? .white : .label
         if isDisabledLook {
-            backgroundColor = KeyMetrics.functionFill
+            // iOS 26's keys share one fill, so the system greys a disabled Return.
+            if #available(iOS 26, *) {
+                backgroundColor = UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 46.0 / 255, alpha: 1) : UIColor(white: 196.0 / 255, alpha: 1) }
+            } else {
+                backgroundColor = KeyMetrics.functionFill
+            }
             label.textColor = .tertiaryLabel
             icon.tintColor = .tertiaryLabel
         }

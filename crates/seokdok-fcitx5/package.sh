@@ -1,21 +1,23 @@
 #!/usr/bin/env bash
 # Build the fcitx5 addon and stage a release tarball:
-#   target/stage/seokdok-<version>-x86_64-linux-fcitx5/
-#     lib/libseokdok.so  share/fcitx5/{addon,inputmethod}/seokdok.conf
-#     dict/*.tsv  install.sh  LICENSE  README.txt
-# Usage: crates/seokdok-fcitx5/package.sh  (FCITX5_INCLUDE as for build.sh)
+#   target/stage/<id>-<version>-x86_64-linux-fcitx5/
+#     lib/lib<id>.so  share/fcitx5/{addon,inputmethod}/<id>.conf
+#     dict/*.tsv  install.sh  product  LICENSE  README.txt
+# Usage: crates/seokdok-fcitx5/package.sh [seokdok|eumdok]  (FCITX5_INCLUDE as for build.sh)
 set -euo pipefail
+id="${1:-seokdok}"
 cd "$(dirname "$0")/../.."
 version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name=="seokdok-ffi") | .version')
-crates/seokdok-fcitx5/build.sh
-name="seokdok-${version}-x86_64-linux-fcitx5"
+crates/seokdok-fcitx5/build.sh "$id"
+name="${id}-${version}-x86_64-linux-fcitx5"
 stage="target/stage/${name}"
 rm -rf "$stage"
 mkdir -p "$stage/lib" "$stage/share/fcitx5/addon" "$stage/share/fcitx5/inputmethod" "$stage/dict"
-cp target/fcitx5/libseokdok.so "$stage/lib/"
-cp crates/seokdok-fcitx5/addon/seokdok-addon.conf "$stage/share/fcitx5/addon/seokdok.conf"
-cp crates/seokdok-fcitx5/addon/seokdok-im.conf "$stage/share/fcitx5/inputmethod/seokdok.conf"
+cp "target/fcitx5/lib$id.so" "$stage/lib/"
+crates/seokdok-fcitx5/conf.sh "$id" addon >"$stage/share/fcitx5/addon/$id.conf"
+crates/seokdok-fcitx5/conf.sh "$id" im >"$stage/share/fcitx5/inputmethod/$id.conf"
 cp crates/seokdok-fcitx5/install.sh "$stage/"
+printf 'id=%s\nhanja=%s\n' "$id" "$(jq -r .hanja "products/$id.json")" >"$stage/product"
 cp LICENSE "$stage/LICENSE"
 for f in dict/*.tsv; do
   case "$(basename "$f")" in user*.tsv) ;; *) cp "$f" "$stage/dict/" ;; esac
@@ -50,5 +52,9 @@ the file as ~/.config/seokdok/custom.json. Switch input method away and back to 
 Code: MIT. Dictionaries: see dict/README.md (libhangul BSD-3, FusionIME GPL-3.0,
 JMdict CC BY-SA 4.0, 釋讀會 community dictionary).
 TXT
+if [ "$id" = eumdok ]; then
+  sed -i -e 's/釋讀 → 國漢文混用 → 韓㐎 專用, in 釋讀 mode/國漢文混用 ↔ 韓㐎 專用/' \
+    -e 's/釋讀 seokdok/音讀 eumdok/' -e 's/釋讀\([^會]\)/音讀\1/g' -e 's#config/seokdok#config/eumdok#g' "$stage/README.txt"
+fi
 tar -C target/stage -czf "target/stage/${name}.tar.gz" "$name"
 ls -la "target/stage/${name}.tar.gz"

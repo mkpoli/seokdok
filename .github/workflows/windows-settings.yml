@@ -10,6 +10,8 @@ on:
       - "crates/seokdok-core/**"
       - "crates/seokdok-session/**"
       - "crates/seokdok-ffi/**"
+      - "crates/seokdok-product/**"
+      - "products/**"
       - "Cargo.lock"
       - ".github/workflows/windows-settings.yml"
   pull_request:
@@ -18,6 +20,8 @@ on:
       - "crates/seokdok-core/**"
       - "crates/seokdok-session/**"
       - "crates/seokdok-ffi/**"
+      - "crates/seokdok-product/**"
+      - "products/**"
       - "Cargo.lock"
       - ".github/workflows/windows-settings.yml"
   workflow_dispatch:
@@ -50,4 +54,14 @@ jobs:
         with:
           name: seokdok-settings-app
           path: target/settings-app/
+          if-no-files-found: error
+
+      - name: Build 音讀
+        shell: pwsh
+        run: windows\build.ps1 -Product eumdok
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eumdok-settings-app
+          path: target/settings-app-eumdok/
           if-no-files-found: error

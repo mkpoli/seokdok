@@ -67,6 +67,16 @@ jobs:
           ditto -c -k --sequesterRsrc --keepParent "$app" Seokdok-unsigned.zip
           ls -l Seokdok-unsigned.zip
 
+      # The commands the site gives, on the zip the site serves.
+      - name: Install from the zip and register
+        working-directory: macos
+        run: |
+          mkdir -p ~/Library/Input\ Methods
+          ditto -xk Seokdok-unsigned.zip ~/Library/Input\ Methods
+          xattr -dr com.apple.quarantine ~/Library/Input\ Methods/Seokdok.app
+          codesign --verify --deep ~/Library/Input\ Methods/Seokdok.app
+          ~/Library/Input\ Methods/Seokdok.app/Contents/MacOS/Seokdok --register
+
       - uses: actions/upload-artifact@v4
         with:
           name: Seokdok-unsigned-app

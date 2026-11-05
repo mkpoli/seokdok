@@ -8,6 +8,7 @@ import UIKit
 final class KeyboardViewController: UIInputViewController {
     private var session: Session!
     private var keys: KeyboardView!
+    private var keysHeight: NSLayoutConstraint?
     private var shift = KeyboardState.Shift.off
     private var lastShiftTap = Date.distantPast
     /// The last key was a Space that typed a space.
@@ -24,7 +25,7 @@ final class KeyboardViewController: UIInputViewController {
     /// Bumped whenever a composition ends or its field changes, so a delayed
     /// check for an earlier text change does nothing.
     private var checkGeneration = 0
-    /// What the focused field asks for; only `.standard` converts.
+    /// What the focused field asks for; only the Hangul layouts convert.
     private var layout = Layout.standard
     /// A long press on the mode key opened the bar's controls for what was
     /// learned. Without Full Access the app cannot reach this keyboard's files.
@@ -41,6 +42,14 @@ final class KeyboardViewController: UIInputViewController {
         #endif
     }
 
+    /// The system keeps each controller's input view alive after the controller
+    /// goes, in a keyboard process that outlives the apps it served. Without this,
+    /// every keys view stayed with it: about 3 MB more each time the app in focus
+    /// was launched again (`footprint` on an iOS 26.5 simulator).
+    deinit {
+        keys?.removeFromSuperview()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         let dict = Bundle.main.bundleURL.appendingPathComponent("dict").path
@@ -53,6 +62,7 @@ final class KeyboardViewController: UIInputViewController {
         view.addSubview(keys)
         // As tall as the system keyboard with its suggestion bar.
         let height = keys.heightAnchor.constraint(equalToConstant: 261)
+        keysHeight = height
         // Below required, so it gives way to the system's own height while
         // the keyboard is being set up.
         height.priority = UILayoutPriority(999)
@@ -66,6 +76,18 @@ final class KeyboardViewController: UIInputViewController {
         if let globe = keys.globe {
             globe.addTarget(self, action: #selector(handleInputModeList(from:with:)), for: .allTouchEvents)
         }
+    }
+
+    /// The keys follow the width and the orientation, as the system's do.
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        let width = view.bounds.width
+        // The table is the iPhone's; an iPad keeps the keys' first layout.
+        guard width > 0, UIDevice.current.userInterfaceIdiom == .phone else { return }
+        let screen = UIScreen.main.bounds.size
+        let layout = KeyLayout.current(width: width, landscape: screen.width > screen.height)
+        keysHeight?.constant = layout.height
+        keys.apply(layout, width: width)
     }
 
     /// The App Group container holding the app's settings. Reading it needs
@@ -82,7 +104,7 @@ final class KeyboardViewController: UIInputViewController {
     /// button clears them; a table already there wins.
     private func adoptOwnPicks(into group: String) {
         let manager = FileManager.default
-        let own = NSHomeDirectory() + "/.config/seokdok/learned.tsv"
+        let own = NSHomeDirectory() + "/.config/\(Product.dir)/learned.tsv"
         guard manager.fileExists(atPath: own) else { return }
         let shared = group + "/learned.tsv"
         if manager.fileExists(atPath: shared) {
@@ -102,8 +124,18 @@ final class KeyboardViewController: UIInputViewController {
         waitForDictionaries()
     }
 
+    /// What is being composed already stands in the document as marked text, so
+    /// it is confirmed there. Inserting it instead wrote it a second time into the
+    /// next field when the app replaced the field in focus.
     override func viewWillDisappear(_ animated: Bool) {
         session.flush()
+        if marked != nil {
+            _ = session.takeCommit()
+            textDocumentProxy.unmarkText()
+            marked = nil
+            // The caret may be anywhere when the keyboard returns; no word break is owed.
+            session.reset()
+        }
         apply()
         loadTimer?.invalidate()
         super.viewWillDisappear(animated)
@@ -182,7 +214,10 @@ final class KeyboardViewController: UIInputViewController {
         case .phonePad: return .phone
         case .emailAddress: return .email
         case .URL: return .url
-        case .asciiCapable, .namePhonePad: return .ascii
+        case .asciiCapable: return .ascii
+        case .numbersAndPunctuation: return .numbers
+        case .twitter: return .twitter
+        case .webSearch: return .web
         default: return .standard
         }
     }
@@ -315,6 +350,11 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
+    func literal(_ text: String) {
+        dropForeignComposition()
+        insert(text)
+    }
+
     func space() {
         dropForeignComposition()
         if lastKeyWasSpace, session.preedit().isEmpty, typePeriodForSpaces() {
@@ -383,6 +423,37 @@ extension KeyboardViewController: KeyboardViewDelegate {
             textDocumentProxy.deleteBackward()
         }
         apply()
+    }
+
+    /// While the key is held the system's Korean keyboard takes a composition a
+    /// syllable at a time, where a tap takes one letter.
+    func backspaceRepeat() {
+        let before = session.preedit().map(\.text).joined().count
+        guard before > 0 else {
+            backspace()
+            return
+        }
+        // A syllable has at most a few letters; the bound only guards the loop.
+        for _ in 0..<8 {
+            backspace()
+            if session.preedit().map(\.text).joined().count < before { break }
+        }
+    }
+
+    /// The word before the caret and the spaces after it. With no text to see,
+    /// one character.
+    func backspaceWord() {
+        guard session.preedit().isEmpty else {
+            backspaceRepeat()
+            return
+        }
+        let context = textDocumentProxy.documentContextBeforeInput ?? ""
+        let spaces = context.reversed().prefix(while: \.isWhitespace).count
+        let word = context.reversed().dropFirst(spaces).prefix(while: { !$0.isWhitespace }).count
+        for _ in 0..<max(1, spaces + word) {
+            textDocumentProxy.deleteBackward()
+        }
+        session.reset()
     }
 
     /// What is being composed goes into the document first, with no word break

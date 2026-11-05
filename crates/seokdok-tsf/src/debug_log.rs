@@ -1,5 +1,5 @@
 //! Optional trace for diagnosing applications: written to
-//! %LOCALAPPDATA%\seokdok\tsf.log only while a file named `debug` exists in
+//! tsf.log in the product's folder of %LOCALAPPDATA% only while a file named `debug` exists in
 //! that folder, so normal use writes nothing.
 
 use std::io::Write;
@@ -7,7 +7,7 @@ use std::path::PathBuf;
 use std::sync::OnceLock;
 
 fn dir() -> Option<PathBuf> {
-    std::env::var_os("LOCALAPPDATA").map(|d| PathBuf::from(d).join("seokdok"))
+    std::env::var_os("LOCALAPPDATA").map(|d| PathBuf::from(d).join(seokdok_product::CURRENT.config_dir))
 }
 
 fn enabled() -> bool {

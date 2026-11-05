@@ -4,6 +4,9 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 
 ## 2026-11-06
 
+### Conversion
+- Numerals typed as their own word rank high: 삼 and 세 give 三, 이 and 사 offer 二 and 四 second, and 세 사람 gives 三 人, 오 분 gives 五 分.
+
 ### Windows
 - The candidate window can look like Windows 11 or the classic square list of Windows 10 and earlier, and can follow the system or stay light or dark. Both are in the settings app and `config.toml`, and apply at the next key.
 

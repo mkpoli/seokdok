@@ -164,6 +164,24 @@ fn an_adverbial_ending_takes_a_particle() {
 }
 
 #[test]
+fn endings_run_into_the_next_word_keep_the_stem_in_hanja() {
+    first(&[
+        ("없긴한데", "無긴한데"), ("있긴합니다", "有긴합니다"), ("된듯요", "成ㄴ듯요"), ("좋을듯요", "好을듯요"),
+        ("쓰는것도", "書는것도"), ("큰것도", "大ㄴ것도"), ("되는줄", "成는줄"), ("쓴다든지", "書ㄴ다든지"),
+        ("꺼내야겠군요", "出내야겠군요"),
+    ]);
+    // 야 하다 typed as one word, where 야하 was read as 淫.
+    first(&[("써야하는", "書야하는"), ("써야하는지도", "書야하는지도"), ("가야할", "去야할"), ("알아야합니다", "知아야합니다")]);
+    // The copula keeps its Hangul.
+    first(&[("뜻인줄", "意인줄"), ("부분인듯요", "部分인듯요"), ("인줄", "인줄"), ("이긴한데", "이긴한데")]);
+}
+
+#[test]
+fn a_quoted_dictionary_form_takes_a_particle() {
+    first(&[("모르다라는", "不知다라는"), ("가르치다의", "敎다의"), ("나다와", "出다와"), ("바다의", "海의"), ("바다로", "海로")]);
+}
+
+#[test]
 fn words_that_look_like_a_loanword_or_an_ending_keep_their_reading() {
     // 올리고 and 알리고 are verb forms, not the loanwords oligo- and Aligot.
     first(&[("올리고", "昇고"), ("알리고", "告리고"), ("가자", "去자"), ("그러나", "其러나")]);

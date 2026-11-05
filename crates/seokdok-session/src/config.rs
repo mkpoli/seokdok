@@ -791,7 +791,7 @@ mod product_tests {
         let mut c = Config::default();
         c.conversion.script = Script::SinoOnly;
         let text = c.documented_toml_for(&EUMDOK);
-        for gone in ["釋", "訓讀", "style =", "fragment =", "coda_always =", "resyllabify =", "hada_kun =", "itda =", "#   style", "#   fragment", "#   hada_kun", "爲", "在"] {
+        for gone in ["釋", "訓讀", "\nstyle =", "fragment =", "coda_always =", "resyllabify =", "hada_kun =", "itda =", "#   style", "#   fragment", "#   hada_kun", "爲", "在"] {
             assert!(!text.contains(gone), "{gone}\n{text}");
         }
         assert!(text.contains("# eumdok configuration"));

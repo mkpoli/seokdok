@@ -14,7 +14,7 @@ final class SettingsWindow {
         model.reload()
         if window == nil {
             let w = NSWindow(contentViewController: NSHostingController(rootView: SettingsView(model: model)))
-            w.title = "釋讀 設定 / Settings"
+            w.title = "\(Product.hanja) 設定 / Settings"
             w.styleMask = [.titled, .closable]
             w.isReleasedWhenClosed = false
             w.center()
@@ -61,17 +61,20 @@ struct SettingsView: View {
             }
             Section("鍵 / Keys") {
                 KeyListField(label: "韓 ↔ A / Korean ↔ Latin", keys: $model.config.input.keys.toggle)
-                KeyListField(label: "釋讀 → 國漢文混用 → 韓㐎 專用", keys: $model.config.input.keys.scriptCycle)
+                KeyListField(label: Product.hasKun ? "釋讀 → 國漢文混用 → 韓㐎 專用" : "國漢文混用 ↔ 韓㐎 專用", keys: $model.config.input.keys.scriptCycle)
                 KeyListField(label: "變換 / Convert", keys: $model.config.input.keys.convert)
                 Text("Comma-separated, such as Alt, F7, Alt+Enter. A modifier alone means tapping it. Other lists are in config.toml. Control-Space, Globe and Caps Lock are set in System Settings › Keyboard.")
                     .foregroundStyle(.secondary)
             }
             Section("表記 / Spelling") {
                 Picker("文字 / Script", selection: $model.config.conversion.script) {
-                    Text("釋讀 / Seokdok").tag("seokdok")
+                    if Product.hasKun {
+                        Text("釋讀 / Seokdok").tag("seokdok")
+                    }
                     Text("國漢文混用 / Hanja for Sino-Korean words only").tag("sino_only")
                     Text("韓㐎 專用 / Hangul only, no conversion").tag("hangul_only")
                 }
+                if Product.hasKun {
                 Picker("末音添記 / Style", selection: $model.config.conversion.style) {
                     Text("表音式 / Surface  (見ㅆ다)").tag("surface")
                     Text("形態式 / Morpheme  (見았다)").tag("morpheme")
@@ -87,6 +90,7 @@ struct SettingsView: View {
                     Text("有다").tag("有")
                     Text("在다").tag("在")
                     Text("在ㅆ다").tag("在ㅆ")
+                }
                 }
                 Toggle("하 → ᄒᆞ 優先 / Old spelling of 하 first  (하고 → ᄒᆞ고)", isOn: $model.config.conversion.oldHa)
                 Stepper(value: $model.config.conversion.maxCandidates, in: 1...99) {

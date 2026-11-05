@@ -3,7 +3,10 @@ import UIKit
 /// A key cap. It draws itself and knows what it does; `KeyPad` decides when it
 /// is pressed.
 final class Key: UIView {
-    enum Look { case letter, function, accent }
+    enum Look { case letter, function, accent
+        /// No cap of its own until pressed (the flat keys of the number pads).
+        case plain
+    }
 
     enum Fires {
         /// When the finger lifts (the system's letters, Space, Return).
@@ -32,10 +35,16 @@ final class Key: UIView {
 
     private let label = UILabel()
     private let icon = UIImageView()
+
+    /// The number pad's Delete is drawn larger than the others.
+    func setSymbolSize(_ size: CGFloat) {
+        icon.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: size, weight: .regular)
+    }
     private let hint = UILabel()
     private var symbol: String?
     /// The key's height, changed in place when a row needs another.
     private(set) var heightConstraint: NSLayoutConstraint!
+    private var labelCenter: NSLayoutConstraint?
 
     var look: Look {
         didSet { refill() }
@@ -55,7 +64,7 @@ final class Key: UIView {
             label.alpha = alpha
             icon.alpha = alpha
             hint.alpha = alpha
-            layer.shadowOpacity = isDimmed ? 0 : 0.35
+            layer.shadowOpacity = isDimmed ? 0 : KeyMetrics.shadow
             refill()
         }
     }
@@ -74,12 +83,13 @@ final class Key: UIView {
         }
     }
 
-    init(title: String? = nil, symbol: String? = nil, look: Look = .function, height: CGFloat = KeyMetrics.keyHeight) {
+    init(title: String? = nil, symbol: String? = nil, look: Look = .function, height: CGFloat = 42) {
         self.look = look
         super.init(frame: .zero)
         layer.cornerRadius = KeyMetrics.corner
+        layer.cornerCurve = .continuous
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.35
+        layer.shadowOpacity = KeyMetrics.shadow
         layer.shadowOffset = CGSize(width: 0, height: 1)
         layer.shadowRadius = 0
         isUserInteractionEnabled = false
@@ -104,10 +114,12 @@ final class Key: UIView {
         addSubview(hint)
 
         heightConstraint = heightAnchor.constraint(equalToConstant: height)
+        let labelY = label.centerYAnchor.constraint(equalTo: centerYAnchor)
+        labelCenter = labelY
         NSLayoutConstraint.activate([
             heightConstraint,
             label.centerXAnchor.constraint(equalTo: centerXAnchor),
-            label.centerYAnchor.constraint(equalTo: centerYAnchor),
+            labelY,
             label.widthAnchor.constraint(lessThanOrEqualTo: widthAnchor, constant: -2),
             icon.centerXAnchor.constraint(equalTo: centerXAnchor),
             icon.centerYAnchor.constraint(equalTo: centerYAnchor),
@@ -126,7 +138,9 @@ final class Key: UIView {
 
     override func layoutSubviews() {
         super.layoutSubviews()
-        layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: layer.cornerRadius).cgPath
+        if KeyMetrics.shadow > 0 {
+            layer.shadowPath = UIBezierPath(roundedRect: bounds, cornerRadius: layer.cornerRadius).cgPath
+        }
     }
 
     var title: String? {
@@ -143,6 +157,25 @@ final class Key: UIView {
         guard name != symbol || (name != nil && icon.image == nil) else { return }
         symbol = name
         icon.image = name.flatMap { UIImage(systemName: $0) }
+    }
+
+    /// How far above the middle the label sits, on a number pad.
+    var labelRise: CGFloat = 0 {
+        didSet { labelCenter?.constant = -labelRise }
+    }
+
+    /// The letters under a digit on a number pad.
+    func setPadLetters(_ text: String?) {
+        guard let text else { return }
+        let sub = UILabel()
+        sub.font = .systemFont(ofSize: 10, weight: .semibold)
+        sub.attributedText = NSAttributedString(string: text, attributes: [.kern: 1.6])
+        sub.translatesAutoresizingMaskIntoConstraints = false
+        addSubview(sub)
+        NSLayoutConstraint.activate([
+            sub.centerXAnchor.constraint(equalTo: centerXAnchor),
+            sub.bottomAnchor.constraint(equalTo: bottomAnchor, constant: -5),
+        ])
     }
 
     /// Spoken by VoiceOver; the visible label unless set.
@@ -172,16 +205,24 @@ final class Key: UIView {
         let down = isPressed && !previews
         switch look {
         case .letter:
-            backgroundColor = down ? KeyMetrics.functionFill : KeyMetrics.letterFill
+            backgroundColor = down ? KeyMetrics.pressedFill : KeyMetrics.letterFill
             label.textColor = .label
         case .function:
-            backgroundColor = down != isOn ? KeyMetrics.letterFill : KeyMetrics.functionFill
+            if KeyMetrics.flat {
+                backgroundColor = down ? KeyMetrics.pressedFill : KeyMetrics.functionFill
+            } else {
+                backgroundColor = down != isOn ? KeyMetrics.letterFill : KeyMetrics.functionFill
+            }
             label.textColor = .label
         case .accent:
             backgroundColor = down ? UIColor.systemBlue.withAlphaComponent(0.7) : .systemBlue
             label.textColor = .white
+        case .plain:
+            backgroundColor = isPressed ? KeyMetrics.letterFill : UIColor.white.withAlphaComponent(0.001)
+            label.textColor = .label
         }
         icon.tintColor = look == .accent ? .white : .label
+        if look == .plain { layer.shadowOpacity = 0 }
         if isDimmed {
             backgroundColor = backgroundColor?.withAlphaComponent(look == .letter ? 0.45 : 0.6)
         }
@@ -194,20 +235,31 @@ final class Key: UIView {
     }
 }
 
-/// Sizes and colours of the keys. The key height and both fills are measured
-/// from the system keyboard's screenshots on an iOS 18.5 simulator; the corner
-/// radius and font sizes are our choice.
+/// Corners, shadow and colours of the keys, measured from the system keyboard's
+/// screenshots: iOS 18.5 and iOS 26.5, iPhone 16 Pro simulators. iOS 26's keys are
+/// flat, rounder and share one fill. The sizes are in `KeyLayout`.
 enum KeyMetrics {
-    static let keyHeight: CGFloat = 42
-    static let corner: CGFloat = 5
+    static let flat = KeyLayout.flat
+    static let corner: CGFloat = flat ? 8 : 5
+    static let shadow: Float = flat ? 0 : 0.35
     static let letterSize: CGFloat = 22
-    static let titleSize: CGFloat = 16
-    static let letterFill = UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 107.0 / 255, alpha: 1) : .white }
-    static let functionFill = UIColor {
+    static let titleSize: CGFloat = flat ? 18 : 16
+    static let letterFill = UIColor {
+        $0.userInterfaceStyle == .dark
+            ? UIColor(white: (flat ? 61.0 : 107.0) / 255, alpha: 1)
+            : .white
+    }
+    static let functionFill = flat ? letterFill : UIColor {
         $0.userInterfaceStyle == .dark
             ? UIColor(white: 75.0 / 255, alpha: 1)
             : UIColor(red: 169.0 / 255, green: 175.0 / 255, blue: 186.0 / 255, alpha: 1)
     }
+    /// A held key that shows no pop-up.
+    static let pressedFill = flat ? UIColor {
+        $0.userInterfaceStyle == .dark
+            ? UIColor(white: 125.0 / 255, alpha: 1)
+            : UIColor(red: 193.0 / 255, green: 193.0 / 255, blue: 198.0 / 255, alpha: 1)
+    } : functionFill
 }
 
 /// The next-keyboard key: a real control, because the system's
@@ -218,15 +270,16 @@ final class GlobeKey: UIButton {
     init() {
         super.init(frame: .zero)
         layer.cornerRadius = KeyMetrics.corner
+        layer.cornerCurve = .continuous
         layer.shadowColor = UIColor.black.cgColor
-        layer.shadowOpacity = 0.35
+        layer.shadowOpacity = KeyMetrics.shadow
         layer.shadowOffset = CGSize(width: 0, height: 1)
         layer.shadowRadius = 0
         backgroundColor = KeyMetrics.functionFill
         setImage(UIImage(systemName: "globe"), for: .normal)
         tintColor = .label
         accessibilityLabel = "Next keyboard"
-        heightConstraint = heightAnchor.constraint(equalToConstant: KeyMetrics.keyHeight)
+        heightConstraint = heightAnchor.constraint(equalToConstant: 42)
         heightConstraint.isActive = true
     }
 
@@ -235,7 +288,10 @@ final class GlobeKey: UIButton {
     }
 
     override var isHighlighted: Bool {
-        didSet { backgroundColor = isHighlighted ? KeyMetrics.letterFill : KeyMetrics.functionFill }
+        didSet {
+            let down = KeyMetrics.flat ? KeyMetrics.pressedFill : KeyMetrics.letterFill
+            backgroundColor = isHighlighted ? down : KeyMetrics.functionFill
+        }
     }
 }
 
@@ -293,6 +349,12 @@ final class KeyPad: UIView {
     override init(frame: CGRect) {
         super.init(frame: frame)
         isMultipleTouchEnabled = true
+    }
+
+    /// The keys can now go while Delete or Space is held.
+    deinit {
+        repeatTimer?.invalidate()
+        holdTimer?.invalidate()
     }
 
     required init?(coder: NSCoder) {
@@ -503,21 +565,42 @@ final class KeyPad: UIView {
 }
 
 /// The balloon over a held key: the key's own shape grown upward into a larger
-/// cap with the letter in it. One instance moves from key to key.
+/// cap with the letter in it. One instance moves from key to key. Its shape and
+/// timing are measured from the system keyboard's in iOS 18.5 and iOS 26.5
+/// simulators.
 final class KeyPopup: UIView {
     private let shape = CAShapeLayer()
     private let label = UILabel()
+    private var hideWork: DispatchWorkItem?
+
+    private static var flat: Bool {
+        if #available(iOS 26, *) { return true }
+        return false
+    }
+    /// Over the top of the key.
+    private static let rise: CGFloat = flat ? 66 : 64
+    /// From the middle of the letter to the top of the key.
+    private static let letterRise: CGFloat = flat ? 32.8 : 36.8
+    private var letterSize: CGFloat = 0
+    /// To each side of the key.
+    private static let grow: CGFloat = flat ? 12.3 : 13
+    /// The system's pop-up outlives the finger by about this much.
+    private static let linger: TimeInterval = 0.05
+    /// A little lighter than the keys in the dark on iOS 26.
+    private static let fill = UIColor {
+        guard flat, $0.userInterfaceStyle == .dark else { return KeyMetrics.letterFill.resolvedColor(with: $0) }
+        return UIColor(white: 84.0 / 255, alpha: 1)
+    }
 
     override init(frame: CGRect) {
         super.init(frame: frame)
         isUserInteractionEnabled = false
         layer.addSublayer(shape)
         shape.shadowColor = UIColor.black.cgColor
-        shape.shadowOpacity = 0.3
+        shape.shadowOpacity = Self.flat ? 0 : 0.3
         shape.shadowRadius = 3
         shape.shadowOffset = CGSize(width: 0, height: 1)
         label.textAlignment = .center
-        label.font = OldHangul.font(ofSize: 34)
         addSubview(label)
         isHidden = true
     }
@@ -527,55 +610,70 @@ final class KeyPopup: UIView {
     }
 
     /// Show `key`'s letter over `rect`, the key's frame in this view's
-    /// superview, kept within `bounds` of the keyboard.
+    /// superview, kept within `bounds` of the keyboard: a custom keyboard can draw
+    /// nowhere else, so over the top row its edge shortens the pop-up.
     func show(_ key: Key, over rect: CGRect, within outer: CGRect) {
+        hideWork?.cancel()
+        hideWork = nil
         CATransaction.begin()
         CATransaction.setDisableActions(true)
         frame = outer
-        // Measured from the system keyboard's pop-up on an iOS 18.5 simulator.
-        // Over the top row the keyboard's edge shortens it, since nothing can
-        // be drawn above that edge.
-        let grow: CGFloat = 13
-        let gap: CGFloat = 8
-        let bottom = rect.minY - gap
-        let top = max(bottom - 58, outer.minY)
-        var body = CGRect(x: rect.minX - grow, y: top, width: rect.width + 2 * grow, height: bottom - top)
+        let top = max(rect.minY - Self.rise, outer.minY)
+        var body = CGRect(x: rect.minX - Self.grow, y: top, width: rect.width + 2 * Self.grow, height: rect.minY - Self.shoulder - top)
         body.origin.x = min(max(body.minX, outer.minX + 1), outer.maxX - body.width - 1)
         let path = Self.path(body: body, key: rect)
         shape.path = path
         shape.shadowPath = path
-        shape.fillColor = KeyMetrics.letterFill.resolvedColor(with: traitCollection).cgColor
-        label.frame = body
+        shape.fillColor = Self.fill.resolvedColor(with: traitCollection).cgColor
+        // Where the edge shortens the pop-up, the letter sits in what is left, and
+        // in landscape shrinks to fit it.
+        let letterY = max(rect.minY - Self.letterRise, body.midY)
+        label.frame = CGRect(x: body.minX, y: letterY - 25, width: body.width, height: 50)
+        let size = min(37, body.height - 4)
+        if size != letterSize {
+            letterSize = size
+            label.font = OldHangul.font(ofSize: size)
+        }
         label.text = key.title
         isHidden = false
         CATransaction.commit()
     }
 
     func hide() {
-        isHidden = true
+        // Each move off the keys asks again; the first request's time stands.
+        guard hideWork == nil, !isHidden else { return }
+        let work = DispatchWorkItem { [weak self] in
+            self?.isHidden = true
+            self?.hideWork = nil
+        }
+        hideWork = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.linger, execute: work)
     }
 
-    /// A rounded body, a neck narrowing to the key, and the key's bottom.
+    /// From the bottom of the body's straight sides to the top of the key.
+    private static let shoulder: CGFloat = 14
+
+    /// A rounded body, a short shoulder narrowing to the key, and the key's bottom.
     private static func path(body b: CGRect, key k: CGRect) -> CGPath {
         let r: CGFloat = 10
         let kr = KeyMetrics.corner
-        let neck: CGFloat = 12
+        let end = k.minY - 3
         let p = UIBezierPath()
         p.move(to: CGPoint(x: b.minX + r, y: b.minY))
         p.addLine(to: CGPoint(x: b.maxX - r, y: b.minY))
         p.addQuadCurve(to: CGPoint(x: b.maxX, y: b.minY + r), controlPoint: CGPoint(x: b.maxX, y: b.minY))
-        p.addLine(to: CGPoint(x: b.maxX, y: b.maxY - neck))
-        p.addCurve(to: CGPoint(x: k.maxX, y: k.minY + neck),
-                   controlPoint1: CGPoint(x: b.maxX, y: b.maxY),
-                   controlPoint2: CGPoint(x: k.maxX, y: k.minY))
+        p.addLine(to: CGPoint(x: b.maxX, y: b.maxY))
+        p.addCurve(to: CGPoint(x: k.maxX, y: end),
+                   controlPoint1: CGPoint(x: b.maxX, y: b.maxY + 6),
+                   controlPoint2: CGPoint(x: k.maxX, y: end - 6))
         p.addLine(to: CGPoint(x: k.maxX, y: k.maxY - kr))
         p.addQuadCurve(to: CGPoint(x: k.maxX - kr, y: k.maxY), controlPoint: CGPoint(x: k.maxX, y: k.maxY))
         p.addLine(to: CGPoint(x: k.minX + kr, y: k.maxY))
         p.addQuadCurve(to: CGPoint(x: k.minX, y: k.maxY - kr), controlPoint: CGPoint(x: k.minX, y: k.maxY))
-        p.addLine(to: CGPoint(x: k.minX, y: k.minY + neck))
-        p.addCurve(to: CGPoint(x: b.minX, y: b.maxY - neck),
-                   controlPoint1: CGPoint(x: k.minX, y: k.minY),
-                   controlPoint2: CGPoint(x: b.minX, y: b.maxY))
+        p.addLine(to: CGPoint(x: k.minX, y: end))
+        p.addCurve(to: CGPoint(x: b.minX, y: b.maxY),
+                   controlPoint1: CGPoint(x: k.minX, y: end - 6),
+                   controlPoint2: CGPoint(x: b.minX, y: b.maxY + 6))
         p.addLine(to: CGPoint(x: b.minX, y: b.minY + r))
         p.addQuadCurve(to: CGPoint(x: b.minX + r, y: b.minY), controlPoint: CGPoint(x: b.minX, y: b.minY))
         p.close()

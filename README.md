@@ -21,6 +21,10 @@ Downloads are on [seokdok.mkpo.li/#install](https://seokdok.mkpo.li/#install).
 
 Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc cancels. A character with many homophones can be typed by its gloss: 살찔비, 비살찔 or 살찔 비 offer 肥. Settings live in `config.toml`: `%APPDATA%\seokdok\` on Windows, `~/Library/Application Support/seokdok/` on macOS, `~/.config/seokdok/` elsewhere. Your own rules and words go in `custom.json` beside it; the Customize section of the site exports one. A candidate you pick twice comes first for that reading; the picks stay on the device in `learned.tsv` beside `config.toml`, `input.learn = false` turns this off, and the settings have a button to forget them ([docs/learning.md](docs/learning.md)). On Windows, right-click the 釋 icon of the input indicator on the taskbar to switch between 釋, 混 and 한 and change frequent settings; `windows.menu_items` or the Taskbar menu page of the settings app choose what that menu shows. `windows.candidate_style` (`windows11`, `classic`) and `windows.candidate_theme` (`system`, `light`, `dark`), also on the Typing page of the settings app, set how the candidate window looks.
 
+## 音讀
+
+音讀 (Eumdok, 음독) is a second input method built from this repository, for 國漢文混用 only: Sino-Korean words in Hanja, native words and everything else in Hangul, with no 訓讀 in the candidates or the settings. It shares the engine, the dictionaries and the session with 釋讀 and installs beside it with its own identifiers and settings folder (`eumdok`). `products/<id>.json` holds what differs; `crates/seokdok-product` makes it available to Rust, where `--features eumdok` selects the product, and the build scripts of each front end read the same file.
+
 ## Mode keys
 
 There are three modes: 釋讀, plain 한글 and Latin. In 釋讀 mode the script is 釋讀, 國漢文混用 or 韓㐎 專用. The keys are the ones people know from the Korean tools on each platform, as far as the system lets an input method see them. They live in `[input.keys]` in `config.toml`, with defaults per platform; a modifier written alone means tapping it with no other key.
@@ -52,6 +56,7 @@ cargo run --release -p seokdok-cli -- add 즐기다 樂기다 verb
 ## Layout
 
 - `crates/seokdok-core`: the engine. Hangul is decomposed into jamo, and a lattice of Sino-Korean words, 訓讀 nouns with particles and 訓讀 stems with endings is searched for the cheapest analyses.
+- `crates/seokdok-product`: what tells 釋讀 and 音讀 apart, from `products/*.json`.
 - `crates/seokdok-session`: the platform-independent IME: keys, composition, candidates, learned picks, `config.toml` and `custom.json`.
 - `crates/seokdok-tsf`: the Windows IME (Text Services Framework) and its installer.
 - `crates/seokdok-fcitx5`: the fcitx5 addon. `build.sh` builds it, `e2e.sh` drives it through a private fcitx5 over D-Bus, `package.sh` stages the tarball.

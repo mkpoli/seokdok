@@ -44,6 +44,13 @@ two App IDs; neither Sideloadly nor
 [AltStore's FAQ](https://faq.altstore.io/altstore-classic/app-ids) gives the
 figure.
 
+音讀 and 釋讀 are separate apps with separate App IDs and App Groups. With a free
+Apple ID the two fill 2 of the 3 sideloaded slots if the extension does not take
+a slot of its own and go over them if it does; the sources do not settle this,
+so plan on keeping one of them. Installing both uses about 4 of the 10 App IDs
+of a week, and refreshing with the same Apple ID reuses them. Build 音讀 with
+`ios/build-rust.sh eumdok` and `ios/product.sh eumdok`.
+
 Sideloadly's documentation does not say how it treats App Groups. The app
 shows a note above its settings when its signature grants no shared container;
 the keyboard then runs on the defaults. The note cannot see the keyboard's
@@ -194,6 +201,12 @@ records this in the `simulator-screenshots` artifact). A simulator applies no
 such limit, and its figures differ from a device's, so this has to be tried on
 an iPhone. It lies inside the range of those published estimates, so a device
 may still end the keyboard.
+
+The process outlives the apps it serves, so whatever one appearance leaves behind
+adds up: an old controller's views are released when it goes. Over six launches
+of the app in focus the footprint held at 60-61 MB on iOS 26.5 and rose from 57 to
+59 MB on iOS 18.5 (`footprint`, simulator). A phone moving between different apps
+has not been measured.
 
 The engine alone peaks at about 44.5 MB, and the highest of 50 runs was
 44.6 MB (Linux, 2026-11-04, `VmHWM` from

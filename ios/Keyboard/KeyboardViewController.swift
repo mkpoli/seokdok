@@ -8,6 +8,7 @@ import UIKit
 final class KeyboardViewController: UIInputViewController {
     private var session: Session!
     private var keys: KeyboardView!
+    private var keysHeight: NSLayoutConstraint?
     private var shift = KeyboardState.Shift.off
     private var lastShiftTap = Date.distantPast
     /// The marked text this keyboard last wrote into the document, if any.
@@ -19,7 +20,7 @@ final class KeyboardViewController: UIInputViewController {
     /// Bumped whenever a composition ends or its field changes, so a delayed
     /// check for an earlier text change does nothing.
     private var checkGeneration = 0
-    /// What the focused field asks for; only `.standard` converts.
+    /// What the focused field asks for; only the Hangul layouts convert.
     private var layout = Layout.standard
     /// A long press on the mode key opened the bar's controls for what was
     /// learned. Without Full Access the app cannot reach this keyboard's files.
@@ -36,6 +37,14 @@ final class KeyboardViewController: UIInputViewController {
         #endif
     }
 
+    /// The system keeps each controller's input view alive after the controller
+    /// goes, in a keyboard process that outlives the apps it served. Without this,
+    /// every keys view stayed with it: about 3 MB more each time the app in focus
+    /// was launched again (`footprint` on an iOS 26.5 simulator).
+    deinit {
+        keys?.removeFromSuperview()
+    }
+
     override func viewDidLoad() {
         super.viewDidLoad()
         let dict = Bundle.main.bundleURL.appendingPathComponent("dict").path
@@ -48,6 +57,7 @@ final class KeyboardViewController: UIInputViewController {
         view.addSubview(keys)
         // As tall as the system keyboard with its suggestion bar.
         let height = keys.heightAnchor.constraint(equalToConstant: 261)
+        keysHeight = height
         // Below required, so it gives way to the system's own height while
         // the keyboard is being set up.
         height.priority = UILayoutPriority(999)
@@ -61,6 +71,18 @@ final class KeyboardViewController: UIInputViewController {
         if let globe = keys.globe {
             globe.addTarget(self, action: #selector(handleInputModeList(from:with:)), for: .allTouchEvents)
         }
+    }
+
+    /// The keys follow the width and the orientation, as the system's do.
+    override func viewWillLayoutSubviews() {
+        super.viewWillLayoutSubviews()
+        let width = view.bounds.width
+        // The table is the iPhone's; an iPad keeps the keys' first layout.
+        guard width > 0, UIDevice.current.userInterfaceIdiom == .phone else { return }
+        let screen = UIScreen.main.bounds.size
+        let layout = KeyLayout.current(width: width, landscape: screen.width > screen.height)
+        keysHeight?.constant = layout.height
+        keys.apply(layout, width: width)
     }
 
     /// The App Group container holding the app's settings. Reading it needs
@@ -77,7 +99,7 @@ final class KeyboardViewController: UIInputViewController {
     /// button clears them; a table already there wins.
     private func adoptOwnPicks(into group: String) {
         let manager = FileManager.default
-        let own = NSHomeDirectory() + "/.config/seokdok/learned.tsv"
+        let own = NSHomeDirectory() + "/.config/\(Product.dir)/learned.tsv"
         guard manager.fileExists(atPath: own) else { return }
         let shared = group + "/learned.tsv"
         if manager.fileExists(atPath: shared) {
@@ -177,7 +199,10 @@ final class KeyboardViewController: UIInputViewController {
         case .phonePad: return .phone
         case .emailAddress: return .email
         case .URL: return .url
-        case .asciiCapable, .namePhonePad: return .ascii
+        case .asciiCapable: return .ascii
+        case .numbersAndPunctuation: return .numbers
+        case .twitter: return .twitter
+        case .webSearch: return .web
         default: return .standard
         }
     }
@@ -306,6 +331,11 @@ extension KeyboardViewController: KeyboardViewDelegate {
             insert(String(ch))
         }
         apply()
+    }
+
+    func literal(_ text: String) {
+        dropForeignComposition()
+        insert(text)
     }
 
     func space() {

@@ -249,8 +249,6 @@ final class KeyPad: UIView {
     var onCursorBegin: (() -> Void)?
     /// The finger moved this many characters' worth.
     var onCursorMove: ((Int) -> Void)?
-    /// The finger moved this many lines' worth, negative going up.
-    var onCursorLine: ((Int) -> Void)?
     var onCursorEnd: (() -> Void)?
     /// The system's next-keyboard handling needs a real control.
     weak var passThrough: UIView?
@@ -268,7 +266,6 @@ final class KeyPad: UIView {
     /// The touch steering the caret, and what it has moved short of a character.
     private var cursorTouch: ObjectIdentifier?
     private var cursorX: CGFloat = 0
-    private var cursorY: CGFloat = 0
     private var cursorEnding: DispatchWorkItem?
     /// How far from a key a touch still belongs to it: wider than the widest
     /// gap between keys, narrower than a blank cell of the number pad. Our choice.
@@ -287,8 +284,6 @@ final class KeyPad: UIView {
     private static let cursorFadeOut: TimeInterval = 0.14
     private static let cursorLinger: TimeInterval = 0.5
     private static let cursorStep: CGFloat = 4
-    /// A vertical slide of this much is a line: 40 pt moved four lines.
-    private static let cursorLine: CGFloat = 10
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -315,6 +310,16 @@ final class KeyPad: UIView {
                 out.append(k)
             } else {
                 visibleKeys(in: v, into: &out)
+            }
+        }
+    }
+
+    private func allKeys(in view: UIView, into out: inout [Key]) {
+        for v in view.subviews {
+            if let k = v as? Key {
+                out.append(k)
+            } else {
+                allKeys(in: v, into: &out)
             }
         }
     }
@@ -372,11 +377,6 @@ final class KeyPad: UIView {
                 if steps != 0 {
                     cursorX += CGFloat(steps) * Self.cursorStep
                     onCursorMove?(steps)
-                }
-                let lines = Int((p.y - cursorY) / Self.cursorLine)
-                if lines != 0 {
-                    cursorY += CGFloat(lines) * Self.cursorLine
-                    onCursorLine?(lines)
                 }
                 continue
             }
@@ -460,7 +460,6 @@ final class KeyPad: UIView {
         }
         cursorTouch = id
         cursorX = p.x
-        cursorY = p.y
         setDimmed(true)
         onCursorBegin?()
     }
@@ -482,7 +481,8 @@ final class KeyPad: UIView {
 
     private func setDimmed(_ dimmed: Bool) {
         var keys: [Key] = []
-        visibleKeys(in: self, into: &keys)
+        // Hidden ones too: a field can change the layer during the fade's linger.
+        allKeys(in: self, into: &keys)
         UIView.animate(withDuration: dimmed ? Self.cursorFadeIn : Self.cursorFadeOut, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState]) {
             keys.forEach { $0.isDimmed = dimmed }
         }

@@ -16,8 +16,6 @@ protocol KeyboardViewDelegate: AnyObject {
     func beginCursor()
     /// Move the caret this many characters.
     func moveCursor(by steps: Int)
-    /// Move the caret this many lines, negative going up.
-    func moveCursor(lines: Int)
     func toggleLearnMenu()
     func forgetPicks()
     func setLearn(_ on: Bool)
@@ -159,7 +157,6 @@ final class KeyboardView: UIView {
             self?.delegate?.beginCursor()
         }
         keyPad.onCursorMove = { [weak self] steps in self?.delegate?.moveCursor(by: steps) }
-        keyPad.onCursorLine = { [weak self] lines in self?.delegate?.moveCursor(lines: lines) }
 
         letters.axis = .vertical
         letters.spacing = 12

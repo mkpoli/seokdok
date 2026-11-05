@@ -433,7 +433,7 @@ mod app {
         unsafe {
             let _ = SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
         }
-        std::env::set_var("SEOKDOK_CONFIG_DIR", out.join("config"));
+        std::env::set_var("SEOKDOK_CONFIG_DIR", out.canonicalize().expect("output directory").join("config"));
         let path = Config::path().expect("config path");
         let list = samples().remove(0);
         let doc = document(false);

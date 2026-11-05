@@ -480,39 +480,20 @@ const TAIL_ENDINGS: &[&str] = &[
     "듯", "는듯", "다란", "는거", "는건", "는것", "고는", "고도", "고만", "냐고", "지마", "지만요", "(으)ㄴ듯", "(으)ㄴ거",
     "(으)ㄴ건", "(으)ㄴ것", "(으)ㄹ지도", "(으)ㄹ수도", "(으)ㄹ때", "(으)나", "(으)려나",
 ];
+/// A particle or an ending inside a run, which is usually a misparse.
+const MID_WORD_COST: f32 = 8.0;
 /// Helper verbs typed onto a verb without a space (食고欲어요, 食어見았어요,
-/// 好지不ㅎ아), as the connective ending's label and the helper's first
-/// syllables in each form that occurs.
+/// 好지不ㅎ아): the connective ending's label and the stems that follow it.
 const HELPERS: &[(&str, &[&str])] = &[
-    ("고", &["싶", "있", "계시", "계셔", "계신", "계실"]),
-    ("지", &["않", "못", "말", "마", "맙"]),
-    (
-        "아/어",
-        &[
-            "보", "봐", "봤", "본", "볼", "봅", "주", "줘", "줬", "준", "줄", "줍", "버리", "버려", "버렸", "버린", "버릴", "있", "놓", "두", "둬", "뒀",
-            "둔", "둘", "드리", "드려", "드렸", "드린", "드릴",
-        ],
-    ),
+    ("고", &["싶", "있", "계시", "말"]),
+    ("지", &["않", "못하", "말"]),
+    ("아/어", &["보", "주", "버리", "있", "놓", "두", "드리", "가", "오", "치우"]),
 ];
-
 /// One-syllable stems that are more often the tail of another form than a verb
-/// before a helper: 했나 보네요, 살아 있죠, 이지 않고, 마지않는.
-const NOT_BEFORE_HELPER: &[&str] = &["아", "어", "나", "마", "여", "지", "다", "이", "라", "일"];
-
-/// Whether `rest` opens with a helper verb that follows the connective `label`.
-fn helper_follows(label: &str, stem: &[char], rest: &[char]) -> bool {
-    let connective = label.rsplit('+').next().unwrap_or("");
-    if NOT_BEFORE_HELPER.contains(&compose(stem).as_str()) {
-        return false;
-    }
-    HELPERS.iter().any(|(c, helpers)| {
-        *c == connective
-            && helpers.iter().any(|h| {
-                let h = crate::jamo::decompose(h);
-                rest.starts_with(&h) && rest.get(h.len()).is_none_or(|&next| is_l(next))
-            })
-    })
-}
+/// before a helper: 살아 있죠, 이지 않고, 마지않는.
+const NOT_BEFORE_HELPER: &[&str] = &["아", "어", "마", "여", "다", "이", "라"];
+/// The same inside a run: 했나 보네요.
+const NOT_BEFORE_HELPER_INSIDE: &[&str] = &["나", "지", "일"];
 
 /// Added to a pronoun plus particle that an editorial whole word also spells.
 const EDITORIAL_WORD_MARGIN: f32 = 2.5;
@@ -825,7 +806,7 @@ impl Engine {
         let n = comps.len();
         let boundary = |p: usize| p == n || is_l(comps[p]);
         // Particles and endings close a word: inside a run they are misparses.
-        let mid = |r: usize| if r == n { 0.0 } else { 8.0 };
+        let mid = |r: usize| if r == n { 0.0 } else { MID_WORD_COST };
         // Short copula forms after a vowel (라, 다, 고, 야 …) are as often the
         // end of an unknown word (나라, 바다) as a particle.
         let weak = |p: &Particle| {
@@ -1002,7 +983,7 @@ impl Engine {
                             edges.push(Edge {
                                 start: s,
                                 end: q,
-                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + if helper_follows(ending_label(ei as usize), &comps[s..q], &comps[q..]) { 0.0 } else { mid(q) },
+                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + mid(q),
                                 kind: Kind::Verb { entry: i, allo: a, ending: ei },
                             });
                         }
@@ -1020,13 +1001,17 @@ impl Engine {
                             edges.push(Edge {
                                 start: s,
                                 end: r,
-                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs + if helper_follows(label, &comps[s..q], &comps[r..]) { 0.0 } else { mid(r) } + archaic,
+                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs + mid(r) + archaic,
                                 kind: Kind::Verb { entry: i, allo: a, ending: ei },
                             });
                         }
                     }
                 }
             }
+        }
+        // A whole Sino-Korean word (가주어 假主語) keeps its reading.
+        if !self.sino.prefixes(comps, 0).into_iter().any(|(q, _)| q == n) {
+            self.allow_helpers(n, &mut edges);
         }
         if around.alone {
             self.alone_edges(comps, &mut edges);
@@ -1038,6 +1023,37 @@ impl Engine {
         self.prefer_editorial_word(comps, &mut edges);
         self.prefer_word_over_tail(comps, &mut edges);
         edges
+    }
+
+    /// A verb form whose connective ending leads straight into a helper verb
+    /// does not close the word, so it pays no mid-word cost.
+    fn allow_helpers(&self, n: usize, edges: &mut [Edge]) {
+        let mut helpers: Vec<Vec<usize>> = vec![Vec::new(); n + 1];
+        for e in edges.iter() {
+            if let Kind::Verb { entry, .. } = e.kind {
+                let stem = compose(&self.natives[entry as usize].stem);
+                for (c, stems) in HELPERS.iter().enumerate() {
+                    if stems.1.contains(&stem.as_str()) && !helpers[e.start].contains(&c) {
+                        helpers[e.start].push(c);
+                    }
+                }
+            }
+        }
+        for e in edges.iter_mut().filter(|e| e.end < n) {
+            let Kind::Verb { entry, allo, ending } = e.kind else { continue };
+            if ending == BARE || helpers[e.end].is_empty() {
+                continue;
+            }
+            let form = compose(&self.natives[entry as usize].allos[allo as usize].comps);
+            if NOT_BEFORE_HELPER.contains(&form.as_str()) || (e.start > 0 && NOT_BEFORE_HELPER_INSIDE.contains(&form.as_str())) {
+                continue;
+            }
+            let label = ending_label(ending as usize);
+            let connective = label.rsplit('+').next().unwrap_or("");
+            if helpers[e.end].iter().any(|&c| HELPERS[c].0 == connective) {
+                e.cost -= MID_WORD_COST;
+            }
+        }
     }
 
     /// Endings that end in a bound noun or a conjunction (는거, ㄴ듯, 고도, ㄹ때,

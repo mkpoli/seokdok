@@ -1,6 +1,6 @@
 <script>
   import { i18n, setLang, t, r, plain } from '../lib/i18n.svelte.js'
-  import { options } from '../lib/options.svelte.js'
+  import { options, saveOptions, showRubyPosition } from '../lib/options.svelte.js'
 
   // On a page other than the front page, `home` is '/' and the section links lead back to it.
   let { home = '' } = $props()
@@ -27,6 +27,12 @@
     try {
       localStorage.setItem('seokdok:theme', theme)
     } catch {}
+  }
+
+  function toggleRuby() {
+    options.rubyPosition = options.rubyPosition === 'right' ? 'above' : 'right'
+    showRubyPosition()
+    saveOptions()
   }
 
   // 한: Korean in 釋讀 with Hangul ruby. 韓: the same in Hanja only.
@@ -63,6 +69,9 @@
         <button aria-pressed={i18n.lang === code} onclick={() => setLang(code)} {lang}>{label}</button>
       {/each}
     </div>
+    <button class="theme ruby-side" class:right={options.rubyPosition === 'right'} onclick={toggleRuby} title={plain(options.rubyPosition === 'right' ? t().options.rubyRight : t().options.rubyAbove)} aria-label={plain(options.rubyPosition === 'right' ? t().options.rubyRight : t().options.rubyAbove)}>
+      <span aria-hidden="true"><b>字</b><small>자</small></span>
+    </button>
     <button class="theme" onclick={cycleTheme} title={plain(t().theme[theme])} aria-label={plain(t().theme[theme])}>
       {#if theme === 'light'}
         <svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="4.5" /><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8" /></svg>
@@ -104,7 +113,12 @@
     letter-spacing: 0.08em;
     color: var(--c-muted);
   }
+  /* The links scroll inside the space the logo and the tools leave. */
   nav {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
     display: flex;
     /* Links with and without ruby share one baseline (國漢文混用 drops some). */
     align-items: baseline;
@@ -112,6 +126,8 @@
     margin-right: auto;
   }
   nav a {
+    flex-shrink: 0;
+    white-space: nowrap;
     color: var(--c-soft);
     font-weight: 600;
     font-size: 14px;
@@ -119,6 +135,10 @@
   }
   nav a:hover {
     color: var(--c-accent);
+  }
+  .mark,
+  .tools {
+    flex-shrink: 0;
   }
   .tools {
     display: flex;
@@ -170,6 +190,22 @@
     fill: currentColor;
     stroke: none;
   }
+  .ruby-side span {
+    display: inline-flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    line-height: 1;
+  }
+  .ruby-side.right span {
+    flex-direction: row;
+    align-items: baseline;
+  }
+  .ruby-side b {
+    font: 700 15px/1 var(--f-serif);
+  }
+  .ruby-side small {
+    font: 600 8px/1 var(--f-sans);
+  }
   @media (max-width: 640px) {
     nav {
       display: none;
@@ -197,8 +233,21 @@
     .side :global(rt) {
       display: none;
     }
+    .tools {
+      gap: 4px;
+    }
     .tools :global(.seg button) {
-      padding: 0 var(--s-2);
+      padding: 0 6px;
+    }
+    .theme {
+      width: 30px;
+      height: 30px;
+    }
+  }
+  /* Too narrow for both labels; the switch still reads as 釋讀 on or off. */
+  @media (max-width: 380px) {
+    .side:first-child {
+      display: none;
     }
   }
 </style>

@@ -279,13 +279,14 @@ final class KeyPad: UIView {
     /// simulators: it begins about 0.45 s into a held press and fades in 0.07 s,
     /// and the keys stay faded for about half a second after the lift. A slow
     /// 32 pt slide moved the caret about 11 digits of a 17 pt font, so a step is
-    /// about 3 pt there; the system counts in text widths and this keyboard cannot
-    /// see them, so 3.5 pt per character falls between digits and Hangul.
+    /// about 3 pt there, and Hangul moved about 5 pt to a syllable; the system
+    /// counts in text widths and this keyboard cannot see them, so a character is
+    /// 4 pt whatever its width.
     private static let cursorHold: TimeInterval = 0.45
     private static let cursorFadeIn: TimeInterval = 0.07
     private static let cursorFadeOut: TimeInterval = 0.14
     private static let cursorLinger: TimeInterval = 0.5
-    private static let cursorStep: CGFloat = 3.5
+    private static let cursorStep: CGFloat = 4
     /// A vertical slide of this much is a line: 40 pt moved four lines.
     private static let cursorLine: CGFloat = 10
 

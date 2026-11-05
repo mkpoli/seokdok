@@ -369,29 +369,26 @@ extension KeyboardViewController: KeyboardViewDelegate {
         proxy.adjustTextPosition(byCharacterOffset: steps < 0 ? -units : units)
     }
 
-    /// Lines ended by a line break, keeping the column where the next line is long
-    /// enough. Lines the app wraps by itself are out of a keyboard's sight, and so
-    /// is text beyond what the proxy offers.
+    /// Lines ended by a line break. The proxy's context often stops at the line
+    /// break itself, so the column is kept only when it shows the next line, and
+    /// otherwise the caret lands at the near end of that line. Lines the app wraps
+    /// by itself are out of a keyboard's sight.
     func moveCursor(lines: Int) {
         let proxy = textDocumentProxy
-        for _ in 0..<abs(lines) {
-            let before = proxy.documentContextBeforeInput ?? ""
-            let after = proxy.documentContextAfterInput ?? ""
-            let column = before.reversed().prefix { !$0.isNewline }.count
-            if lines < 0 {
-                let restOfUpper = before.dropLast(column)
-                guard restOfUpper.last?.isNewline == true else { return }
-                let upper = restOfUpper.dropLast().reversed().prefix { !$0.isNewline }.count
-                let back = before.suffix(column + 1 + max(0, upper - column))
-                proxy.adjustTextPosition(byCharacterOffset: -back.utf16.count)
-            } else {
-                let tail = after.prefix { !$0.isNewline }
-                guard tail.count < after.count else { return }
-                let rest = after.dropFirst(tail.count + 1)
-                let lower = rest.prefix { !$0.isNewline }
-                let forward = after.prefix(tail.count + 1 + min(column, lower.count))
-                proxy.adjustTextPosition(byCharacterOffset: forward.utf16.count)
-            }
+        let before = proxy.documentContextBeforeInput ?? ""
+        let after = proxy.documentContextAfterInput ?? ""
+        let column = before.reversed().prefix { !$0.isNewline }.count
+        if lines < 0 {
+            let above = before.dropLast(column).dropLast()
+            let upper = above.reversed().prefix { !$0.isNewline }.count
+            let back = before.suffix(column + 1 + max(0, upper - column)).utf16.count
+            proxy.adjustTextPosition(byCharacterOffset: -(above.isEmpty ? before.suffix(column).utf16.count + 1 : back))
+        } else {
+            let tail = after.prefix { !$0.isNewline }
+            let rest = after.dropFirst(tail.count + 1)
+            let lower = rest.prefix { !$0.isNewline }
+            let forward = after.prefix(tail.count + 1 + min(column, lower.count)).utf16.count
+            proxy.adjustTextPosition(byCharacterOffset: rest.isEmpty ? tail.utf16.count + 1 : forward)
         }
     }
 

@@ -17,7 +17,7 @@ public sealed partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
-        Title = Ui.L("釋讀 設定", "Seokdok settings");
+        Title = Ui.L(Product.Hanja + " 設定", Product.Latin + " settings");
         BarTitle.Text = Title;
         ExtendsContentIntoTitleBar = true;
         SetTitleBar(Bar);
@@ -74,7 +74,7 @@ public sealed partial class MainWindow : Window
         }
         catch (Exception e) when (e is DllNotFoundException or EntryPointNotFoundException)
         {
-            Show(Ui.L("seokdok_ffi.dll을 찾지 못했습니다. 釋讀을 다시 設置해 주세요.", "seokdok_ffi.dll was not found. Please reinstall Seokdok."));
+            Show(Ui.L($"seokdok_ffi.dll을 찾지 못했습니다. {Product.Hanja}을 다시 設置해 주세요.", $"seokdok_ffi.dll was not found. Please reinstall {Product.Latin}."));
             Nav.IsEnabled = false;
             noLibrary = true;
             return;

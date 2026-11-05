@@ -6,54 +6,59 @@ import XCTest
 /// (.github/workflows/ios.yml sets that up). The positions fit iPhone 16-sized
 /// screens in portrait; `Geometry` holds them.
 final class KeyboardUITests: XCTestCase {
-    /// Keys by point offsets from the top of the keyboard, which is 261 pt high
-    /// with its top 336 pt above the bottom of an iPhone 16-sized window. The
-    /// bar is 45 pt, and key rows are 54 pt apart from y 54; letter keys have 6
-    /// between. Pad rows are 52.8 pt apart in three columns with 6 between.
+    /// Keys from `KeyLayout`, measured from the bottom of an iPhone 16-sized
+    /// window: the system's strip under the keyboard is 75 pt high, and its frame
+    /// reaches further up on iOS 26. Pad rows are 53.33 pt apart in three columns
+    /// with 6 between.
     private struct Geometry {
         let app: XCUIApplication
         var width: CGFloat { app.windows.firstMatch.frame.width }
         var height: CGFloat { app.windows.firstMatch.frame.height }
+        var l: KeyLayout { KeyLayout.current(width: width, landscape: false) }
+        var top: CGFloat { height - 75 - l.height }
+        /// The vertical centres of the four rows, from the keyboard's top.
+        func row(_ r: Int) -> CGFloat { l.firstRow + CGFloat(r) * l.rowPitch + l.keyHeight / 2 }
 
         func tap(x: CGFloat, y: CGFloat) {
-            let top = height - 336
             app.coordinate(withNormalizedOffset: CGVector(dx: x / width, dy: (top + y) / height)).tap()
             usleep(400_000)
         }
 
+        func at(_ ch: Character) -> CGPoint? {
+            let p = l.columnPitch(in: width)
+            let w = l.keyWidth(in: width)
+            if let c = Array("qwertyuiop").firstIndex(of: ch) {
+                return CGPoint(x: l.margin + CGFloat(c) * p + w / 2, y: row(0))
+            }
+            if let c = Array("asdfghjkl").firstIndex(of: ch) {
+                return CGPoint(x: l.margin + p / 2 + CGFloat(c) * p + w / 2, y: row(1))
+            }
+            if let c = Array("zxcvbnm").firstIndex(of: ch) {
+                let first = l.margin + l.edgeKeyWidth(in: width) + l.edgeGap
+                let span = width - 2 * first
+                let m = (span - 6 * l.gap) / 7
+                return CGPoint(x: first + CGFloat(c) * (m + l.gap) + m / 2, y: row(2))
+            }
+            return nil
+        }
+
         /// A letter by the QWERTY key that types it.
         func letter(_ ch: Character) {
-            let w = (width - 6 - 54) / 10
-            if let c = Array("qwertyuiop").firstIndex(of: ch) {
-                tap(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: 75)
-            } else if let c = Array("asdfghjkl").firstIndex(of: ch) {
-                tap(x: 3 + 21 + CGFloat(c) * (w + 6) + w / 2, y: 129)
-            } else if let c = Array("zxcvbnm").firstIndex(of: ch) {
-                let m = (width - 6 - 90 - 30 - 36) / 7
-                tap(x: 3 + 45 + 15 + CGFloat(c) * (m + 6) + m / 2, y: 183)
-            }
+            if let p = at(ch) { tap(x: p.x, y: p.y) }
         }
 
         /// Hold Space, then drag this far with the finger still down.
         func dragSpace(by dx: CGFloat) {
-            let top = height - 336
-            let y = (top + 237) / height
-            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: y))
-            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.55 + dx / width, dy: y))
+            let y = (top + row(3)) / height
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: y))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4 + dx / width, dy: y))
             start.press(forDuration: 0.9, thenDragTo: end, withVelocity: 60, thenHoldForDuration: 0.5)
             usleep(400_000)
         }
 
         /// Hold the letter for a while, for the screen recording.
         func hold(_ ch: Character, seconds: TimeInterval) {
-            let w = (width - 6 - 54) / 10
-            var at = CGPoint.zero
-            if let c = Array("qwertyuiop").firstIndex(of: ch) {
-                at = CGPoint(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: 75)
-            } else if let c = Array("asdfghjkl").firstIndex(of: ch) {
-                at = CGPoint(x: 3 + 21 + CGFloat(c) * (w + 6) + w / 2, y: 129)
-            }
-            let top = height - 336
+            guard let at = at(ch) else { return }
             app.coordinate(withNormalizedOffset: CGVector(dx: at.x / width, dy: (top + at.y) / height)).press(forDuration: seconds)
             usleep(300_000)
         }
@@ -63,29 +68,31 @@ final class KeyboardUITests: XCTestCase {
         }
 
         func delete() {
-            tap(x: width - 3 - 22.5, y: 183)
+            tap(x: width - l.margin - l.edgeKeyWidth(in: width) / 2, y: row(2))
         }
 
         func space() {
-            tap(x: width / 2, y: 237)
+            tap(x: width / 2, y: row(3))
         }
 
         func enter() {
-            tap(x: width - 3 - 47, y: 237)
+            tap(x: width - l.margin - l.bottomSlotWidth(in: width) / 2, y: row(3))
         }
 
-        /// Of the bottom row, with 123 and no mode key: an email field's @ and .
+        /// Of the bottom row, left of Return: an email field's @ and .
         func emailExtra(_ i: Int) {
-            tap(x: 3 + 46 + 6 + 20 + CGFloat(i) * 46, y: 237)
+            let right = width - l.margin - l.bottomSlotWidth(in: width) - l.gap
+            tap(x: right - l.keyWidth(in: width) / 2 - CGFloat(1 - i) * l.columnPitch(in: width), y: row(3))
         }
 
         /// The vertical centre of the candidate bar.
         var barCenter: CGFloat { 22 }
 
-        /// Pad key in column `c` (0-2) of row `r` (0-3 the grid, 4 the bottom row).
+        /// Pad key in column `c` (0-2) of row `r` (0-3): the pad is 216 pt high
+        /// over the same 75 pt strip, 45 pt lower than the letters' top.
         func pad(_ r: Int, _ c: Int) {
-            let w = (width - 6 - 12) / 3
-            tap(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: CGFloat(r) * 52.8 + 23.4)
+            let w = (width - 12 - 12) / 3
+            tap(x: 6 + CGFloat(c) * (w + 6) + w / 2, y: 45 + 6 + CGFloat(r) * 53.33 + 23.5)
         }
     }
 
@@ -208,6 +215,18 @@ final class KeyboardUITests: XCTestCase {
         assertText(field, "d@k.")
     }
 
+    /// Two Spaces after a word make a period and a space; not after punctuation.
+    func testTwoSpacesTypeAPeriod() throws {
+        let (app, field) = launch(kind: "email")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("a") }
+        g.space()
+        g.space()
+        assertText(field, "a. ")
+        g.space()
+        assertText(field, "a.  ")
+    }
+
     /// Hangul pending in one field must not be written into the next field.
     func testComposingThenFocusingAnotherFieldWritesNothingThere() throws {
         let (app, field) = launch(kind: "default", second: "email")
@@ -280,17 +299,24 @@ final class KeyboardUITests: XCTestCase {
         XCTAssertEqual(text(field).count, beforeL.count + 1, "the ㅣ key typed nothing")
         g.enter()
         sleep(1)
-        let w = (g.width - 6 - 54) / 10
-        let gapX = 3 + 21 + 7 * (w + 6) - 3
+        let pitch = g.l.columnPitch(in: g.width)
+        let gapX = g.l.margin + pitch / 2 + 7 * pitch - g.l.gap / 2
         let afterKey = text(field)
-        g.tap(x: gapX, y: 129)
+        g.tap(x: gapX, y: g.row(1))
         sleep(1)
         shot("gap-column")
         XCTAssertEqual(text(field).count, afterKey.count + 1, "a tap in the gap between two keys typed nothing")
         g.enter()
         sleep(1)
+        // The margin left of ㅁ.
+        let beforeMargin = text(field)
+        g.tap(x: 2, y: 129)
+        sleep(1)
+        XCTAssertEqual(text(field).count, beforeMargin.count + 1, "a tap in the row's margin typed nothing")
+        g.enter()
+        sleep(1)
         let afterColumn = text(field)
-        g.tap(x: g.width / 2, y: 102)
+        g.tap(x: g.width / 2, y: g.row(0) + g.l.rowPitch / 2)
         sleep(1)
         shot("gap-row")
         XCTAssertEqual(text(field).count, afterColumn.count + 1, "a tap in the gap between two rows typed nothing")
@@ -304,8 +330,8 @@ final class KeyboardUITests: XCTestCase {
         tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
         g.delete()
         sleep(1)
-        let top = g.height - 336
-        app.coordinate(withNormalizedOffset: CGVector(dx: 78 / g.width, dy: (top + 237) / g.height)).press(forDuration: 1)
+        let modeX = g.l.margin + (g.l.bottomSlotWidth(in: g.width) - g.l.gap) * 0.75 + g.l.gap
+        app.coordinate(withNormalizedOffset: CGVector(dx: modeX / g.width, dy: (g.top + g.row(3)) / g.height)).press(forDuration: 1)
         sleep(1)
         shot("learn-controls")
     }
@@ -497,19 +523,24 @@ final class KeyboardUITests: XCTestCase {
         // The steps the app gives, followed in Settings itself.
         settings.terminate()
         settings.launch()
-        sleep(3)
-        settings.staticTexts["General"].firstMatch.tap()
-        sleep(1)
+        // Settings can take many seconds to bring up a page on a busy runner, so each
+        // step waits for what it taps. A fixed pause made this test fail now and then.
+        func tapWhenThere(_ element: XCUIElement, _ name: String) {
+            XCTAssertTrue(element.waitForExistence(timeout: 30), "\(name) is not in Settings")
+            element.tap()
+            sleep(1)
+        }
+        tapWhenThere(settings.staticTexts["General"].firstMatch, "General")
+        let keyboard = settings.staticTexts["Keyboard"].firstMatch
+        XCTAssertTrue(keyboard.waitForExistence(timeout: 30), "Keyboard is not in Settings")
         shot("settings-general")
-        settings.staticTexts["Keyboard"].firstMatch.tap()
-        sleep(2)
+        tapWhenThere(keyboard, "Keyboard")
         // The page and its first row are both called Keyboards.
-        settings.cells.containing(.staticText, identifier: "Keyboards").firstMatch.tap()
-        sleep(2)
-        shot("settings-keyboards")
+        tapWhenThere(settings.cells.containing(.staticText, identifier: "Keyboards").firstMatch, "Keyboards")
         let add = settings.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Add New Keyboard'")).firstMatch
-        XCTAssertTrue(add.waitForExistence(timeout: 5), "the step the app gives is not in Settings")
-        add.tap()
+        XCTAssertTrue(add.waitForExistence(timeout: 30), "the step the app gives is not in Settings")
+        shot("settings-keyboards")
+        tapWhenThere(add, "the step the app gives")
         sleep(2)
         shot("settings-add-keyboard")
         settings.terminate()

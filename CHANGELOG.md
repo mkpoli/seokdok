@@ -2,6 +2,20 @@
 
 Changes that people typing or reading with 釋讀 can notice, by the date they reached `main`. The site follows `main`. Installers follow when they are next rebuilt, so a download can be behind the newest entry. Every commit is in `git log`.
 
+## 2026-11-06
+
+### Conversion
+- Numerals typed as their own word rank high: 삼 and 세 give 三, 이 and 사 offer 二 and 四 second, and 세 사람 gives 三 人, 오 분 gives 五 分.
+
+### Site
+- The site honours the hand-set homophone choices it had been dropping: 구사 驅使, 의자 椅子, 지도 地圖.
+
+### Windows
+- The candidate window can look like Windows 11 or the classic square list of Windows 10 and earlier, and can follow the system or stay light or dark. Both are in the settings app and `config.toml`, and apply at the next key.
+
+### iOS and macOS
+- The site offers the macOS input method as a zip and the iOS app as an IPA, so neither needs Xcode.
+
 ## 2026-11-05
 
 ### Conversion
@@ -18,6 +32,7 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 - The common word comes first across homophones: 음성 音聲, 신상 身上, 기물 器物, 진사 進士, 지도 地圖, 책 冊, 고수 高手, 빈도 頻度.
 - Spellings the chat writes most lead: 感謝합니다, 主로, 故로, 乃終에, 例를, 房에, 點이, 式으로, 外에, 妙한. 거예요 stays Hangul first.
 - 눈썹 gives 眉.
+- A whole loanword is not cut into pieces: 버그를 no longer offers 버其를.
 - 나 gives 我 first.
 - Native place names from a 1900s gazetteer.
 

@@ -299,6 +299,32 @@ fn november_chat_spellings_lead() {
 }
 
 #[test]
+fn a_loanword_is_not_cut_into_pieces() {
+    let e = engine();
+    for word in ["버그를", "버그", "서버를", "키보드를", "컴퓨터를"] {
+        let list = e.convert(word);
+        assert_eq!(list[0].text, word);
+        let mixed = list.iter().find(|c| c.text.chars().any(|ch| ('\u{4E00}'..='\u{9FFF}').contains(&ch)) && c.text.chars().any(|ch| ('가'..='힣').contains(&ch)) && !c.text.ends_with(['를', '가', '는']));
+        assert!(mixed.is_none(), "{word}: {mixed:?}");
+    }
+    // A Sino-Korean word with the same letters stays on offer.
+    offers(&[("파일을", "八日을")]);
+}
+
+#[test]
+fn numerals_read_as_numerals() {
+    first(&[
+        ("세", "三"), ("삼", "三"), ("육", "六"), ("칠", "七"), ("팔", "八"), ("구", "九"), ("십", "十"), ("백", "百"), ("천", "千"), ("억", "億"), ("열", "十"),
+        ("세 사람", "三 人"), ("네 사람", "四 人"), ("두 사람", "二 人"), ("세 번", "三 番"), ("네 번이", "四 番이"), ("오 년", "五 年"), ("이 월", "二 月"), ("오 분", "五 分"), ("칠 일", "七 日"), ("세 개", "三 個"), ("세 가지", "三 가지"), ("세 분", "三 분"),
+    ]);
+    // Words of their own stay: this, to buy, to come, you, and any longer form.
+    first(&[("이", "此"), ("사", "買"), ("오", "來"), ("네", "汝ㅣ"), ("네 말", "汝ㅣ 言"), ("이 사람", "此 人"), ("세요", "強요"), ("삼을", "作을"), ("세상", "世上"), ("삼십", "三十")]);
+    for (word, hanja) in [("이", "二"), ("사", "四"), ("오", "五"), ("네", "四"), ("두", "二"), ("일", "一"), ("만", "萬")] {
+        assert_eq!(engine().convert(word)[1].text, hanja, "{word}");
+    }
+}
+
+#[test]
 fn contractions_stay() {
     first(&[("전", "自ㄴ"), ("뭔가", "何ㅓㄴ가"), ("무언가", "何ㄴ가"), ("날", "我ㄹ")]);
 }

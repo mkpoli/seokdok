@@ -482,6 +482,21 @@ const TAIL_ENDINGS: &[&str] = &[
     "듯요", "는듯요", "는것도", "는줄", "는지도", "긴한데", "긴하지만", "긴해요", "긴하네요", "긴합니다", "긴했는데", "긴했어요", "긴했지만", "는것은", "는것을", "는것이", "(으)ㄴ것은", "(으)ㄴ것을", "(으)ㄴ것이", "(으)ㄴ지도", "(으)ㄴ듯요", "(으)ㄹ듯요",
     "(으)ㄴ것도", "(으)ㄹ것도", "(으)ㄴ줄", "(으)ㄹ줄",
 ];
+/// A particle or an ending inside a run, which is usually a misparse.
+const MID_WORD_COST: f32 = 8.0;
+/// Helper verbs typed onto a verb without a space (食고欲어요, 食어見았어요,
+/// 好지不ㅎ아): the connective ending's label and the stems that follow it.
+const HELPERS: &[(&str, &[&str])] = &[
+    ("고", &["싶", "있", "계시", "말"]),
+    ("지", &["않", "못하", "말"]),
+    ("아/어", &["보", "주", "버리", "있", "놓", "두", "드리", "가", "오", "치우"]),
+];
+/// One-syllable stems that are more often the tail of another form than a verb
+/// before a helper: 살아 있죠, 이지 않고, 마지않는.
+const NOT_BEFORE_HELPER: &[&str] = &["아", "어", "마", "여", "다", "이", "라"];
+/// The same inside a run: 했나 보네요.
+const NOT_BEFORE_HELPER_INSIDE: &[&str] = &["나", "지", "일"];
+
 /// Added to a pronoun plus particle that an editorial whole word also spells.
 const EDITORIAL_WORD_MARGIN: f32 = 2.5;
 /// A loanword kept in Hangul (loanwords.tsv); cheaper than its Hanja homophones.
@@ -793,7 +808,7 @@ impl Engine {
         let n = comps.len();
         let boundary = |p: usize| p == n || is_l(comps[p]);
         // Particles and endings close a word: inside a run they are misparses.
-        let mid = |r: usize| if r == n { 0.0 } else { 8.0 };
+        let mid = |r: usize| if r == n { 0.0 } else { MID_WORD_COST };
         // Short copula forms after a vowel (라, 다, 고, 야 …) are as often the
         // end of an unknown word (나라, 바다) as a particle.
         let weak = |p: &Particle| {
@@ -996,6 +1011,10 @@ impl Engine {
                 }
             }
         }
+        // A whole Sino-Korean word (가주어 假主語) keeps its reading.
+        if !self.sino.prefixes(comps, 0).into_iter().any(|(q, _)| q == n) {
+            self.allow_helpers(n, &mut edges);
+        }
         if around.alone {
             self.alone_edges(comps, &mut edges);
         }
@@ -1006,6 +1025,37 @@ impl Engine {
         self.prefer_editorial_word(comps, &mut edges);
         self.prefer_word_over_tail(comps, &mut edges);
         edges
+    }
+
+    /// A verb form whose connective ending leads straight into a helper verb
+    /// does not close the word, so it pays no mid-word cost.
+    fn allow_helpers(&self, n: usize, edges: &mut [Edge]) {
+        let mut helpers: Vec<Vec<usize>> = vec![Vec::new(); n + 1];
+        for e in edges.iter() {
+            if let Kind::Verb { entry, .. } = e.kind {
+                let stem = compose(&self.natives[entry as usize].stem);
+                for (c, stems) in HELPERS.iter().enumerate() {
+                    if stems.1.contains(&stem.as_str()) && !helpers[e.start].contains(&c) {
+                        helpers[e.start].push(c);
+                    }
+                }
+            }
+        }
+        for e in edges.iter_mut().filter(|e| e.end < n) {
+            let Kind::Verb { entry, allo, ending } = e.kind else { continue };
+            if ending == BARE || helpers[e.end].is_empty() {
+                continue;
+            }
+            let form = compose(&self.natives[entry as usize].allos[allo as usize].comps);
+            if NOT_BEFORE_HELPER.contains(&form.as_str()) || (e.start > 0 && NOT_BEFORE_HELPER_INSIDE.contains(&form.as_str())) {
+                continue;
+            }
+            let label = ending_label(ending as usize);
+            let connective = label.rsplit('+').next().unwrap_or("");
+            if helpers[e.end].iter().any(|&c| HELPERS[c].0 == connective) {
+                e.cost -= MID_WORD_COST;
+            }
+        }
     }
 
     /// Endings that end in a bound noun or a conjunction (는거, ㄴ듯, 고도, ㄹ때,

@@ -8,8 +8,8 @@ tmp="$(mktemp -d)"
 trap 'rm -rf "$tmp"' EXIT
 
 mkdir -p "$tmp/data/fcitx5/addon" "$tmp/data/fcitx5/inputmethod" "$tmp/config/fcitx5" "$tmp/data/seokdok"
-sed "s|^Library=.*|Library=$root/target/fcitx5/libseokdok|" "$here/addon/seokdok-addon.conf" >"$tmp/data/fcitx5/addon/seokdok.conf"
-cp "$here/addon/seokdok-im.conf" "$tmp/data/fcitx5/inputmethod/seokdok.conf"
+"$here/conf.sh" seokdok addon | sed "s|^Library=.*|Library=$root/target/fcitx5/libseokdok|" >"$tmp/data/fcitx5/addon/seokdok.conf"
+"$here/conf.sh" seokdok im >"$tmp/data/fcitx5/inputmethod/seokdok.conf"
 ln -s "$root/dict" "$tmp/data/seokdok/dict"
 cat > "$tmp/config/fcitx5/profile" <<'PROFILE'
 [Groups/0]

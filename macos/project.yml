@@ -1,6 +1,7 @@
-# XcodeGen spec: `brew install xcodegen && cd macos && xcodegen` writes
-# Seokdok.xcodeproj. Run macos/build-rust.sh first for build/lib and
-# build/include.
+# XcodeGen spec: `brew install xcodegen && macos/product.sh` writes
+# Seokdok.xcodeproj; `macos/product.sh eumdok` writes it for 音讀, from this file
+# with the values of products/eumdok.json. Run macos/build-rust.sh with the same
+# product first for build/lib and build/include.
 name: Seokdok
 options:
   bundleIdPrefix: li.mkpo

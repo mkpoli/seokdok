@@ -5,7 +5,7 @@ import SINO from './sino-chars.json'
 import pages from './pages.js'
 
 const ko = {
-  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '{個言|낱말}', convert: '{變換|변환}', old: '{古|예}ㅅ{韓㐎|한글}', install: '{設置|설치}', join: '{會|모임}' },
+  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '{個言|낱말}', convert: '{變換|변환}', old: '{古|예}ㅅ{韓㐎|한글}', install: '{設置|설치}', eumdok: '{音讀|음독}', join: '{會|모임}' },
   theme: { light: '{明|밝}게', dark: '{暗|어둡}게', auto: '{自動|자동}' },
   hero: {
     kicker: '{釋讀會|풀어읽기모임} {御製|어제}',
@@ -276,6 +276,29 @@ const ko = {
     where: '{置|두}는 {處|곳}',
     note: '{同|같}은 {處|곳}의 config.toml에서 {設定|설정}을 {變|바꾸}ㅂ니다. {入力器|입력기}를 {變|바꾸}었다가 {返|돌아}오면 {再|다시} {讀|읽}습니다.',
   },
+  eumdok: {
+    eyebrow: '{派生|파생} {入力器|입력기}',
+    title: '{音讀|음독}: {國漢文混用|국한문혼용} {專用|전용}',
+    lede: '{漢字語|한자어}는 {漢字|한자}로, {固有語|고유어}와 {其他|기타} {全部|전부}는 {韓㐎|한글}로 {書|쓰}ㅂ니다. {訓讀|훈독}은 {候補|후보}에도 {出|나오}지 {不|안}ㅎ습니다. {釋讀|석독}과 {同|같}은 엔진과 {辭典|사전}을 {用|쓰}는 {別途|별도}의 {入力器|입력기}입니다.',
+    typed: '{打|치}ㄴ {文|글}',
+    seokdok: '{釋讀|석독}',
+    eumdok: '{音讀|음독}',
+    switchTitle: '{釋讀|석독}의 {文字|문자} {轉換|전환}과 {何|무엇}이 {異|다르}ㄴ가',
+    switchBody: '{釋讀|석독} {入力器|입력기}의 {文字|문자} {轉換|전환}은 {釋|석} → {混|혼} → 한을 {轉換|전환}합니다. {混|혼}에서 {變換|변환} {結果|결과}는 {音讀|음독} {入力器|입력기}와 {同|같}습니다. {音讀|음독}은 {此|이} {混|혼}만 {必要|필요}한 {人|분}을 {爲|위}한 {入力器|입력기}로, {設定|설정}에 {訓讀|훈독} {項目|항목}이 {無|없}고 {釋讀|석독}으로 {轉換|전환}되지 {不|안}ㅎ습니다.',
+    rows: [
+      ['{文字|문자} {轉換|전환} 키', '{釋|석} → {混|혼} → 한', '{混|혼} ↔ 한'],
+      ['{訓讀|훈독} {候補|후보}', '{有|있}음', '{無|없}음'],
+      ['{訓讀|훈독} {表記|표기} {設定|설정}', '{有|있}음', '{無|없}음'],
+      ['{設定|설정}과 {學習|학습} 폴더', 'seokdok', 'eumdok'],
+    ],
+    downloadTitle: '{下|내}려{受|받}기',
+    side: '{釋讀|석독}과 {一|한} {機器|기기}에 {共|함께} {設置|설치}할 {手|수} {有|있}습니다. {設定|설정}과 {學習|학습}은 {各各|각각} {別途|따로} {貯藏|저장}됩니다.',
+    soon: '{音讀|음독} {設置|설치} 파일은 {尙|아직} {配布|배포}되지 {不|안}ㅎ았습니다.',
+    windows: '{實行|실행}한 {後|뒤} Win+Space로 {音讀|음독}을 {選|고르}ㅂ니다.',
+    linux: 'install.sh를 {實行|실행}하고 fcitx5를 {再|다시} {始作|시작}한 {後|뒤}, fcitx5-configtool에서 {音讀|음독}을 {加|더}합니다.',
+    android: '{設置|설치}한 {後|뒤} {音讀|음독} 앱을 {開|열}고 키보드를 {點|켜}ㅂ니다.',
+    apple: 'iOS와 macOS는 소스에서 빌드합니다. 무료 Apple ID로 사이드로딩하면 앱을 {同時|동시}에 {三|세} {個|개}까지 {用|쓰}ㄹ {手|수} {有|있}으므로, {音讀|음독}과 {釋讀|석독}을 {共|함께} {置|두}기 {難|어려}울 {手|수} {有|있}습니다.',
+  },
   footer: {
     sources: '{辭典|사전}과 {出處|출처}',
     suggested: '{機械|기계} {提案|제안}: {言語|언어} 모델이 {意|뜻}으로 {附|붙}인 {漢字|한자}, {人|사람}이 {檢討|검토}하지 {不|안}ㅎ음',
@@ -287,7 +310,7 @@ const ko = {
 }
 
 const en = {
-  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', convert: 'Convert', old: 'Old Hangul', install: 'Install', join: 'Group' },
+  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', convert: 'Convert', old: 'Old Hangul', install: 'Install', eumdok: '音讀', join: 'Group' },
   theme: { light: 'Light', dark: 'Dark', auto: 'Auto' },
   hero: {
     kicker: '釋讀會 御製',
@@ -557,6 +580,29 @@ const en = {
     custom: 'For your own rules and words, download the JSON from Share under Customize above and save it as custom.json.',
     where: 'Location',
     note: 'Settings live in config.toml in the same folder. Switch input method away and back to reload.',
+  },
+  eumdok: {
+    eyebrow: 'Sister input method',
+    title: '音讀 (Eumdok): 國漢文混用 only',
+    lede: 'Sino-Korean words in Hanja, native words and everything else in Hangul. 訓讀 never appears, not even among the candidates. It is a separate input method on the same engine and dictionaries as 釋讀.',
+    typed: 'Typed',
+    seokdok: '釋讀',
+    eumdok: '音讀',
+    switchTitle: 'How it differs from the switch in 釋讀',
+    switchBody: 'The script switch in the 釋讀 input method goes 釋 → 混 → 한. In 混 it converts exactly as 音讀 does. 音讀 is for people who only want 混: its settings have no 訓讀 options, and it cannot switch to 釋讀.',
+    rows: [
+      ['Script key', '釋 → 混 → 한', '混 ↔ 한'],
+      ['訓讀 candidates', 'Yes', 'None'],
+      ['訓讀 spelling settings', 'Yes', 'None'],
+      ['Settings and learning folder', 'seokdok', 'eumdok'],
+    ],
+    downloadTitle: 'Download',
+    side: 'It installs beside 釋讀 on one machine. Each keeps its own settings and learned picks.',
+    soon: 'The 音讀 installers have not been released yet.',
+    windows: 'Run the setup, then pick 音讀 with Win+Space.',
+    linux: 'Run install.sh, restart fcitx5, then add 音讀 in fcitx5-configtool.',
+    android: 'Install it, open the 音讀 app and turn the keyboard on.',
+    apple: 'iOS and macOS build from source. Sideloading with a free Apple ID allows three apps at a time, so keeping both 音讀 and 釋讀 may not fit.',
   },
   footer: {
     suggested: 'Machine suggestions: Hanja assigned by meaning by a language model, not reviewed by a person',

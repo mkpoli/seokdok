@@ -480,6 +480,40 @@ const TAIL_ENDINGS: &[&str] = &[
     "듯", "는듯", "다란", "는거", "는건", "는것", "고는", "고도", "고만", "냐고", "지마", "지만요", "(으)ㄴ듯", "(으)ㄴ거",
     "(으)ㄴ건", "(으)ㄴ것", "(으)ㄹ지도", "(으)ㄹ수도", "(으)ㄹ때", "(으)나", "(으)려나",
 ];
+/// Helper verbs typed onto a verb without a space (食고欲어요, 食어見았어요,
+/// 好지不ㅎ아), as the connective ending's label and the helper's first
+/// syllables in each form that occurs.
+const HELPERS: &[(&str, &[&str])] = &[
+    ("고", &["싶", "있", "계시", "계셔", "계신", "계실"]),
+    ("지", &["않", "못", "말", "마", "맙"]),
+    (
+        "아/어",
+        &[
+            "보", "봐", "봤", "본", "볼", "봅", "주", "줘", "줬", "준", "줄", "줍", "버리", "버려", "버렸", "버린", "버릴", "있", "놓", "두", "둬", "뒀",
+            "둔", "둘", "드리", "드려", "드렸", "드린", "드릴",
+        ],
+    ),
+];
+
+/// One-syllable stems that are more often the tail of another form than a verb
+/// before a helper: 했나 보네요, 살아 있죠, 이지 않고, 마지않는.
+const NOT_BEFORE_HELPER: &[&str] = &["아", "어", "나", "마", "여", "지", "다", "이", "라", "일"];
+
+/// Whether `rest` opens with a helper verb that follows the connective `label`.
+fn helper_follows(label: &str, stem: &[char], rest: &[char]) -> bool {
+    let connective = label.rsplit('+').next().unwrap_or("");
+    if NOT_BEFORE_HELPER.contains(&compose(stem).as_str()) {
+        return false;
+    }
+    HELPERS.iter().any(|(c, helpers)| {
+        *c == connective
+            && helpers.iter().any(|h| {
+                let h = crate::jamo::decompose(h);
+                rest.starts_with(&h) && rest.get(h.len()).is_none_or(|&next| is_l(next))
+            })
+    })
+}
+
 /// Added to a pronoun plus particle that an editorial whole word also spells.
 const EDITORIAL_WORD_MARGIN: f32 = 2.5;
 /// A loanword kept in Hangul (loanwords.tsv); cheaper than its Hanja homophones.
@@ -968,7 +1002,7 @@ impl Engine {
                             edges.push(Edge {
                                 start: s,
                                 end: q,
-                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + mid(q),
+                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + if helper_follows(ending_label(ei as usize), &comps[s..q], &comps[q..]) { 0.0 } else { mid(q) },
                                 kind: Kind::Verb { entry: i, allo: a, ending: ei },
                             });
                         }
@@ -986,7 +1020,7 @@ impl Engine {
                             edges.push(Edge {
                                 start: s,
                                 end: r,
-                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs + mid(r) + archaic,
+                                cost: EDGE_COST + self.native_cost(entry) + 0.1 + 0.8 * morphs + if helper_follows(label, &comps[s..q], &comps[r..]) { 0.0 } else { mid(r) } + archaic,
                                 kind: Kind::Verb { entry: i, allo: a, ending: ei },
                             });
                         }

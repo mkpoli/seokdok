@@ -164,6 +164,17 @@ fn an_adverbial_ending_takes_a_particle() {
 }
 
 #[test]
+fn a_helper_verb_runs_on_from_a_connective() {
+    first(&[
+        ("보고싶어요", "見고欲어요"), ("먹고싶은", "食고欲은"), ("보고있어요", "見고有어요"), ("하고있어요", "하고有어요"),
+        ("먹지않아", "食지不ㅎ아"), ("하지않아", "하지不ㅎ아"), ("먹어봤어요", "食어見ㅆ어요"), ("써보세요", "書見세요"),
+        ("해주세요", "해授세요"), ("적어놓은", "記어置은"),
+    ]);
+    // The same letters elsewhere stay as they were.
+    first(&[("보고", "見고"), ("마중물", "마중물"), ("했나보네요", "했나보네요"), ("해놨어", "해놨어"), ("지도", "指導")]);
+}
+
+#[test]
 fn words_that_look_like_a_loanword_or_an_ending_keep_their_reading() {
     // 올리고 and 알리고 are verb forms, not the loanwords oligo- and Aligot.
     first(&[("올리고", "昇고"), ("알리고", "告리고"), ("가자", "去자"), ("그러나", "其러나")]);

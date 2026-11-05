@@ -43,7 +43,7 @@
       req: 'macOS 13+, Apple silicon · Intel',
       file: downloads.macos.file,
       size: downloads.macos.size,
-      run: `mkdir -p ~/Library/Input\\ Methods\nditto -xk ~/Downloads/${downloads.macos.file} ~/Library/Input\\ Methods\nxattr -dr com.apple.quarantine ~/Library/Input\\ Methods/Seokdok.app\n~/Library/Input\\ Methods/Seokdok.app/Contents/MacOS/Seokdok --register`,
+      run: `mkdir -p ~/Library/Input\\ Methods && cd ~/Library/Input\\ Methods\nditto -xk ~/Downloads/${downloads.macos.file} .\nxattr -dr com.apple.quarantine Seokdok.app\nSeokdok.app/Contents/MacOS/Seokdok --register`,
       system: null,
       remove: 'rm -rf ~/Library/Input\\ Methods/Seokdok.app',
       where: '~/Library/Application Support/seokdok/custom.json',

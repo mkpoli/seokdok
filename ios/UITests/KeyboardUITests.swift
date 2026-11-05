@@ -297,6 +297,27 @@ final class KeyboardUITests: XCTestCase {
         g.enter()
     }
 
+    /// A held key offers its Shift letter, the old ones too: ㅁ and ㅿ share a key.
+    func testLongPressOffersTheOtherLetter() throws {
+        let (app, field) = launch(kind: "default")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("d") }
+        g.delete()
+        assertText(field, "")
+        g.hold("q", seconds: 1) // ㅂ alone, since the finger stays on it
+        sleep(1)
+        shot("alternates-chosen")
+        assertText(field, "ㅂ")
+        g.delete()
+        // Slide along the tray to ㅃ, right of the key.
+        let top = g.height - 336
+        let w = (g.width - 6 - 54) / 10
+        let start = app.coordinate(withNormalizedOffset: CGVector(dx: (3 + w / 2) / g.width, dy: (top + 75) / g.height))
+        let end = app.coordinate(withNormalizedOffset: CGVector(dx: (3 + w / 2 + 40) / g.width, dy: (top + 75) / g.height))
+        start.press(forDuration: 0.7, thenDragTo: end, withVelocity: 60, thenHoldForDuration: 0.2)
+        assertText(field, "ㅃ", "the tray's other letter was not typed")
+    }
+
     /// Holding the 釋 key offers to forget what was learned, in the bar.
     func testHoldingTheModeKeyShowsLearnControls() throws {
         let (app, field) = launch(kind: "default")

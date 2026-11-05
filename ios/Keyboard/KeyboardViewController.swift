@@ -291,6 +291,14 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
+    func letterFlipped(_ key: Character) {
+        let was = shift
+        shift = was == .off ? .once : .off
+        letter(key)
+        if was == .locked { shift = .locked }
+        refresh()
+    }
+
     func symbol(_ ch: Character) {
         dropForeignComposition()
         guard layout.converts else {

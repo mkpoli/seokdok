@@ -17,6 +17,12 @@ final class Key: UIView {
     var repeats = false
     /// Show the pop-up preview while held.
     var previews = false
+    /// What a long press offers, in order; `action` still types the key itself,
+    /// which stands at `alternatesMain`. Empty offers nothing.
+    var alternates: [String] = []
+    var alternatesMain = 0
+    /// Type the alternate at this index.
+    var onAlternate: ((Int) -> Void)?
     /// Space: held, it turns the keyboard into a trackpad.
     var holdsForCursor = false
     var action: (() -> Void)?
@@ -261,6 +267,18 @@ final class KeyPad: UIView {
 
     private var tracks: [ObjectIdentifier: Track] = [:]
     private var previewing: Key?
+    /// The touch choosing among a held key's alternates.
+    private var alternatesTouch: ObjectIdentifier?
+    private var alternatesTimer: Timer?
+    /// The system's alternates came up between 0.3 s and 0.4 s into a press, in
+    /// shots on an iOS 26.5 simulator.
+    private static let alternatesHold: TimeInterval = 0.35
+    /// A key is held long enough for its alternates.
+    var onAlternatesShow: ((Key) -> Void)?
+    /// The finger moved along them, to this x.
+    var onAlternatesMove: ((CGFloat) -> Void)?
+    /// The finger lifted (true) or the touch was cancelled.
+    var onAlternatesEnd: ((Bool) -> Void)?
     private var repeatTimer: Timer?
     private var holdTimer: Timer?
     /// The touch steering the caret, and what it has moved short of a character.
@@ -323,14 +341,15 @@ final class KeyPad: UIView {
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        // Other fingers do nothing while one steers the caret.
-        guard cursorTouch == nil else { return }
+        // Other fingers do nothing while one steers the caret or chooses an alternate.
+        guard cursorTouch == nil, alternatesTouch == nil else { return }
         for touch in touches.sorted(by: { $0.timestamp < $1.timestamp }) {
             rollOver()
             guard let k = key(at: touch.location(in: self)) else { continue }
             let id = ObjectIdentifier(touch)
             tracks[id] = Track(key: k)
             press(k)
+            armAlternates(k, id)
             if k.holdsForCursor {
                 holdTimer?.invalidate()
                 holdTimer = Timer.scheduledTimer(withTimeInterval: Self.cursorHold, repeats: false) { [weak self, weak touch] _ in
@@ -361,6 +380,10 @@ final class KeyPad: UIView {
                 }
                 continue
             }
+            if id == alternatesTouch {
+                onAlternatesMove?(p.x)
+                continue
+            }
             guard var t = tracks[id], t.key.fires == .onRelease else { continue }
             if t.key.previews {
                 // Off the keyboard's keys altogether, a lift types nothing.
@@ -373,6 +396,9 @@ final class KeyPad: UIView {
                     t.key = next
                     next.isPressed = true
                     preview(next)
+                    armAlternates(next, id)
+                } else if !t.inside {
+                    alternatesTimer?.invalidate()
                 }
             } else {
                 t.inside = distance(p, t.key) < Self.slop
@@ -389,6 +415,12 @@ final class KeyPad: UIView {
                 endCursor()
                 continue
             }
+            if id == alternatesTouch {
+                alternatesTouch = nil
+                if let t = tracks.removeValue(forKey: id) { release(t.key) }
+                onAlternatesEnd?(true)
+                continue
+            }
             guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
             if t.inside, t.key.fires == .onRelease { t.key.action?() }
@@ -402,8 +434,25 @@ final class KeyPad: UIView {
                 endCursor()
                 continue
             }
+            if id == alternatesTouch {
+                alternatesTouch = nil
+                if let t = tracks.removeValue(forKey: id) { release(t.key) }
+                onAlternatesEnd?(false)
+                continue
+            }
             guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
+        }
+    }
+
+    private func armAlternates(_ k: Key, _ id: ObjectIdentifier) {
+        alternatesTimer?.invalidate()
+        guard !k.alternates.isEmpty else { return }
+        alternatesTimer = Timer.scheduledTimer(withTimeInterval: Self.alternatesHold, repeats: false) { [weak self, weak k] _ in
+            guard let self, let k, let t = self.tracks[id], t.key === k, t.inside else { return }
+            self.alternatesTouch = id
+            self.preview(nil)
+            self.onAlternatesShow?(k)
         }
     }
 
@@ -463,6 +512,7 @@ final class KeyPad: UIView {
         // Another finger may still hold the same key.
         if tracks.values.contains(where: { $0.key === k }) { return }
         k.isPressed = false
+        alternatesTimer?.invalidate()
         if k.holdsForCursor || k.onHold != nil {
             holdTimer?.invalidate()
             holdTimer = nil
@@ -531,6 +581,83 @@ final class KeyPopup: UIView {
 
     func hide() {
         isHidden = true
+        hideAlternates()
+    }
+
+    // MARK: Alternates
+
+    private var cells: [UILabel] = []
+    private let selection = CALayer()
+    private var order: [Int] = []
+    private var tray = CGRect.zero
+    private(set) var selectedAlternate = 0
+
+    /// A tray over the key, with the key itself over its own place and chosen. Keys
+    /// on the right half read towards the middle, as on the system keyboard.
+    func showAlternates(_ key: Key, over rect: CGRect, within outer: CGRect) {
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        frame = outer
+        order = Array(key.alternates.indices)
+        var main = key.alternatesMain
+        if key.alternates.count == 2, main == 0, rect.midX > outer.midX {
+            order.reverse()
+            main = 1
+        }
+        let cell = min(max(rect.width + 4, 34), (outer.width - 2) / CGFloat(order.count))
+        let width = cell * CGFloat(order.count)
+        let x = min(max(rect.midX - cell * (CGFloat(main) + 0.5), outer.minX + 1), outer.maxX - width - 1)
+        let top = max(rect.minY - 54, outer.minY)
+        let height = rect.minY - 14 - top
+        tray = CGRect(x: x, y: top, width: width, height: height)
+        let path = Self.path(body: tray, key: rect)
+        shape.path = path
+        shape.shadowPath = path
+        shape.fillColor = KeyMetrics.letterFill.resolvedColor(with: traitCollection).cgColor
+        label.isHidden = true
+        if selection.superlayer == nil {
+            selection.backgroundColor = UIColor.systemBlue.cgColor
+            selection.cornerRadius = 6
+            layer.addSublayer(selection)
+        }
+        cells.forEach { $0.removeFromSuperview() }
+        cells = order.enumerated().map { i, index in
+            let l = UILabel(frame: CGRect(x: x + CGFloat(i) * cell, y: top, width: cell, height: height))
+            l.text = key.alternates[index]
+            l.textAlignment = .center
+            l.font = OldHangul.font(ofSize: 24)
+            l.adjustsFontSizeToFitWidth = true
+            addSubview(l)
+            return l
+        }
+        selection.isHidden = false
+        isHidden = false
+        CATransaction.commit()
+        choose(main)
+    }
+
+    func moveAlternates(to x: CGFloat) {
+        guard !cells.isEmpty else { return }
+        let i = Int((x - tray.minX) / (tray.width / CGFloat(cells.count)))
+        choose(min(max(i, 0), cells.count - 1))
+    }
+
+    private func choose(_ i: Int) {
+        selectedAlternate = order[i]
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        selection.frame = cells[i].frame.insetBy(dx: 2, dy: 3)
+        CATransaction.commit()
+        for (j, l) in cells.enumerated() {
+            l.textColor = j == i ? .white : .label
+        }
+    }
+
+    private func hideAlternates() {
+        cells.forEach { $0.removeFromSuperview() }
+        cells = []
+        selection.isHidden = true
+        label.isHidden = false
     }
 
     /// A rounded body, a neck narrowing to the key, and the key's bottom.

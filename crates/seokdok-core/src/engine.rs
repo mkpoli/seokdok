@@ -12,6 +12,7 @@ use std::collections::{HashMap, HashSet};
 
 mod compound;
 mod mixed;
+mod pairs;
 mod okurigana;
 
 /// How the Hangul after a 訓讀 stem is written.
@@ -1871,6 +1872,8 @@ impl Engine {
                 per_run.push(vec![Candidate { text: run, note: String::new() }]);
             }
         }
+        let texts: Vec<String> = pieces.iter().map(|(_, run)| run.clone()).collect();
+        pairs::apply_to_runs(&texts, &mut per_run);
         let k = per_run.iter().map(|r| r.len()).max().unwrap_or(0);
         let mut out: Vec<Candidate> = Vec::new();
         for i in 0..k {
@@ -1926,6 +1929,7 @@ impl Engine {
                 out.push(Segment { reading: run.clone(), candidates: vec![Candidate { text: run, note: String::new() }] });
             }
         }
+        pairs::apply_to_segments(&mut out);
         out
     }
 }

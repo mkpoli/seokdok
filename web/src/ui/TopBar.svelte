@@ -55,6 +55,7 @@
     <a href="{home}#convert">{@html r(t().nav.convert)}</a>
     <a href="{home}#old">{@html r(t().nav.old)}</a>
     <a href="{home}#install">{@html r(t().nav.install)}</a>
+    <a href="{home}#eumdok">{@html r(t().nav.eumdok)}</a>
     <a href="{home}#join">{@html r(t().nav.join)}</a>
   </nav>
   <div class="tools">

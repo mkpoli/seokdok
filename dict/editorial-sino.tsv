@@ -273,3 +273,7 @@ reading	hanja	count	source
 # 胡桃: 山林廳's walnut reference gives 호도(胡桃), forest.go.kr/kfs/images/data/down/imsan/imsan_01_05.pdf;
 # 胡桃菓子 in a historical document, minjok.or.kr/archives/144553. 국립국어원 records 호두과자(-菓子), the second candidate.
 호두과자	胡桃菓子		editorial
+# 地圖 (the chat 16×, 指導 once). The engine keeps 지도 after ㄹ for the ending -ㄹ지도.
+지도	地圖		editorial
+지도교수	指導敎授		editorial
+지도자	指導者		editorial

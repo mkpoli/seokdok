@@ -6,6 +6,7 @@ image, as `tiffutil -cathidpicheck` would make; ImageMagick joins them.
     uv run --with pillow macos/Seokdok/Resources/make_icons.py [FONT.ttc]
 
 seokdok.tiff  the input method and its 釋讀 mode (釋)
+eumdok.tiff   the same in the 音讀 build (音)
 hangul.tiff   plain Hangul mode (한)
 latin.tiff    Latin mode (A)
 """
@@ -23,7 +24,7 @@ FONT = sys.argv[1] if len(sys.argv) > 1 else str(
 )
 POINTS = 16
 
-ICONS = {"seokdok.tiff": "釋", "hangul.tiff": "한", "latin.tiff": "A"}
+ICONS = {"seokdok.tiff": "釋", "eumdok.tiff": "音", "hangul.tiff": "한", "latin.tiff": "A"}
 
 
 def render(glyph: str, px: int) -> Image.Image:

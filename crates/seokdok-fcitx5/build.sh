@@ -2,17 +2,20 @@
 # Build the fcitx5 addon: the Rust core as a static library, linked into
 # libseokdok.so with g++ against the fcitx5 headers.
 #
-#   crates/seokdok-fcitx5/build.sh            uses pkg-config Fcitx5Core
+#   crates/seokdok-fcitx5/build.sh [seokdok|eumdok]   uses pkg-config Fcitx5Core
 #   FCITX5_INCLUDE=/path/include/Fcitx5 crates/seokdok-fcitx5/build.sh
 #
-# Output: target/fcitx5/libseokdok.so
+# Output: target/fcitx5/lib<id>.so
 set -euo pipefail
+id="${1:-seokdok}"
 here="$(cd "$(dirname "$0")" && pwd)"
 root="$(cd "$here/../.." && pwd)"
 out="$root/target/fcitx5"
 mkdir -p "$out"
 
-cargo build --release -p seokdok-ffi --manifest-path "$root/Cargo.toml"
+features=()
+[[ "$id" = seokdok ]] || features=(--features "$id")
+cargo build --release -p seokdok-ffi --manifest-path "$root/Cargo.toml" "${features[@]}"
 
 if [[ -n "${FCITX5_INCLUDE:-}" ]]; then
   cflags="-I$FCITX5_INCLUDE/Core -I$FCITX5_INCLUDE/Config -I$FCITX5_INCLUDE/Utils"
@@ -24,9 +27,9 @@ else
 fi
 
 # shellcheck disable=SC2086
-g++ -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -Wall -Wextra -Wno-unused-parameter \
-  $cflags -I"$root/crates/seokdok-ffi/include" -o "$out/libseokdok.so" "$here/addon/seokdok.cpp" \
+g++ -std=c++17 -O2 -fPIC -shared -fvisibility=hidden -Wall -Wextra -Wno-unused-parameter -DSEOKDOK_ADDON="\"$id\"" \
+  $cflags -I"$root/crates/seokdok-ffi/include" -o "$out/lib$id.so" "$here/addon/seokdok.cpp" \
   -Wl,--whole-archive "$root/target/release/libseokdok_ffi.a" -Wl,--no-whole-archive \
   -Wl,--exclude-libs,ALL $libs -lpthread -ldl -lm
-strip --strip-unneeded "$out/libseokdok.so"
-echo "$out/libseokdok.so"
+strip --strip-unneeded "$out/lib$id.so"
+echo "$out/lib$id.so"

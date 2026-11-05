@@ -283,6 +283,12 @@ final class KeyPad: UIView {
         isMultipleTouchEnabled = true
     }
 
+    /// The keys can now go while Delete or Space is held.
+    deinit {
+        repeatTimer?.invalidate()
+        holdTimer?.invalidate()
+    }
+
     required init?(coder: NSCoder) {
         fatalError("not used")
     }

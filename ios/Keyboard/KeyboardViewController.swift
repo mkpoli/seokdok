@@ -38,8 +38,8 @@ final class KeyboardViewController: UIInputViewController {
 
     /// The system keeps each controller's input view alive after the controller
     /// goes, in a keyboard process that outlives the apps it served. Without this,
-    /// every keys view stayed with it: about 3 MB more for each app the keyboard
-    /// appeared in (`footprint` on iOS 26.5 and iOS 18.5 simulators).
+    /// every keys view stayed with it: about 3 MB more each time the app in focus
+    /// was launched again (`footprint` on an iOS 26.5 simulator).
     deinit {
         keys?.removeFromSuperview()
     }

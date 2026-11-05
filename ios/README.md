@@ -195,8 +195,10 @@ an iPhone. It lies inside the range of those published estimates, so a device
 may still end the keyboard.
 
 The process outlives the apps it serves, so whatever one appearance leaves behind
-adds up: each new controller's views are released when the old one goes, and the
-footprint stays level over repeated launches of the app in focus.
+adds up: an old controller's views are released when it goes. Over six launches
+of the app in focus the footprint held at 60-61 MB on iOS 26.5 and rose from 57 to
+59 MB on iOS 18.5 (`footprint`, simulator). A phone moving between different apps
+has not been measured.
 
 The engine alone peaks at about 44.5 MB, and the highest of 50 runs was
 44.6 MB (Linux, 2026-11-04, `VmHWM` from

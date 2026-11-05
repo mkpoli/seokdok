@@ -233,6 +233,21 @@ fn the_pronoun_with_a_particle_is_not_a_particle_alone() {
 }
 
 #[test]
+fn the_chat_spelling_leads_where_it_outnumbers_the_rest() {
+    first(&[
+        ("감사합니다", "感謝합니다"), ("주로", "主로"), ("고로", "故로"), ("의외로", "意外로"), ("실은", "實은"), ("혹은", "或은"),
+        ("여전히", "如前히"), ("나중에", "乃終에"), ("대체로", "大體로"), ("당연히", "當然히"), ("방에", "房에"), ("점이", "點이"),
+        ("식으로", "式으로"), ("북에서", "北에서"), ("설이", "說이"), ("비해", "比해"), ("묘한", "妙한"),
+    ]);
+    // ㅎ where the form keeps it, and none where it does not.
+    first(&[("그렇군요", "然ㅎ군요"), ("그렇죠", "然ㅎ죠"), ("그렇네요", "然ㅎ네요"), ("그런", "然ㄴ"), ("그래서", "然서")]);
+    // The same letters as another word stay that word.
+    first(&[("설 수 있다", "立ㄹ 手 有다"), ("비하", "卑下"), ("여성비하", "女性卑下"), ("노래방", "노래방"), ("피시방", "피시방"), ("체인점에", "체인점에"), ("북을 치다", "북을 打다"), ("설에 고향", "설에 故鄕")]);
+// Longer words keep their own reading.
+    first(&[("한국요리점", "韓國料理店"), ("서점", "書店"), ("방법", "方法"), ("설명", "說明"), ("북한", "北韓")]);
+}
+
+#[test]
 fn nouns_that_a_bare_stem_would_take() {
     first(&[("돌", "石"), ("발", "足"), ("털", "毛"), ("감", "柿"), ("실", "絲")]);
     // No chat attestation of 蜂, and 살 stays the verb stem (生 22× in the chat against 歲 11×, 肉 8×, 膚 1×).

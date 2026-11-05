@@ -1023,6 +1023,7 @@ impl Engine {
         if !around.bound_next {
             self.prefer_whole_noun(comps, &mut edges);
         }
+        self.prefer_written_h(&mut edges);
         self.prefer_editorial_word(comps, &mut edges);
         self.prefer_word_over_tail(comps, &mut edges);
         edges
@@ -1055,6 +1056,31 @@ impl Engine {
             let connective = label.rsplit('+').next().unwrap_or("");
             if helpers[e.end].iter().any(|&c| HELPERS[c].0 == connective) {
                 e.cost -= MID_WORD_COST;
+            }
+        }
+    }
+
+    /// Where a form keeps the stem's ㅎ (그렇네요, 그렇군요) and the chat also writes
+    /// it (然ㅎ군요 39×, 然군 1×), the spelling with ㅎ leads. 然's count also
+    /// holds 그런, which has no ㅎ to write.
+    fn prefer_written_h(&self, edges: &mut [Edge]) {
+        let keeps_h = |e: &Edge| match e.kind {
+            Kind::Verb { entry, allo, .. } => {
+                let n = &self.natives[entry as usize];
+                n.stem.last() == Some(&'ᇂ') && n.allos[allo as usize].comps == n.stem
+            }
+            _ => false,
+        };
+        let written_h = |e: &Edge| match e.kind {
+            Kind::Verb { entry, .. } => self.natives[entry as usize].tail == crate::dict::Tail::Coda,
+            _ => false,
+        };
+        let spots: Vec<(usize, usize, f32)> = edges.iter().filter(|e| keeps_h(e) && written_h(e)).map(|e| (e.start, e.end, e.cost)).collect();
+        for (start, end, cost) in spots {
+            for e in edges.iter_mut().filter(|e| e.start == start && e.end == end) {
+                if keeps_h(e) && !written_h(e) && e.cost <= cost {
+                    e.cost = cost + 0.01;
+                }
             }
         }
     }

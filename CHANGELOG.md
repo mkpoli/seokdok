@@ -29,6 +29,7 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 - Dictation no longer doubles its text.
 
 ### Windows
+- The candidate window can look like Windows 11 or the classic square list of Windows 10 and earlier, and can follow the system or stay light or dark. Both are in the settings app and `config.toml`, and apply at the next key.
 - A WinUI 3 settings app replaces the old dialog.
 - Plain Hangul composes inline in Telegram and other IMM32 apps. The floating box sits at the caret in Qt apps.
 - The taskbar menu shows each mode's keys.

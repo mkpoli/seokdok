@@ -333,6 +333,7 @@ final class KeyboardView: UIView {
             }
             if r == 2 {
                 symbolPageKey = Key(title: "#+=")
+                if KeyMetrics.flat { symbolPageKey.titleFont = .systemFont(ofSize: 13, weight: .medium) }
                 symbolPageKey.action = { [weak self] in
                     guard let self else { return }
                             self.symbolPage = 1 - self.symbolPage

@@ -31,6 +31,11 @@ final class Key: UIView {
 
     private let label = UILabel()
     private let icon = UIImageView()
+
+    /// The number pad's Delete is drawn larger than the others.
+    func setSymbolSize(_ size: CGFloat) {
+        icon.preferredSymbolConfiguration = UIImage.SymbolConfiguration(pointSize: size, weight: .regular)
+    }
     private let hint = UILabel()
     private var symbol: String?
     /// The key's height, changed in place when a row needs another.

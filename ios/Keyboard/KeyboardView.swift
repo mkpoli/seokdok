@@ -608,7 +608,9 @@ final class KeyboardView: UIView {
             let k = Key(title: String(ch), look: look, height: m.key)
             k.titleFont = .systemFont(ofSize: 25, weight: .regular)
             k.setPadLetters(Self.padLetters[ch])
-            k.labelRise = ch == "0" ? 2 : ch.isNumber ? 6 : 0
+            let zeroRise: CGFloat
+            if #available(iOS 26, *) { zeroRise = 5 } else { zeroRise = 2 }
+            k.labelRise = ch == "0" ? zeroRise : ch.isNumber ? 6 : 0
             k.action = { [weak self] in self?.tap { $0.symbol(ch) } }
             return k
         }
@@ -643,6 +645,7 @@ final class KeyboardView: UIView {
         }
         let delete = backspaceKey(height: m.key)
         delete.look = .plain
+        delete.setSymbolSize(22.5)
         pad.addArrangedSubview(row([corner, key("0"), delete]))
     }
 

@@ -63,6 +63,33 @@ jobs:
           path: target/installer/*.exe
           if-no-files-found: error
 
+      - name: 音讀 input method DLL
+        run: cargo build --release --target x86_64-pc-windows-msvc -p seokdok-tsf --features eumdok
+
+      - name: 音讀 settings app
+        shell: pwsh
+        run: windows\build.ps1 -Product eumdok
+
+      - name: Stage 音讀 installer files
+        shell: bash
+        run: crates/seokdok-tsf/stage.sh target/settings-app-eumdok eumdok
+
+      - name: Compile 音讀 installer
+        shell: pwsh
+        run: |
+          $version = (Select-String -Path Cargo.toml -Pattern '^version = "(.*)"' | Select-Object -First 1).Matches[0].Groups[1].Value
+          $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          New-Item -ItemType Directory -Force target/installer-eumdok | Out-Null
+          & $iscc /Q "/DMyAppVersion=$version" "/DStage=$PWD\target\stage\windows-eumdok" "/O$PWD\target\installer-eumdok" crates\seokdok-tsf\installer\seokdok.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem target/installer-eumdok
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eumdok-windows-installer-unsigned
+          path: target/installer-eumdok/*.exe
+          if-no-files-found: error
+
   check-signpath:
     runs-on: ubuntu-latest
     outputs:

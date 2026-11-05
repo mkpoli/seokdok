@@ -1,7 +1,7 @@
 [InputMethod]
-Name=釋讀
+Name=@HANJA@
 Icon=input-keyboard
-Label=釋
+Label=@GLYPH@
 LangCode=ko
-Addon=seokdok
+Addon=@ID@
 Configurable=False

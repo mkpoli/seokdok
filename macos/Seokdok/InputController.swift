@@ -232,7 +232,7 @@ final class SeokdokInputController: IMKInputController {
         let menu = NSMenu()
         let current = shownMode ?? session.mode
         let items: [(String, Selector, Session.Mode)] = [
-            ("釋讀 Seokdok", #selector(selectSeokdok(_:)), .seokdok),
+            ("\(Product.hanja) \(Product.latin)", #selector(selectSeokdok(_:)), .seokdok),
             ("한글 Hangul", #selector(selectHangul(_:)), .hangul),
             ("A Latin", #selector(selectLatin(_:)), .latin),
         ]

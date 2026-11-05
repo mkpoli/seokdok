@@ -7,6 +7,7 @@ on:
       - "android/**"
       - "crates/**"
       - "dict/**"
+      - "products/**"
       - "Cargo.toml"
       - "Cargo.lock"
       - ".github/workflows/android.yml"
@@ -15,6 +16,7 @@ on:
       - "android/**"
       - "crates/**"
       - "dict/**"
+      - "products/**"
       - "Cargo.toml"
       - "Cargo.lock"
       - ".github/workflows/android.yml"
@@ -82,13 +84,21 @@ jobs:
           export SEOKDOK_KEYSTORE="$RUNNER_TEMP/seokdok.jks"
           gradle assembleRelease --stacktrace
           rm -f "$SEOKDOK_KEYSTORE"
-          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/release/app-release.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/seokdok/release/app-seokdok-release.apk
+          "$ANDROID_HOME/build-tools/35.0.0/apksigner" verify --print-certs app/build/outputs/apk/eumdok/release/app-eumdok-release.apk
 
       - uses: actions/upload-artifact@v7
         if: steps.key.outputs.signed == 'true'
         with:
           name: seokdok-release-apk
-          path: android/app/build/outputs/apk/release/app-release.apk
+          path: android/app/build/outputs/apk/seokdok/release/app-seokdok-release.apk
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v7
+        if: steps.key.outputs.signed == 'true'
+        with:
+          name: eumdok-release-apk
+          path: android/app/build/outputs/apk/eumdok/release/app-eumdok-release.apk
           if-no-files-found: error
 
       - name: Build the debug APK
@@ -100,5 +110,12 @@ jobs:
         if: steps.key.outputs.signed != 'true'
         with:
           name: seokdok-debug-apk
-          path: android/app/build/outputs/apk/debug/app-debug.apk
+          path: android/app/build/outputs/apk/seokdok/debug/app-seokdok-debug.apk
+          if-no-files-found: error
+
+      - uses: actions/upload-artifact@v7
+        if: steps.key.outputs.signed != 'true'
+        with:
+          name: eumdok-debug-apk
+          path: android/app/build/outputs/apk/eumdok/debug/app-eumdok-debug.apk
           if-no-files-found: error

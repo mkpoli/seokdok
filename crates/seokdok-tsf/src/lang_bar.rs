@@ -211,7 +211,7 @@ impl ITfLangBarItem_Impl for ModeButton_Impl {
             return Err(E_INVALIDARG.into());
         }
         let mut desc = [0u16; 32];
-        for (slot, c) in desc.iter_mut().zip("seokdok".encode_utf16()) {
+        for (slot, c) in desc.iter_mut().zip(seokdok_product::CURRENT.id.encode_utf16()) {
             *slot = c;
         }
         // SAFETY: pinfo checked non-null; the struct is fully overwritten.
@@ -236,7 +236,7 @@ impl ITfLangBarItem_Impl for ModeButton_Impl {
     }
 
     fn GetTooltipString(&self) -> windows::core::Result<BSTR> {
-        Ok(BSTR::from(self.shared.indicator().tooltip()))
+        Ok(BSTR::from(self.shared.indicator().tooltip().as_str()))
     }
 }
 

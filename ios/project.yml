@@ -1,5 +1,7 @@
-# XcodeGen spec: `brew install xcodegen && cd ios && xcodegen` writes
-# Seokdok.xcodeproj. Run ios/build-rust.sh first for SeokdokCore.xcframework.
+# XcodeGen spec: `brew install xcodegen && ios/product.sh` writes
+# Seokdok.xcodeproj; `ios/product.sh eumdok` writes it for 音讀, from this file
+# with the values of products/eumdok.json. Run ios/build-rust.sh with the same
+# product first for SeokdokCore.xcframework.
 # Set DEVELOPMENT_TEAM (Signing) before building for a device.
 name: Seokdok
 options:
@@ -29,6 +31,10 @@ targets:
         CFBundleDisplayName: 釋讀
         UILaunchScreen: {}
         SeokdokAppGroup: group.li.mkpo.seokdok
+        SeokdokProductHanja: 釋讀
+        SeokdokProductDir: seokdok
+        SeokdokProductGuide: https://seokdok.mkpo.li/
+        SeokdokProductHasKun: true
         UISupportedInterfaceOrientations:
           [UIInterfaceOrientationPortrait, UIInterfaceOrientationLandscapeLeft, UIInterfaceOrientationLandscapeRight]
         UISupportedInterfaceOrientations~ipad:
@@ -60,6 +66,10 @@ targets:
       properties:
         CFBundleDisplayName: 釋讀
         SeokdokAppGroup: group.li.mkpo.seokdok
+        SeokdokProductHanja: 釋讀
+        SeokdokProductDir: seokdok
+        SeokdokProductGuide: https://seokdok.mkpo.li/
+        SeokdokProductHasKun: true
         NSExtension:
           NSExtensionPointIdentifier: com.apple.keyboard-service
           NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).KeyboardViewController
@@ -82,7 +92,9 @@ targets:
   SeokdokUITests:
     type: bundle.ui-testing
     platform: iOS
-    sources: [UITests]
+    sources:
+      - UITests
+      - path: Keyboard/KeyLayout.swift
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: li.mkpo.seokdok.uitests

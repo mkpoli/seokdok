@@ -22,6 +22,7 @@ const ko = {
         body: [
           '{入力器|입력기}(Windows, Linux, iOS, macOS, Android)는 {機器|기기}에 {設置|설치}된 {辭典|사전}만으로 {變換|변환}합니다. 네트워크에 {接續|접속}하는 코드, {分析|분석} {道具|도구}, {誤謬|오류} {報告|보고} {道具|도구}가 {無|없}습니다. Android 앱은 인터넷 {權限|권한}을 {要請|요청}하지 {不|안}ㅎ습니다.',
           [
+            '{音讀|음독} {入力器|입력기}는 {此|이} {文書|문서}의 `seokdok` {資料|자료}를 {一切|일체} {共有|공유}하지 {不|안}ㅎ고 {同|같}은 {種類|종류}의 파일을 `eumdok` 폴더에 {別途|따로} {置|두}ㅂ니다. `%APPDATA%\\eumdok`, `~/.config/eumdok`, `~/Library/Application Support/eumdok`, `%LOCALAPPDATA%\\eumdok`이고, Android와 iOS에서는 {音讀|음독} 앱 {專用|전용} {貯藏|저장} {空間|공간}과 App Group `group.li.mkpo.eumdok`입니다. {以下|아래} {說明|설명}은 {音讀|음독}에도 {同一|동일}합니다.',
             '`config.toml`: {設定|설정} {値|값}을 {貯藏|저장}합니다. {位置|위치}는 Windows `%APPDATA%\\seokdok`, Linux `~/.config/seokdok`, macOS `~/Library/Application Support/seokdok`, Android 앱 {專用|전용} {貯藏|저장} {空間|공간}, iOS 앱과 키보드가 {共|함께} {用|쓰}는 App Group 컨테이너입니다.',
             '`custom.json`, `user.tsv`: {利用者|이용자}가 {直接|직접} {置|둔} {境遇|경우}에만 {有|있}습니다. {自作|자작} {規則|규칙}과 {個言|낱말}이 {入|들}어 {有|있}고 {打|치}ㄴ {文|글}은 {入|들}어 {有|있}지 {不|안}ㅎ습니다.',
             '`learned.tsv`: {候補|후보} {窓|창}에서 {選|고르}ㄴ {個言|낱말}과 {其|그} {讀音|읽기}, {回數|횟수}를 {貯藏|저장}합니다. {二|두} {番|번} {選|고르}ㄴ {候補|후보}를 {先|먼저} {見|보}이려는 {事|거}ㅅ입니다. {第一|첫} {候補|후보}를 {其|그}대로 {確定|확정}한 {個言|낱말}은 {前|전}에 {選|고르}ㄴ {事|적}이 {有|있}을 {時|때}만 {入|들}어{去|가}고, {時刻|시각}, {數字|숫자}, 띄어{書|쓰}ㄴ {文|글}, 12{音節|음절}이 {超|넘}는 {文|글}은 {入|들}어{去|가}지 {不|안}ㅎ습니다. 띄어{書|쓰}지 {不|안}ㅎ은 {短|짧}은 {文|글}은 {入|들}어{去|가}ㄹ {手|수} {有|있}습니다. {位置|위치}는 `config.toml`과 {同|같}으며 {何處|어디}로도 {傳送|전송}되지 {不|안}ㅎ습니다.',
@@ -87,6 +88,7 @@ const ko = {
         id: 'enable',
         h: '{點|켜}는 {方法|방법}',
         body: [
+          '{音讀|음독} {入力器|입력기}도 {同|같}은 {順序|순서}입니다. {各|각} {段階|단계}의 {釋讀|석독}을 {音讀|음독}으로 {讀|읽}으세요. {音讀|음독}의 {文字|문자} {轉換|전환}은 {國漢文|국한문} {混用|혼용} ↔ {韓㐎|한글} {專用|전용}이며, {設定|설정}은 `eumdok` 폴더에 {有|있}습니다.',
           { h: 'Windows', ol: 'windows' },
           { h: 'Linux (fcitx5)', ol: 'linux' },
           {
@@ -216,6 +218,7 @@ const en = {
         body: [
           'The input methods (Windows, Linux, iOS, macOS, Android) convert with the dictionaries installed on the device. They contain no code that connects to a network, no analytics and no crash reporting. The Android app does not request the Internet permission.',
           [
+            'The 音讀 input method shares none of this data with 釋讀. It keeps the same kinds of file in a folder of its own named `eumdok`: `%APPDATA%\\eumdok`, `~/.config/eumdok`, `~/Library/Application Support/eumdok` and `%LOCALAPPDATA%\\eumdok`, or on Android and iOS the 音讀 app\u2019s private storage and the App Group `group.li.mkpo.eumdok`. Everything below applies to it too.',
             '`config.toml` holds your settings. Windows: `%APPDATA%\\seokdok`. Linux: `~/.config/seokdok`. macOS: `~/Library/Application Support/seokdok`. Android: the app’s private storage. iOS: the App Group container shared by the app and the keyboard.',
             '`custom.json` and `user.tsv` exist only if you put them there. They hold your own words and rules, not what you typed.',
             '`learned.tsv` holds the words you picked from the candidate list, with their readings and counts, so that a candidate picked twice comes first. A word you accept as first offered goes in only if you picked it before. Times of day, numbers, spaced text and text over 12 syllables never go in; a short phrase typed without spaces can. It sits beside `config.toml` and is not sent anywhere.',
@@ -281,6 +284,7 @@ const en = {
         id: 'enable',
         h: 'Turn it on',
         body: [
+          'The 音讀 input method takes the same steps: read 音讀 for 釋讀 in each. Its script key goes 國漢文混用 ↔ 韓㐎 專用, and its settings are in the `eumdok` folder.',
           { h: 'Windows', ol: 'windows' },
           { h: 'Linux (fcitx5)', ol: 'linux' },
           {

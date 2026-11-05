@@ -38,8 +38,8 @@ final class KeyboardUITests: XCTestCase {
         func dragSpace(by dx: CGFloat) {
             let top = height - 336
             let y = (top + 237) / height
-            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: y))
-            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.55 + dx / width, dy: y))
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: y))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4 + dx / width, dy: y))
             start.press(forDuration: 0.9, thenDragTo: end, withVelocity: 60, thenHoldForDuration: 0.5)
             usleep(400_000)
         }

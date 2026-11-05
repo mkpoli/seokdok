@@ -369,6 +369,32 @@ extension KeyboardViewController: KeyboardViewDelegate {
         proxy.adjustTextPosition(byCharacterOffset: steps < 0 ? -units : units)
     }
 
+    /// Lines ended by a line break, keeping the column where the next line is long
+    /// enough. Lines the app wraps by itself are out of a keyboard's sight, and so
+    /// is text beyond what the proxy offers.
+    func moveCursor(lines: Int) {
+        let proxy = textDocumentProxy
+        for _ in 0..<abs(lines) {
+            let before = proxy.documentContextBeforeInput ?? ""
+            let after = proxy.documentContextAfterInput ?? ""
+            let column = before.reversed().prefix { !$0.isNewline }.count
+            if lines < 0 {
+                let restOfUpper = before.dropLast(column)
+                guard restOfUpper.last?.isNewline == true else { return }
+                let upper = restOfUpper.dropLast().reversed().prefix { !$0.isNewline }.count
+                let back = before.suffix(column + 1 + max(0, upper - column))
+                proxy.adjustTextPosition(byCharacterOffset: -back.utf16.count)
+            } else {
+                let tail = after.prefix { !$0.isNewline }
+                guard tail.count < after.count else { return }
+                let rest = after.dropFirst(tail.count + 1)
+                let lower = rest.prefix { !$0.isNewline }
+                let forward = after.prefix(tail.count + 1 + min(column, lower.count))
+                proxy.adjustTextPosition(byCharacterOffset: forward.utf16.count)
+            }
+        }
+    }
+
     /// Tap: Shift for one letter; double tap: locked until tapped again.
     func toggleShift() {
         let now = Date()

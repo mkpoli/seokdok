@@ -249,6 +249,8 @@ final class KeyPad: UIView {
     var onCursorBegin: (() -> Void)?
     /// The finger moved this many characters' worth.
     var onCursorMove: ((Int) -> Void)?
+    /// The finger moved this many lines' worth, negative going up.
+    var onCursorLine: ((Int) -> Void)?
     var onCursorEnd: (() -> Void)?
     /// The system's next-keyboard handling needs a real control.
     weak var passThrough: UIView?
@@ -266,17 +268,26 @@ final class KeyPad: UIView {
     /// The touch steering the caret, and what it has moved short of a character.
     private var cursorTouch: ObjectIdentifier?
     private var cursorX: CGFloat = 0
+    private var cursorY: CGFloat = 0
+    private var cursorEnding: DispatchWorkItem?
     /// How far from a key a touch still belongs to it: wider than the widest
     /// gap between keys, narrower than a blank cell of the number pad. Our choice.
     private static let reach: CGFloat = 16
     /// How far a finger may stray from a function key; our choice.
     private static let slop: CGFloat = 40
-    /// The system keyboard's trackpad began about 0.6 s into a held press and
-    /// its fade took about 0.1 s, in one recording on an iOS 18.5 simulator.
-    /// The 8 pt per character is our choice.
-    private static let cursorHold: TimeInterval = 0.6
-    private static let cursorFade: TimeInterval = 0.1
-    private static let cursorStep: CGFloat = 8
+    /// The system keyboard's trackpad in recordings on iOS 18.5 and iOS 26.5
+    /// simulators: it begins about 0.45 s into a held press and fades in 0.07 s,
+    /// and the keys stay faded for about half a second after the lift. A slow
+    /// 32 pt slide moved the caret about 11 digits of a 17 pt font, so a step is
+    /// about 3 pt there; the system counts in text widths and this keyboard cannot
+    /// see them, so 3.5 pt per character falls between digits and Hangul.
+    private static let cursorHold: TimeInterval = 0.45
+    private static let cursorFadeIn: TimeInterval = 0.07
+    private static let cursorFadeOut: TimeInterval = 0.14
+    private static let cursorLinger: TimeInterval = 0.5
+    private static let cursorStep: CGFloat = 3.5
+    /// A vertical slide of this much is a line: 40 pt moved four lines.
+    private static let cursorLine: CGFloat = 10
 
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -325,6 +336,8 @@ final class KeyPad: UIView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         // Other fingers do nothing while one steers the caret.
         guard cursorTouch == nil else { return }
+        // A press in the moment the keys are still faded types as usual.
+        finishCursorFade()
         for touch in touches.sorted(by: { $0.timestamp < $1.timestamp }) {
             rollOver()
             guard let k = key(at: touch.location(in: self)) else { continue }
@@ -335,7 +348,7 @@ final class KeyPad: UIView {
                 holdTimer?.invalidate()
                 holdTimer = Timer.scheduledTimer(withTimeInterval: Self.cursorHold, repeats: false) { [weak self, weak touch] _ in
                     guard let self, let touch, self.tracks[id]?.inside == true else { return }
-                    self.beginCursor(id, at: touch.location(in: self).x)
+                    self.beginCursor(id, at: touch.location(in: self))
                 }
             } else if k.onHold != nil {
                 holdTimer?.invalidate()
@@ -358,6 +371,11 @@ final class KeyPad: UIView {
                 if steps != 0 {
                     cursorX += CGFloat(steps) * Self.cursorStep
                     onCursorMove?(steps)
+                }
+                let lines = Int((p.y - cursorY) / Self.cursorLine)
+                if lines != 0 {
+                    cursorY += CGFloat(lines) * Self.cursorLine
+                    onCursorLine?(lines)
                 }
                 continue
             }
@@ -431,7 +449,7 @@ final class KeyPad: UIView {
         }
     }
 
-    private func beginCursor(_ id: ObjectIdentifier, at x: CGFloat) {
+    private func beginCursor(_ id: ObjectIdentifier, at p: CGPoint) {
         guard let t = tracks.removeValue(forKey: id) else { return }
         t.key.isPressed = false
         // Other keys still down (a thumb on a letter) end with it.
@@ -440,21 +458,31 @@ final class KeyPad: UIView {
             release(held.key)
         }
         cursorTouch = id
-        cursorX = x
+        cursorX = p.x
+        cursorY = p.y
         setDimmed(true)
         onCursorBegin?()
     }
 
     private func endCursor() {
         cursorTouch = nil
-        setDimmed(false)
         onCursorEnd?()
+        let work = DispatchWorkItem { [weak self] in self?.finishCursorFade() }
+        cursorEnding = work
+        DispatchQueue.main.asyncAfter(deadline: .now() + Self.cursorLinger, execute: work)
+    }
+
+    private func finishCursorFade() {
+        guard let ending = cursorEnding else { return }
+        ending.cancel()
+        cursorEnding = nil
+        setDimmed(false)
     }
 
     private func setDimmed(_ dimmed: Bool) {
         var keys: [Key] = []
         visibleKeys(in: self, into: &keys)
-        UIView.animate(withDuration: Self.cursorFade, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState]) {
+        UIView.animate(withDuration: dimmed ? Self.cursorFadeIn : Self.cursorFadeOut, delay: 0, options: [.allowUserInteraction, .beginFromCurrentState]) {
             keys.forEach { $0.isDimmed = dimmed }
         }
     }

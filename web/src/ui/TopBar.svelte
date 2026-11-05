@@ -112,7 +112,12 @@
     letter-spacing: 0.08em;
     color: var(--c-muted);
   }
+  /* The links scroll inside the space the logo and the tools leave. */
   nav {
+    flex: 1 1 0;
+    min-width: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
     display: flex;
     /* Links with and without ruby share one baseline (國漢文混用 drops some). */
     align-items: baseline;
@@ -120,6 +125,8 @@
     margin-right: auto;
   }
   nav a {
+    flex-shrink: 0;
+    white-space: nowrap;
     color: var(--c-soft);
     font-weight: 600;
     font-size: 14px;
@@ -127,6 +134,10 @@
   }
   nav a:hover {
     color: var(--c-accent);
+  }
+  .mark,
+  .tools {
+    flex-shrink: 0;
   }
   .tools {
     display: flex;

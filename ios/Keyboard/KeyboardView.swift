@@ -56,10 +56,71 @@ struct KeyboardState {
     var runs: [Session.Run] = []
     var candidates: Session.Candidates?
     var loading = false
-    /// The field's Return does something (Go, Search, Send …) and is blue.
-    var returnIsAction = false
+    /// What the field calls its Return key (`textDocumentProxy.returnKeyType`).
+    var returnKey = ReturnKey.plain
+    /// The field wants text first (`enablesReturnKeyAutomatically`) and has none.
+    var returnDisabled = false
 
     enum Shift { case off, once, locked }
+}
+
+/// The Return key's label and colour by what the field asks for. Before iOS 26 the
+/// system's Korean keyboard says 이동, 검색, 연결, 다음, 경로, 전송, 완료, 긴급통화 and
+/// 계속, here in the keyboard's own spelling; from iOS 26 it draws a symbol for each.
+/// 다음 and 계속 are not blue on either, the rest are.
+enum ReturnKey {
+    case plain, go, search, join, next, route, send, done, emergency, proceed
+
+    init(_ type: UIReturnKeyType) {
+        switch type {
+        case .go: self = .go
+        case .google, .search, .yahoo: self = .search
+        case .join: self = .join
+        case .next: self = .next
+        case .route: self = .route
+        case .send: self = .send
+        case .done: self = .done
+        case .emergencyCall: self = .emergency
+        case .continue: self = .proceed
+        default: self = .plain
+        }
+    }
+
+    /// None for a plain Return, which shows the system's arrow.
+    var title: String? {
+        switch self {
+        case .plain: return nil
+        case .go: return "移動"
+        case .search: return "檢索"
+        case .join: return "連結"
+        case .next: return "다음"
+        case .route: return "經路"
+        case .send: return "傳送"
+        case .done: return "完了"
+        case .emergency: return "緊急通話"
+        case .proceed: return "繼續"
+        }
+    }
+
+    /// What iOS 26's keyboard draws.
+    var symbol: String {
+        switch self {
+        case .plain: return "return.left"
+        case .go, .join, .route: return "arrow.right"
+        case .search: return "magnifyingglass"
+        case .next, .proceed: return "chevron.right"
+        case .send: return "arrow.up"
+        case .done: return "checkmark"
+        case .emergency: return "phone"
+        }
+    }
+
+    var isAction: Bool {
+        switch self {
+        case .plain, .next, .proceed: return false
+        default: return true
+        }
+    }
 }
 
 /// The keyboard: one candidate bar and 두벌식 keys with the Shift layer in each
@@ -465,8 +526,17 @@ final class KeyboardView: UIView {
         modeKey.title = s.mode == .seokdok && s.script == 1 ? "混" : ["釋", "한", "A"][Int(s.mode.rawValue)]
         let converts = s.composing && s.mode == .seokdok && (s.spaceConverts || s.candidates != nil)
         spaceKey.title = converts ? "變換" : "띄어쓰기"
-        enterKey.title = s.composing ? "確定" : "改行"
-        enterKey.look = s.returnIsAction && !s.composing ? .accent : .function
+        // 釋 and 混 confirm what is being composed first, since that is where a
+        // conversion is chosen; Hangul-only and Latin go straight to the field's
+        // Return, as the system's Korean keyboard does.
+        let confirms = s.composing && s.mode == .seokdok
+        let drawn: Bool
+        if #available(iOS 26, *) { drawn = true } else { drawn = s.returnKey == .plain }
+        enterKey.title = confirms ? "確定" : drawn ? nil : s.returnKey.title
+        enterKey.setSymbol(confirms || !drawn ? nil : s.returnKey.symbol)
+        enterKey.spoken = confirms ? "確定" : s.returnKey.title ?? "Return"
+        enterKey.look = s.returnKey.isAction && !confirms ? .accent : .function
+        enterKey.isDisabledLook = s.returnDisabled && !confirms
         shownRuns = s.runs
         showBar(s)
     }

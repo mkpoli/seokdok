@@ -42,6 +42,14 @@ final class Key: UIView {
         didSet { refill() }
     }
 
+    /// A Return the field does not accept yet: grey and silent.
+    var isDisabledLook = false {
+        didSet {
+            guard isDisabledLook != oldValue else { return }
+            refill()
+        }
+    }
+
     /// While the keyboard is a trackpad the labels and shadows go and the caps
     /// fade towards the background, by the amounts measured from a recording
     /// of the system keyboard (iOS 18.5 simulator).
@@ -178,6 +186,11 @@ final class Key: UIView {
             label.textColor = .white
         }
         icon.tintColor = look == .accent ? .white : .label
+        if isDisabledLook {
+            backgroundColor = KeyMetrics.functionFill
+            label.textColor = .tertiaryLabel
+            icon.tintColor = .tertiaryLabel
+        }
         if isDimmed {
             backgroundColor = backgroundColor?.withAlphaComponent(look == .letter ? 0.45 : 0.6)
         }

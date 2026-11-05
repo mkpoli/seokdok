@@ -1,0 +1,39 @@
+{
+  "id": "seokdok",
+  "hanja": "釋讀",
+  "hangul": "석독",
+  "latin": "Seokdok",
+  "glyph": "釋",
+  "color": "#24348c",
+  "guide": "https://seokdok.mkpo.li/",
+  "config_dir": "seokdok",
+  "conversion_label": "釋讀",
+  "menu_conversion": "釋讀 / Conversion",
+  "scripts": ["seokdok", "sino_only", "hangul_only"],
+  "default_script": "seokdok",
+  "hidden_settings": [],
+  "windows": {
+    "clsid": "AAF18869-67ED-48A1-A3F6-42E961E994A1",
+    "profile": "5A2C201D-E01B-475F-A23D-3A6A64D996A4",
+    "da_input": "120E3069-68A8-441A-A00A-C8DC2DA5D954",
+    "da_converted": "A824E0C2-E97A-449C-855B-2F9D484E07F4",
+    "da_focus": "A63357BA-AF96-4DB0-82B6-86778F0E8A24",
+    "app_id": "041E579D-22D4-46E1-8D5C-B9BF7D6EC789",
+    "dll": "seokdok",
+    "settings_exe": "SeokdokSettings",
+    "service_name": "seokdokTextService",
+    "candidate_class": "SeokdokCandidateWindow",
+    "setup_guide": "https://seokdok.mkpo.li/#install",
+    "setup_back_light": "#24348c",
+    "setup_back_dark": "#0c1124",
+    "display_name": "釋讀 (seokdok)"
+  },
+  "android": { "application_id": "li.mkpo.seokdok", "flavor": "seokdok" },
+  "ios": {
+    "bundle_id": "li.mkpo.seokdok",
+    "keyboard_bundle_id": "li.mkpo.seokdok.keyboard",
+    "app_group": "group.li.mkpo.seokdok"
+  },
+  "macos": { "bundle_id": "li.mkpo.inputmethod.seokdok", "app_name": "Seokdok" },
+  "fcitx5": { "addon": "seokdok" }
+}

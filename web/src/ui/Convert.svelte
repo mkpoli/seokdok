@@ -8,7 +8,10 @@
   import { input, output } from '../lib/custom.svelte.js'
   import { options } from '../lib/options.svelte.js'
 
-  let text = $state(t().convert.sample)
+  // The section's words: another page may bring its own.
+  let { strings = null } = $props()
+  const words = $derived(strings ?? t().convert)
+  let text = $state((strings ?? t().convert).sample)
   /** @type {{ reading: string, candidates: { text: string, note: string }[], pick: number }[][]} */
   let lines = $state([])
   let copied = $state(false)
@@ -53,12 +56,12 @@
 </script>
 
 <section class="section" id="convert">
-  <p class="eyebrow" use:reveal>{@html r(t().convert.eyebrow)}</p>
-  <h2 class="h2" use:reveal={1}>{@html r(t().convert.title)}</h2>
-  <p class="lede" use:reveal={2}>{@html r(t().convert.lede)}</p>
+  <p class="eyebrow" use:reveal>{@html r(words.eyebrow)}</p>
+  <h2 class="h2" use:reveal={1}>{@html r(words.title)}</h2>
+  <p class="lede" use:reveal={2}>{@html r(words.lede)}</p>
   <div class="box card" use:reveal={3}>
-    <textarea bind:value={text} rows="3" lang="ko" aria-label={plain(t().convert.input)}></textarea>
-    <div class="out" lang="ko" aria-label={plain(t().convert.result)}>
+    <textarea bind:value={text} rows="3" lang="ko" aria-label={plain(words.input)}></textarea>
+    <div class="out" lang="ko" aria-label={plain(words.result)}>
       {#each lines as segs, li}
         <p class="line">
           {#each segs as seg, si}

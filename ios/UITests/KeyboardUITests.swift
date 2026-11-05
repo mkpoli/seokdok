@@ -237,7 +237,7 @@ final class KeyboardUITests: XCTestCase {
         sleep(1)
         shot("trackpad-moved")
         assertText(field, "cab", "the caret did not move")
-        g.dragSpace(by: 7) // two steps to the right of c
+        g.dragSpace(by: 10) // two steps to the right of c
         g.letter("d")
         sleep(1)
         assertText(field, "cabd", "the caret did not move back")

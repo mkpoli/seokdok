@@ -291,7 +291,19 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
-    func symbol(_ ch: Character) {
+    /// Straight quotes curl, on the field's say-so, as the system's keyboards do:
+    /// closing after a letter or digit, opening elsewhere.
+    private func curled(_ ch: Character) -> Character {
+        guard ch == "'" || ch == "\"", textDocumentProxy.smartQuotesType != .no else { return ch }
+        let composing = session.preedit().map(\.text).joined().last
+        let previous = composing ?? textDocumentProxy.documentContextBeforeInput?.last
+        let closes = previous.map { $0.isLetter || $0.isNumber } ?? false
+        if ch == "'" { return closes ? "’" : "‘" }
+        return closes ? "”" : "“"
+    }
+
+    func symbol(_ typed: Character) {
+        let ch = curled(typed)
         dropForeignComposition()
         guard layout.converts else {
             insert(String(ch))

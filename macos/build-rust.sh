@@ -21,7 +21,7 @@ targets=(aarch64-apple-darwin x86_64-apple-darwin)
 # Keep in step with deploymentTarget in project.yml.
 export MACOSX_DEPLOYMENT_TARGET="${MACOSX_DEPLOYMENT_TARGET:-13.0}"
 for t in "${targets[@]}"; do
-  cargo build --release --target "$t" -p seokdok-ffi --manifest-path "$root/Cargo.toml" "${features[@]}"
+  cargo build --release --target "$t" -p seokdok-ffi --manifest-path "$root/Cargo.toml" ${features[@]+"${features[@]}"}
 done
 
 lipo_bin=""

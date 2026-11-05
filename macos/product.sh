@@ -40,7 +40,8 @@ step = f"""      - name: Name the input sources
 """
 mark = "    postCompileScripts:\n"
 assert mark in text
-text = text.replace(mark, mark + step, 1)
+# After Copy Bundle Resources, which would otherwise put the originals back.
+text = text.replace(mark, "    postBuildScripts:\n" + step + mark, 1)
 open(path, "w", encoding="utf-8").write(text)
 PY
 xcodegen --spec "$spec"

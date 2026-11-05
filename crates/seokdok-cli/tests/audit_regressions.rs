@@ -156,6 +156,14 @@ fn endings_the_chat_runs_into_the_next_word() {
 }
 
 #[test]
+fn an_adverbial_ending_takes_a_particle() {
+    first(&[
+        ("안타깝게도", "惜깝게도"), ("아쉽게도", "惜게도"), ("슬프게도", "悲게도"), ("좋게도", "好게도"),
+        ("크게는", "大게는"), ("많게만", "多게만"),
+    ]);
+}
+
+#[test]
 fn words_that_look_like_a_loanword_or_an_ending_keep_their_reading() {
     // 올리고 and 알리고 are verb forms, not the loanwords oligo- and Aligot.
     first(&[("올리고", "昇고"), ("알리고", "告리고"), ("가자", "去자"), ("그러나", "其러나")]);

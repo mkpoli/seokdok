@@ -48,7 +48,7 @@
 
 <header class="bar">
   <SiteSelect current="seokdok" {home}>
-    <span class="mark"><img class="mark-logo" src="/favicon.svg" alt="" width="28" height="28" /><span class="mark-han">釋讀</span><span class="mark-latn">seokdok</span></span>
+    <span class="mark"><img class="mark-logo" src="/favicon.svg" alt="" width="28" height="28" /><span class="mark-han">釋讀</span><span class="mark-latn">Seokdok</span></span>
   </SiteSelect>
   <nav aria-label="sections">
     <a href="{home}#ime">{@html r(t().nav.ime)}</a>

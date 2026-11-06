@@ -29,7 +29,7 @@ else
 fi
 jq -r '[
   "#define ProductId \"\(.id)\"",
-  "#define ProductName \"\(.hanja) \(.id)\"",
+  "#define ProductName \"\(.hanja) \(.latin)\"",
   "#define AppGuid \"\(.windows.app_id)\"",
   "#define Clsid \"\(.windows.clsid)\"",
   "#define ProfileGuid \"\(.windows.profile)\"",

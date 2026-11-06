@@ -4,6 +4,9 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 
 ## 2026-11-06
 
+### Names
+- The products are written Seokdok and Eumdok everywhere people read them. Folders, domains and file names stay lowercase.
+
 ### Settings
 - Modifier keys are named 左側 and 右側: 左側 Ctrl, 右側 Alt.
 

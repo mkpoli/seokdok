@@ -410,3 +410,9 @@ fn a_coined_word_keeps_its_b_stem() {
 fn hu_is_written_after() {
     first(&[("천년후에는", "千年後에는"), ("후에도", "後에도"), ("후", "後"), ("후타나리", "후타나리"), ("후리가나를", "후리가나를")]);
 }
+
+#[test]
+fn saraji_keeps_its_inner_hangul() {
+    first(&[("사라져가고", "消라져去고"), ("사라졌다", "消라졌다"), ("사라진", "消라진")]);
+    offers(&[("사라져", "消")]);
+}

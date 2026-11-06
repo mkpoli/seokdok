@@ -154,6 +154,30 @@ can be written as a letter or moved into the next syllable (option
 the same rule applied throughout *(constructed)*, as 牛耒 [天地玄黃] asked (relayed by mkpoli, 2026-11-07).
 A silent ㅎ stays where it is: 然ㅎ어서.
 
+### 5.1 A carried spelling typed as input
+
+A writer may type the word as 表音表記, with the consonant already in the next
+syllable. The input method reads that spelling and writes the candidate
+carried too.
+
+| Typed | Candidates |
+|---|---|
+| 거슬 | 事슬, 거슬, 事ㅅ을 |
+| 이거슬 | 此事슬, 이거슬, 此것을 |
+| 봐써요 | 見써요, 見ㅆ어요 |
+| 가쓰면 | 去쓰면, 去ㅆ으면 |
+| 이써 | 在써, 有어, 在어 |
+
+The rule covers particles, endings and the past tense. The dictionary
+spelling keeps its own shape when that is what was typed: 것을 gives 事ㅅ을
+first. A carried reading leads only when it is cheaper than the ordinary
+analysis and writes a consonant after its Hanja; a word that already reads
+well keeps its reading (바다 is 海, 머리 is 頭, 아니라니 stays 아니라니). In
+國漢文混用 native words stay in Hangul, so the rule does not apply there.
+
+The input spellings and the carried candidates in the table are
+*(constructed)*.
+
 ## 6. Nominals and particles
 
 ### 6.1 Particles
@@ -393,6 +417,10 @@ candidate and the literal input stay selectable.
   2026-11-02 (exported 2026-11-03): the 在ㅆ convention and the ㅂ-stem
   morpheme spelling. The model's own suggestions in that conversation are not
   used as evidence.
+- mkpoli, request relayed from 牛耒 [天地玄黃], 2026-11-07: carrying every
+  written consonant into a following ㅇ, and typing the carried spelling
+  (거슬 → 事슬). Personal communication; the forms it asks for are marked
+  *(constructed)*.
 - libhangul `data/hanja/hanja.txt`, BSD-3-Clause, Copyright (c) 2005, 2006
   Choe Hwanjin: Sino-Korean words and 訓音 glosses.
 - Historical books, read through Korean Wikisource's transcriptions (dump of

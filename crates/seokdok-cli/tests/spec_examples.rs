@@ -83,6 +83,38 @@ fn coda_options() {
 }
 
 #[test]
+fn carried_spellings_keep_the_carry() {
+    let e = engine(Options::default());
+    let first = |s: &str| e.convert(s)[0].text.clone();
+    // Typed as it is pronounced, written as it is pronounced: 거슬 is 것을
+    // with the ㅅ carried.
+    assert_eq!(first("거슬"), "事슬");
+    assert!(offers(&e, "거슬", "事ㅅ을"));
+    assert_eq!(first("이거슬"), "此事슬");
+    assert!(offers(&e, "이거슬", "此것을"));
+    assert_eq!(first("봐써요"), "見써요");
+    assert!(offers(&e, "봐써요", "見ㅆ어요"));
+    assert_eq!(first("가쓰면"), "去쓰면");
+    assert!(offers(&e, "가쓰면", "去ㅆ으면"));
+    assert_eq!(first("재미써요"), "滋味써요");
+    assert_eq!(first("이써"), "在써");
+    assert!(offers(&e, "이써", "有어"));
+    assert!(offers(&e, "이써", "在어"));
+    // The dictionary spelling keeps its own shape when that is what was typed.
+    assert_eq!(first("것을"), "事ㅅ을");
+    assert_eq!(e.read("事슬"), "것을");
+    assert_eq!(e.read("見써요"), "봤어요");
+    // A run that already reads well keeps its reading.
+    for (input, want) in [("바다", "海"), ("머리", "頭"), ("아니라니", "아니라니"), ("코드를", "코드를")] {
+        assert_eq!(first(input), want, "{input}");
+    }
+    // 國漢文混用 writes no 訓讀 Hanja, so the carry adds nothing there.
+    let sino = engine(Options { sino_only: true, ..Options::default() });
+    assert_eq!(sino.convert("거슬")[0].text, "거슬");
+    assert!(!sino.convert("거슬").iter().any(|c| c.text == "事슬"));
+}
+
+#[test]
 fn sino_only_leaves_native_words_in_hangul() {
     check(Options { sino_only: true, ..Options::default() }, &[
         ("나라를 사랑하는 마음", "나라를 사랑하는 마음"),

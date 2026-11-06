@@ -7924,3 +7924,161 @@ lemma	written	pos	class	source	count	note
 안타깝다	內悶깝다	adj		suggested		않(內) + 답ᄭᅵ(悶): 아니, 釋讀會 chat 2026-11-06; Wiktionary 안타깝다 gives 안ㅎ + 닶갑다, 月印釋譜 1459 (search summary, entry not read)
 답답하다	鬱鬱하다	adj		suggested		아니, 釋讀會 chat 2026-11-06, citing 鬱鬱冬炎瘴 with the 諺解 답답ᄒᆞᆫ; the quotation was not located
 아깝다	惜깝다	adj		suggested		아니, 釋讀會 chat 2026-11-06: 아깝다 < 앗갑다
+# Common loanwords with the Hanja of their meaning, reviewed by GPT-6-Astra on 2026-11-06. Hangul stays first (loanwords.tsv).
+페이지	頁	noun		suggested		mkpoli's request (2026-11-05): 頁, 丁, 張
+페이지	丁	noun		suggested		mkpoli's request (2026-11-05): 頁, 丁, 張
+페이지	張	noun		suggested		mkpoli's request (2026-11-05): 頁, 丁, 張
+위키	維基	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+사이트	網站	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+사이트	站	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+링크	連結	noun		suggested	4	meaning of the loanword, as Chinese or Japanese write it
+링크	鏈接	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+인터넷	網	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+인터넷	網際網路	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+인터넷	互聯網	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+뉴스	新聞	noun		suggested	26	meaning of the loanword, as Chinese or Japanese write it
+채팅	聊天	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+채팅	對話	noun		suggested	28	meaning of the loanword, as Chinese or Japanese write it
+컴퓨터	電腦	noun		suggested	5	meaning of the loanword, as Chinese or Japanese write it
+컴퓨터	計算機	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+디자인	設計	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+디자인	意匠	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+로마	羅馬	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+파일	文件	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+파일	檔案	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+프로그램	程序	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+프로그램	程式	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+키보드	字板	noun		suggested		the site's own word for the keyboard
+키보드	鍵盤	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+프로젝트	計劃	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+프로젝트	企劃	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+서버	服務器	noun		suggested	3	meaning of the loanword, as Chinese or Japanese write it
+서버	伺服器	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+데이터	資料	noun		suggested	43	meaning of the loanword, as Chinese or Japanese write it
+데이터	數據	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+메시지	消息	noun		suggested	5	meaning of the loanword, as Chinese or Japanese write it
+메시지	傳言	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+모드	模式	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+버전	版	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+버전	版本	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+네덜란드	和蘭	noun		suggested	3	meaning of the loanword, as Chinese or Japanese write it
+네덜란드	荷蘭	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+게임	遊戲	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+디지털	數字	noun		suggested	20	meaning of the loanword, as Chinese or Japanese write it
+이미지	畫像	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+이미지	圖像	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+채널	頻道	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+메뉴	菜單	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+메뉴	目錄	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+커피	珈琲	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+커피	咖啡	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+코드	符號	noun		suggested	8	meaning of the loanword, as Chinese or Japanese write it
+코드	代碼	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+아이디어	着想	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+아이디어	發想	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+그룹	群	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+그룹	組	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+포스터	海報	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+서비스	服務	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+서비스	奉仕	noun		suggested	7	meaning of the loanword, as Chinese or Japanese write it
+플랫폼	乘降場	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+플랫폼	平臺	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+아이스크림	氷淇淋	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+온라인	線上	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+바이러스	病毒	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+러시아	露西亞	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+러시아	俄羅斯	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+프랑스	佛蘭西	noun		suggested	5	meaning of the loanword, as Chinese or Japanese write it
+프랑스	法國	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+드라마	連續劇	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+드라마	劇	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+시스템	體系	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+시스템	系統	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+버튼	鈕	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+버스	巴士	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+브랜드	商標	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+스타	星	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+아이콘	圖標	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+달러	弗	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+달러	美金	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+업데이트	更新	noun		suggested	5	meaning of the loanword, as Chinese or Japanese write it
+커뮤니티	共同體	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+카드	札	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+테스트	試驗	noun		suggested	9	meaning of the loanword, as Chinese or Japanese write it
+다운로드	下載	noun		suggested	3	meaning of the loanword, as Chinese or Japanese write it
+로봇	機械人	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+슬로건	標語	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+스타일	樣式	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+엔진	機關	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+엔진	發動機	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+메일	郵便	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+메일	郵件	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+헬리콥터	直升機	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+시리즈	系列	noun		suggested	6	meaning of the loanword, as Chinese or Japanese write it
+모델	模型	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+모델	模範	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+글로벌	全球	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+필터	濾過器	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+카테고리	範疇	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+카테고리	分類	noun		suggested	3	meaning of the loanword, as Chinese or Japanese write it
+리스트	目錄	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+리스트	名單	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+컬러	色	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+컬러	彩色	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+멜로디	旋律	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+티비	電視	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+크리스마스	聖誕	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+치즈	乾酪	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+미터	米	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+옵션	選項	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+라디오	收音機	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+아마추어	素人	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+알파벳	字母	noun		suggested	3	meaning of the loanword, as Chinese or Japanese write it
+버그	蟲	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+주스	果汁	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+로켓	火箭	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+트럭	貨車	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+파티	宴會	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+텔레비전	電視	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+택시	的士	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+택시	計程車	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+호텔	旅館	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+호텔	飯店	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+카메라	寫眞機	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+피아노	鋼琴	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+바이올린	提琴	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+스포츠	運動	noun		suggested	9	meaning of the loanword, as Chinese or Japanese write it
+에어컨	冷房	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+엘리베이터	昇降機	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+티켓	票	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+스케줄	日程	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+프린터	印刷機	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+모니터	顯示器	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+배터리	電池	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+테이블	卓	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+콜라	可樂	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+샤워	淋浴	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+가스	瓦斯	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+잉크	墨	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+펜	筆	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+노트	筆記	noun		suggested	5	meaning of the loanword, as Chinese or Japanese write it
+미디어	媒體	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+콘텐츠	內容	noun		suggested	16	meaning of the loanword, as Chinese or Japanese write it
+사이즈	大小	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+사이즈	寸法	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+타이틀	題目	noun		suggested	11	meaning of the loanword, as Chinese or Japanese write it
+홈페이지	首頁	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+홈페이지	網站	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+텍스트	文字	noun		suggested	74	meaning of the loanword, as Chinese or Japanese write it
+텍스트	文本	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+폰트	字體	noun		suggested	13	meaning of the loanword, as Chinese or Japanese write it
+그리스	希臘	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+멕시코	墨西哥	noun		suggested	7	meaning of the loanword, as Chinese or Japanese write it
+포르투갈	葡萄牙	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+스페인	西班牙	noun		suggested	4	meaning of the loanword, as Chinese or Japanese write it
+캐나다	加拿大	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+아시아	亞細亞	noun		suggested	2	meaning of the loanword, as Chinese or Japanese write it
+아메리카	亞美利加	noun		suggested		meaning of the loanword, as Chinese or Japanese write it
+싱가포르	新嘉坡	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it
+터키	土耳其	noun		suggested	4	meaning of the loanword, as Chinese or Japanese write it
+우크라이나	烏克蘭	noun		suggested	1	meaning of the loanword, as Chinese or Japanese write it

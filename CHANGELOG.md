@@ -4,6 +4,9 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 
 ## 2026-11-06
 
+### Dictionary
+- Common loanwords offer Hanja behind the Hangul: 페이지 頁 丁 張, 컴퓨터 電腦, 커피 珈琲, 러시아 露西亞.
+
 ### iOS
 - The keyboard follows Apple's more closely: held Delete at 10/s and then by words, Space trackpad timing, 123 switching on landing, landscape height, margin taps, double-space period, smart quotes, Return labels and field types.
 - Every key with a corner letter offers it on a long press, so ㅿ, ㆁ, ㆆ and ㆍ need no Shift.

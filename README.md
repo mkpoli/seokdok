@@ -1,4 +1,4 @@
-# seokdok 釋讀
+# Seokdok 釋讀
 
 An input method for 釋讀, the Korean spelling played with in 釋讀會 (풀어읽기모임): Sino-Korean words in Hanja by sound (音讀), native words in Hanja by meaning (訓讀), and the inflected rest in Hangul (末音添記). It runs in the browser at [seokdok.mkpo.li](https://seokdok.mkpo.li/) and installs as a system input method on Windows, macOS, Linux (fcitx5), Android and iOS.
 
@@ -97,7 +97,7 @@ These rebuild `community.tsv`, `gloss.tsv` and `sino.tsv` and refresh the usage 
 
 ## Sponsor
 
-I build seokdok on my own, with no funding behind it, and it's free for everyone. If it's useful to you, a tip on [Ko-fi](https://ko-fi.com/mkpoli) or [OFUSE](https://ofuse.me/mkpoli) gives me time to keep improving it. Companies interested in sponsoring can write to mkpoli@mkpo.li.
+I build Seokdok on my own, with no funding behind it, and it's free for everyone. If it's useful to you, a tip on [Ko-fi](https://ko-fi.com/mkpoli) or [OFUSE](https://ofuse.me/mkpoli) gives me time to keep improving it. Companies interested in sponsoring can write to mkpoli@mkpo.li.
 
 [![Support me on Ko-fi](https://ko-fi.com/img/githubbutton_sm.svg)](https://ko-fi.com/mkpoli)
 

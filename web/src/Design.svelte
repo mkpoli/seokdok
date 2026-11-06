@@ -18,7 +18,7 @@
 </script>
 
 <main class="section">
-  <p class="eyebrow">seokdok design system</p>
+  <p class="eyebrow">Seokdok design system</p>
   <h1 class="h2">釋讀 · Design</h1>
   <div class="seg" role="group" aria-label="scheme">
     {#each ['auto', 'light', 'dark'] as s}

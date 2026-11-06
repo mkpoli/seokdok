@@ -26,7 +26,7 @@
     "setup_guide": "https://eumdok.mkpo.li/",
     "setup_back_light": "#7c2d23",
     "setup_back_dark": "#1d0e0b",
-    "display_name": "音讀 (eumdok)"
+    "display_name": "音讀 (Eumdok)"
   },
   "android": { "application_id": "li.mkpo.eumdok", "flavor": "eumdok" },
   "ios": {

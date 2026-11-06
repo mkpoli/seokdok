@@ -6,7 +6,7 @@
   let { current, home = '', children } = $props()
 
   const SITES = [
-    { id: 'seokdok', href: '/', logo: '/favicon.svg', han: '釋讀', latn: 'seokdok', lang: 'ko' },
+    { id: 'seokdok', href: '/', logo: '/favicon.svg', han: '釋讀', latn: 'Seokdok', lang: 'ko' },
     { id: 'eumdok', href: '/eumdok', logo: '/favicon-eumdok.svg', han: '音讀', latn: 'Eumdok', lang: 'ko' },
   ]
   const more = $derived(`https://scripts.mkpo.li/${i18n.lang === 'en' ? '' : 'ko/'}`)

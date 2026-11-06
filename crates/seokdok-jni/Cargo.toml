@@ -1,6 +1,6 @@
 [package]
 name = "seokdok-jni"
-description = "釋讀 (seokdok) input method: JNI bindings for the Android keyboard"
+description = "釋讀 (Seokdok) input method: JNI bindings for the Android keyboard"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

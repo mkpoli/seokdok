@@ -1,4 +1,4 @@
-//! 釋讀 (seokdok) input method for Windows: a Text Services Framework text
+//! 釋讀 (Seokdok) input method for Windows: a Text Services Framework text
 //! input processor.
 //!
 //! The key state machine, key vocabulary, settings and engine loading live in

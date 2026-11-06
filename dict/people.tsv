@@ -1,6 +1,6 @@
 # Well-known people's names and their Hanja. People: Wikidata (CC0), humans of a Korean or Chinese state with at least
-# 6 sitelinks and an article on Korean Wikipedia, queried 2026-11-06. Hanja: the opening section of that article
-# (CC BY-SA 4.0), kept only when every character's sound matches the name's Hangul. A wiki is a secondary source.
+# 6 sitelinks and an article on Korean Wikipedia, queried 2026-11-06. Hanja: that article's opening section
+# (CC BY-SA 4.0): its first sentence, else the infobox's name fields, kept only when every character's sound matches the name's Hangul. A wiki is a secondary source.
 # Rows sharing a reading are ordered by sitelinks. The note gives the Wikidata item and the article's revision.
 reading	hanja	count	source	note
 가경제	嘉慶帝	0	person-name	Q333178 ko:41919328
@@ -66,12 +66,10 @@ reading	hanja	count	source	note
 강신일	姜信一	0	person-name	Q6824331 ko:42661877
 강신효	姜信曉	0	person-name	Q16869351 ko:41867539
 강애심	康愛心	0	person-name	Q16177667 ko:42620801
-강여상	姜呂尚	0	person-name	Q85878532 ko:39630956
 강영미	姜榮美	0	person-name	Q26224018 ko:42687272
 강영서	姜英署	0	person-name	Q15910767 ko:42521014
 강영섭	康永燮	0	person-name	Q2233555 ko:39842290
 강영숙	姜英淑	0	person-name	Q12582977 ko:42097584
-강영현	姜永晛	0	person-name	Q22101239 ko:42206241
 강영훈	姜英勳	0	person-name	Q482794 ko:42147616
 강예서	姜睿序	0	person-name	Q12582984 ko:41215931
 강옥순	姜玉順	0	person-name	Q6362267 ko:41645894
@@ -110,8 +108,6 @@ reading	hanja	count	source	note
 강희찬	姜熙燦	0	person-name	Q562497 ko:42263673
 개로왕	蓋鹵王	0	person-name	Q497775 ko:41923252
 개루왕	蓋婁王	0	person-name	Q497364 ko:41207618
-거룡	巨龍	0	person-name	Q496464 ko:41365309
-거비	去卑	0	person-name	Q3273270 ko:39755881
 건륭제	乾隆帝	0	person-name	Q19133 ko:42522125
 건문제	建文帝	0	person-name	Q9961 ko:41034130
 걸걸중상	乞乞仲象	0	person-name	Q715586 ko:42093957
@@ -192,12 +188,9 @@ reading	hanja	count	source	note
 공양장황후	恭讓章皇后	0	person-name	Q8254411 ko:39391649
 공영달	孔穎達	0	person-name	Q5369940 ko:40595740
 공유	孔劉	0	person-name	Q623436 ko:42736657
-공유덕	孔有德	0	person-name	Q5977979 ko:39783675
 공자영	孔慈英	0	person-name	Q6429129 ko:42509175
 공자진	龔自珍	0	person-name	Q1041328 ko:40595006
-공정자	龔鼎孳	0	person-name	Q5581680 ko:42047115
 공지영	孔枝泳	0	person-name	Q483344 ko:42532257
-공진	鞏珍	0	person-name	Q3497776 ko:39745728
 공형진	孔炯軫	0	person-name	Q6823164 ko:41137313
 공혜왕후	恭惠王后	0	person-name	Q625340 ko:41489917
 공효석	孔孝錫	0	person-name	Q497693 ko:41108500
@@ -261,7 +254,6 @@ reading	hanja	count	source	note
 권경원	權敬原	0	person-name	Q15622824 ko:42739477
 권기옥	權基玉	0	person-name	Q489782 ko:41884228
 권도형	權渡衡	0	person-name	Q111966466 ko:42531552
-권리세	權梨世	0	person-name	Q9300078 ko:42539701
 권민아	權珉娥	0	person-name	Q16171991 ko:42331760
 권상우	權祥佑	0	person-name	Q483621 ko:42476894
 권상하	權尙夏	0	person-name	Q486364 ko:41073579
@@ -360,7 +352,7 @@ reading	hanja	count	source	note
 김근환	金根煥	0	person-name	Q168435 ko:42065563
 김금일	金琴一	0	person-name	Q439596 ko:41060427
 김금희	金錦姬	0	person-name	Q43287465 ko:42344178
-김기남	金基南	0	person-name	Q492835 ko:39475612
+김기남	金己男	0	person-name	Q492835 ko:39475612
 김기덕	金基德	0	person-name	Q212990 ko:40970343
 김기덕	金基悳	0	person-name	Q493100 ko:42586245
 김기동	金基東	0	person-name	Q6408647 ko:42710711
@@ -388,7 +380,7 @@ reading	hanja	count	source	note
 김다현	金多炫	0	person-name	Q16080174 ko:41958188
 김대건	金大建	0	person-name	Q343569 ko:42446220
 김대명	金大明	0	person-name	Q17963974 ko:42552229
-김대욱	金旲昱	0	person-name	Q19017212 ko:41169927
+김대욱	金大旭	0	person-name	Q19017212 ko:41169927
 김대은	金大恩	0	person-name	Q489466 ko:42037029
 김대의	金大儀	0	person-name	Q489840 ko:41688318
 김대중	金大中	0	person-name	Q45785 ko:42739648
@@ -571,7 +563,7 @@ reading	hanja	count	source	note
 김소월	金素月	0	person-name	Q496828 ko:41774203
 김소은	金素恩	0	person-name	Q496433 ko:42580258
 김소현	金素賢	0	person-name	Q17486965 ko:42663029
-김소희	金昭希	0	person-name	Q26260697 ko:42094561
+김소희	金昭希	0	person-name	Q485963 ko:41071093
 김수겸	金秀謙	0	person-name	Q107109035 ko:42682336
 김수경	金守經	0	person-name	Q489712 ko:42484923
 김수근	金壽根	0	person-name	Q497301 ko:41680255
@@ -752,7 +744,6 @@ reading	hanja	count	source	note
 김정숙	金正淑	0	person-name	Q463949 ko:42140722
 김정야	金正也	0	person-name	Q486988 ko:41369861
 김정우	金正友	0	person-name	Q350215 ko:42642796
-김정우	金廷祐	0	person-name	Q60831979 ko:42167970
 김정은	金正恩	0	person-name	Q56226 ko:42705388
 김정은	金諪恩	0	person-name	Q489001 ko:41764366
 김정일	金正日	0	person-name	Q10665 ko:42553815
@@ -790,6 +781,7 @@ reading	hanja	count	source	note
 김종필	金鐘必	0	person-name	Q6408952 ko:41876979
 김종학	金鍾學	0	person-name	Q12588702 ko:42297135
 김종현	金鐘鉉	0	person-name	Q487751 ko:42553582
+김좌진	金佐鎭	0	person-name	Q490001 ko:42157751
 김주성	金鑄城	0	person-name	Q222788 ko:40674404
 김주성	金朱晟	0	person-name	Q64576508 ko:42675053
 김주식	金柱植	0	person-name	Q17129566 ko:41771508
@@ -797,7 +789,6 @@ reading	hanja	count	source	note
 김주영	金周榮	0	person-name	Q6408987 ko:42131936
 김주진	金周珍	0	person-name	Q11646605 ko:39518528
 김주혁	金柱赫	0	person-name	Q491363 ko:42742230
-김준규	金俊奎	0	person-name	Q97319986 ko:41138477
 김준수	金俊秀	0	person-name	Q482783 ko:42651523
 김준한	金準韓	0	person-name	Q47600523 ko:42405893
 김준현	金峻鉉	0	person-name	Q16080445 ko:41657157
@@ -847,7 +838,6 @@ reading	hanja	count	source	note
 김창수	金昌洙	0	person-name	Q497337 ko:42133717
 김창열	金昌烈	0	person-name	Q6409518 ko:41411223
 김창완	金昌完	0	person-name	Q10855903 ko:42672111
-김창준	金昌準	0	person-name	Q489419 ko:42133846
 김창호	金昌浩	0	person-name	Q16704382 ko:39560780
 김창훈	金昶訓	0	person-name	Q6408456 ko:39322032
 김창희	金昌熙	0	person-name	Q6408453 ko:41943847
@@ -910,7 +900,6 @@ reading	hanja	count	source	note
 김해진	金海珍	0	person-name	Q493524 ko:39156878
 김향기	金香起	0	person-name	Q12589202 ko:42594068
 김혁봉	金赫奉	0	person-name	Q6408783 ko:42141155
-김혁철	金革哲	0	person-name	Q41635460 ko:42205639
 김현겸	金賢兼	0	person-name	Q117305687 ko:41197795
 김현곤	金炫坤	0	person-name	Q8978386 ko:41758592
 김현기	金鉉起	0	person-name	Q486585 ko:39160719
@@ -927,7 +916,7 @@ reading	hanja	count	source	note
 김현정	金炫廷	0	person-name	Q490429 ko:42557077
 김현주	金賢珠	0	person-name	Q488828 ko:42667014
 김현중	金賢重	0	person-name	Q489854 ko:42179894
-김현철	金顕哲	0	person-name	Q625046 ko:41473502
+김현철	金顯哲	0	person-name	Q625046 ko:41473502
 김현훈	金炫訓	0	person-name	Q15402004 ko:42135646
 김현희	金賢姬	0	person-name	Q488561 ko:42625645
 김형범	金炯氾	0	person-name	Q6408776 ko:42095208
@@ -986,7 +975,6 @@ reading	hanja	count	source	note
 나은	羅隱	0	person-name	Q711778 ko:39329710
 나인우	羅人友	0	person-name	Q21040300 ko:42609679
 나재민	羅渽民	0	person-name	Q27431345 ko:42751111
-나해령	羅海嶺	0	person-name	Q16767981 ko:42189682
 나혜미	羅惠美	0	person-name	Q9326975 ko:42306655
 나홍진	羅泓軫	0	person-name	Q490406 ko:42680908
 나희덕	羅喜德	0	person-name	Q9909864 ko:41775001
@@ -1010,7 +998,6 @@ reading	hanja	count	source	note
 남일우	南溢祐	0	person-name	Q11408230 ko:42221265
 남정현	南廷賢	0	person-name	Q11407826 ko:41174497
 남지연	南智軟	0	person-name	Q10856082 ko:42339026
-남천보원	南泉普願	0	person-name	Q1008025 ko:41143709
 남태현	南太鉉	0	person-name	Q15981190 ko:41720480
 남태희	南泰熙	0	person-name	Q483510 ko:42504739
 남해차차웅	南解次次雄	0	person-name	Q496504 ko:42745585
@@ -1057,13 +1044,11 @@ reading	hanja	count	source	note
 단의왕후	端懿王后	0	person-name	Q7215773 ko:39053201
 단정엄	段正嚴	0	person-name	Q2213643 ko:41395643
 단하천연	丹霞天然	0	person-name	Q10840066 ko:41114885
-단화	端華	0	person-name	Q5310418 ko:40826115
 단흥지	段興智	0	person-name	Q11125562 ko:39736621
 담사동	譚嗣同	0	person-name	Q1191225 ko:40610675
 담약수	湛若水	0	person-name	Q13553235 ko:40610667
 담윤현	談允賢	0	person-name	Q4794429 ko:39524466
 당경숭	唐景崧	0	person-name	Q701499 ko:39123524
-당경종	唐敬宗	0	person-name	Q9776 ko:39161164
 당대종	唐代宗	0	person-name	Q9753 ko:39040269
 당덕종	唐德宗	0	person-name	Q9755 ko:39040443
 당무종	唐武宗	0	person-name	Q9801 ko:39161180
@@ -1125,7 +1110,6 @@ reading	hanja	count	source	note
 등자룡	鄧子龍	0	person-name	Q839323 ko:41123588
 라건아	羅健兒	0	person-name	Q14326826 ko:40567070
 라종일	羅鍾一	0	person-name	Q578806 ko:41290325
-량규사	梁圭史	0	person-name	Q3246575 ko:42209505
 량용기	梁勇基	0	person-name	Q437568 ko:41060461
 렴대옥	廉大玉	0	person-name	Q24866734 ko:41771474
 로두철	盧斗哲	0	person-name	Q3434055 ko:39232170
@@ -1189,7 +1173,6 @@ reading	hanja	count	source	note
 리종옥	李鍾玉	0	person-name	Q482818 ko:41413814
 리준일	李俊一	0	person-name	Q370475 ko:41574198
 리찬명	李燦明	0	person-name	Q1185429 ko:41574080
-리창강	李彰剛	0	person-name	Q6513220 ko:41260860
 리태남	李泰南	0	person-name	Q9310192 ko:39223194
 리한재	李漢宰	0	person-name	Q700421 ko:42210410
 리향옥	李香玉	0	person-name	Q20156180 ko:39536240
@@ -1203,7 +1186,6 @@ reading	hanja	count	source	note
 마세건	馬世健	0	person-name	Q107340046 ko:42685756
 마신이	馬新貽	0	person-name	Q1014579 ko:41522844
 마원	馬遠	0	person-name	Q433603 ko:39245593
-마조도일	馬祖導一	0	person-name	Q1914745 ko:41509311
 마종기	馬鍾基	0	person-name	Q12594707 ko:39269381
 마주	馬周	0	person-name	Q986653 ko:41528959
 마충	馬忠	0	person-name	Q1131634 ko:39159685
@@ -1216,7 +1198,7 @@ reading	hanja	count	source	note
 맹상훈	孟床訓	0	person-name	Q16079896 ko:42440230
 맹호연	孟浩然	0	person-name	Q455589 ko:41240603
 명덕황후	明德皇后	0	person-name	Q3370225 ko:41117069
-명림답부	明臨答夫	0	person-name	Q710902 ko:42759565
+명림답부	明臨答夫	0	person-name	Q710902 ko:42759647
 명성왕후	明聖王后	0	person-name	Q483178 ko:42093520
 명성황후	明成皇后	0	person-name	Q464503 ko:42679429
 명세빈	明世彬	0	person-name	Q493642 ko:41956468
@@ -1295,7 +1277,6 @@ reading	hanja	count	source	note
 문희상	文喜相	0	person-name	Q12595907 ko:42704860
 문희정	文熙貞	0	person-name	Q2680692 ko:42221143
 문희준	文熙晙	0	person-name	Q488600 ko:42065952
-미나	米娜	0	person-name	Q485143 ko:41091931
 미불	米芾	0	person-name	Q320129 ko:41244437
 미실	美室	0	person-name	Q1038955 ko:41959946
 미천왕	美川王	0	person-name	Q498693 ko:42438460
@@ -1372,8 +1353,7 @@ reading	hanja	count	source	note
 박상영	朴相映	0	person-name	Q69697153 ko:42485023
 박상원	朴相元	0	person-name	Q12596709 ko:42605370
 박상인	朴商寅	0	person-name	Q3381824 ko:42648043
-박상학	朴尚學	0	person-name	Q15830710 ko:42272650
-박상훈	朴賞訓	0	person-name	Q55729996 ko:42690940
+박상학	朴相學	0	person-name	Q15830710 ko:42272650
 박서준	朴敘俊	0	person-name	Q5116234 ko:41706265
 박석민	朴錫珉	0	person-name	Q625430 ko:42485906
 박석진	朴石鎭	0	person-name	Q497239 ko:42485910
@@ -1392,7 +1372,6 @@ reading	hanja	count	source	note
 박성화	朴星化	0	person-name	Q85880867 ko:40387719
 박성후	朴性厚	0	person-name	Q99916671 ko:39623452
 박성훈	朴成焄	0	person-name	Q22973857 ko:42613375
-박성훈	朴成訓	0	person-name	Q17198771 ko:40938618
 박성희	朴晟希	0	person-name	Q485902 ko:39154529
 박세영	朴世榮	0	person-name	Q616590 ko:42573650
 박세영	朴世永	0	person-name	Q11243256 ko:40830709
@@ -1432,7 +1411,6 @@ reading	hanja	count	source	note
 박용호	朴容昊	0	person-name	Q497389 ko:42195996
 박우상	朴禹相	0	person-name	Q3365436 ko:39500784
 박우진	朴佑鎭	0	person-name	Q30311706 ko:41987822
-박원빈	朴元彬	0	person-name	Q123528897 ko:41610394
 박원순	朴元淳	0	person-name	Q22803 ko:42734300
 박원재	朴源載	0	person-name	Q166556 ko:40832345
 박유천	朴裕千	0	person-name	Q482519 ko:42497943
@@ -1475,7 +1453,7 @@ reading	hanja	count	source	note
 박정환	朴廷桓	0	person-name	Q492828 ko:42638120
 박정희	朴正熙	0	person-name	Q14356 ko:42746339
 박제가	朴齊家	0	person-name	Q562695 ko:42273562
-박제순	朴斉純	0	person-name	Q626194 ko:42021619
+박제순	朴齊純	0	person-name	Q626194 ko:42021619
 박제천	朴堤千	0	person-name	Q17361411 ko:41127107
 박종우	朴鍾佑	0	person-name	Q485436 ko:41399884
 박종진	朴宗眞	0	person-name	Q497683 ko:42253486
@@ -1533,7 +1511,7 @@ reading	hanja	count	source	note
 박철민	朴哲民	0	person-name	Q705201 ko:39091930
 박철수	朴哲洙	0	person-name	Q498489 ko:40765721
 박철우	朴哲祐	0	person-name	Q491587 ko:41211315
-박철진	朴哲鎮	0	person-name	Q462515 ko:41060439
+박철진	朴哲鎭	0	person-name	Q462515 ko:41060439
 박청삼	朴清三	0	person-name	Q18817958 ko:42533012
 박충균	朴忠均	0	person-name	Q970108 ko:42329671
 박충훈	朴忠勳	0	person-name	Q6784197 ko:42682984
@@ -1598,7 +1576,6 @@ reading	hanja	count	source	note
 배신영	裵信泳	0	person-name	Q19939961 ko:42206189
 배연주	裵延姝	0	person-name	Q458159 ko:39302743
 배용준	裵勇浚	0	person-name	Q334504 ko:42757155
-배유람	裴侑藍	0	person-name	Q19794695 ko:42285822
 배은혜	裵恩惠	0	person-name	Q6392157 ko:39286978
 배인혁	裴仁爀	0	person-name	Q85865459 ko:42022089
 배준호	裵峻浩	0	person-name	Q118978780 ko:42601679
@@ -1614,7 +1591,7 @@ reading	hanja	count	source	note
 백남운	白南雲	0	person-name	Q626523 ko:41456774
 백남준	白南準	0	person-name	Q158056 ko:42283688
 백동규	白棟圭	0	person-name	Q20675930 ko:42531272
-백두진	白頭眞	0	person-name	Q482877 ko:41473567
+백두진	白斗鎭	0	person-name	Q482877 ko:41473567
 백민석	白閔石	0	person-name	Q15977279 ko:41366760
 백봉기	白峯基	0	person-name	Q12597774 ko:41623913
 백석	白石	0	person-name	Q489436 ko:41774613
@@ -1657,31 +1634,26 @@ reading	hanja	count	source	note
 변정일	邊丁一	0	person-name	Q623431 ko:39279109
 변준범	變俊範	0	person-name	Q17226108 ko:42253467
 변진섭	卞眞燮	0	person-name	Q16090207 ko:42621756
-변천사	變遷史	0	person-name	Q489368 ko:42621776
 변희봉	邊希峰	0	person-name	Q483578 ko:42735070
 보공석	輔公祏	0	person-name	Q5506837 ko:39743830
 보천	步闡	0	person-name	Q844292 ko:39072772
 보협	步協	0	person-name	Q7224357 ko:39174671
 복강안	福康安	0	person-name	Q698065 ko:42294080
 복거일	卜鉅一	0	person-name	Q626098 ko:41637229
-복만	福滿	0	person-name	Q1080363 ko:39093188
 봉상왕	烽上王	0	person-name	Q498667 ko:39818492
 봉재현	奉宰鉉	0	person-name	Q55737161 ko:41481145
 봉준호	奉俊昊	0	person-name	Q495980 ko:42586242
 봉중근	奉重根	0	person-name	Q50609 ko:42549413
 봉태규	奉太奎	0	person-name	Q81508 ko:42665961
-부산	傅山	0	person-name	Q3090484 ko:39166625
 부선상	傅善祥	0	person-name	Q10889024 ko:40603200
 부여융	扶餘隆	0	person-name	Q703318 ko:39087104
 부여태후	扶餘太后	0	person-name	Q110115163 ko:41686305
 부용찬	夫用贊	0	person-name	Q21284641 ko:39508044
-부준	溥儁	0	person-name	Q6136011 ko:42648096
 분서왕	汾西王	0	person-name	Q497533 ko:41207628
 불공	不空	0	person-name	Q1363621 ko:40555657
 비담	毗曇	0	person-name	Q493940 ko:39139899
 비류	沸流	0	person-name	Q1062720 ko:41969779
 비류왕	比流王	0	person-name	Q497553 ko:41207631
-비신	費信	0	person-name	Q3498165 ko:41571633
 비유왕	毗有王	0	person-name	Q497755 ko:41207647
 사도청	謝道淸	0	person-name	Q5357886 ko:39248235
 사마광	司馬光	0	person-name	Q33566 ko:42322418
@@ -1707,7 +1679,7 @@ reading	hanja	count	source	note
 서경배	徐慶培	0	person-name	Q19663454 ko:42293370
 서계	徐階	0	person-name	Q11071010 ko:41680925
 서계여	徐繼畬	0	person-name	Q706890 ko:41537036
-서광계	徐光啟	0	person-name	Q420427 ko:41043428
+서광계	徐光啓	0	person-name	Q420427 ko:41043428
 서달	徐達	0	person-name	Q1355886 ko:41387436
 서도영	徐道永	0	person-name	Q485324 ko:41815654
 서도호	徐道濩	0	person-name	Q3033213 ko:42505198
@@ -1722,7 +1694,6 @@ reading	hanja	count	source	note
 서송	徐松	0	person-name	Q6128042 ko:40614603
 서수진	徐穗珍	0	person-name	Q61100297 ko:41857457
 서수휘	徐壽輝	0	person-name	Q1185018 ko:39175873
-서연	舒妍	0	person-name	Q126684254 ko:42689447
 서영우	徐英瑀	0	person-name	Q16762284 ko:39496941
 서영은	徐永恩	0	person-name	Q11250307 ko:42384494
 서영주	徐榮柱	0	person-name	Q7451491 ko:41216058
@@ -1768,7 +1739,6 @@ reading	hanja	count	source	note
 석상초원	石霜楚圓	0	person-name	Q9336084 ko:41779052
 석하정	石㵑淨	0	person-name	Q9035908 ko:40393606
 석현준	石現俊	0	person-name	Q211691 ko:42640683
-선기	善耆	0	person-name	Q10923473 ko:41815546
 선덕여왕	善德女王	0	person-name	Q485131 ko:42067463
 선덕제	宣德帝	0	person-name	Q9977 ko:40576462
 선동열	宣銅烈	0	person-name	Q482785 ko:41510809
@@ -1808,10 +1778,9 @@ reading	hanja	count	source	note
 성혁	性赫	0	person-name	Q12971404 ko:42689533
 성현아	成賢娥	0	person-name	Q7451576 ko:42698185
 성혜림	成蕙琳	0	person-name	Q487289 ko:41922883
-성혼	成婚	0	person-name	Q496891 ko:41616592
+성혼	成渾	0	person-name	Q496891 ko:41616592
 성화제	成化帝	0	person-name	Q9991 ko:40576459
 성효소황후	誠孝昭皇后	0	person-name	Q719667 ko:39391642
-소극살합	蘇克薩哈	0	person-name	Q911315 ko:40099577
 소무제	紹武帝	0	person-name	Q1046002 ko:40275284
 소서노	召西奴	0	person-name	Q715707 ko:42658908
 소송	蘇頌	0	person-name	Q1265657 ko:40949269
@@ -1870,6 +1839,7 @@ reading	hanja	count	source	note
 손완호	孫完虎	0	person-name	Q562837 ko:42593633
 손원일	孫元一	0	person-name	Q624726 ko:42583365
 손원평	孫元平	0	person-name	Q97338773 ko:41124379
+손이양	孫詒譲	0	person-name	Q835620 ko:40955651
 손익	孫翊	0	person-name	Q1147819 ko:39080601
 손정륜	孫正倫	0	person-name	Q7560592 ko:42210394
 손준호	孫準浩	0	person-name	Q16219589 ko:42281740
@@ -1883,7 +1853,6 @@ reading	hanja	count	source	note
 손환	孫桓	0	person-name	Q1133159 ko:39170694
 손환	孫奐	0	person-name	Q862775 ko:41243537
 손휴	孫休	0	person-name	Q468767 ko:39044566
-손흠	孫欽	0	person-name	Q5366380 ko:41896230
 손흥민	孫興慜	0	person-name	Q439722 ko:42754652
 송가인	宋歌人	0	person-name	Q31176292 ko:42376227
 송강	宋江	0	person-name	Q41777221 ko:42544937
@@ -1970,7 +1939,7 @@ reading	hanja	count	source	note
 숭정제	崇禎帝	0	person-name	Q10069 ko:40667630
 시내암	施耐庵	0	person-name	Q1777502 ko:40955449
 시랑	施琅	0	person-name	Q701449 ko:42660182
-시적	施績	0	person-name	Q862787 ko:39166456
+시적	施積	0	person-name	Q862787 ko:39166456
 신경림	申庚林	0	person-name	Q3482149 ko:39627000
 신경숙	申京淑	0	person-name	Q384293 ko:41652452
 신광훈	申光勳	0	person-name	Q2580308 ko:42271629
@@ -1985,7 +1954,6 @@ reading	hanja	count	source	note
 신동혁	申東赫	0	person-name	Q64075 ko:42334474
 신동호	申東澔	0	person-name	Q493590 ko:41659261
 신류	申瀏	0	person-name	Q717416 ko:41481506
-신류진	申留眞	0	person-name	Q60870265 ko:42565489
 신립	申砬	0	person-name	Q483227 ko:42754041
 신민아	申敏兒	0	person-name	Q464569 ko:42732154
 신민준	申旻埈	0	person-name	Q16160030 ko:42647718
@@ -2046,7 +2014,6 @@ reading	hanja	count	source	note
 신해철	申海澈	0	person-name	Q485059 ko:42729025
 신현빈	申鉉彬	0	person-name	Q493278 ko:42623908
 신현송	申鉉松	0	person-name	Q5962488 ko:41910903
-신현수	申鉉洙	0	person-name	Q3144455 ko:40387984
 신현준	申鉉濬	0	person-name	Q490207 ko:42721907
 신현확	申鉉碻	0	person-name	Q459342 ko:41771691
 신형민	辛炯旼	0	person-name	Q486708 ko:42188484
@@ -2089,7 +2056,7 @@ reading	hanja	count	source	note
 아사나사이	阿史那社爾	0	person-name	Q10564930 ko:39537568
 아신왕	阿莘王	0	person-name	Q497688 ko:41207641
 악락	岳樂	0	person-name	Q11050638 ko:39469152
-악비	岳飛	0	person-name	Q334398 ko:42236652
+악종기	岳鍾琪	0	person-name	Q15295213 ko:41245481
 악취	樂就	0	person-name	Q1185017 ko:39170684
 안견	安堅	0	person-name	Q1036353 ko:41596011
 안경서	安慶緒	0	person-name	Q708319 ko:39523820
@@ -2137,7 +2104,7 @@ reading	hanja	count	source	note
 안익태	安益泰	0	person-name	Q496386 ko:42371371
 안인숙	安仁淑	0	person-name	Q4696237 ko:42751291
 안인영	安仁英	0	person-name	Q24705947 ko:41651429
-안장왕	安藏王	0	person-name	Q498846 ko:42352722
+안장왕	安臧王	0	person-name	Q498846 ko:42352722
 안재모	安在模	0	person-name	Q6821789 ko:42106600
 안재준	安宰晙	0	person-name	Q4750125 ko:41028325
 안재현	安宰賢	0	person-name	Q63349734 ko:42563962
@@ -2168,7 +2135,6 @@ reading	hanja	count	source	note
 안희연	安喜延	0	person-name	Q16767951 ko:42584240
 안희정	安熙正	0	person-name	Q12605902 ko:42585849
 알영부인	閼英夫人	0	person-name	Q6673483 ko:41930090
-알필륭	遏必隆	0	person-name	Q1042959 ko:41391002
 앙산혜적	仰山慧寂	0	person-name	Q9383351 ko:39755268
 야율유가	耶律留哥	0	person-name	Q8012906 ko:39091778
 양강	梁綱	0	person-name	Q1133224 ko:39170681
@@ -2282,7 +2248,6 @@ reading	hanja	count	source	note
 영장	永璋	0	person-name	Q7814257 ko:41815511
 영창대군	永昌大君	0	person-name	Q623886 ko:40751083
 영호덕분	令狐德棻	0	person-name	Q836416 ko:39305045
-영황	永璜	0	person-name	Q7813500 ko:40099639
 예찬	倪瓚	0	person-name	Q731030 ko:39605386
 오강철	吳康哲	0	person-name	Q56259989 ko:42594222
 오거돈	吳巨敦	0	person-name	Q16096661 ko:42615359
@@ -2297,9 +2262,8 @@ reading	hanja	count	source	note
 오대징	吴大澂	0	person-name	Q5369182 ko:40613787
 오도현	吳道玄	0	person-name	Q1196022 ko:41240549
 오반석	吳反錫	0	person-name	Q7080413 ko:41081946
-오배	鰲拜	0	person-name	Q1194024 ko:40581271
 오범석	吳範錫	0	person-name	Q356839 ko:42647168
-오병감	伍秉鑒	0	person-name	Q1391990 ko:40616104
+오병감	伍秉鑑	0	person-name	Q1391990 ko:40616104
 오삼계	吳三桂	0	person-name	Q468701 ko:40954628
 오상욱	吳尙旭	0	person-name	Q27999606 ko:42697213
 오상원	吳尙源	0	person-name	Q15814092 ko:41775077
@@ -2319,7 +2283,6 @@ reading	hanja	count	source	note
 오승은	吴承恩	0	person-name	Q228889 ko:39090206
 오승환	吳昇桓	0	person-name	Q487688 ko:42744206
 오승훈	吳承訓	0	person-name	Q7080539 ko:41731629
-오승희	吳承姬	0	person-name	Q25842416 ko:42035590
 오아린	吳兒璘	0	person-name	Q55732200 ko:39480494
 오언	吾彦	0	person-name	Q10919840 ko:41124394
 오연교	吳連敎	0	person-name	Q495870 ko:42283966
@@ -2328,7 +2291,6 @@ reading	hanja	count	source	note
 오영수	吳永壽	0	person-name	Q7080583 ko:41323485
 오영훈	吳怜勳	0	person-name	Q24000511 ko:42568278
 오예진	吳藝珍	0	person-name	Q127035238 ko:42697347
-오위업	吳偉業	0	person-name	Q697571 ko:40869463
 오윤아	吳允兒	0	person-name	Q486108 ko:42725889
 오은석	吳恩錫	0	person-name	Q487915 ko:41151934
 오은선	吳銀善	0	person-name	Q235081 ko:41514757
@@ -2350,7 +2312,6 @@ reading	hanja	count	source	note
 오진혁	吳眞爀	0	person-name	Q488908 ko:42522583
 오창석	吳昶錫	0	person-name	Q15531171 ko:42374492
 오창현	吳昌炫	0	person-name	Q7080429 ko:42224259
-오청성	吳青成	0	person-name	Q44639240 ko:42508050
 오태백	吳太伯	0	person-name	Q1010535 ko:40595155
 오하영	吳夏榮	0	person-name	Q4798670 ko:42543628
 오현규	吳賢揆	0	person-name	Q63344470 ko:42647193
@@ -2444,7 +2405,6 @@ reading	hanja	count	source	note
 원오극근	圜悟克勤	0	person-name	Q1187531 ko:39423914
 원옥임	元玉任	0	person-name	Q712213 ko:40466065
 원우영	元禹寧	0	person-name	Q487012 ko:39265539
-원우황후	元祐皇后	0	person-name	Q5357910 ko:39248226
 원윤종	元潤鐘	0	person-name	Q16752062 ko:41754240
 원의태자	元懿太子	0	person-name	Q11636648 ko:39201176
 원인철	元仁哲	0	person-name	Q42527142 ko:42011104
@@ -2511,21 +2471,20 @@ reading	hanja	count	source	note
 유선희	劉仙姫	0	person-name	Q8055168 ko:39294620
 유성연	柳盛淵	0	person-name	Q16216189 ko:42593310
 유세윤	兪世潤	0	person-name	Q8334187 ko:41207228
-유소연	有所緣	0	person-name	Q5366293 ko:41480878
+유소연	柳簫然	0	person-name	Q5366293 ko:41480878
 유수광	劉守光	0	person-name	Q6653735 ko:41807985
 유수빈	劉秀彬	0	person-name	Q64329673 ko:42748817
 유수영	柳水永	0	person-name	Q626827 ko:41922225
 유수일	劉修一	0	person-name	Q1441819 ko:39903312
 유승목	柳承穆	0	person-name	Q16683769 ko:42721856
 유승민	柳承敏	0	person-name	Q348202 ko:41647943
-유승민	劉承敏	0	person-name	Q12609867 ko:42394082
+유승민	劉承旼	0	person-name	Q12609867 ko:42394082
 유승호	兪承豪	0	person-name	Q494654 ko:42689490
 유시민	柳時敏	0	person-name	Q488339 ko:42738091
 유아라	柳娥羅	0	person-name	Q8055133 ko:42661597
 유안	劉安	0	person-name	Q704525 ko:39219954
 유안진	柳岸津	0	person-name	Q15196153 ko:39296576
 유양	劉襄	0	person-name	Q711401 ko:40991982
-유연	琉然	0	person-name	Q127042388 ko:41064224
 유연성	柳延星	0	person-name	Q461654 ko:39349466
 유연정	兪璉靜	0	person-name	Q26710986 ko:41579999
 유영	劉永	0	person-name	Q22034166 ko:41753770
@@ -2553,7 +2512,7 @@ reading	hanja	count	source	note
 유재훈	兪在勳	0	person-name	Q8055154 ko:42258729
 유재흥	劉載興	0	person-name	Q12609974 ko:42503009
 유정복	劉正福	0	person-name	Q12609987 ko:42590622
-유정회	刘政会	0	person-name	Q10897596 ko:40611136
+유정회	劉政會	0	person-name	Q10897596 ko:40611136
 유제두	柳濟斗	0	person-name	Q623805 ko:39279100
 유종원	柳宗元	0	person-name	Q337773 ko:40610380
 유준상	劉俊相	0	person-name	Q495407 ko:42691800
@@ -2595,7 +2554,6 @@ reading	hanja	count	source	note
 윤관	尹瓘	0	person-name	Q496948 ko:41889023
 윤광웅	尹光雄	0	person-name	Q493385 ko:40504553
 윤기원	尹基源	0	person-name	Q486644 ko:42380262
-윤당	胤禟	0	person-name	Q7359299 ko:40099622
 윤대녕	尹大寧	0	person-name	Q8061184 ko:39042614
 윤덕민	尹德敏	0	person-name	Q29348873 ko:42734374
 윤덕여	尹德汝	0	person-name	Q487477 ko:42304551
@@ -2613,7 +2571,6 @@ reading	hanja	count	source	note
 윤보미	尹普美	0	person-name	Q2495400 ko:42543634
 윤보선	尹潽善	0	person-name	Q192049 ko:42734455
 윤봉길	尹奉吉	0	person-name	Q491240 ko:42675643
-윤사	允禩	0	person-name	Q4260294 ko:41236434
 윤산하	尹產賀	0	person-name	Q56278318 ko:41940276
 윤삼륙	尹三六	0	person-name	Q17503946 ko:41208548
 윤상	胤祥	0	person-name	Q831169 ko:41848247
@@ -2642,7 +2599,6 @@ reading	hanja	count	source	note
 윤일록	尹日錄	0	person-name	Q497784 ko:42380582
 윤일선	尹日善	0	person-name	Q623495 ko:42598720
 윤임	尹任	0	person-name	Q338403 ko:42007689
-윤잉	胤礽	0	person-name	Q1076775 ko:41637366
 윤재영	尹在榮	0	person-name	Q562477 ko:40395557
 윤정린	尹正麟	0	person-name	Q9383607 ko:39232403
 윤정수	尹正水	0	person-name	Q2264636 ko:42190351
@@ -2651,8 +2607,7 @@ reading	hanja	count	source	note
 윤정희	尹晶喜	0	person-name	Q6814488 ko:41345263
 윤제문	尹帝文	0	person-name	Q4403408 ko:42177605
 윤종규	尹鍾奎	0	person-name	Q47012544 ko:41269649
-윤종신	尹鐘信	0	person-name	Q54348 ko:42497716
-윤종훈	尹鐘焄	0	person-name	Q15338423 ko:42739568
+윤종신	尹鍾信	0	person-name	Q54348 ko:42497716
 윤주상	尹柱相	0	person-name	Q8055192 ko:42666033
 윤주태	尹柱泰	0	person-name	Q495897 ko:40516196
 윤주희	尹周熙	0	person-name	Q6402769 ko:40389730
@@ -2719,7 +2674,7 @@ reading	hanja	count	source	note
 이광종	李光鍾	0	person-name	Q10558979 ko:41276681
 이광필	李光弼	0	person-name	Q697728 ko:40613809
 이광현	李侊炫	0	person-name	Q55282012 ko:42559275
-이구지	離垢地	0	person-name	Q496216 ko:41871862
+이구지	李仇之	0	person-name	Q496216 ko:41871862
 이국창	李國昌	0	person-name	Q6001693 ko:41269562
 이규로	李奎魯	0	person-name	Q625583 ko:41488923
 이규보	李奎報	0	person-name	Q2913717 ko:42650316
@@ -2785,8 +2740,6 @@ reading	hanja	count	source	note
 이명희	李明熙	0	person-name	Q12611389 ko:42678700
 이문세	李文世	0	person-name	Q16090860 ko:42361031
 이문열	李文烈	0	person-name	Q116288 ko:42398074
-이미경	李美京	0	person-name	Q6514539 ko:42707933
-이미연	李美姸	0	person-name	Q484399 ko:42719865
 이미영	李美英	0	person-name	Q12611431 ko:41222573
 이미자	李美子	0	person-name	Q12611433 ko:42031160
 이미주	李美珠	0	person-name	Q21059878 ko:42737828
@@ -2930,7 +2883,6 @@ reading	hanja	count	source	note
 이여백	李如柏	0	person-name	Q707765 ko:39201716
 이여송	李如松	0	person-name	Q712027 ko:40558948
 이여진	李汝珍	0	person-name	Q711457 ko:39379578
-이연	李妍	0	person-name	Q111594510 ko:42717519
 이연영	李連英	0	person-name	Q709966 ko:39387519
 이열리	李冽理	0	person-name	Q623780 ko:39279124
 이열우	李烈雨	0	person-name	Q624453 ko:39279094
@@ -2970,6 +2922,7 @@ reading	hanja	count	source	note
 이원길	李元吉	0	person-name	Q699639 ko:39538020
 이원호	李元昊	0	person-name	Q7438 ko:42533646
 이원희	李元熹	0	person-name	Q497310 ko:40428940
+이위	李衛	0	person-name	Q842241 ko:39316228
 이유리	李幼梨	0	person-name	Q486126 ko:42225322
 이유미	李瑜美	0	person-name	Q19359987 ko:42667706
 이유빈	李有彬	0	person-name	Q43142694 ko:42386370
@@ -2983,7 +2936,6 @@ reading	hanja	count	source	note
 이윤지	李允智	0	person-name	Q623847 ko:41905900
 이윤택	李潤澤	0	person-name	Q15303163 ko:42244070
 이은경	李銀敬	0	person-name	Q1923281 ko:39264397
-이은상	李垠尙	0	person-name	Q66368439 ko:42710098
 이은상	李殷相	0	person-name	Q6513568 ko:42141239
 이은주	李恩宙	0	person-name	Q284094 ko:42740658
 이은철	李垠澈	0	person-name	Q483694 ko:41874907
@@ -3080,7 +3032,6 @@ reading	hanja	count	source	note
 이준혁	李浚赫	0	person-name	Q488047 ko:42481502
 이준혁	李準赫	0	person-name	Q17314724 ko:42252318
 이준협	李俊協	0	person-name	Q6514208 ko:42266050
-이준호	李浚昊	0	person-name	Q488423 ko:42676223
 이준호	李準鎬	0	person-name	Q486758 ko:42386379
 이준환	李俊奐	0	person-name	Q112711120 ko:42664014
 이준환	李濬煥	0	person-name	Q6514232 ko:42593782
@@ -3280,7 +3231,6 @@ reading	hanja	count	source	note
 임해군	臨海君	0	person-name	Q485505 ko:42093437
 임혁	林赫	0	person-name	Q498687 ko:42398195
 임현식	林玄植	0	person-name	Q8731670 ko:42134963
-임형주	林亨柱	0	person-name	Q196073 ko:42391976
 임형준	林炯俊	0	person-name	Q12614026 ko:41080319
 자비마립간	慈悲麻立干	0	person-name	Q488591 ko:42362475
 자성광헌황후	慈聖光獻皇后	0	person-name	Q704227 ko:41225440
@@ -3397,7 +3347,6 @@ reading	hanja	count	source	note
 장택상	張澤相	0	person-name	Q379662 ko:42443595
 장패륜	張佩綸	0	person-name	Q699627 ko:41354582
 장포	張布	0	person-name	Q717993 ko:39086038
-장하준	張夏準	0	person-name	Q32729 ko:42749885
 장학성	章學誠	0	person-name	Q8070379 ko:40949294
 장헌충	張獻忠	0	person-name	Q715573 ko:42248760
 장현수	張賢秀	0	person-name	Q168448 ko:42504690
@@ -3405,13 +3354,12 @@ reading	hanja	count	source	note
 장형석	張亨碩	0	person-name	Q1773056 ko:40262127
 장혜옥	張惠玉	0	person-name	Q458200 ko:42749898
 장혜진	張惠珍	0	person-name	Q16262298 ko:40391880
-장홍범	張弘范	0	person-name	Q697567 ko:39329069
+장홍범	張弘範	0	person-name	Q697567 ko:39329069
 장효희	張孝熙	0	person-name	Q485293 ko:40423233
 장훈	張勳	0	person-name	Q482958 ko:42498379
 장휴	張休	0	person-name	Q711973 ko:39153665
 재의	載漪	0	person-name	Q3112861 ko:41815526
 저수량	褚遂良	0	person-name	Q557726 ko:39119768
-저영	褚英	0	person-name	Q836176 ko:41815627
 적인걸	狄仁杰	0	person-name	Q445747 ko:40595961
 적청	狄靑	0	person-name	Q3274901 ko:40603160
 전겸익	錢謙益	0	person-name	Q6146198 ko:40600351
@@ -3445,7 +3393,7 @@ reading	hanja	count	source	note
 전여빈	全余贇	0	person-name	Q27953264 ko:42752636
 전여옥	田麗玉	0	person-name	Q482950 ko:42155983
 전역	全懌	0	person-name	Q5372211 ko:39164649
-전옥	典獄	0	person-name	Q625144 ko:40977350
+전옥	全玉	0	person-name	Q625144 ko:40977350
 전웅태	全雄太	0	person-name	Q26790002 ko:42593499
 전이경	全利卿	0	person-name	Q255557 ko:41401556
 전인수	田仁秀	0	person-name	Q562466 ko:39294037
@@ -3532,7 +3480,7 @@ reading	hanja	count	source	note
 정부경	鄭富競	0	person-name	Q625271 ko:39091171
 정상빈	鄭想賓	0	person-name	Q105106303 ko:42141352
 정석원	鄭錫元	0	person-name	Q485466 ko:42148651
-정선	鄭歚	0	person-name	Q489785 ko:41785824
+정선	鄭敾	0	person-name	Q489785 ko:41785824
 정선민	鄭先民	0	person-name	Q3811259 ko:41726251
 정선용	鄭善溶	0	person-name	Q5962386 ko:40433605
 정섭	鄭燮	0	person-name	Q712007 ko:39549045
@@ -3583,7 +3531,6 @@ reading	hanja	count	source	note
 정원진	鄭願眞	0	person-name	Q23198453 ko:42118713
 정유라	鄭維羅	0	person-name	Q23994999 ko:41753422
 정유진	鄭釉珍	0	person-name	Q22098567 ko:42550390
-정윤호	丁潤浩	0	person-name	Q85873722 ko:42036888
 정은경	鄭銀敬	0	person-name	Q65548364 ko:42754746
 정은우	鄭銀雨	0	person-name	Q27952338 ko:41935731
 정은주	鄭恩朱	0	person-name	Q2198889 ko:39324058
@@ -3602,10 +3549,8 @@ reading	hanja	count	source	note
 정인환	鄭仁煥	0	person-name	Q493106 ko:41731605
 정일관	鄭日冠	0	person-name	Q3809976 ko:41086349
 정일권	丁一權	0	person-name	Q337019 ko:42432057
-정일수	鄭一嫂	0	person-name	Q266715 ko:40328507
 정일우	丁一宇	0	person-name	Q494116 ko:42720477
 정일훈	鄭鎰勳	0	person-name	Q13553537 ko:41720392
-정장공	鄭莊公	0	person-name	Q558018 ko:42739457
 정재성	鄭在成	0	person-name	Q562189 ko:41190591
 정재영	鄭在詠	0	person-name	Q482800 ko:42756454
 정재용	鄭宰溶	0	person-name	Q17523862 ko:42379381
@@ -3712,7 +3657,6 @@ reading	hanja	count	source	note
 조산본적	曹山本寂	0	person-name	Q9184473 ko:39495499
 조석재	趙錫宰	0	person-name	Q19162048 ko:42206121
 조석환	趙石煥	0	person-name	Q4516990 ko:42192149
-조선선조	朝鮮宣祖	0	person-name	Q484359 ko:42661408
 조선진	趙善津	0	person-name	Q28178 ko:42051996
 조설근	曹雪芹	0	person-name	Q182874 ko:40953711
 조성모	曺誠模	0	person-name	Q487891 ko:41998741
@@ -3766,7 +3710,6 @@ reading	hanja	count	source	note
 조재진	曺宰溱	0	person-name	Q483062 ko:39035803
 조정래	趙廷來	0	person-name	Q623737 ko:42047798
 조정훈	趙廷訓	0	person-name	Q93758762 ko:42597200
-조주종심	趙州從諶	0	person-name	Q167168 ko:39483344
 조준호	曺準浩	0	person-name	Q488631 ko:40458556
 조지겸	趙之謙	0	person-name	Q708659 ko:39622273
 조지훈	趙芝薰	0	person-name	Q623681 ko:41596175
@@ -3853,7 +3796,8 @@ reading	hanja	count	source	note
 중천왕	中川王	0	person-name	Q498618 ko:40275262
 증공	曾鞏	0	person-name	Q1275360 ko:40957765
 증국번	曾國藩	0	person-name	Q189512 ko:41503750
-증기택	曾紀澤	0	person-name	Q971925 ko:39561690
+증국전	曾國荃	0	person-name	Q6143342 ko:39562075
+증기택	曽紀澤	0	person-name	Q971925 ko:39561690
 지눌	知訥	0	person-name	Q704894 ko:41596169
 지동원	池東沅	0	person-name	Q371788 ko:42504614
 지마이사금	祗摩泥師今	0	person-name	Q494883 ko:41197297
@@ -3878,13 +3822,11 @@ reading	hanja	count	source	note
 지창욱	池昌旭	0	person-name	Q625128 ko:42667755
 지청천	池靑天	0	person-name	Q625230 ko:41668431
 지한재	池漢載	0	person-name	Q496994 ko:41774832
-지혜원	地惠圓	0	person-name	Q78117140 ko:41884059
 진갑용	陳甲龍	0	person-name	Q487885 ko:42488429
 진개	秦開	0	person-name	Q862405 ko:39184984
 진계유	陳繼儒	0	person-name	Q1005462 ko:42131599
 진관	秦觀	0	person-name	Q832770 ko:40722010
 진기주	秦基周	0	person-name	Q21057675 ko:42617328
-진덕수	眞德秀	0	person-name	Q11583182 ko:41134203
 진덕여왕	眞德女王	0	person-name	Q488377 ko:41782958
 진린	陳璘	0	person-name	Q1063358 ko:42362760
 진보침	陳寶琛	0	person-name	Q701792 ko:39562783
@@ -3896,7 +3838,6 @@ reading	hanja	count	source	note
 진성여왕	眞聖女王	0	person-name	Q484705 ko:42712471
 진성욱	陳成昱	0	person-name	Q12618263 ko:40633894
 진숙보	陳叔寶	0	person-name	Q718206 ko:39090480
-진시황제	秦始皇帝	0	person-name	Q7192 ko:42135378
 진안	秦安	0	person-name	Q61100495 ko:42587541
 진안대군	鎭安大君	0	person-name	Q483467 ko:41489484
 진양옥	秦良玉	0	person-name	Q1049034 ko:42456702
@@ -3912,7 +3853,6 @@ reading	hanja	count	source	note
 진제	陳第	0	person-name	Q699303 ko:39545492
 진종오	秦鍾午	0	person-name	Q379517 ko:42621451
 진주형	陳柱亨	0	person-name	Q16179799 ko:41122964
-진중권	陳重權	0	person-name	Q6668980 ko:42413483
 진지희	陳智熙	0	person-name	Q3659522 ko:41084400
 진창수	秦昌守	0	person-name	Q19603716 ko:41981653
 진채선	陳彩仙	0	person-name	Q12618368 ko:42423490
@@ -3959,6 +3899,7 @@ reading	hanja	count	source	note
 채지훈	蔡智薰	0	person-name	Q497277 ko:42417776
 채함	蔡含	0	person-name	Q25712566 ko:39557544
 책계왕	責稽王	0	person-name	Q497509 ko:41207626
+척계광	戚繼光	0	person-name	Q439768 ko:41580417
 천계제	天啓帝	0	person-name	Q10066 ko:41954235
 천명관	千明官	0	person-name	Q16168336 ko:39096634
 천명제	天命帝	0	person-name	Q311189 ko:41851565
@@ -4018,7 +3959,6 @@ reading	hanja	count	source	note
 최부	崔溥	0	person-name	Q705838 ko:39100924
 최부일	崔富日	0	person-name	Q72993 ko:41092136
 최불암	崔佛岩	0	person-name	Q5103870 ko:42758491
-최산	崔傘	0	person-name	Q85879242 ko:41783803
 최상국	崔相國	0	person-name	Q5103949 ko:41137392
 최상목	崔相穆	0	person-name	Q31178879 ko:42599368
 최서우	崔栖瑀	0	person-name	Q562429 ko:42420719
@@ -4042,7 +3982,6 @@ reading	hanja	count	source	note
 최승자	崔勝子	0	person-name	Q12619648 ko:40101402
 최승훈	崔乘訓	0	person-name	Q28700834 ko:40521604
 최승희	崔承喜	0	person-name	Q624121 ko:41771770
-최시원	崔始源	0	person-name	Q153657 ko:42405644
 최시형	崔時亨	0	person-name	Q11274270 ko:42294438
 최애영	崔愛英	0	person-name	Q5103864 ko:41754317
 최양일	崔洋一	0	person-name	Q906332 ko:39047634
@@ -4053,7 +3992,7 @@ reading	hanja	count	source	note
 최영근	崔榮根	0	person-name	Q2059290 ko:41565906
 최영길	崔永吉	0	person-name	Q110269888 ko:41396833
 최영래	崔英來	0	person-name	Q486996 ko:42553575
-최영림	崔永林	0	person-name	Q310889 ko:42274880
+최영림	崔英林	0	person-name	Q310889 ko:42274880
 최영수	崔榮壽	0	person-name	Q495890 ko:40265567
 최영이	崔領二	0	person-name	Q7385296 ko:42190719
 최영일	崔英一	0	person-name	Q491444 ko:42504892
@@ -4104,13 +4043,11 @@ reading	hanja	count	source	note
 최제우	崔濟愚	0	person-name	Q489310 ko:42321977
 최종덕	崔鍾德	0	person-name	Q1770469 ko:40779850
 최종원	崔鍾元	0	person-name	Q12619841 ko:42596950
-최종호	崔鍾浩	0	person-name	Q85884933 ko:42623825
 최종환	崔鐘煥	0	person-name	Q3019531 ko:41902472
 최종훈	崔鍾訓	0	person-name	Q490438 ko:42280310
 최주환	崔周煥	0	person-name	Q5103920 ko:42667245
 최준용	崔俊龍	0	person-name	Q16173340 ko:42527671
 최지만	崔志萬	0	person-name	Q15303194 ko:42700191
-최지수	崔智壽	0	person-name	Q60870266 ko:42644539
 최지우	崔志宇	0	person-name	Q494337 ko:42663087
 최지현	崔智賢	0	person-name	Q5103909 ko:42183702
 최진실	崔眞實	0	person-name	Q232285 ko:42583594
@@ -4164,7 +4101,7 @@ reading	hanja	count	source	note
 태조대왕	太祖大王	0	person-name	Q498481 ko:40665100
 태종	太宗	0	person-name	Q14304 ko:42753998
 태종무열왕	太宗武烈王	0	person-name	Q494525 ko:41953017
-태종수	太鐘洙	0	person-name	Q9353635 ko:39223215
+태종수	太鐘守	0	person-name	Q9353635 ko:39223215
 태진아	太珍兒	0	person-name	Q490719 ko:41681261
 태창제	泰昌帝	0	person-name	Q10065 ko:40576453
 태평공주	太平公主	0	person-name	Q706438 ko:39297515
@@ -4228,7 +4165,7 @@ reading	hanja	count	source	note
 한명숙	韓明淑	0	person-name	Q236485 ko:42545590
 한명우	韓明愚	0	person-name	Q4355422 ko:41090805
 한명회	韓明澮	0	person-name	Q486298 ko:42719522
-한무숙	韓茂淑	0	person-name	Q5646649 ko:39092452
+한무숙	韓戊淑	0	person-name	Q5646649 ko:39092452
 한무협	韓武協	0	person-name	Q23748 ko:39129866
 한민구	韓民求	0	person-name	Q5646647 ko:40504568
 한병철	韓炳哲	0	person-name	Q495875 ko:40474173
@@ -4238,6 +4175,7 @@ reading	hanja	count	source	note
 한선수	韓敾洙	0	person-name	Q15108837 ko:42348808
 한설야	韓雪野	0	person-name	Q487273 ko:42720738
 한성숙	韓聖淑	0	person-name	Q55082182 ko:42739701
+한세충	韓世忠	0	person-name	Q706861 ko:41755393
 한수산	韓水山	0	person-name	Q15133394 ko:39101430
 한수안	韓水安	0	person-name	Q138851 ko:41127132
 한순철	韓淳哲	0	person-name	Q486987 ko:41088861
@@ -4285,7 +4223,6 @@ reading	hanja	count	source	note
 해서	海瑞	0	person-name	Q934891 ko:40613433
 향비	香妃	0	person-name	Q985615 ko:40603784
 허가윤	許嘉允	0	person-name	Q485698 ko:41907483
-허가이	許哥而	0	person-name	Q301761 ko:40806263
 허각	許閣	0	person-name	Q22844 ko:41585231
 허경민	許敬民	0	person-name	Q5946296 ko:42488751
 허경영	許京寧	0	person-name	Q246375 ko:42459764
@@ -4353,11 +4290,11 @@ reading	hanja	count	source	note
 혜공왕	惠恭王	0	person-name	Q496772 ko:42539676
 혜관	慧灌	0	person-name	Q846721 ko:39099408
 혜능	慧能	0	person-name	Q345012 ko:42465473
-혜민	慧敏	0	person-name	Q12625165 ko:41760612
 혜빈	慧彬	0	person-name	Q53316231 ko:39444612
 혜왕	惠王	0	person-name	Q497959 ko:41207660
 혜자	惠慈	0	person-name	Q712607 ko:39024267
 혜초	慧超	0	person-name	Q707608 ko:41596097
+혜현황귀비	慧賢皇貴妃	0	person-name	Q575326 ko:42329149
 호거아	胡車兒	0	person-name	Q1196085 ko:39103633
 호공	瓠公	0	person-name	Q703938 ko:41137918
 호굉	胡宏	0	person-name	Q4501983 ko:40858712
@@ -4437,7 +4374,6 @@ reading	hanja	count	source	note
 황동규	黃東奎	0	person-name	Q12625798 ko:42583354
 황동혁	黃東赫	0	person-name	Q3143548 ko:42673832
 황문기	黃文基	0	person-name	Q20978202 ko:41180958
-황벽희운	黄檗希運	0	person-name	Q1632823 ko:39281919
 황병기	黃秉冀	0	person-name	Q625786 ko:41200589
 황병서	黃炳瑞	0	person-name	Q9295306 ko:41753801
 황보관	皇甫官	0	person-name	Q489805 ko:42691598
@@ -4461,7 +4397,6 @@ reading	hanja	count	source	note
 황연대	黃年代	0	person-name	Q11677738 ko:42281939
 황연주	黃連珠	0	person-name	Q483746 ko:41934603
 황예슬	黄藝瑟	0	person-name	Q2371389 ko:42553290
-황예지	黃禮志	0	person-name	Q60870268 ko:42565484
 황옥실	黃玉實	0	person-name	Q4353196 ko:42465596
 황우석	黃禹錫	0	person-name	Q482836 ko:42757854
 황우여	黃祐呂	0	person-name	Q4392537 ko:42420733
@@ -4480,7 +4415,6 @@ reading	hanja	count	source	note
 황종희	黃宗羲	0	person-name	Q31754 ko:39103801
 황준묵	黃準默	0	person-name	Q2598021 ko:42376234
 황지만	黃智萬	0	person-name	Q489257 ko:41496354
-황지우	黃芝雨	0	person-name	Q3143549 ko:42582791
 황진성	黃辰成	0	person-name	Q4674044 ko:42504769
 황진이	黃眞伊	0	person-name	Q464510 ko:41871875
 황철수	黃哲洙	0	person-name	Q1268070 ko:39217376
@@ -4506,7 +4440,6 @@ reading	hanja	count	source	note
 효명황후	孝明皇后	0	person-name	Q5374610 ko:39605349
 효목황후	孝穆皇后	0	person-name	Q8250300 ko:41505841
 효민양황후	孝愍讓皇后	0	person-name	Q5374573 ko:39391527
-효성경황후	孝成敬皇后	0	person-name	Q5374627 ko:41480730
 효성인황후	孝誠仁皇后	0	person-name	Q1036437 ko:41883968
 효성헌황후	孝聖憲皇后	0	person-name	Q573546 ko:40055928
 효소인황후	孝昭仁皇后	0	person-name	Q836642 ko:41154986
@@ -4516,6 +4449,7 @@ reading	hanja	count	source	note
 효애철황후	孝哀悊皇后	0	person-name	Q5374625 ko:39402045
 효열무황후	孝烈武皇后	0	person-name	Q1043063 ko:39158589
 효열황후	孝烈皇后	0	person-name	Q5374632 ko:39392071
+효의순황후	孝儀純皇后	0	person-name	Q461124 ko:39189550
 효의왕후	孝懿王后	0	person-name	Q489907 ko:40616586
 효의인황후	孝懿仁皇后	0	person-name	Q848858 ko:42389670
 효자고황후	孝慈高皇后	0	person-name	Q1068941 ko:39072927

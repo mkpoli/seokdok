@@ -51,6 +51,30 @@ fn a_two_syllable_name_follows_the_common_word() {
 }
 
 #[test]
+fn a_word_of_the_same_reading_comes_first() {
+    let e = engine();
+    for (word, usual, name) in [("저수량", "貯水量", "褚遂良"), ("유용성", "有用性", "柳鏞成"), ("한학자", "漢學者", "韓鶴子")] {
+        assert_eq!(first(&e, word), usual, "{word}");
+        assert!(e.convert(word).iter().any(|c| c.text == name), "{word}: {name} not offered");
+    }
+}
+
+#[test]
+fn a_two_syllable_name_may_take_a_title() {
+    let e = engine();
+    assert!(e.convert("원빈씨").iter().any(|c| c.text.starts_with("元斌")));
+}
+
+#[test]
+fn hanja_come_from_the_name_and_not_from_a_note_above_it() {
+    let text = std::fs::read_to_string(root().join("dict/people.tsv")).unwrap();
+    for row in ["성혼\t成婚", "손흠\t孫欽", "이구지\t離垢地", "전옥\t典獄", "유소연\t有所緣", "마조도일\t馬祖導一"] {
+        assert!(!text.contains(row), "{row}");
+    }
+    assert!(text.contains("성혼\t成渾"));
+}
+
+#[test]
 fn every_row_cites_its_item_and_revision() {
     let text = std::fs::read_to_string(root().join("dict/people.tsv")).unwrap();
     let rows: Vec<_> = text.lines().filter(|l| !l.starts_with('#') && !l.starts_with("reading\t")).collect();

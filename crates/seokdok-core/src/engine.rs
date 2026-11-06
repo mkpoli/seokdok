@@ -350,6 +350,17 @@ struct SinoEntry {
 }
 
 impl SinoTable {
+    /// A full name outranks splitting its reading (金正恩, not 金淨은), but a word of the same reading stays ahead of it (貯水量, then 褚遂良).
+    fn yield_names_to_words(&mut self, people: &[u32]) {
+        let words: HashSet<&str> =
+            (0..self.len()).filter(|i| people.binary_search(&(*i as u32)).is_err()).map(|i| self.reading(i)).collect();
+        let shared: Vec<u32> = people.iter().copied().filter(|&i| words.contains(self.reading(i as usize))).collect();
+        for i in shared {
+            let kept = &mut self.entries[i as usize];
+            kept.cost = kept.cost.max(NAME_AFTER_WORD_COST);
+        }
+    }
+
     fn push(&mut self, reading: &str, hanja: &str, cost: f32, count: u32) {
         let at = self.text.len() as u32;
         self.text.push_str(reading);
@@ -503,6 +514,10 @@ const NOT_BEFORE_HELPER_INSIDE: &[&str] = &["나", "지", "일"];
 
 /// Added to a pronoun plus particle that an editorial whole word also spells.
 const EDITORIAL_WORD_MARGIN: f32 = 2.5;
+/// A name that shares its reading with a word: past an unattested word's cost.
+const NAME_AFTER_WORD_COST: f32 = 4.6;
+/// Titles a two-syllable name may run into: 원빈씨.
+const NAME_TITLES: &[&str] = &["씨", "님"];
 /// A loanword kept in Hangul (loanwords.tsv); cheaper than its Hanja homophones.
 const LOAN_COST: f32 = 2.0;
 /// A particle typed alone, kept in Hangul.
@@ -642,6 +657,8 @@ impl Builder {
                 self.loans.insert(e.reading.into());
             }
             Ok(e) => match self.pairs.find_or_add(&self.sinos, &e.reading, &e.hanja) {
+                // A name row adds nothing to a word the dictionaries already hold.
+                Some(_) if e.source == Source::PersonName => {}
                 Some(i) => {
                     let kept = &mut self.sinos.entries[i];
                     kept.cost = kept.cost.min(e.cost);
@@ -662,6 +679,7 @@ impl Builder {
     pub fn build(self, options: Options) -> (Engine, Vec<String>) {
         let Builder { mut natives, labels, mut sinos, hun, loans, people, pairs, errors } = self;
         drop(pairs);
+        sinos.yield_names_to_words(&people);
         natives.shrink_to_fit();
         sinos.text.shrink_to_fit();
         sinos.entries.shrink_to_fit();
@@ -1275,12 +1293,13 @@ impl Engine {
     }
 
     /// A name opens its word (아이소라 holds no 李素羅), and a two-syllable one
-    /// fills it, with a particle at most (마주앉다 holds no 馬周).
+    /// fills it, with a title or particle at most (마주앉다 holds no 馬周).
     fn name_fits(&self, comps: &[char], s: usize, q: usize) -> bool {
         let n = comps.len();
         s == 0
             && (crate::jamo::syllable_count(&comps[..q]) > 2
                 || q == n
+                || NAME_TITLES.iter().any(|t| compose(&comps[q..]).starts_with(t))
                 || self.particle_trie.prefixes(comps, q).iter().any(|(r, _)| *r == n))
     }
 

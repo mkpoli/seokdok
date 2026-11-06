@@ -2,7 +2,7 @@
 """Well-known people's names and their Hanja, from Wikidata and Korean Wikipedia.
 
 Wikidata lists the people: humans of a Korean or Chinese state with an article on Korean
-Wikipedia. Each person's Hanja comes from the opening section of that article. A form is
+Wikipedia. Each person's Hanja comes from that article's first sentence, else its infobox. A form is
 taken only when every character's sound matches the name's Hangul, so a name without Hanja
 in its article, or written in Hangul only, gets no row.
 
@@ -36,13 +36,16 @@ CHINESE_STATES = {
 }
 
 HEADER = """# Well-known people's names and their Hanja. People: Wikidata (CC0), humans of a Korean or Chinese state with at least
-# {links} sitelinks and an article on Korean Wikipedia, queried {date}. Hanja: the opening section of that article
-# (CC BY-SA 4.0), kept only when every character's sound matches the name's Hangul. A wiki is a secondary source.
+# {links} sitelinks and an article on Korean Wikipedia, queried {date}. Hanja: that article's opening section
+# (CC BY-SA 4.0): its first sentence, else the infobox's name fields, kept only when every character's sound matches the name's Hangul. A wiki is a secondary source.
 # Rows sharing a reading are ordered by sitelinks. The note gives the Wikidata item and the article's revision.
 reading\thanja\tcount\tsource\tnote
 """
 
 HAN = re.compile(r"[㐀-䶿一-鿿豈-﫿\U00020000-\U0003FFFF]+")
+BOX_FIELD = re.compile(r"^\s*\|\s*[^=\n]*(?:한자|원어|본명|이름|hanja)[^=\n]*=([^\n]*)$", re.M)
+# Misprints in the article, checked against other references.
+WRONG = {("마조도일", "馬祖導一"), ("손흠", "孫欽")}
 SOFT_VOWELS = {2, 6, 7, 12, 17, 20}  # ㅑ ㅕ ㅖ ㅛ ㅠ ㅣ
 
 
@@ -97,7 +100,7 @@ def fetch(data: Path) -> None:
                 rev = (page.get("revisions") or [None])[0]
                 if rev:
                     f.write(json.dumps({"title": back.get(page["title"], page["title"]), "rev": rev["revid"],
-                                        "text": rev["slots"]["main"]["content"][:6000]}, ensure_ascii=False) + "\n")
+                                        "text": rev["slots"]["main"]["content"][:30000]}, ensure_ascii=False) + "\n")
             f.flush()
             print(i + 50, "of", len(titles), flush=True)
             time.sleep(1)
@@ -163,13 +166,32 @@ def simplified() -> set[str]:
     return chars
 
 
-def hanja_in(text: str, name: str, table: dict) -> str | None:
+def spelling(text: str, name: str, table: dict) -> str | None:
     """The first run of Han characters in the text whose sounds spell the name."""
     want = [sound(c) for c in name]
     for run in HAN.findall(text):
         if len(run) == len(name) and all(s in table.get(c, ()) for c, s in zip(run, want)):
             return run
     return None
+
+
+def hanja_in(text: str, name: str, table: dict) -> tuple[str | None, str | None]:
+    """The name's Hanja from the opening sentence, and from the infobox's name fields.
+
+    Only those places speak of the person: a hatnote above them may gloss a homophone (성혼 成婚).
+    """
+    text = re.sub(r"<ref.*?(</ref>|/>)", "", text, flags=re.S)
+    lead = None
+    for bold in re.finditer(r"'''(.+?)'''", text):
+        if name in re.sub(r"[\s\[\]]", "", bold.group(1)):
+            lead = spelling(text[bold.end():bold.end() + 200].split("다. ")[0], name, table)
+            break
+    box = None
+    for field in BOX_FIELD.finditer(text):
+        box = spelling(field.group(1), name, table)
+        if box:
+            break
+    return lead, box
 
 
 def build(data: Path) -> None:
@@ -182,14 +204,19 @@ def build(data: Path) -> None:
             leads[lead["title"]] = lead
     rows = {}
     skipped = 0
+    conflicts = []
     for person in sorted(people(data), key=lambda p: (-p["links"], p["q"])):
         name = person["ko"].replace(" ", "")
         lead = leads.get(person["title"])
         if not lead or not 2 <= len(name) <= 6 or not all("가" <= c <= "힣" for c in name):
             skipped += 1
             continue
-        hanja = hanja_in(re.sub(r"<ref.*?(</ref>|/>)", "", lead["text"], flags=re.S), name, table)
-        if not hanja or avoid.intersection(hanja):
+        opening, box = hanja_in(lead["text"], name, table)
+        forms = [form for form in (opening, box) if form and not avoid.intersection(form)]
+        if len(set(forms)) > 1:
+            conflicts.append(" ".join([name, *forms]))
+        hanja = forms[0] if forms else None
+        if not hanja or (name, hanja) in WRONG:
             skipped += 1
             continue
         rows.setdefault((name, hanja), (person["links"], person["q"], lead["rev"]))
@@ -199,6 +226,7 @@ def build(data: Path) -> None:
         for (name, hanja), (links, q, rev) in sorted(rows.items(), key=lambda r: (r[0][0], -r[1][0], r[0][1])):
             f.write(f"{name}\t{hanja}\t0\tperson-name\t{q} ko:{rev}\n")
     print(f"{len(rows)} rows, {skipped} people without a matching form", file=sys.stderr)
+    print("opening sentence and infobox differ, the sentence kept:", *conflicts, sep="\n  ", file=sys.stderr)
 
 
 if __name__ == "__main__":

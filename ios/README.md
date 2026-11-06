@@ -198,7 +198,7 @@ all read 2026-11-04; none cites Apple, and the figures disagree).
 
 The extension's physical footprint is 55.5 MB once loaded, with a 58.3 MB peak
 (`footprint` and `vmmap` on a Debug build on an iPhone simulator in CI,
-2026-11-04; the Rust library is a release build either way, and each iOS run
+2026-11-06; the Rust library is a release build either way, and each iOS run
 records this in the `simulator-screenshots` artifact). A simulator applies no
 such limit, and its figures differ from a device's, so this has to be tried on
 an iPhone. It lies inside the range of those published estimates, so a device

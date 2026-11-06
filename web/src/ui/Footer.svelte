@@ -26,7 +26,7 @@
   </ul>
   <p class="meta">{@html r(t().footer.licence)} · {@html r(t().footer.made)} <a href="https://mkpo.li/">mkpoli</a> · <a href="https://github.com/mkpoli/seokdok" rel="noopener">GitHub</a></p>
   <p class="meta legal">
-    <a href="/privacy">{@html r(t().footer.privacy)}</a> · <a href="/support">{@html r(t().footer.support)}</a>
+    <a href="/dict">{@html r(t().nav.dict)}</a> · <a href="/privacy">{@html r(t().footer.privacy)}</a> · <a href="/support">{@html r(t().footer.support)}</a>
   </p>
 </footer>
 

@@ -4,6 +4,11 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 
 ## 2026-11-06
 
+### iOS
+- The keyboard follows Apple's more closely: held Delete at 10/s and then by words, Space trackpad timing, 123 switching on landing, landscape height, margin taps, double-space period, smart quotes, Return labels and field types.
+- Every key with a corner letter offers it on a long press, so ㅿ, ㆁ, ㆆ and ㆍ need no Shift.
+- The memory leak across keyboard launches is fixed.
+
 ### 音讀
 - A second input method, 音讀 (Eumdok), for 國漢文混用 only: Sino-Korean words in Hanja, native words in Hangul, with no 訓讀 in the candidates or settings. It installs beside 釋讀 with its own settings on Windows, Linux, macOS, Android and iOS.
 - 音讀 has its own page, seokdok.mkpo.li/eumdok, and 國漢文混用 mode writes Sino-Korean verbs in Hanja: 推薦해, 可能합니다, 複雜한.

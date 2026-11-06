@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Build the Windows IME on Linux (cargo-xwin) and its installer:
 #   target/stage/<id>-<version>-x86_64-windows-setup.exe
+# CI builds this with choco Inno Setup, and windows-arm64.yml the Arm64 one.
 # The installer is compiled by Inno Setup 6.7+ on the Windows side of WSL
 # (winget install JRSoftware.InnoSetup). Usage: crates/seokdok-tsf/package.sh [seokdok|eumdok]
 # The settings app is built by the Windows settings workflow, since WinUI builds

@@ -1,5 +1,5 @@
 """Korean words borrowed from European languages, so the engine leaves them in
-Hangul: 페이지, 파일, 메시지, 버전, 피자 stay as typed and do not become 頁 or 八日.
+Hangul first: 페이지, 파일, 메시지, 버전, 피자 stay as typed, with 頁 behind them and no 八日 ahead.
 
 Usage: uv run tools/loanwords.py   (SEOKDOK_SOURCES=DIR to read a data/sources elsewhere)
 Input: data/sources/kaikki-korean/kaikki.org-dictionary-Korean.jsonl

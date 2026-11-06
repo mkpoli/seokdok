@@ -26,7 +26,7 @@ for f in dict/*.tsv; do
 done
 cp dict/README.md dict/LICENSE-fusion.txt "$stage/dict/"
 cat > "$stage/README.txt" <<'TXT'
-釋讀 seokdok — input method for fcitx5 (Linux)
+釋讀 Seokdok — input method for fcitx5 (Linux)
 
 Install:   ./install.sh            (this user, no root)
            sudo ./install.sh --system
@@ -56,7 +56,7 @@ JMdict CC BY-SA 4.0, 釋讀會 community dictionary).
 TXT
 if [ "$id" = eumdok ]; then
   sed -i -e 's/釋讀 → 國漢文混用 → 韓㐎 專用, in 釋讀 mode/國漢文混用 ↔ 韓㐎 專用/' \
-    -e 's/釋讀 seokdok/音讀 eumdok/' -e 's/釋讀\([^會]\)/音讀\1/g' -e 's#config/seokdok#config/eumdok#g' "$stage/README.txt"
+    -e 's/釋讀 Seokdok/音讀 Eumdok/' -e 's/釋讀\([^會]\)/音讀\1/g' -e 's#config/seokdok#config/eumdok#g' "$stage/README.txt"
 fi
 tar -C target/stage -czf "target/stage/${name}.tar.gz" "$name"
 ls -la "target/stage/${name}.tar.gz"

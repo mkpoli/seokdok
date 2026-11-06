@@ -12,7 +12,7 @@
       req: 'Windows 10 · 11',
       builds: builds(downloads.windows, downloads.windowsArm64),
       system: null,
-      remove: '設定 › 앱 › 釋讀 seokdok',
+      remove: '設定 › 앱 › 釋讀 Seokdok',
       where: '%APPDATA%\\seokdok\\custom.json',
     },
     {

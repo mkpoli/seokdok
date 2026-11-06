@@ -22,7 +22,7 @@
   <div class="text">
     <p class="slogan" aria-label={plain(SLOGAN)}>{@html rk(SLOGAN)}</p>
     <p class="club">{@html r(t().hero.kicker)}</p>
-    <h1 class="title" aria-label="釋讀 seokdok">
+    <h1 class="title" aria-label="釋讀 Seokdok">
       <span class="big">釋讀</span>
     </h1>
     <p class="claim">

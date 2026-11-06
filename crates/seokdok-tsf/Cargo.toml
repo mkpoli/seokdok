@@ -1,6 +1,6 @@
 [package]
 name = "seokdok-tsf"
-description = "釋讀 (seokdok) input method for Windows (Text Services Framework)"
+description = "釋讀 (Seokdok) input method for Windows (Text Services Framework)"
 version.workspace = true
 edition.workspace = true
 license.workspace = true

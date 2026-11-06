@@ -14,7 +14,7 @@
     const own = SITES.find((s) => s.id === current)
     return `${own.han} ${own.latn}: ${plain(t().sites.label)}`
   })
-  const more = $derived(`https://scripts.mkpo.li/${i18n.lang === 'en' ? '' : 'ko/'}`)
+  const more = $derived(`https://moji.mkpo.li/${i18n.lang === 'en' ? '' : 'ko/'}`)
 
   let open = $state(false)
   let root = $state()

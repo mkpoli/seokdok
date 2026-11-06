@@ -127,6 +127,15 @@ jobs:
           ditto -c -k --sequesterRsrc --keepParent "$app" Eumdok-unsigned.zip
           ls -l Eumdok-unsigned.zip
 
+      - name: Install from the zip and register
+        working-directory: macos
+        run: |
+          mkdir -p ~/Library/Input\ Methods
+          ditto -xk Eumdok-unsigned.zip ~/Library/Input\ Methods
+          xattr -dr com.apple.quarantine ~/Library/Input\ Methods/Eumdok.app
+          codesign --verify --deep ~/Library/Input\ Methods/Eumdok.app
+          ~/Library/Input\ Methods/Eumdok.app/Contents/MacOS/Eumdok --register
+
       - uses: actions/upload-artifact@v4
         with:
           name: Eumdok-unsigned-app

@@ -74,8 +74,10 @@ fn coda_options() {
     ]);
     check(Options { resyllabify: true, coda_always: true, ..Options::default() }, &[("있으면", "有쓰면"), ("봤어요", "見써요")]);
     let e = engine(Options { resyllabify: true, ..Options::default() });
-    for (written, spoken) in [("見써요", "봤어요"), ("去쓰면", "갔으면"), ("事슬", "것을"), ("在쓰면", "있으면")] {
+    let plain = engine(Options::default());
+    for (written, spoken) in [("見써요", "봤어요"), ("見ㅆ어요", "봤어요"), ("去쓰면", "갔으면"), ("事슬", "것을"), ("事ㅅ을", "것을"), ("在쓰면", "있으면")] {
         assert_eq!(e.read(written), spoken);
+        assert_eq!(plain.read(written), spoken);
     }
     check(Options { hada_kun: true, ..Options::default() }, &[("안녕하세요", "安寧爲세요"), ("공부하다", "工夫爲다")]);
 }

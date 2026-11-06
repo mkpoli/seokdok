@@ -1494,13 +1494,8 @@ impl Engine {
                 if n.hanja.is_empty() || !(kun || sino_word) {
                     return vec![raw()];
                 }
-                let tail = &n.stem[n.cover..];
                 let after = particle.map_or(&[][..], |p| &self.particles[p as usize].comps[..]);
-                let carried = self.options.resyllabify.then(|| resyllabify(&[tail, after].concat())).filter(|c| c.len() < tail.len() + after.len());
-                let t = match carried {
-                    Some(c) => format!("{}{}", n.hanja, compose(&c)),
-                    None => format!("{}{}{}", n.hanja, compose(tail), compose(after)),
-                };
+                let t = self.nominal_written(n, after, self.options.resyllabify);
                 let note = if sino_word { format!("{} · 音讀", n.lemma) } else { note(n, None) };
                 vec![Candidate { text: t, note }]
             }
@@ -2177,10 +2172,28 @@ impl Engine {
                     let comps = [n.stem.clone(), p.comps.clone()].concat();
                     let e = Edge { start: 0, end: comps.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: Some(pi as u16) } };
                     out.push((self.render_dict_as(&comps, &e, true)[0].text.clone(), compose(&comps)));
+                    // Text may be written either way, whatever this reader's own setting is.
+                    let other = self.nominal_written(n, &p.comps, !self.options.resyllabify);
+                    if other != out.last().unwrap().0 {
+                        out.push((other, compose(&comps)));
+                    }
                 }
             }
         }
         out
+    }
+
+    /// A noun in Hanja with its particle, the written consonant moved into a
+    /// following ㅇ when `carry` is set: 事슬, else 事ㅅ을.
+    fn nominal_written(&self, n: &Native, after: &[char], carry: bool) -> String {
+        let tail = &n.stem[n.cover..];
+        let carried = [tail, after].concat();
+        let moved = resyllabify(&carried);
+        if carry && moved.len() < carried.len() {
+            format!("{}{}", n.hanja, compose(&moved))
+        } else {
+            format!("{}{}{}", n.hanja, compose(tail), compose(after))
+        }
     }
 
     /// All (written, surface, lemma) triples.

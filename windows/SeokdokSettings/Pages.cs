@@ -110,6 +110,7 @@ internal sealed class ConversionPage : Page
     static readonly Sample Saw = new("봤다", Examples.Keys("ending.drop"));
     static readonly Sample Be = new("있다", Examples.Keys("itda.yu"));
     static readonly Sample Eat = new("먹으면", Examples.Keys("final.on"));
+    static readonly Sample Past = new("봤어요", Examples.Keys("carry.on"));
     static readonly Sample Do = new("하고", Examples.Keys("ha.modern"));
     static readonly Sample Studied = new("공부했다", Examples.Keys("ha.both"));
 
@@ -226,7 +227,7 @@ internal sealed class ConversionPage : Page
             carried,
             L("漢字 뒤에 따로 적힌 받침을 ㅇ 자리로 옮깁니다: 見ㅆ어요 → 見써요, 事ㅅ을 → 事슬.", "Moves a consonant written after Hanja into a following ㅇ: 見ㅆ어요 becomes 見써요, 事ㅅ을 becomes 事슬."),
             Examples.Line("봤어요", "carry.off", "carry.on"),
-            Toggle(Settings.Bool("conversion.resyllabify"), on => Change(carried, Eat, Settings.Patch("conversion.resyllabify", on))));
+            Toggle(Settings.Bool("conversion.resyllabify"), on => Change(carried, Past, Settings.Patch("conversion.resyllabify", on))));
     }
 
 }

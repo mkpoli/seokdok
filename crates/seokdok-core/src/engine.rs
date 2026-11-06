@@ -1040,6 +1040,8 @@ impl Engine {
         if around.alone {
             self.alone_edges(comps, &mut edges);
         }
+        self.keep_inner_words_hangul(n, &mut edges);
+        self.prefer_sino_word_before_light_verb(&mut edges);
         // A whole loanword is not cut into pieces: 버그를 offers no 버其를.
         if self.loan_edges(comps, &mut edges) {
             edges.retain(|e| e.start == 0 && e.end == n);
@@ -1091,6 +1093,48 @@ impl Engine {
         for e in edges.iter_mut() {
             let starts = e.start > 0 && comps[e.start - 1] == 'ᆯ' && comps[e.start..].starts_with(&jido);
             if starts && matches!(e.kind, Kind::Sino { .. } | Kind::Nominal { .. }) {
+                e.cost += MID_WORD_COST;
+            }
+        }
+    }
+
+    /// A loanword inside a longer run stays Hangul (深化버전, not 深化版); its Hanja are
+    /// on offer when it is typed as a word of its own. So does 되 after a word
+    /// (發音되는: the chat writes it so 82 times, with 成 once).
+    fn keep_inner_words_hangul(&self, n: usize, edges: &mut [Edge]) {
+        for e in edges.iter_mut() {
+            let inner = !(e.start == 0 && e.end == n);
+            let hangul = match e.kind {
+                Kind::Nominal { entry, .. } => inner && self.loans.contains(&self.natives[entry as usize].lemma),
+                Kind::Verb { entry, .. } => e.start > 0 && self.natives[entry as usize].lemma == "되다",
+                _ => false,
+            };
+            if hangul {
+                e.kind = Kind::Raw;
+            }
+        }
+    }
+
+    /// 선택하도록 is 選擇 with 하도록. A row from the weaker tiers for the whole verb
+    /// (選하다, 擇다) must not beat a Sino-Korean word in use.
+    fn prefer_sino_word_before_light_verb(&self, edges: &mut [Edge]) {
+        for e in edges.iter_mut() {
+            let Kind::Verb { entry, .. } = e.kind else { continue };
+            let n = &self.natives[entry as usize];
+            if !matches!(n.source, Source::Suggested | Source::Gloss | Source::Japanese | Source::JapaneseWeak) {
+                continue;
+            }
+            let Some(root) = n.lemma.strip_suffix("하다") else { continue };
+            let root = decompose(root);
+            let same = |hanja: &str| hanja == n.hanja;
+            let (mut used, mut own) = (false, false);
+            for (q, items) in self.sino.prefixes(&root, 0) {
+                if q == root.len() && crate::jamo::syllable_count(&root) >= 2 {
+                    used |= items.iter().any(|&i| self.sinos.count(i as usize) >= SUFFIX_WORD_COUNT);
+                    own |= items.iter().any(|&i| same(self.sinos.hanja(i as usize)));
+                }
+            }
+            if used && !own {
                 e.cost += MID_WORD_COST;
             }
         }

@@ -172,7 +172,7 @@ internal sealed class ConversionPage : Page
                 L("먼저 나오는 表記입니다. 다른 表記도 候補에 남습니다.", "Listed first. The others stay among the candidates."),
                 Examples.Line("하고", "ha.modern", "ha.kun", "ha.old") + "  ·  " + Examples.Line("공부했다", "ha.both"),
                 Choice(
-                    new[] { L("그대로 하고", "As it is: 하고"), L("漢字로 爲고", "In Hanja: 爲고"), L("옛 表記로 ᄒᆞ고", "Old spelling: ᄒᆞ고"), L("옛 表記로, 했다만 爲ㅆ다", "Old spelling, and 爲ㅆ다 for 했다") },
+                    new[] { L("그대로 하고", "As it is: 하고"), L("漢字로 爲고, 成는", "In Hanja: 爲고, 成는"), L("옛 表記로 ᄒᆞ고", "Old spelling: ᄒᆞ고"), L("옛 表記로, 했다만 爲ㅆ다", "Old spelling, and 爲ㅆ다 for 했다") },
                     old ? (kun ? 3 : 2) : (kun ? 1 : 0),
                     i => Change(ha, i == 3 ? Studied : Do, Settings.Patch(("conversion.hada_kun", i is 1 or 3), ("conversion.old_ha", i >= 2)))));
 
@@ -579,7 +579,7 @@ internal sealed class MenuPage : Page
         ("candidate_layout", L("候補 窓의 方向", "Candidate list direction"), L("入力", "Typing")),
         ("space_converts", L("Space로 變換", "Space converts"), L("入力", "Typing")),
         ("old_ha", L("하를 옛 表記로", "하 in the old spelling"), L("變換 › 하를 적는 法", "Conversion › How 하 is written")),
-        ("hada_kun", L("하를 漢字 爲로", "하 in Hanja, 爲"), L("變換 › 하를 적는 法", "Conversion › How 하 is written")),
+        ("hada_kun", L("하다·되다를 漢字로", "하다 and 되다 in Hanja"), L("變換 › 하를 적는 法", "Conversion › How 하 is written")),
         ("style", L("語尾 그대로", "The whole ending"), L("變換 › 漢字 뒤의 語尾", "Conversion › The ending after a Hanja verb")),
         ("fragment", L("남는 母音도 字母로", "With the vowel as a letter"), L("變換 › 漢字 뒤의 語尾", "Conversion › The ending after a Hanja verb")),
         ("coda_always", L("動詞의 받침을 漢字 뒤에 적기", "Write the verb's final consonant after the Hanja"), L("變換", "Conversion")),

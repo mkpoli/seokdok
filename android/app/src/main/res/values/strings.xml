@@ -34,7 +34,7 @@
     <string name="fragment">남은 母音 · Leftover vowel</string>
     <string name="coda_always">받침 늘 쓰기 · Always write the final consonant</string>
     <string name="resyllabify">連音 · Move a final consonant onto a following ㅇ</string>
-    <string name="hada_kun">하다를 爲로 · Prefer 爲 for 하다</string>
+    <string name="hada_kun">하다·되다를 漢字로 · Hanja for 하다 and 되다</string>
     <string name="itda">있다의 表記 · Spelling of 있다</string>
     <string name="old_ha">하 → ᄒᆞ 優先 · Old spelling of 하 first (하고 → ᄒᆞ고)</string>
     <string name="max_candidates">候補 數 · Phrase candidates</string>

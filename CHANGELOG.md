@@ -6,7 +6,7 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 
 ### Conversion
 - A loanword inside a longer word stays Hangul: 深化버전, 웹페이지. Its Hanja are offered only when it is typed alone.
-- 되 after a word stays Hangul: 發音되는, 完成된.
+- 하다 and 되다 after a word stay Hangul by default: 表示하는, 發音되는. 爲 and 成 stay on offer, and a setting puts them first: 表示爲는, 發音成는.
 - A Sino-Korean word beats a weak verb row: 選擇하도록, 改善하였어요, not 選도록, 善하였어요.
 
 ### Dictionary

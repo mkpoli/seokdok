@@ -68,7 +68,7 @@ impl MenuItem {
             MenuItem::Fragment => "남는 母音 字母로 / Leftover vowel as a letter",
             MenuItem::CodaAlways => "末音添記 늘 / Always write the final consonant",
             MenuItem::Resyllabify => "받침 넘기기 / Resyllabify",
-            MenuItem::HadaKun => "하다를 爲로 / Prefer 爲 for 하다",
+            MenuItem::HadaKun => "하다·되다를 漢字로 / Hanja for 하다 and 되다",
         }
     }
 

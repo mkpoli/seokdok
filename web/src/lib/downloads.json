@@ -2,36 +2,60 @@
   "version": "0.1.0",
   "windows": {
     "file": "seokdok-0.1.0-x86_64-windows-setup.exe",
-    "size": 24814576
+    "size": 24884650
   },
   "linux": {
     "file": "seokdok-0.1.0-x86_64-linux-fcitx5.tar.gz",
-    "size": 8374725
+    "size": 8471941
   },
   "android": {
     "file": "seokdok-0.1.0-android.apk",
-    "size": 17499344
+    "size": 17616096
   },
   "macos": {
     "file": "seokdok-0.1.0-macos.zip",
-    "size": 11261440
+    "size": 11362264
   },
   "ios": {
     "file": "seokdok-0.1.0-ios-unsigned.ipa",
-    "size": 8295309
+    "size": 8391546
   },
   "eumdok": {
     "windows": {
       "file": "eumdok-0.1.0-x86_64-windows-setup.exe",
-      "size": 24731282
+      "size": 24798740
     },
     "linux": {
       "file": "eumdok-0.1.0-x86_64-linux-fcitx5.tar.gz",
-      "size": 8374405
+      "size": 8471576
     },
     "android": {
       "file": "eumdok-0.1.0-android.apk",
-      "size": 17519108
+      "size": 17636272
+    },
+    "macos": {
+      "file": "eumdok-0.1.0-macos.zip",
+      "size": 11301933
+    },
+    "ios": {
+      "file": "eumdok-0.1.0-ios-unsigned.ipa",
+      "size": 8311447
+    },
+    "windowsArm64": {
+      "file": "eumdok-0.1.0-arm64-windows-setup.exe",
+      "size": 25631629
+    },
+    "linuxArm64": {
+      "file": "eumdok-0.1.0-aarch64-linux-fcitx5.tar.gz",
+      "size": 8326043
     }
+  },
+  "windowsArm64": {
+    "file": "seokdok-0.1.0-arm64-windows-setup.exe",
+    "size": 25681710
+  },
+  "linuxArm64": {
+    "file": "seokdok-0.1.0-aarch64-linux-fcitx5.tar.gz",
+    "size": 8326059
   }
 }

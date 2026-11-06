@@ -920,7 +920,8 @@ impl Engine {
                     let suffix = one
                         && after_word[s]
                         && (q == n || self.particle_trie.prefixes(comps, q).iter().any(|(r, _)| *r == n))
-                        && SINO_SUFFIXES.contains(&(self.sinos.reading(i as usize), self.sinos.hanja(i as usize)));
+                        && SINO_SUFFIXES.contains(&(self.sinos.reading(i as usize), self.sinos.hanja(i as usize)))
+                        && !self.word_covers(comps, s);
                     let prefix = one
                         && s == 0
                         && SINO_PREFIXES.contains(&(self.sinos.reading(i as usize), self.sinos.hanja(i as usize)))
@@ -1302,15 +1303,24 @@ impl Engine {
         }
     }
 
-    /// A common Sino-Korean word fills the rest from `q`, with a particle at
-    /// most, and no listed word covers the same text from the start: 반모음 is
-    /// 半母音, and 재일한인 is not 再 + 日韓人.
+    /// Does a listed word run from the start past `q` to the end of the token,
+    /// with a particle at most? Then it keeps its own Hanja: 반모음 is 半母音,
+    /// and 기지창 is 基地廠.
+    fn word_covers(&self, comps: &[char], q: usize) -> bool {
+        self.sino.prefixes(comps, 0).into_iter().any(|(r, _)| r > q && self.fills_token(comps, r))
+    }
+
+    /// From `r` nothing is left of the token but a particle at most.
+    fn fills_token(&self, comps: &[char], r: usize) -> bool {
+        r == comps.len() || self.particle_trie.prefixes(comps, r).iter().any(|(e, _)| *e == comps.len())
+    }
+
+    /// A common Sino-Korean word fills the rest from `q`, and no listed word
+    /// covers the token: 재시작 can be 再 + 始作.
     fn word_follows(&self, comps: &[char], q: usize) -> bool {
-        let n = comps.len();
-        let fills = |r: usize| r == n || self.particle_trie.prefixes(comps, r).iter().any(|(e, _)| *e == n);
-        !self.sino.prefixes(comps, 0).into_iter().any(|(r, _)| r > q && fills(r))
+        !self.word_covers(comps, q)
             && self.sino.prefixes(comps, q).into_iter().any(|(r, items)| {
-                fills(r)
+                self.fills_token(comps, r)
                     && crate::jamo::syllable_count(&comps[q..r]) >= 2
                     && items.iter().any(|&i| self.sinos.count(i as usize) >= SUFFIX_WORD_COUNT)
             })

@@ -31,6 +31,7 @@ export default defineConfig({
         privacy: resolve(import.meta.dirname, 'privacy.html'),
         support: resolve(import.meta.dirname, 'support.html'),
         eumdok: resolve(import.meta.dirname, 'eumdok.html'),
+        dict: resolve(import.meta.dirname, 'dict.html'),
       },
     },
   },

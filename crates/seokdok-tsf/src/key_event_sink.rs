@@ -233,12 +233,19 @@ impl ITfKeyEventSink_Impl for TextService_Impl {
             return Ok(true.into());
         }
         let Some(key) = self.key_of(pic.as_ref(), wparam, lparam) else {
+            if !mode_key_events::is_modifier_event(wparam) {
+                self.inner_mut().session.key_passed();
+            }
             return Ok(false.into());
         };
         let eats = {
             let state = self.inner();
             state.session.eats(key) || state.session.commits_then_passes(key)
         };
+        // OnKeyDown does not follow a key that is not eaten here.
+        if !eats {
+            self.inner_mut().session.key_passed();
+        }
         crate::debug_log::log(|| format!("OnTestKeyDown vk={:#x} eats={eats} ctx={:?}", wparam.0, pic.as_ref().map(|c| windows::core::Interface::as_raw(c))));
         Ok(eats.into())
     }

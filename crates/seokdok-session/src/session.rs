@@ -291,6 +291,13 @@ impl Session {
         self.plan(key) == Some(Act::CommitPass)
     }
 
+    /// A key went to the application without reaching [`Session::handle`], as
+    /// a front end that asks [`Session::eats`] first lets it. The application's
+    /// text has moved on, so the next word adds no space of its own.
+    pub fn key_passed(&mut self) {
+        self.pending_break = false;
+    }
+
     /// The mode a switching key leads to from here; `None` for other keys.
     /// 韓㐎 專用 has no 釋讀 to tell from 한글, so those keys only leave Latin.
     fn switch_target(&self, key: Key) -> Option<Mode> {
@@ -1247,6 +1254,19 @@ mod tests {
         assert_eq!(preedit_of(&o).unwrap()[0].text, "한1");
         let o = s.handle(Key::Up, &Stub(3));
         assert_eq!(preedit_of(&o).unwrap()[0].text, "한3");
+    }
+
+    #[test]
+    fn a_space_the_application_typed_is_not_doubled() {
+        let mut s = seokdok();
+        s.composer = Composer::from_text("한");
+        s.handle(Key::Space { shift: false }, &Stub(1));
+        assert!(commit_of(&s.handle(Key::Enter, &Stub(1))).is_some());
+        // The application types this Space: the front end only asked.
+        assert!(!s.eats(Key::Space { shift: false }));
+        s.key_passed();
+        let o = s.handle(Key::Letter { ch: 'g', shift: false }, &Stub(1));
+        assert_eq!(commit_of(&o), None);
     }
 
     #[test]

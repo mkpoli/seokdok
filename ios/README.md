@@ -105,7 +105,8 @@ after changing `project.yml`.
   to move the caret. What is being composed is committed first. The caret moves
   along the line only: `adjustTextPosition` has no up and down.
 - 確定 (Return) confirms everything. Backspace undoes the conversion, then
-  deletes letters; hold it to repeat.
+  deletes letters. Held, it repeats, a syllable at a time while composing, and
+  after twenty repeats by whole words.
 - The mode key cycles 釋 (釋讀) → 混 (國漢文混用) → 한 (韓㐎 專用) → A (Latin), writing
   the script to the settings. Without a folder to write them to, it moves between
   Korean and Latin.

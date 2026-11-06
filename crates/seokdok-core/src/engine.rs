@@ -481,6 +481,12 @@ const EDGE_COST: f32 = 1.0;
 const SUFFIX_COST: f32 = 1.0;
 const SINO_SUFFIXES: &[(&str, &str)] = &[
     ("용", "用"), ("적", "的"), ("화", "化"), ("률", "率"), ("율", "率"), ("어", "語"), ("류", "類"), ("학", "學"), ("법", "法"),
+    ("판", "版"), ("본", "本"), ("창", "窓"),
+];
+/// One-syllable prefixes that make a new word of a common Sino-Korean word: 再始作, 舊時代, 非公開.
+const SINO_PREFIXES: &[(&str, &str)] = &[
+    ("재", "再"), ("비", "非"), ("불", "不"), ("미", "未"), ("무", "無"), ("초", "超"), ("신", "新"), ("구", "舊"), ("반", "反"),
+    ("탈", "脫"), ("총", "總"), ("현", "現"), ("준", "準"), ("친", "親"), ("범", "汎"), ("역", "逆"), ("타", "他"), ("매", "每"), ("각", "各"),
 ];
 /// Words that end a sentence, where 용 is the chat's 요 (안녕용, 죄송용).
 const NOT_BEFORE_SUFFIX: &[&str] = &["안녕", "감사", "죄송", "미안", "축하", "부탁", "수고", "혹시", "역시", "물론", "당연", "사실", "지금", "내일", "오늘", "정말", "진짜", "아직", "가세", "사세", "아세"];
@@ -914,8 +920,13 @@ impl Engine {
                     let suffix = one
                         && after_word[s]
                         && (q == n || self.particle_trie.prefixes(comps, q).iter().any(|(r, _)| *r == n))
-                        && SINO_SUFFIXES.contains(&(self.sinos.reading(i as usize), self.sinos.hanja(i as usize)));
-                    let base = if suffix {
+                        && SINO_SUFFIXES.contains(&(self.sinos.reading(i as usize), self.sinos.hanja(i as usize)))
+                        && !self.word_covers(comps, s);
+                    let prefix = one
+                        && s == 0
+                        && SINO_PREFIXES.contains(&(self.sinos.reading(i as usize), self.sinos.hanja(i as usize)))
+                        && self.word_follows(comps, q);
+                    let base = if suffix || prefix {
                         EDGE_COST + SUFFIX_COST
                     } else {
                         EDGE_COST + self.sinos.cost(i as usize) + if one { SHORT_COST } else { 0.0 }
@@ -1290,6 +1301,29 @@ impl Engine {
         if alone && !HOMOGRAPH_PARTICLES.contains(&compose(comps).as_str()) {
             edges.push(Edge { start: 0, end: n, cost: ALONE_COST, kind: Kind::Raw });
         }
+    }
+
+    /// Does a listed word run from the start past `q` to the end of the token,
+    /// with a particle at most? Then it keeps its own Hanja: 반모음 is 半母音,
+    /// and 기지창 is 基地廠.
+    fn word_covers(&self, comps: &[char], q: usize) -> bool {
+        self.sino.prefixes(comps, 0).into_iter().any(|(r, _)| r > q && self.fills_token(comps, r))
+    }
+
+    /// From `r` nothing is left of the token but a particle at most.
+    fn fills_token(&self, comps: &[char], r: usize) -> bool {
+        r == comps.len() || self.particle_trie.prefixes(comps, r).iter().any(|(e, _)| *e == comps.len())
+    }
+
+    /// A common Sino-Korean word fills the rest from `q`, and no listed word
+    /// covers the token: 재시작 can be 再 + 始作.
+    fn word_follows(&self, comps: &[char], q: usize) -> bool {
+        !self.word_covers(comps, q)
+            && self.sino.prefixes(comps, q).into_iter().any(|(r, items)| {
+                self.fills_token(comps, r)
+                    && crate::jamo::syllable_count(&comps[q..r]) >= 2
+                    && items.iter().any(|&i| self.sinos.count(i as usize) >= SUFFIX_WORD_COUNT)
+            })
     }
 
     /// A name opens its word (아이소라 holds no 李素羅), and a two-syllable one

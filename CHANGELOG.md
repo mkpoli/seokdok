@@ -15,6 +15,7 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 - On a Japanese keyboard layout, ASCII no longer turns into half-width katakana when the kana lock is on.
 
 ### Conversion
+- Common Sino-Korean prefixes and suffixes join the word they attach to: 完全版, 日本語版, 入力窓, 再始作, 非公開, 他地域. A word already in the dictionary keeps its own Hanja.
 - 사라지다 keeps its inner Hangul: 消라져去고, 消라졌다.
 - 후 comes first as 後: 千年後에는, 後에도.
 - Well-known people's names convert whole: 金正恩同志, 文在寅, 李世乭. Hanja come from their Korean Wikipedia articles; `dict/people.tsv` lists them.

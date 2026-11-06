@@ -424,6 +424,9 @@ fn deul_alone_is_the_plural() {
     let e = engine();
     assert!(!e.convert("예를 들 수 있다")[0].text.contains('等'));
     assert_eq!(e.convert("힘이 들 거예요")[0].text, "力이 入ㄹ 거예요");
+}
+
+#[test]
 fn sino_affixes_join_their_word() {
     first(&[
         ("완전판", "完全版"),

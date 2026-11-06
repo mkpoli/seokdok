@@ -287,3 +287,7 @@ reading	hanja	count	source
 후	後	200	editorial
 후타나리	후타나리	1	editorial
 후리가나	후리가나	1	editorial
+# 구시대: ahead of a verb reading of its first syllables.
+구시대	舊時代	1	editorial
+# 재일한인: two listed words, ahead of the prefix 再.
+재일한인	在日韓人	1	editorial

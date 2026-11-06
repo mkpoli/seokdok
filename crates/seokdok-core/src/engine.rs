@@ -57,7 +57,8 @@ pub struct Options {
     /// Write a written-out final consonant as the onset of a following ㅇ
     /// syllable (在쓰면 instead of 在ㅆ으면).
     pub resyllabify: bool,
-    /// Prefer 爲 for the light verb 하다 (安寧爲세요 over 安寧하세요).
+    /// Hanja for the auxiliaries after a word: 爲 for 하다 and 成 for 되다
+    /// (安寧爲세요, 發音成는), which are Hangul by default.
     pub hada_kun: bool,
     /// The spelling of 있다 listed first.
     pub itda: Itda,
@@ -980,7 +981,7 @@ impl Engine {
             // Inflected verbs and adjectives: stem allomorph + ending.
             for (q, items) in self.stems.prefixes(comps, s) {
                 // Every row of such a verb goes, or 託하다 would keep 부탁해 in Hangul.
-                let sino_verbs: Vec<&str> = if self.options.sino_only {
+                let sino_verbs: Vec<&str> = if self.options.sino_only || self.options.hada_kun {
                     items.iter().map(|&(i, _)| &self.natives[i as usize]).filter(|n| self.sino_word_with_light_verb(n)).map(|n| n.lemma.as_str()).collect()
                 } else {
                     Vec::new()
@@ -1041,6 +1042,7 @@ impl Engine {
             self.alone_edges(comps, &mut edges);
         }
         self.keep_inner_words_hangul(n, &mut edges);
+        self.keep_auxiliary_doeda_hangul(&mut edges);
         self.prefer_sino_word_before_light_verb(&mut edges);
         // A whole loanword is not cut into pieces: 버그를 offers no 버其를.
         if self.loan_edges(comps, &mut edges) {
@@ -1099,20 +1101,36 @@ impl Engine {
     }
 
     /// A loanword inside a longer run stays Hangul (深化버전, not 深化版); its Hanja are
-    /// on offer when it is typed as a word of its own. So does 되 after a word
-    /// (發音되는: the chat writes it so 82 times, with 成 once).
+    /// on offer when it is typed as a word of its own.
     fn keep_inner_words_hangul(&self, n: usize, edges: &mut [Edge]) {
         for e in edges.iter_mut() {
-            let inner = !(e.start == 0 && e.end == n);
-            let hangul = match e.kind {
-                Kind::Nominal { entry, .. } => inner && self.loans.contains(&self.natives[entry as usize].lemma),
-                Kind::Verb { entry, .. } => e.start > 0 && self.natives[entry as usize].lemma == "되다",
-                _ => false,
-            };
-            if hangul {
-                e.kind = Kind::Raw;
+            if let Kind::Nominal { entry, .. } = e.kind {
+                if !(e.start == 0 && e.end == n) && self.loans.contains(&self.natives[entry as usize].lemma) {
+                    e.kind = Kind::Raw;
+                }
             }
         }
+    }
+
+    /// 되 after a word is an auxiliary and stays Hangul (發音되는: the chat writes it so
+    /// 82 times, with 成 once), as 하다 does. 成 stays on offer behind it, and leads
+    /// under `hada_kun`.
+    fn keep_auxiliary_doeda_hangul(&self, edges: &mut Vec<Edge>) {
+        if self.options.hada_kun {
+            return;
+        }
+        let mut hangul: Vec<Edge> = Vec::new();
+        for e in edges.iter_mut().filter(|e| e.start > 0) {
+            if let Kind::Verb { entry, .. } = e.kind {
+                if self.natives[entry as usize].lemma == "되다" {
+                    if !hangul.iter().any(|h| h.start == e.start && h.end == e.end) {
+                        hangul.push(Edge { start: e.start, end: e.end, cost: e.cost, kind: Kind::Raw });
+                    }
+                    e.cost += 1.0;
+                }
+            }
+        }
+        edges.extend(hangul);
     }
 
     /// 선택하도록 is 選擇 with 하도록. A row from the weaker tiers for the whole verb

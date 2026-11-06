@@ -493,7 +493,7 @@ fragment = \"{fragment}\"
 coda_always = {coda}
 # Write a final consonant as the onset of a following ㅇ syllable.  (true | false)
 resyllabify = {resyl}
-# Prefer 爲 for the light verb 하다.  (true | false)
+# Hanja for the auxiliaries after a word: 爲 for 하다, 成 for 되다.  (true | false)
 hada_kun = {hada}
 # The spelling of 있다 listed first; the others stay offered.
 #   有   = 有다

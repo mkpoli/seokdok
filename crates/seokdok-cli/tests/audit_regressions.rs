@@ -354,6 +354,17 @@ fn loanwords_stay_hangul_inside_a_longer_word() {
 }
 
 #[test]
+fn auxiliaries_are_hanja_only_for_those_who_ask() {
+    let dir = Path::new(env!("CARGO_MANIFEST_DIR")).join("../../dict");
+    let on = Engine::from_dir(&dir, Options { hada_kun: true, ..Options::default() }).expect("dict").0;
+    for (input, want) in [("발음되는", "發音成는"), ("표시하는", "表示爲는"), ("안녕하세요", "安寧爲세요")] {
+        assert_eq!(on.convert(input)[0].text, want, "{input}");
+    }
+    first(&[("발음되는", "發音되는"), ("표시하는", "表示하는")]);
+    offers(&[("발음되는", "發音成는"), ("안녕하세요", "安寧爲세요")]);
+}
+
+#[test]
 fn doeda_after_a_word_stays_hangul() {
     first(&[("발음되는", "發音되는"), ("통용되는", "通用되는"), ("연속되는", "連續되는"), ("완성된", "完成된"), ("되는", "成는"), ("되다", "成다")]);
 }

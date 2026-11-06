@@ -9,6 +9,11 @@
     { id: 'seokdok', href: '/', logo: '/favicon.svg', han: '釋讀', latn: 'Seokdok', lang: 'ko' },
     { id: 'eumdok', href: '/eumdok', logo: '/favicon-eumdok.svg', han: '音讀', latn: 'Eumdok', lang: 'ko' },
   ]
+  // The trigger and the menu carry the current site's name as well as the label.
+  const label = $derived.by(() => {
+    const own = SITES.find((s) => s.id === current)
+    return `${own.han} ${own.latn}: ${plain(t().sites.label)}`
+  })
   const more = $derived(`https://scripts.mkpo.li/${i18n.lang === 'en' ? '' : 'ko/'}`)
 
   let open = $state(false)
@@ -71,7 +76,7 @@
     type="button"
     aria-haspopup="menu"
     aria-expanded={open}
-    aria-label={plain(t().sites.label)}
+    aria-label={label}
     onclick={() => (open ? hide() : show())}
     onkeydown={onTriggerKey}
   >
@@ -80,14 +85,14 @@
   </button>
 
   {#if open}
-    <div class="menu" role="menu" tabindex="-1" aria-label={plain(t().sites.label)} onkeydown={onMenuKey}>
+    <div class="menu" role="menu" tabindex="-1" aria-label={label} onkeydown={onMenuKey}>
       {#each SITES as site (site.id)}
         <a
           class="item"
           role="menuitem"
           tabindex="-1"
           href={site.id === current ? `${home}#top` : site.href}
-          aria-current={site.id === current ? 'page' : undefined}
+          aria-current={site.id === current ? 'true' : undefined}
           onclick={() => hide()}
         >
           <img src={site.logo} alt="" width="32" height="32" />
@@ -166,6 +171,10 @@
   .item:hover,
   .item:focus-visible {
     background: var(--c-hover);
+  }
+  .item:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: -2px;
   }
   .item[aria-current] {
     background: var(--c-accent-soft);

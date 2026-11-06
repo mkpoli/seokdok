@@ -35,19 +35,19 @@
     },
     "windowsArm64": {
       "file": "eumdok-0.1.0-arm64-windows-setup.exe",
-      "size": 25000000
+      "size": 25555583
     },
     "linuxArm64": {
       "file": "eumdok-0.1.0-aarch64-linux-fcitx5.tar.gz",
-      "size": 8000000
+      "size": 8233177
     }
   },
   "windowsArm64": {
     "file": "seokdok-0.1.0-arm64-windows-setup.exe",
-    "size": 25000000
+    "size": 25601330
   },
   "linuxArm64": {
     "file": "seokdok-0.1.0-aarch64-linux-fcitx5.tar.gz",
-    "size": 8000000
+    "size": 8231944
   }
 }

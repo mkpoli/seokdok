@@ -215,6 +215,18 @@ final class KeyboardUITests: XCTestCase {
         assertText(field, "d@k.")
     }
 
+    /// Two Spaces after a word make a period and a space; not after punctuation.
+    func testTwoSpacesTypeAPeriod() throws {
+        let (app, field) = launch(kind: "email")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("a") }
+        g.space()
+        g.space()
+        assertText(field, "a. ")
+        g.space()
+        assertText(field, "a.  ")
+    }
+
     /// Hangul pending in one field must not be written into the next field.
     func testComposingThenFocusingAnotherFieldWritesNothingThere() throws {
         let (app, field) = launch(kind: "default", second: "email")

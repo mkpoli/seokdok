@@ -405,3 +405,8 @@ fn the_common_word_leads_a_homophone_set() {
 fn a_coined_word_keeps_its_b_stem() {
     first(&[("아우롭다", "悌롭다"), ("아우로운", "悌로운"), ("아우롭게", "悌롭게"), ("아우로워", "悌로워")]);
 }
+
+#[test]
+fn hu_is_written_after() {
+    first(&[("천년후에는", "千年後에는"), ("후에도", "後에도"), ("후", "後"), ("후타나리", "후타나리"), ("후리가나를", "후리가나를")]);
+}

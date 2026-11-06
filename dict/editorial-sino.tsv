@@ -283,3 +283,7 @@ reading	hanja	count	source
 탄생일	誕生日		editorial
 자서	字書		editorial
 조작성	操作性		editorial
+# 후 "after": the chat writes 後 (百年後, 後에). 후타나리 and 후리가나 are loanwords that start with it.
+후	後	200	editorial
+후타나리	후타나리	1	editorial
+후리가나	후리가나	1	editorial

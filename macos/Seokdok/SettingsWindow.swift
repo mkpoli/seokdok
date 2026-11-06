@@ -84,7 +84,7 @@ struct SettingsView: View {
                     Text("字母로 / Letter  (見ㅏ라)").tag("letter")
                 }
                 Toggle("末音添記 늘 / Always write the final consonant  (有ㅆ다)", isOn: $model.config.conversion.codaAlways)
-                Toggle("받침 넘기기 / Resyllabify  (在쓰면)", isOn: $model.config.conversion.resyllabify)
+                Toggle("받침 넘기기 / Resyllabify  (見써요)", isOn: $model.config.conversion.resyllabify)
                 Toggle("하다·되다를 漢字로 / Hanja for 하다 and 되다", isOn: $model.config.conversion.hadaKun)
                 Picker("있다의 表記 / Spelling of 있다", selection: $model.config.conversion.itda) {
                     Text("有다").tag("有")

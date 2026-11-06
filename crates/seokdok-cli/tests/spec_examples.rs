@@ -61,7 +61,22 @@ fn letter_fragments() {
 #[test]
 fn coda_options() {
     check(Options { coda_always: true, ..Options::default() }, &[("있네요", "有ㅆ네요"), ("알고", "知ㄹ고")]);
-    check(Options { resyllabify: true, ..Options::default() }, &[("있으면", "在쓰면"), ("있어서", "在써서")]);
+    check(Options { resyllabify: true, ..Options::default() }, &[
+        ("있으면", "在쓰면"),
+        ("있어서", "在써서"),
+        ("봤어요", "見써요"),
+        ("갔으면", "去쓰면"),
+        ("왔어요", "來써요"),
+        ("것을", "事슬"),
+        ("재밌어요", "滋味써요"),
+        ("좋아요", "好아요"),
+        ("봤다", "見ㅆ다"),
+    ]);
+    check(Options { resyllabify: true, coda_always: true, ..Options::default() }, &[("있으면", "有쓰면"), ("봤어요", "見써요")]);
+    let e = engine(Options { resyllabify: true, ..Options::default() });
+    for (written, spoken) in [("見써요", "봤어요"), ("去쓰면", "갔으면"), ("事슬", "것을"), ("在쓰면", "있으면")] {
+        assert_eq!(e.read(written), spoken);
+    }
     check(Options { hada_kun: true, ..Options::default() }, &[("안녕하세요", "安寧爲세요"), ("공부하다", "工夫爲다")]);
 }
 

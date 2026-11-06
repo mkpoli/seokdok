@@ -130,7 +130,7 @@ fn a_particle_typed_alone_stays_hangul() {
 #[test]
 fn a_particle_that_is_also_a_word_converts_as_the_word() {
     first(&[
-        ("이", "此"), ("나", "我"), ("보다", "見다"), ("들", "入ㄹ"), ("같이", "如이"), ("대로", "如"), ("만큼", "許"),
+        ("이", "此"), ("나", "我"), ("보다", "見다"), ("들", "等"), ("같이", "如이"), ("대로", "如"), ("만큼", "許"),
         ("들은", "聽은"),
     ]);
 }
@@ -415,4 +415,13 @@ fn hu_is_written_after() {
 fn saraji_keeps_its_inner_hangul() {
     first(&[("사라져가고", "消라져去고"), ("사라졌다", "消라졌다"), ("사라진", "消라진")]);
     offers(&[("사라져", "消")]);
+}
+
+#[test]
+fn deul_alone_is_the_plural() {
+    first(&[("들", "等"), ("사람들", "人들"), ("들은", "聽은"), ("들을", "聽을"), ("학생들", "學生들"), ("들어", "入어")]);
+    offers(&[("학생들", "學生等")]);
+    let e = engine();
+    assert!(!e.convert("예를 들 수 있다")[0].text.contains('等'));
+    assert_eq!(e.convert("힘이 들 거예요")[0].text, "力이 入ㄹ 거예요");
 }

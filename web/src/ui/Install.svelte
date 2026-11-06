@@ -2,16 +2,15 @@
   import { reveal } from '../lib/reveal.js'
   import { t, r } from '../lib/i18n.svelte.js'
   import downloads from '../lib/downloads.json'
+  import { builds } from '../lib/builds.js'
 
   const mb = (n) => `${(n / 1048576).toFixed(1)} MB`
-  const linuxDir = downloads.linux.file.replace(/\.tar\.gz$/, '')
   const platforms = [
     {
       key: 'windows',
       name: 'Windows',
-      req: 'Windows 10 · 11, x64',
-      file: downloads.windows.file,
-      size: downloads.windows.size,
+      req: 'Windows 10 · 11',
+      builds: builds(downloads.windows, downloads.windowsArm64),
       system: null,
       remove: '設定 › 앱 › 釋讀 seokdok',
       where: '%APPDATA%\\seokdok\\custom.json',
@@ -19,10 +18,9 @@
     {
       key: 'linux',
       name: 'Linux',
-      req: 'fcitx5 5.1+, x86_64',
-      file: downloads.linux.file,
-      size: downloads.linux.size,
-      run: `tar xzf ${downloads.linux.file}\ncd ${linuxDir} && ./install.sh\nfcitx5 -rd`,
+      req: 'fcitx5 5.1+',
+      builds: builds(downloads.linux, downloads.linuxArm64),
+      run: `tar xzf seokdok-*-linux-fcitx5.tar.gz\ncd seokdok-*-linux-fcitx5 && ./install.sh\nfcitx5 -rd`,
       system: 'sudo ./install.sh --system',
       remove: './install.sh --uninstall',
       where: '~/.config/seokdok/custom.json',
@@ -72,12 +70,18 @@
           <h3>{p.name}</h3>
           <span class="req">{p.req}</span>
         </header>
-        <a class="btn dl" data-variant="primary" data-size="lg" href="/downloads/{p.file}" download>
-          <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14" /></svg>
-          <span>{@html r(t().install.download)}</span>
-          <small>{mb(p.size)}</small>
-        </a>
-        <p class="file">{p.file}</p>
+        <div class="builds">
+          {#each p.builds ?? [p] as b (b.file)}
+            <div class="build">
+              <a class="btn dl" data-variant="primary" data-size="lg" href="/downloads/{b.file}" download>
+                <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11m0 0-4.5-4.5M12 15l4.5-4.5M5 19h14" /></svg>
+                <span>{@html r(t().install.download)}{b.arch ? ` · ${b.arch}` : ''}</span>
+                <small>{mb(b.size)}</small>
+              </a>
+              <p class="file">{b.file}</p>
+            </div>
+          {/each}
+        </div>
         <ol>
           {#each t().install[p.key] as step, n}
             <li>
@@ -133,6 +137,17 @@
     color: var(--c-muted);
     font: 500 13px/1.4 var(--f-mono);
   }
+  .builds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3) var(--s-4);
+  }
+  .build {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    min-width: 0;
+  }
   .dl {
     align-self: flex-start;
     gap: var(--s-2);
@@ -152,7 +167,7 @@
     font-weight: 500;
   }
   .file {
-    margin: calc(-1 * var(--s-2)) 0 0;
+    margin: 0;
     color: var(--c-muted);
     font: 12px/1.4 var(--f-mono);
     overflow-wrap: anywhere;

@@ -215,6 +215,16 @@ final class KeyboardUITests: XCTestCase {
         assertText(field, "d@k.")
     }
 
+    /// Latin letters capitalize at the start of a sentence, as the field asks.
+    func testAsciiFieldCapitalizesSentences() throws {
+        let (app, field) = launch(kind: "ascii")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("a") }
+        g.space()
+        g.letter("b")
+        assertText(field, "A b")
+    }
+
     /// Two Spaces after a word make a period and a space; not after punctuation.
     func testTwoSpacesTypeAPeriod() throws {
         let (app, field) = launch(kind: "email")

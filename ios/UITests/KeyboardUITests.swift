@@ -591,9 +591,16 @@ final class KeyboardUITests: XCTestCase {
         let keyboard = settings.staticTexts["Keyboard"].firstMatch
         XCTAssertTrue(keyboard.waitForExistence(timeout: 30), "Keyboard is not in Settings")
         shot("settings-general")
-        tapWhenThere(keyboard, "Keyboard")
-        // The page and its first row are both called Keyboards.
-        tapWhenThere(settings.cells.containing(.staticText, identifier: "Keyboards").firstMatch, "Keyboards")
+        // The page and its first row are both called Keyboards. A tap on the row above
+        // can go missing on a busy runner, which no wait makes up for, so tap again.
+        let keyboards = settings.cells.containing(.staticText, identifier: "Keyboards").firstMatch
+        var reached = false
+        for _ in 0..<3 where !reached {
+            if keyboard.exists { keyboard.tap() }
+            reached = keyboards.waitForExistence(timeout: 15)
+        }
+        if !reached { shot("settings-keyboard-page") }
+        tapWhenThere(keyboards, "Keyboards")
         let add = settings.staticTexts.matching(NSPredicate(format: "label BEGINSWITH 'Add New Keyboard'")).firstMatch
         XCTAssertTrue(add.waitForExistence(timeout: 30), "the step the app gives is not in Settings")
         shot("settings-keyboards")

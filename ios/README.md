@@ -196,7 +196,7 @@ about 48 to 60 MB ([React Native docs archive](https://reactnative-archive-augus
 [a DEV Community post](https://dev.to/tbds_2dadf2b626f315902eae/the-three-hard-constraints-of-an-ios-keyboard-extension-46af),
 all read 2026-11-04; none cites Apple, and the figures disagree).
 
-The extension's physical footprint is 53.5 MB once loaded, with a 56.1 MB peak
+The extension's physical footprint is 55.5 MB once loaded, with a 58.3 MB peak
 (`footprint` and `vmmap` on a Debug build on an iPhone simulator in CI,
 2026-11-04; the Rust library is a release build either way, and each iOS run
 records this in the `simulator-screenshots` artifact). A simulator applies no

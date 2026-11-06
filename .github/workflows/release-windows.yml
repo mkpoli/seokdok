@@ -90,6 +90,10 @@ jobs:
           path: target/installer-eumdok/*.exe
           if-no-files-found: error
 
+  # The Arm64 installers are kept unsigned as artifacts of this run.
+  arm64:
+    uses: ./.github/workflows/windows-arm64.yml
+
   check-signpath:
     runs-on: ubuntu-latest
     outputs:

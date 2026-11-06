@@ -4,7 +4,7 @@
 use windows::core::{Ref, BOOL, GUID};
 use windows::Win32::Foundation::{LPARAM, WPARAM};
 use windows::Win32::UI::Input::KeyboardAndMouse::{
-    GetKeyState, GetKeyboardState, ToUnicode, VK_CONTROL, VK_MENU, VK_SHIFT,
+    GetKeyState, GetKeyboardState, SetKeyboardState, ToUnicode, VK_CONTROL, VK_KANA, VK_MENU, VK_SHIFT,
 };
 use windows::Win32::UI::TextServices::{ITfContext, ITfKeyEventSink_Impl};
 
@@ -42,6 +42,20 @@ fn note_key_down(wparam: WPARAM) {
 fn key_down(vk: i32) -> bool {
     // SAFETY: GetKeyState is always safe to call.
     (unsafe { GetKeyState(vk) } as u16) & 0x8000 != 0
+}
+
+/// Turn off the kana lock for this thread. The Japanese keyboard layout gives
+/// half-width katakana while it is on, both to this decoder and to the
+/// application for each key the session passes on. It has no use in a Korean
+/// input method, and whichever key set it may be long forgotten.
+fn clear_kana_lock() {
+    let mut state = [0u8; 256];
+    // SAFETY: state is a valid 256-byte buffer.
+    if unsafe { GetKeyboardState(&mut state) }.is_ok() && state[VK_KANA.0 as usize] & 1 != 0 {
+        state[VK_KANA.0 as usize] &= !1;
+        // SAFETY: state is a valid 256-byte buffer. This changes only the calling thread's table.
+        let _ = unsafe { SetKeyboardState(&state) };
+    }
 }
 
 /// Translate a key-down message into a [`Key`]; `None` for keys the input
@@ -118,6 +132,7 @@ impl TextService_Impl {
         if mode_key_events::is_modifier_event(wparam) {
             return None;
         }
+        clear_kana_lock();
         self.settle(context);
         let bound = mode_key_events::press(wparam, lparam, &self.inner().session);
         bound.or_else(|| decode(wparam, lparam))

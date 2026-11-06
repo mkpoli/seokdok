@@ -160,6 +160,10 @@
     <b>國漢大百科</b>
     <span>{@html r(page.wiki)}</span>
   </a>
+  <a class="card link" href="https://t.me/+WM1ZSd-2Nd7T55Wm" target="_blank" rel="noopener" use:reveal>
+    <b>漢字混用</b>
+    <span>{@html r(page.chat)}</span>
+  </a>
 </section>
 
 <footer class="section foot">
@@ -367,6 +371,11 @@
     margin: 0;
     color: var(--c-soft);
     line-height: 1.9;
+  }
+  .more {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: var(--s-4);
   }
   .link {
     display: grid;

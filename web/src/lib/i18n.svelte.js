@@ -243,7 +243,7 @@ const ko = {
     windows: [
       '{下|내}려{受|받}은 {設置|설치} 파일을 {實行|실행}합니다. {管理者|관리자} {權限|권한}을 {求|구}합니다.',
       'Win+Space로 {釋讀|석독}을 {選|고르}ㅂ니다. {韓國語|한국어}가 {言語|언어} {目錄|목록}에 {無|없}으면 {自動|자동}으로 {加|더}합니다.',
-      '한/영이나 {右|오른}쪽 Alt로 {韓|한}과 A를 {轉換|전환}하고, 한자나 {右|오른}쪽 Ctrl로 {變換|변환}합니다.',
+      '한/영이나 {右側|우측} Alt로 {韓|한}과 A를 {轉換|전환}하고, 한자나 {右|오른}쪽 Ctrl로 {變換|변환}합니다.',
     ],
     linux: [
       '{壓縮|압축}을 {解|풀}고 install.sh를 {實行|실행}합니다. sudo {無|없}이 {此|이} {使用者|사용자}에게만 {設置|설치}합니다.',
@@ -286,6 +286,7 @@ const ko = {
       ['어디서나', 'Windows, Linux, Android의 모든 앱에서 쓸 수 있습니다. {設定|설정}과 {學習|학습}은 {機器|기기} 안에만 {貯藏|저장}됩니다.'],
     ],
     wiki: '{國漢文混用|국한문혼용}으로 쓰는 {百科事典|백과사전}',
+    chat: '{國漢文混用|국한문혼용}으로 {雜談|잡담}하는 텔레그램 {房|방}',
     moreHanja: '{固有語|고유어}까지 {漢字|한자}로 쓰고 싶다면',
     typed: '친 글',
     written: '{變換|변환} {結果|결과}',
@@ -630,6 +631,7 @@ const en = {
       ['Everywhere', 'Works in every app on Windows, Linux and Android. Settings and learned picks stay on your device.'],
     ],
     wiki: 'An encyclopedia written in 國漢文混用',
+    chat: 'A Telegram chat written in 國漢文混用',
     moreHanja: 'To write native words in Hanja too:',
     typed: 'Typed',
     written: 'Converted',

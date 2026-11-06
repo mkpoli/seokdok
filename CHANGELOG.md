@@ -4,6 +4,9 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 
 ## 2026-11-06
 
+### Settings
+- Modifier keys are named 左側 and 右側: 左側 Ctrl, 右側 Alt.
+
 ### Conversion
 - A loanword inside a longer word stays Hangul: 深化버전, 웹페이지. Its Hanja are offered only when it is typed alone.
 - 하다 and 되다 after a word stay Hangul by default: 表示하는, 發音되는. 爲 and 成 stay on offer, and a setting puts them first: 表示爲는, 發音成는.

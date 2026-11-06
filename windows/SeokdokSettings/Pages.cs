@@ -490,9 +490,9 @@ internal static class Keyboard
     {
         ("Hangul", "한/영"), ("Hanja", "한자"), ("Zenkaku", "半角/全角"), ("Henkan", "変換"), ("Muhenkan", "無変換"),
         ("Kana", "カタカナ/ひらがな"), ("ImeOn", "IME On"), ("ImeOff", "IME Off"),
-        ("RAlt", L("右쪽 Alt", "Right Alt")), ("LAlt", L("左쪽 Alt", "Left Alt")),
-        ("RCtrl", L("右쪽 Ctrl", "Right Ctrl")), ("LCtrl", L("左쪽 Ctrl", "Left Ctrl")),
-        ("RShift", L("右쪽 Shift", "Right Shift")), ("LShift", L("左쪽 Shift", "Left Shift")),
+        ("RAlt", L("右側 Alt", "Right Alt")), ("LAlt", L("左側 Alt", "Left Alt")),
+        ("RCtrl", L("右側 Ctrl", "Right Ctrl")), ("LCtrl", L("左側 Ctrl", "Left Ctrl")),
+        ("RShift", L("右側 Shift", "Right Shift")), ("LShift", L("左側 Shift", "Left Shift")),
         ("Space", "Space"), ("Enter", "Enter"), ("Tab", "Tab"), ("Esc", "Esc"),
     };
 

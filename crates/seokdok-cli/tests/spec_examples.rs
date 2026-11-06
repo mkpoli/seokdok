@@ -108,6 +108,12 @@ fn carried_spellings_keep_the_carry() {
     for (input, want) in [("바다", "海"), ("머리", "頭"), ("아니라니", "아니라니"), ("코드를", "코드를")] {
         assert_eq!(first(input), want, "{input}");
     }
+    // The carried spelling leads whether the option writes carried forms by
+    // default or not.
+    let carried = engine(Options { resyllabify: true, ..Options::default() });
+    for (input, want) in [("거슬", "事슬"), ("저거슬", "彼事슬"), ("봐써요", "見써요"), ("이써", "在써")] {
+        assert_eq!(carried.convert(input)[0].text, want, "{input} with resyllabify");
+    }
     // 國漢文混用 writes no 訓讀 Hanja, so the carry adds nothing there.
     let sino = engine(Options { sino_only: true, ..Options::default() });
     assert_eq!(sino.convert("거슬")[0].text, "거슬");

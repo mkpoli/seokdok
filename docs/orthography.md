@@ -176,7 +176,7 @@ well keeps its reading (바다 is 海, 머리 is 頭, 아니라니 stays 아니�
 國漢文混用 native words stay in Hangul, so the rule does not apply there.
 
 The input spellings and the carried candidates in the table are
-*(constructed)*.
+*(constructed)*. Old letters keep their own readings (§8).
 
 ## 6. Nominals and particles
 

@@ -309,11 +309,10 @@ private struct ConversionPage: View {
             }
 
             SettingGroup(
-                about: L("받침을 적을 때만 작용합니다: 위 設定, 또는 있다의 在ㅆ다.", "Only works when the consonant is written: the setting above, or 在ㅆ다 for 있다."),
-                example: "먹으면 → 食ㄱ으면 · 食그면"
+                about: L("漢字 뒤에 따로 적힌 받침을 ㅇ 자리로 옮깁니다: 見ㅆ어요 → 見써요, 事ㅅ을 → 事슬.", "Moves a consonant written after Hanja into a following ㅇ: 見ㅆ어요 becomes 見써요, 事ㅅ을 becomes 事슬."),
+                example: "봤어요 → 見ㅆ어요 · 見써요"
             ) {
-                Toggle(L("그 받침을 다음 字로 넘기기", "Carry that consonant into the next syllable"), isOn: $resyllabify)
-                    .disabled(!codaAlways && itda != "在ㅆ")
+                Toggle(L("받침을 다음 字로 넘기기", "Carry the consonant into the next syllable"), isOn: $resyllabify)
             }
     }
 }

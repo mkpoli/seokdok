@@ -2,6 +2,11 @@
 
 Changes that people typing or reading with 釋讀 can notice, by the date they reached `main`. The site follows `main`. Installers follow when they are next rebuilt, so a download can be behind the newest entry. Every commit is in `git log`.
 
+## 2026-11-07
+
+### Options
+- Carrying a final consonant into the next syllable now covers every case: 見써요 and 事슬 as well as 在쓰면. The option no longer needs another setting turned on.
+
 ## 2026-11-06
 
 ### Names

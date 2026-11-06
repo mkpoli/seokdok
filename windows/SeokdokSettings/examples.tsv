@@ -12,8 +12,8 @@ itda.jae	{"conversion":{"itda":"在"}}	dlTek	在다
 itda.jae_coda	{"conversion":{"itda":"在ㅆ"}}	dlTek	在ㅆ다
 final.off	{"conversion":{"coda_always":false}}	ajrdmaus	食으면
 final.on	{"conversion":{"coda_always":true}}	ajrdmaus	食ㄱ으면
-carry.off	{"conversion":{"coda_always":true,"resyllabify":false}}	ajrdmaus	食ㄱ으면
-carry.on	{"conversion":{"coda_always":true,"resyllabify":true}}	ajrdmaus	食그면
+carry.off	{"conversion":{"resyllabify":false}}	qhkTdjdy	見ㅆ어요
+carry.on	{"conversion":{"resyllabify":true}}	qhkTdjdy	見써요
 ha.modern	{"conversion":{"hada_kun":false,"old_ha":false}}	gkrh	하고
 ha.kun	{"conversion":{"hada_kun":true,"old_ha":false}}	gkrh	爲고
 ha.old	{"conversion":{"hada_kun":false,"old_ha":true}}	gkrh	ᄒᆞ고

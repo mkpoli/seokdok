@@ -139,15 +139,20 @@ handles it at two levels.
   in a single final consonant writes it: 有ㅆ네요, 知ㄹ고 *(constructed)*. Stems
   ending in a compound final (읽-, 않-) are left alone.
 
-A written-out consonant before an ending that begins with ㅇ can be written as
-a letter or moved into the next syllable (option `resyllabify`):
+Any consonant left standing after Hanja, before a syllable that begins with ㅇ,
+can be written as a letter or moved into the next syllable (option
+`resyllabify`). The past tense and particles follow the same rule:
 
 | Default | Resyllabified |
 |---|---|
 | 在ㅆ으면 | 在쓰면 |
 | 在ㅆ어서 | 在써서 |
+| 見ㅆ어요 | 見써요 |
+| 事ㅅ을 | 事슬 |
 
-Both appear in mkpoli's messages of 2026-10-28/29.
+在ㅆ으면 and 在쓰면 both appear in mkpoli's messages of 2026-10-28/29. 見써요 and 事슬 are
+the same rule applied throughout *(constructed)*, as 牛耒 [天地玄黃] asked (relayed by mkpoli, 2026-11-07).
+A silent ㅎ stays where it is: 然ㅎ어서.
 
 ## 6. Nominals and particles
 

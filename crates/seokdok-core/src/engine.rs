@@ -54,8 +54,8 @@ pub struct Options {
     /// 末音添記 for every consonant-final 訓讀 stem (有ㅆ다), not only for
     /// entries whose written form asks for it (在ㅆ다).
     pub coda_always: bool,
-    /// Write a written-out final consonant as the onset of a following ㅇ
-    /// syllable (在쓰면 instead of 在ㅆ으면).
+    /// Write any consonant left standing after Hanja as the onset of a
+    /// following ㅇ syllable: 在쓰면, 見써요, 事슬, not 在ㅆ으면, 見ㅆ어요, 事ㅅ을.
     pub resyllabify: bool,
     /// Hanja for the auxiliaries after a word: 爲 for 하다 and 成 for 되다
     /// (安寧爲세요, 發音成는), which are Hangul by default.
@@ -1494,11 +1494,8 @@ impl Engine {
                 if n.hanja.is_empty() || !(kun || sino_word) {
                     return vec![raw()];
                 }
-                let mut t = n.hanja.clone();
-                t.push_str(&compose(&n.stem[n.cover..]));
-                if let Some(p) = particle {
-                    t.push_str(&compose(&self.particles[*p as usize].comps));
-                }
+                let after = particle.map_or(&[][..], |p| &self.particles[p as usize].comps[..]);
+                let t = self.nominal_written(n, after, self.options.resyllabify);
                 let note = if sino_word { format!("{} · 音讀", n.lemma) } else { note(n, None) };
                 vec![Candidate { text: t, note }]
             }
@@ -1562,11 +1559,9 @@ impl Engine {
             let k = s.iter().rev().take_while(|&&c| is_t(c)).count();
             s[s.len() - k..].to_vec()
         };
-        let mut written_coda = false;
         let rest: Vec<char> = match n.tail {
             Tail::None => {
                 if coda_always && allo == n.stem.as_slice() && simple_coda(&n.stem) {
-                    written_coda = true;
                     [codas(&n.stem), ending.to_vec()].concat()
                 } else {
                     strip_v(ending)
@@ -1574,7 +1569,6 @@ impl Engine {
             }
             Tail::Coda => {
                 if allo.starts_with(&n.stem) {
-                    written_coda = true;
                     [n.stem[n.cover..].to_vec(), ending.to_vec()].concat()
                 } else {
                     strip_v(ending)
@@ -1593,7 +1587,7 @@ impl Engine {
                 }
             }
         };
-        let rest = if written_coda && resyll { resyllabify(&rest) } else { rest };
+        let rest = if resyll { resyllabify(&rest) } else { rest };
         format!("{}{}", n.hanja, compose(&rest))
     }
 
@@ -1608,24 +1602,21 @@ impl Engine {
             Some('ᄂ' | 'ᄇ' | 'ᄉ') => n.stem.last() == Some(&'ᆯ'),
             _ => false,
         };
-        let mut written_coda = false;
         let prefix: Vec<char> = match n.tail {
             _ if blocked => Vec::new(),
             Tail::None if coda_always && simple_coda(&n.stem) => {
-                written_coda = true;
                 let k = n.stem.iter().rev().take_while(|&&c| is_t(c)).count();
                 n.stem[n.stem.len() - k..].to_vec()
             }
             Tail::None => Vec::new(),
             Tail::Coda => {
-                written_coda = true;
                 n.stem[n.cover..].to_vec()
             }
             Tail::Partial => n.stem[n.cover..].to_vec(),
         };
         // A written-out final consonant already carries the 으 slot.
         let rest = [prefix, e].concat();
-        let rest = if written_coda && resyll { resyllabify(&rest) } else { rest };
+        let rest = if resyll { resyllabify(&rest) } else { rest };
         Some(format!("{}{}", n.hanja, compose(&rest)))
     }
 
@@ -2181,10 +2172,28 @@ impl Engine {
                     let comps = [n.stem.clone(), p.comps.clone()].concat();
                     let e = Edge { start: 0, end: comps.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: Some(pi as u16) } };
                     out.push((self.render_dict_as(&comps, &e, true)[0].text.clone(), compose(&comps)));
+                    // Text may be written either way, whatever this reader's own setting is.
+                    let other = self.nominal_written(n, &p.comps, !self.options.resyllabify);
+                    if other != out.last().unwrap().0 {
+                        out.push((other, compose(&comps)));
+                    }
                 }
             }
         }
         out
+    }
+
+    /// A noun in Hanja with its particle, the written consonant moved into a
+    /// following ㅇ when `carry` is set: 事슬, else 事ㅅ을.
+    fn nominal_written(&self, n: &Native, after: &[char], carry: bool) -> String {
+        let tail = &n.stem[n.cover..];
+        let carried = [tail, after].concat();
+        let moved = resyllabify(&carried);
+        if carry && moved.len() < carried.len() {
+            format!("{}{}", n.hanja, compose(&moved))
+        } else {
+            format!("{}{}{}", n.hanja, compose(tail), compose(after))
+        }
     }
 
     /// All (written, surface, lemma) triples.

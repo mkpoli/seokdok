@@ -110,11 +110,10 @@ internal sealed class ConversionPage : Page
     static readonly Sample Saw = new("봤다", Examples.Keys("ending.drop"));
     static readonly Sample Be = new("있다", Examples.Keys("itda.yu"));
     static readonly Sample Eat = new("먹으면", Examples.Keys("final.on"));
+    static readonly Sample Past = new("봤어요", Examples.Keys("carry.on"));
     static readonly Sample Do = new("하고", Examples.Keys("ha.modern"));
     static readonly Sample Studied = new("공부했다", Examples.Keys("ha.both"));
 
-    Border? carry;
-    ToggleSwitch? carrySwitch;
 
     protected override void Build()
     {
@@ -223,22 +222,14 @@ internal sealed class ConversionPage : Page
             Examples.Line("먹으면", "final.off", "final.on"),
             Toggle(Settings.Bool("conversion.coda_always"), on => Change(final, Eat, Settings.Patch("conversion.coda_always", on))));
 
-        var carried = L("그 받침을 다음 字로 넘기기", "Carry that consonant into the next syllable");
-        carrySwitch = Toggle(Settings.Bool("conversion.resyllabify"), on => Change(carried, Eat, Settings.Patch("conversion.resyllabify", on)));
-        carry = Card(
+        var carried = L("받침을 다음 字로 넘기기", "Carry the consonant into the next syllable");
+        yield return Card(
             carried,
-            L("받침을 적을 때만 작용합니다: 위 設定, 또는 있다의 在ㅆ다.", "Only works when the consonant is written: the setting above, or 在ㅆ다 for 있다."),
-            Examples.Line("먹으면", "carry.off", "carry.on"),
-            carrySwitch);
-        yield return carry;
+            L("漢字 뒤에 따로 적힌 받침을 ㅇ 자리로 옮깁니다: 見ㅆ어요 → 見써요, 事ㅅ을 → 事슬.", "Moves a consonant written after Hanja into a following ㅇ: 見ㅆ어요 becomes 見써요, 事ㅅ을 becomes 事슬."),
+            Examples.Line("봤어요", "carry.off", "carry.on"),
+            Toggle(Settings.Bool("conversion.resyllabify"), on => Change(carried, Past, Settings.Patch("conversion.resyllabify", on))));
     }
 
-    protected override void Refresh()
-    {
-        if (carry is null || carrySwitch is null) return;
-        var works = Settings.Bool("conversion.coda_always") || Settings.Str("conversion.itda") == "在ㅆ";
-        carrySwitch.IsEnabled = works;
-    }
 }
 
 internal sealed class TypingPage : Page
@@ -583,7 +574,7 @@ internal sealed class MenuPage : Page
         ("style", L("語尾 그대로", "The whole ending"), L("變換 › 漢字 뒤의 語尾", "Conversion › The ending after a Hanja verb")),
         ("fragment", L("남는 母音도 字母로", "With the vowel as a letter"), L("變換 › 漢字 뒤의 語尾", "Conversion › The ending after a Hanja verb")),
         ("coda_always", L("動詞의 받침을 漢字 뒤에 적기", "Write the verb's final consonant after the Hanja"), L("變換", "Conversion")),
-        ("resyllabify", L("그 받침을 다음 字로 넘기기", "Carry that consonant into the next syllable"), L("變換", "Conversion")),
+        ("resyllabify", L("받침을 다음 字로 넘기기", "Carry the consonant into the next syllable"), L("變換", "Conversion")),
         ("old_clusters", L("現代 字母를 이어 옛 겹字母로", "Join modern letters into old clusters"), L("入力", "Typing")),
     };
 

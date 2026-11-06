@@ -9,6 +9,8 @@
     { key: 'windows', name: 'Windows', req: 'Windows 10 · 11, x64' },
     { key: 'linux', name: 'Linux', req: 'fcitx5 5.1+, x86_64' },
     { key: 'android', name: 'Android', req: 'Android 8.0+, arm64 · arm32 · x86_64' },
+    { key: 'macos', name: 'macOS', req: 'macOS 13+, Apple silicon · Intel', run: () => `mkdir -p ~/Library/Input\\ Methods && cd ~/Library/Input\\ Methods\nditto -xk ~/Downloads/${files.macos.file} .\nxattr -dr com.apple.quarantine Eumdok.app\nEumdok.app/Contents/MacOS/Eumdok --register` },
+    { key: 'ios', name: 'iOS', req: 'iOS 16+' },
   ].filter((p) => files[p.key])
 </script>
 
@@ -71,13 +73,14 @@
           </a>
           <p class="file">{files[p.key].file}</p>
           <p>{@html r(t().eumdok[p.key])}</p>
+          {#if p.run}<pre><code>{p.run()}</code></pre>{/if}
         </article>
       {/each}
     </div>
   {:else}
     <p class="note" use:reveal={4}>{@html r(t().eumdok.soon)}</p>
   {/if}
-  <p class="note apple" use:reveal={5}>{@html r(t().eumdok.apple)}</p>
+  {#if files.ios}<p class="note apple" use:reveal={5}>{@html r(t().eumdok.apple)}</p>{/if}
 </section>
 
 <style>
@@ -179,6 +182,14 @@
   .dl small {
     opacity: 0.8;
     font-weight: 500;
+  }
+  pre {
+    margin: 0;
+    padding: var(--s-2) var(--s-3);
+    border-radius: var(--r-1);
+    background: var(--c-sunken);
+    font: 13px/1.6 var(--f-mono);
+    overflow-x: auto;
   }
   .file {
     color: var(--c-muted);

@@ -3,9 +3,12 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net10.0-windows10.0.26100.0</TargetFramework>
     <TargetPlatformMinVersion>10.0.19041.0</TargetPlatformMinVersion>
-    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
-    <Platforms>x64</Platforms>
-    <Platform>x64</Platform>
+    <!-- windows/build.ps1 passes -p:SeokdokArch=arm64 for the Arm64 build. -->
+    <SeokdokArch Condition="'$(SeokdokArch)' == ''">x64</SeokdokArch>
+    <RuntimeIdentifier>win-$(SeokdokArch)</RuntimeIdentifier>
+    <Platforms>x64;ARM64</Platforms>
+    <Platform Condition="'$(SeokdokArch)' == 'arm64'">ARM64</Platform>
+    <Platform Condition="'$(SeokdokArch)' != 'arm64'">x64</Platform>
     <Nullable>enable</Nullable>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <UseWinUI>true</UseWinUI>

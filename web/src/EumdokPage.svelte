@@ -19,6 +19,8 @@
     { key: 'windows', name: 'Windows', req: 'Windows 10 · 11', builds: builds(files.windows, files.windowsArm64) },
     { key: 'linux', name: 'Linux', req: 'fcitx5 5.1+', builds: builds(files.linux, files.linuxArm64) },
     { key: 'android', name: 'Android', req: 'Android 8.0+, arm64 · arm32 · x86_64', builds: [files.android] },
+    { key: 'macos', name: 'macOS', req: 'macOS 13+, Apple silicon · Intel', builds: [files.macos], run: () => `mkdir -p ~/Library/Input\\ Methods && cd ~/Library/Input\\ Methods\nditto -xk ~/Downloads/${files.macos.file} .\nxattr -dr com.apple.quarantine Eumdok.app\nEumdok.app/Contents/MacOS/Eumdok --register` },
+    { key: 'ios', name: 'iOS', req: 'iOS 16+', builds: [files.ios] },
   ].filter((p) => files[p.key])
   const langs = [
     ['ko', '한', 'ko'],
@@ -145,12 +147,14 @@
               {/each}
             </div>
             <p>{@html r(page[p.key])}</p>
+            {#if p.run}<pre><code>{p.run()}</code></pre>{/if}
           </article>
         {/each}
       </div>
     {:else}
       <p class="note">{@html r(page.soon)}</p>
     {/if}
+    {#if files.ios}<p class="note">{@html r(page.apple)}</p>{/if}
     <p class="note">{@html r(page.keys)}</p>
   </section>
 </main>
@@ -449,6 +453,14 @@
     font: 700 24px/1.2 var(--f-serif);
   }
   .req,
+  pre {
+    margin: 0;
+    padding: var(--s-2) var(--s-3);
+    border-radius: var(--r-1);
+    background: var(--c-sunken);
+    font: 13px/1.6 var(--f-mono);
+    overflow-x: auto;
+  }
   .file {
     color: var(--c-muted);
     font: 500 13px/1.4 var(--f-mono, monospace);

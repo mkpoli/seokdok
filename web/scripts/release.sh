@@ -10,7 +10,8 @@
 # the IPA the unsigned build from the iOS workflow, or SEOKDOK_IPA. The Windows
 # installer takes the settings app the same way: see crates/seokdok-tsf/package.sh.
 # 音讀 takes artifacts eumdok-release-apk and eumdok-settings-app, or EUMDOK_APK and
-# EUMDOK_SETTINGS_APP. The Arm64 installers (windows-arm64.yml) and the aarch64
+# EUMDOK_SETTINGS_APP, and Eumdok-unsigned-app and Eumdok-unsigned-ipa, or
+# EUMDOK_MACOS_ZIP and EUMDOK_IPA. The Arm64 installers (windows-arm64.yml) and the aarch64
 # tarballs (fcitx5-aarch64.yml) are the artifacts of the latest successful push
 # run of those workflows on main.
 set -euo pipefail
@@ -29,6 +30,8 @@ elinux="eumdok-${version}-x86_64-linux-fcitx5.tar.gz"
 eandroid="eumdok-${version}-android.apk"
 macos="seokdok-${version}-macos.zip"
 ios="seokdok-${version}-ios-unsigned.ipa"
+emacos="eumdok-${version}-macos.zip"
+eios="eumdok-${version}-ios-unsigned.ipa"
 
 apk="${SEOKDOK_APK:-}"
 if [ -z "$apk" ]; then
@@ -69,6 +72,24 @@ if [ -z "$ipa" ]; then
 fi
 [ -f "$ipa" ] || { echo "no iOS IPA at $ipa" >&2; exit 1; }
 
+emac="${EUMDOK_MACOS_ZIP:-}"
+if [ -z "$emac" ]; then
+  tmpem="$(mktemp -d)"
+  run=$(gh run list --workflow macos.yml --branch main --status success --json databaseId,event -q '[.[] | select(.event == "push")][0].databaseId')
+  gh run download "$run" --name Eumdok-unsigned-app --dir "$tmpem"
+  emac="$tmpem/Eumdok-unsigned.zip"
+fi
+[ -f "$emac" ] || { echo "no 音讀 macOS zip at $emac" >&2; exit 1; }
+
+eipa="${EUMDOK_IPA:-}"
+if [ -z "$eipa" ]; then
+  tmpei="$(mktemp -d)"
+  run=$(gh run list --workflow ios.yml --branch main --status success --json databaseId,event -q '[.[] | select(.event == "push")][0].databaseId')
+  gh run download "$run" --name Eumdok-unsigned-ipa --dir "$tmpei"
+  eipa="$tmpei/Eumdok-unsigned.ipa"
+fi
+[ -f "$eipa" ] || { echo "no 音讀 iOS IPA at $eipa" >&2; exit 1; }
+
 # Artifact $2 of the latest successful push run of workflow $1 on main, into directory $3.
 # Refuses a run older than the last change to what it builds.
 fetch_arm() {
@@ -99,9 +120,13 @@ cp "$apk" "$web/public/downloads/$android"
 cp "$eapk" "$web/public/downloads/$eandroid"
 cp "$mac" "$web/public/downloads/$macos"
 cp "$ipa" "$web/public/downloads/$ios"
+cp "$emac" "$web/public/downloads/$emacos"
+cp "$eipa" "$web/public/downloads/$eios"
 cp "$arm/$winarm" "$arm/$linuxarm" "$arm/$ewinarm" "$arm/$elinuxarm" "$web/public/downloads/"
 jq -n --arg v "$version" --arg w "$win" --arg l "$linux" --arg a "$android" --arg m "$macos" --arg i "$ios" \
-  --arg ew "$ewin" --arg el "$elinux" --arg ea "$eandroid" \
+  --arg ew "$ewin" --arg el "$elinux" --arg ea "$eandroid" --arg em "$emacos" --arg ei "$eios" \
+  --argjson ems "$(stat -c %s "$web/public/downloads/$emacos")" \
+  --argjson eis "$(stat -c %s "$web/public/downloads/$eios")" \
   --argjson ews "$(stat -c %s "$web/public/downloads/$ewin")" \
   --argjson els "$(stat -c %s "$web/public/downloads/$elinux")" \
   --argjson eas "$(stat -c %s "$web/public/downloads/$eandroid")" \
@@ -110,7 +135,7 @@ jq -n --arg v "$version" --arg w "$win" --arg l "$linux" --arg a "$android" --ar
   --argjson as "$(stat -c %s "$web/public/downloads/$android")" \
   --argjson ms "$(stat -c %s "$web/public/downloads/$macos")" \
   --argjson is "$(stat -c %s "$web/public/downloads/$ios")" \
-  '{version: $v, windows: {file: $w, size: $ws}, linux: {file: $l, size: $ls}, android: {file: $a, size: $as}, macos: {file: $m, size: $ms}, ios: {file: $i, size: $is}, eumdok: {windows: {file: $ew, size: $ews}, linux: {file: $el, size: $els}, android: {file: $ea, size: $eas}}}' >"$web/src/lib/downloads.json"
+  '{version: $v, windows: {file: $w, size: $ws}, linux: {file: $l, size: $ls}, android: {file: $a, size: $as}, macos: {file: $m, size: $ms}, ios: {file: $i, size: $is}, eumdok: {windows: {file: $ew, size: $ews}, linux: {file: $el, size: $els}, android: {file: $ea, size: $eas}, macos: {file: $em, size: $ems}, ios: {file: $ei, size: $eis}}}' >"$web/src/lib/downloads.json"
 size() { stat -c %s "$web/public/downloads/$1"; }
 jq --arg w "$winarm" --arg l "$linuxarm" --arg ew "$ewinarm" --arg el "$elinuxarm" \
   --argjson ws "$(size "$winarm")" --argjson ls "$(size "$linuxarm")" \

@@ -290,9 +290,15 @@ const ko = {
     typed: '친 글',
     written: '{變換|변환} {結果|결과}',
     download: '내려받기',
+    ime: {
+      eyebrow: '{入力器|입력기}',
+      title: '{直接|직접} {入力|입력}해 보기',
+      lede: '{英文|영문} {字板|자판} 그대로 두벌{式|식}으로 칩니다. {韓國語|한국어} {入力器|입력기}를 쓰고 있다면 그대로 치면 됩니다.',
+      placeholder: '{此處|여기}를 누르고 쳐 보세요. {例|예}: rhdqngkrh dlTek → {工夫|공부}하고 있다',
+    },
     convert: {
       eyebrow: '{變換|변환}',
-      title: '{直接|직접} {試驗|시험}해 보기',
+      title: '글 {全體|전체}를 {變換|변환}하기',
       lede: '글을 넣으면 {漢字語|한자어}만 {漢字|한자}로 {變換|변환}합니다. {單語|단어}를 {押|누르}면 다른 {候補|후보}를 {選擇|선택}할 수 있습니다.',
       input: '{變換|변환}할 글',
       result: '{變換|변환} {結果|결과}',
@@ -628,9 +634,15 @@ const en = {
     typed: 'Typed',
     written: 'Converted',
     download: 'Download',
+    ime: {
+      eyebrow: 'Input method',
+      title: 'Type here',
+      lede: 'Type 두벌식 Korean on a Latin keyboard. If you already use a Korean IME, type as usual.',
+      placeholder: 'Click here and type, e.g. rhdqngkrh dlTek → 工夫하고 있다',
+    },
     convert: {
       eyebrow: 'Convert',
-      title: 'Try it',
+      title: 'Convert a whole text',
       lede: 'Enter text and only its Sino-Korean words become Hanja. Press a word to choose another candidate.',
       input: 'Text to convert',
       result: 'Result',

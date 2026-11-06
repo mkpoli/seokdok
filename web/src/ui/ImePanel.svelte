@@ -12,7 +12,9 @@
   import { Sink } from '../lib/sink.js'
 
   /** @type {{ ime: import('../lib/ime.svelte.js').Ime, picks: import('../lib/learned.js').Picks }} */
-  let { ime, picks } = $props()
+  // `eumdok`: only 國漢文混用 and Hangul, with the section's own words in `strings`.
+  let { ime, picks, eumdok = false, strings = null } = $props()
+  const words = $derived(strings ?? t().ime)
   let forgotten = $state(false)
 
   let sink = $state()
@@ -239,9 +241,9 @@
 </script>
 
 <section class="section" id="ime">
-  <p class="eyebrow" use:reveal>{@html r(t().ime.eyebrow)}</p>
-  <h2 class="h2" use:reveal={1}>{@html r(t().ime.title)}</h2>
-  <p class="lede" use:reveal={2}>{@html r(t().ime.lede)}</p>
+  <p class="eyebrow" use:reveal>{@html r(words.eyebrow)}</p>
+  <h2 class="h2" use:reveal={1}>{@html r(words.title)}</h2>
+  <p class="lede" use:reveal={2}>{@html r(words.lede)}</p>
 
   <div class="panel card" use:reveal={3}>
     <div class="toolbar">
@@ -261,7 +263,9 @@
             <div class="row" title={plain(t().options.scriptTip)}>
               <span>{@html r(t().options.script)}</span>
               <div class="seg" role="group" aria-label={plain(t().options.script)}>
-                <button aria-pressed={options.script === 'seokdok'} onclick={() => (options.script = 'seokdok')}>{@html r(t().options.seokdokSide)}</button>
+                {#if !eumdok}
+                  <button aria-pressed={options.script === 'seokdok'} onclick={() => (options.script = 'seokdok')}>{@html r(t().options.seokdokSide)}</button>
+                {/if}
                 <button aria-pressed={options.script === 'sino'} onclick={() => (options.script = 'sino')}>{@html r(t().options.sinoSwitch)}</button>
                 <button aria-pressed={options.script === 'hangul'} onclick={() => (options.script = 'hangul')}>{@html r(t().options.hangulSwitch)}</button>
               </div>
@@ -291,6 +295,7 @@
                 setTimeout(() => (forgotten = false), 2000)
               }}>{@html r(forgotten ? t().options.learnForgotten : t().options.learnForget)}</button>
           </fieldset>
+          {#if !eumdok}
           <fieldset>
             <legend>{@html r(t().options.spelling)}</legend>
             <div class="pair">
@@ -312,6 +317,7 @@
             </div>
             <label class="ui-field" title={plain(t().options.oldHaTip)}><input class="ui-check" type="checkbox" bind:checked={options.oldHa} />{@html r(t().options.oldHa)}</label>
           </fieldset>
+          {/if}
         </div>
       </details>
     </div>
@@ -339,7 +345,7 @@
         }}
         onblur={() => (focused = false)}
       ></textarea>
-      <span class="mode" aria-live="polite" title={plain(ime.mode === 'hangul' ? t().ime.hangulTip : t().ime.asciiTip)}>{ime.mode === 'hangul' ? '韓' : 'A'}</span><div class="text" lang="ko" bind:this={textEl}>{#if empty}<span class="placeholder">{@html r(t().ime.placeholder)}</span>{/if}{#each pieces.head as pc}<span class="doc" class:selected={pc.selected} data-off={pc.off}>{#if showRuby}<Ruby text={pc.text} />{:else}{pc.text}{/if}</span>{/each}{#if ime.segs}{#each ime.segs as s, i}<span
+      <span class="mode" aria-live="polite" title={plain(ime.mode === 'hangul' ? t().ime.hangulTip : t().ime.asciiTip)}>{ime.mode === 'hangul' ? '韓' : 'A'}</span><div class="text" lang="ko" bind:this={textEl}>{#if empty}<span class="placeholder">{@html r(words.placeholder)}</span>{/if}{#each pieces.head as pc}<span class="doc" class:selected={pc.selected} data-off={pc.off}>{#if showRuby}<Ruby text={pc.text} />{:else}{pc.text}{/if}</span>{/each}{#if ime.segs}{#each ime.segs as s, i}<span
               class="segment"
               class:focus={i === ime.focus}
               class:multi={s.candidates.length > 1}
@@ -391,6 +397,7 @@
           <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2" /><path d="M6 10h1M10 10h1M14 10h1M18 10h0M7 14h10" /></svg>
           {@html r(t().ime.keyboard)}
         </button>
+        {#if !eumdok}
         <details class="help">
           <summary class="btn">{@html r(t().ime.keysHelp)}</summary>
           <ul class="hints">
@@ -406,6 +413,7 @@
             {/each}
           </ul>
         </details>
+        {/if}
       </div>
       <div class="actions">
         {#if !status.ready}

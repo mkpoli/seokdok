@@ -1,9 +1,13 @@
 <script>
-  // The 音讀 input method's own page. It says nothing of the other product.
+  // The 音讀 site's front page.
   import { i18n, setLang, t, r, plain } from './lib/i18n.svelte.js'
   import { engine } from './lib/engine.svelte.js'
-  import { options, saveOptions } from './lib/options.svelte.js'
   import downloads from './lib/downloads.json'
+  import { Composer, Learned } from '../pkg/seokdok.js'
+  import { Ime } from './lib/ime.svelte.js'
+  import { Picks, STORAGE_KEY } from './lib/learned.js'
+  import { input, output } from './lib/custom.svelte.js'
+  import ImePanel from './ui/ImePanel.svelte'
   import Convert from './ui/Convert.svelte'
   import { reveal } from './lib/reveal.js'
 
@@ -33,10 +37,19 @@
     } catch {}
   }
 
-  $effect(() => {
-    const o = { ...options }
-    saveOptions()
-    engine.options(o)
+  const ime = new Ime(
+    new Composer(),
+    async (text) => (await engine.segments(input(text))).map((seg) => ({ ...seg, candidates: output(seg.candidates) })),
+    async (text) => output(await engine.convert(input(text))),
+  )
+  let storage = null
+  try {
+    storage = localStorage
+  } catch {}
+  const picks = new Picks(Learned, storage)
+  addEventListener('pagehide', () => picks.flush())
+  addEventListener('storage', (e) => {
+    if (e.key === STORAGE_KEY || e.key === null) picks.reload()
   })
 </script>
 
@@ -67,7 +80,7 @@
         <p class="lede">{@html r(page.lede)}</p>
         <div class="cta">
           <a class="btn" data-variant="primary" data-size="lg" href="#install">{@html r(page.download)}</a>
-          <a class="btn" data-size="lg" href="#convert">{@html r(page.tryIt)}</a>
+          <a class="btn" data-size="lg" href="#ime">{@html r(page.tryIt)}</a>
         </div>
       </div>
       <div class="wall" aria-hidden="true">
@@ -103,6 +116,8 @@
       {/each}
     </div>
   </section>
+
+  <ImePanel {ime} {picks} eumdok strings={page.ime} />
 
   <Convert strings={page.convert} />
 

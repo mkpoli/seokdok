@@ -348,6 +348,7 @@ final class KeyboardView: UIView {
                 shiftKey = Key(symbol: "shift")
                 shiftKey.spoken = "Shift"
                 shiftKey.fires = .onPress
+                shiftKey.slides = true
                 shiftKey.action = { [weak self] in self?.tap { $0.toggleShift() } }
                 keys = [shiftKey!] + keys + [backspaceKey()]
             }
@@ -362,13 +363,17 @@ final class KeyboardView: UIView {
                 let k = letterKey { [weak self] in
                     guard let self else { return }
                     let row = Array(Self.symbolRows[self.symbolPage][r])
-                    if i < row.count { self.tap { $0.symbol(row[i]) } }
+                    guard i < row.count else { return }
+                    self.tap { $0.symbol(row[i]) }
+                    // An apostrophe leads back into a word, as on the system keyboard.
+                    if row[i] == "'" { self.showLayer(letters: true) }
                 }
                 symbolKeys.append(k)
                 keys.append(k)
             }
             if r == 2 {
                 symbolPageKey = Key(title: "#+=")
+                symbolPageKey.fires = .onPress
                 if KeyMetrics.flat { symbolPageKey.titleFont = .systemFont(ofSize: 13, weight: .medium) }
                 symbolPageKey.action = { [weak self] in
                     guard let self else { return }
@@ -436,14 +441,20 @@ final class KeyboardView: UIView {
         let bottom = UIStackView()
         bottom.axis = .horizontal
         bottom.spacing = 6
+        // As on the system keyboard, 123 changes the keys as the finger lands, and
+        // a finger slid on to a symbol returns to the letters when it lifts.
         layerKey = Key(title: "123")
+        layerKey.fires = .onPress
+        layerKey.slides = true
+        layerKey.showsPress = false
+        layerKey.slideReturn = { [weak self] in
+            guard let self else { return }
+            self.showLayer(letters: self.lettersBeforeLayerKey)
+        }
         layerKey.action = { [weak self] in
             guard let self else { return }
-            self.symbolPage = 0
-            self.labelSymbols()
-            self.letters.isHidden.toggle()
-            self.symbols.isHidden = !self.letters.isHidden
-            self.relabelLayerKey()
+            self.lettersBeforeLayerKey = self.lettersShown
+            self.showLayer(letters: !self.lettersShown)
         }
         layerWidth = layerKey.widthAnchor.constraint(equalToConstant: 46)
         layerWidth.isActive = true
@@ -477,7 +488,11 @@ final class KeyboardView: UIView {
         modeWidth.isActive = true
         modeKey.onHold = { [weak self] in self?.tap { $0.toggleLearnMenu() } }
         spaceKey = Key(title: "띄어쓰기", look: .letter)
-        spaceKey.action = { [weak self] in self?.tap { $0.space() } }
+        spaceKey.action = { [weak self] in
+            self?.tap { $0.space() }
+            // Space ends a run of symbols, as on the system keyboard.
+            self?.showLayer(letters: true)
+        }
         spaceKey.holdsForCursor = true
         enterKey = Key(title: "改行")
         enterKey.action = { [weak self] in self?.tap { $0.enter() } }
@@ -498,6 +513,19 @@ final class KeyboardView: UIView {
             extraKeys[2].widthAnchor.constraint(equalTo: extraKeys[0].widthAnchor),
         ]
         return bottom
+    }
+
+    private var lettersBeforeLayerKey = true
+
+    /// Sets the layer rather than toggling it: a slide, Space and an apostrophe can
+    /// each ask for the letters on the same lift.
+    private func showLayer(letters showLetters: Bool) {
+        guard showLetters != lettersShown else { return }
+        symbolPage = 0
+        labelSymbols()
+        letters.isHidden = !showLetters
+        symbols.isHidden = showLetters
+        relabelLayerKey()
     }
 
     /// Sizes for this width and orientation, as the system keyboard has them.
@@ -563,14 +591,16 @@ final class KeyboardView: UIView {
 
     private var lettersShown: Bool { !letters.isHidden }
     private var lastMode: Session.Mode = .seokdok
+    private var layoutConverts = true
 
     private func relabelLayerKey() {
-        layerKey.title = lettersShown ? "123" : (lastMode == .latin ? "ABC" : "가")
+        layerKey.title = lettersShown ? "123" : (lastMode == .latin || !layoutConverts ? "ABC" : "한글")
     }
 
     /// Show the keyboard state: key labels and the candidate bar.
     func render(_ s: KeyboardState) {
         lastMode = s.mode
+        layoutConverts = s.layout.converts
         showLayout(s.layout)
         relabelLayerKey()
         let shifted = s.shift != .off

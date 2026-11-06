@@ -323,6 +323,32 @@ final class KeyboardUITests: XCTestCase {
         g.enter()
     }
 
+    /// 123 changes the keys as the finger lands; a slide on to a symbol types it
+    /// and returns to the letters; Space after a symbol returns too.
+    func testSymbolLayerSlideAndSpace() throws {
+        let (app, field) = launch(kind: "email")
+        let g = Geometry(app: app)
+        tapUntilTyped(field, delete: { g.delete() }) { g.letter("a") }
+        g.delete()
+        assertText(field, "")
+        let layer = CGPoint(x: 26, y: 237)
+        let digit = CGPoint(x: 20, y: 75)
+        let top = g.height - 336
+        func point(_ p: CGPoint) -> XCUICoordinate {
+            app.coordinate(withNormalizedOffset: CGVector(dx: p.x / g.width, dy: (top + p.y) / g.height))
+        }
+        point(layer).press(forDuration: 0.3, thenDragTo: point(digit))
+        assertText(field, "1", "a slide from 123 typed no digit")
+        g.letter("q") // on the letters again
+        assertText(field, "1q", "the slide did not return to the letters")
+        g.tap(x: layer.x, y: layer.y)
+        g.letter("w") // 2
+        assertText(field, "1q2")
+        g.space()
+        g.letter("q")
+        assertText(field, "1q2 q", "Space did not return to the letters")
+    }
+
     /// Holding the 釋 key offers to forget what was learned, in the bar.
     func testHoldingTheModeKeyShowsLearnControls() throws {
         let (app, field) = launch(kind: "default")

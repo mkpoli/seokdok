@@ -24,6 +24,12 @@ final class Key: UIView {
     var repeatsFaster: (() -> Void)?
     /// Show the pop-up preview while held.
     var previews = false
+    /// 123 and Shift: a finger that started here can slide onto a letter and type
+    /// it where it lifts. `slideReturn` then runs, so 123 restores its layer.
+    var slides = false
+    var slideReturn: (() -> Void)?
+    /// False for a key that changes the keys under the finger as it lands.
+    var showsPress = true
     /// An end key of the middle row, which also takes the margin beside it.
     var reachesMargin = false
     /// Space: held, it turns the keyboard into a trackpad.
@@ -204,7 +210,7 @@ final class Key: UIView {
     }
 
     private func refill() {
-        let down = isPressed && !previews
+        let down = isPressed && !previews && showsPress
         switch look {
         case .letter:
             backgroundColor = down ? KeyMetrics.pressedFill : KeyMetrics.letterFill
@@ -319,6 +325,8 @@ final class KeyPad: UIView {
         var key: Key
         /// Still close enough to the key for release to fire it.
         var inside = true
+        /// The layer key this finger slid from, to run again after the lift.
+        var returnTo: Key?
     }
 
     private var tracks: [ObjectIdentifier: Track] = [:]
@@ -466,7 +474,18 @@ final class KeyPad: UIView {
                 }
                 continue
             }
-            guard var t = tracks[id], t.key.fires == .onRelease else { continue }
+            guard var t = tracks[id] else { continue }
+            if t.key.slides {
+                guard let next = key(at: p), next.previews else { continue }
+                t.key.isPressed = false
+                if t.key.slideReturn != nil { t.returnTo = t.key }
+                t.key = next
+                next.isPressed = true
+                preview(next)
+                tracks[id] = t
+                continue
+            }
+            guard t.key.fires == .onRelease else { continue }
             if t.key.previews {
                 // Off the keyboard's keys altogether, a lift types nothing.
                 let next = key(at: p)
@@ -497,6 +516,7 @@ final class KeyPad: UIView {
             guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
             if t.inside, t.key.fires == .onRelease { t.key.action?() }
+            t.returnTo?.slideReturn?()
         }
     }
 
@@ -509,15 +529,18 @@ final class KeyPad: UIView {
             }
             guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
+            t.returnTo?.slideReturn?()
         }
     }
 
-    /// A new touch while a letter is held: type that letter now.
+    /// A new touch while a letter or Space is held: type it now, so two thumbs stay
+    /// in order and the new key is found on the layer that key leads to.
     private func rollOver() {
-        for (id, t) in tracks where t.key.previews {
+        for (id, t) in tracks where t.key.previews || t.key.holdsForCursor {
             tracks[id] = nil
             release(t.key)
             if t.inside { t.key.action?() }
+            t.returnTo?.slideReturn?()
         }
     }
 
@@ -553,6 +576,7 @@ final class KeyPad: UIView {
         for (other, held) in tracks {
             tracks[other] = nil
             release(held.key)
+            held.returnTo?.slideReturn?()
         }
         cursorTouch = id
         cursorX = p.x

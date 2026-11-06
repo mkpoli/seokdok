@@ -5,7 +5,7 @@
   "latin": "Eumdok",
   "glyph": "音",
   "color": "#7c2d23",
-  "guide": "https://seokdok.mkpo.li/eumdok",
+  "guide": "https://eumdok.mkpo.li/",
   "config_dir": "eumdok",
   "conversion_label": "音讀",
   "menu_conversion": "音讀 / Conversion",
@@ -23,7 +23,7 @@
     "settings_exe": "EumdokSettings",
     "service_name": "eumdokTextService",
     "candidate_class": "EumdokCandidateWindow",
-    "setup_guide": "https://seokdok.mkpo.li/eumdok",
+    "setup_guide": "https://eumdok.mkpo.li/",
     "setup_back_light": "#7c2d23",
     "setup_back_dark": "#1d0e0b",
     "display_name": "音讀 (eumdok)"

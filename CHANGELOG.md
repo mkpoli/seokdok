@@ -4,6 +4,9 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 
 ## 2026-11-06
 
+### Settings
+- Modifier keys are named 左側 and 右側: 左側 Ctrl, 右側 Alt.
+
 ### Windows
 - On a Japanese keyboard layout, ASCII no longer turns into half-width katakana when the kana lock is on.
 

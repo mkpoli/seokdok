@@ -13,22 +13,22 @@ comments; the header line names the columns.
 | `kun-attested.tsv` | 訓讀 printed with a native reading beside the Hanja in books of 1882-1945 | Korean Wikisource transcriptions | CC BY-SA 4.0 |
 | `suggested.tsv` | 訓讀 for native words with no hand-made entry, machine-suggested, and words the chat types most, each with its source | language model, unreviewed; English Wiktionary, JMdict, libhangul | MIT; the rows from `tools/chat_gaps.tsv` CC BY-SA 4.0 |
 | `place-names.tsv` | Native Korean place names with their Hanja, spelled in Hangul from a romanized list | Japanese Wikipedia, 朝鮮地名音訓一覧 | CC BY-SA 4.0 |
+| `wikt-native.tsv` | Common native words that came out in Hangul: compounds of existing rows, or a 訓音 or JMdict link | English Wiktionary, libhangul, JMdict | CC BY-SA 4.0 |
+| `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
 | `kun-ja.tsv` | 訓讀 found through Japanese 訓読み words with the same English gloss | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
 | `kun-ja-weak.tsv` | weaker Japanese links, kept so no candidate is lost | JMdict, Wiktionary, OpenCC | CC BY-SA 4.0 (JMdict) |
-| `gloss.tsv` | 訓讀 candidates from 訓音 glosses (하늘 천 → 하늘 = 天) | libhangul | BSD-3-Clause |
-| `wikt-native.tsv` | Common native words that came out in Hangul: compounds of existing rows, or a 訓音 or JMdict link | English Wiktionary, libhangul, JMdict | CC BY-SA 4.0 |
 | `editorial-sino.tsv` | Words starting in Hangul with a Hanja part (두벌式), and the first candidate among homophones, set by the editors | project editors | MIT |
 | `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
 | `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
 | `etym.tsv` | Hanja spellings the files above lack, including words Sino-Korean only by origin (대충 大總, 재미 滋味, 김치 沉菜) | English Wiktionary (kaikki.org) | CC BY-SA 4.0 |
-| `people.tsv` | Well-known people's names and their Hanja | Wikidata, Korean Wikipedia | CC0 1.0, CC BY-SA 4.0 |
 | `loanwords.tsv` | Korean words borrowed from European languages, which stay in Hangul (페이지, 파일, 피자) | English Wiktionary (kaikki.org) | CC BY-SA 4.0 |
+| `people.tsv` | Well-known people's names and their Hanja | Wikidata, Korean Wikipedia | CC0 1.0, CC BY-SA 4.0 |
 | `hun.tsv` | Keys for finding a character by its 訓音 gloss (살찔비 肥) | libhangul | BSD-3-Clause |
 
 Earlier files win ties: an entry in `user.tsv` ranks above the same word
 elsewhere.
 
-## Native entries (`*.tsv` except `sino.tsv`)
+## Native entries
 
 ```
 lemma	written	pos	class	source	count	note
@@ -46,11 +46,11 @@ lemma	written	pos	class	source	count	note
   (명사, 동사 …).
 - `class`: inflection class, guessed when blank: `reg`, `b` (ㅂ), `d` (ㄷ),
   `s` (ㅅ), `h` (ㅎ), `reu` (르), `reo` (러), `ani` (아니다).
-- `source`: `user`, `corpus`, `editorial`, `community`, `eonhae`, `kun-attested`, `suggested`, `place-name`, `person-name`, `gloss`.
+- `source`: `user`, `corpus`, `editorial`, `community`, `eonhae`, `kun-attested`, `suggested`, `place-name`, `gloss`, `japanese`, `japanese-weak`, `lexicon`.
 - `count`: corpus attestations, refreshed by `tools/attest.py`. Attested
   entries rank by count.
 
-## Sino-Korean entries (`sino.tsv`, `user-sino.tsv`)
+## Sino-Korean entries
 
 ```
 reading	hanja	count	source

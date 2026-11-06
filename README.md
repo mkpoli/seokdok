@@ -1,6 +1,6 @@
 # Seokdok 釋讀
 
-An input method for 釋讀, the Korean spelling played with in 釋讀會 (풀어읽기모임): Sino-Korean words in Hanja by sound (音讀), native words in Hanja by meaning (訓讀), and the inflected rest in Hangul (末音添記). It runs in the browser at [seokdok.mkpo.li](https://seokdok.mkpo.li/) and installs as a system input method on Windows and Linux (fcitx5).
+An input method for 釋讀, the Korean spelling played with in 釋讀會 (풀어읽기모임): Sino-Korean words in Hanja by sound (音讀), native words in Hanja by meaning (訓讀), and the inflected rest in Hangul (末音添記). It runs in the browser at [seokdok.mkpo.li](https://seokdok.mkpo.li/) and installs as a system input method on Windows, macOS, Linux (fcitx5), Android and iOS.
 
 ```
 하늘을 봤다              → 天을 見ㅆ다
@@ -14,16 +14,19 @@ In 國漢文混用 mode only Sino-Korean words become Hanja: 선생님께서 공
 
 Downloads are on [seokdok.mkpo.li/#install](https://seokdok.mkpo.li/#install).
 
-- **Windows**: run the setup, then pick 釋讀 with Win+Space.
-- **Linux**: unpack the tarball and run `install.sh` (per user, no sudo), restart fcitx5 and add 釋讀 in fcitx5-configtool.
-- **Android**: download the APK, allow installing from unknown sources when asked, open the 釋讀 app, turn the keyboard on and pick it as the input method. The APK is built by `.github/workflows/android.yml`; see [android/README.md](android/README.md).
-- **iOS, macOS**: the sources are in `ios/` and `macos/`. Neither is released. CI builds iOS and macOS; the macOS build also converts 안녕 to 安寧 through the Rust library, but the input method has not been run on a Mac yet.
+- **Windows** (x64, Arm64): run the setup, then pick 釋讀 with Win+Space.
+- **Linux** (x86_64, aarch64): unpack the tarball and run `install.sh` (per user, no sudo), restart fcitx5 and add 釋讀 in fcitx5-configtool.
+- **Android**: download the APK, allow installing from unknown sources when asked, open the 釋讀 app, turn the keyboard on and pick it as the input method; see [android/README.md](android/README.md).
+- **macOS**: unzip into `~/Library/Input Methods`, clear the quarantine flag and register it; see [macos/README.md](macos/README.md).
+- **iOS**: sideload the unsigned IPA with your Apple ID, then add the keyboard in Settings; see [ios/README.md](ios/README.md).
+
+The Arm64 builds and the macOS app have not run on real hardware yet, and the Windows Arm64 installer is unsigned.
 
 Space converts, Space again lists candidates, 1–9 picks, Enter confirms, Esc cancels. A character with many homophones can be typed by its gloss: 살찔비, 비살찔 or 살찔 비 offer 肥. Settings live in `config.toml`: `%APPDATA%\seokdok\` on Windows, `~/Library/Application Support/seokdok/` on macOS, `~/.config/seokdok/` elsewhere. Your own rules and words go in `custom.json` beside it; the Customize section of the site exports one. A candidate you pick twice comes first for that reading; the picks stay on the device in `learned.tsv` beside `config.toml`, `input.learn = false` turns this off, and the settings have a button to forget them ([docs/learning.md](docs/learning.md)). On Windows, right-click the 釋 icon of the input indicator on the taskbar to switch between 釋, 混 and 한 and change frequent settings; `windows.menu_items` or the Taskbar menu page of the settings app choose what that menu shows. `windows.candidate_style` (`windows11`, `classic`) and `windows.candidate_theme` (`system`, `light`, `dark`), also on the Typing page of the settings app, set how the candidate window looks.
 
 ## 音讀
 
-音讀 (Eumdok, 음독) is a second input method built from this repository, for 國漢文混用 only: Sino-Korean words in Hanja, native words and everything else in Hangul, with no 訓讀 in the candidates or the settings. It shares the engine, the dictionaries and the session with 釋讀 and installs beside it with its own identifiers and settings folder (`eumdok`). `products/<id>.json` holds what differs; `crates/seokdok-product` makes it available to Rust, where `--features eumdok` selects the product, and the build scripts of each front end read the same file.
+音讀 (Eumdok, 음독) is a second input method built from this repository, for 國漢文混用 only: Sino-Korean words in Hanja, native words and everything else in Hangul, with no 訓讀 in the candidates or the settings. It shares the engine, the dictionaries and the session with 釋讀 and installs beside it with its own identifiers and settings folder (`eumdok`). Its site and downloads for the same platforms are at [eumdok.mkpo.li](https://eumdok.mkpo.li/). `products/<id>.json` holds what differs; `crates/seokdok-product` makes it available to Rust, where `--features eumdok` selects the product, and the build scripts of each front end read the same file.
 
 ## Mode keys
 
@@ -64,7 +67,7 @@ cargo run --release -p seokdok-cli -- add 즐기다 樂기다 verb
 - `crates/seokdok-wasm`: WebAssembly bindings for the site.
 - `crates/seokdok-cli`: the `seokdok` command above.
 - `ios/`, `macos/`, `android/`: the keyboard, input method and keyboard for each platform, each with its own README.
-- `web/`: the site, with an in-browser IME, a 두벌식 keyboard, a converter and a reader (Svelte).
+- `web/`: both sites (Svelte): the in-browser IME, a 두벌식 keyboard, a converter, a reader, and the dictionary browser at `/dict`.
 - `dict/`: the dictionaries and their licences, see [dict/README.md](dict/README.md).
 - `tools/`: scripts that rebuild `dict/` from the sources in [data/sources/README.md](data/sources/README.md).
 
@@ -75,7 +78,7 @@ cargo test --workspace --exclude seokdok-tsf
 cd web && bun install && bun run build && bun test src
 ```
 
-`bun run build` builds the WASM package, packs the dictionaries and builds the site. `bun run deploy` publishes it to Cloudflare, and `bun run release` packages the Windows and Linux input methods, with the Android APK from the latest Android workflow run, into `web/public/downloads/` (not committed).
+`bun run build` builds the WASM package, packs the dictionaries and builds the site. `bun run deploy` publishes it to Cloudflare, and `bun run release` packages the x64 Windows and x86_64 Linux input methods of both products, adds the Android, macOS, iOS and Arm64 builds from the latest workflow runs on `main`, writes `web/src/lib/downloads.json`, and puts the files in `web/public/downloads/` (not committed).
 
 ```sh
 uv run tools/extract_telegram.py <telegram-export-dir> data/private/telegram.jsonl
@@ -83,14 +86,14 @@ uv run tools/build_dict.py
 uv run tools/attest.py
 ```
 
-These rebuild `community.tsv`, `gloss.tsv` and `sino.tsv` and refresh the usage counts. `uv run tools/build_eonhae.py` rebuilds `eonhae.tsv` from the Wikisource dump and saved 나무위키 pages named in `data/sources/README.md`; run `attest.py` after it to restore that file's counts. `uv run tools/build_kun_usage.py` rebuilds `data/kun-usage.tsv` and `kun-attested.tsv` from the Wikisource dump; `attest.py` fills in that file's counts too. `uv run tools/place_names.py build` rebuilds `place-names.tsv` from the saved Wikipedia page named in `data/sources/README.md`. The chat export stays in `data/private/` and is never committed.
+These rebuild `community.tsv`, `gloss.tsv` and `sino.tsv` and refresh the usage counts. They replace counts and first candidates that were reviewed by hand, so words from a new chat export go in as hand rows instead. `uv run tools/build_eonhae.py` rebuilds `eonhae.tsv` from the Wikisource dump and saved 나무위키 pages named in `data/sources/README.md`; run `attest.py` after it to restore that file's counts. `uv run tools/build_kun_usage.py` rebuilds `data/kun-usage.tsv` and `kun-attested.tsv` from the Wikisource dump; `attest.py` fills in that file's counts too. `uv run tools/people_names.py fetch` and `build` rebuild `people.tsv`. `uv run tools/place_names.py build` rebuilds `place-names.tsv` from the saved Wikipedia page named in `data/sources/README.md`. The chat export stays in `data/private/` and is never committed.
 
 ## References
 
 - 釋讀會 (풀어읽기모임), Telegram group: https://t.me/pimsdh. Its spellings and usage counts come from the group's chat.
 - 標準國語釋讀辭典, the group's community dictionary (Google Sheets).
 - Choe Hwanjin (2005–2006) [libhangul](https://github.com/libhangul/libhangul) `hanja.txt`.
-- [JMdict](https://www.edrdg.org/jmdict/j_jmdict.html), English Wiktionary via [kaikki.org](https://kaikki.org/), FusionIME and OpenCC; see [dict/README.md](dict/README.md) for what each supplies.
+- [JMdict](https://www.edrdg.org/jmdict/j_jmdict.html), English Wiktionary via [kaikki.org](https://kaikki.org/), FusionIME, OpenCC, [Wikidata](https://www.wikidata.org/) and [Korean Wikipedia](https://ko.wikipedia.org/); see [dict/README.md](dict/README.md) for what each supplies.
 
 ## Sponsor
 

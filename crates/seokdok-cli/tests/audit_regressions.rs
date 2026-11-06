@@ -400,3 +400,8 @@ fn the_common_word_leads_a_homophone_set() {
     // 지도 stays open to -을지도.
     first(&[("먹을지도", "食을지도"), ("있을지도", "有을지도"), ("을지도", "을지도")]);
 }
+
+#[test]
+fn a_coined_word_keeps_its_b_stem() {
+    first(&[("아우롭다", "悌롭다"), ("아우로운", "悌로운"), ("아우롭게", "悌롭게"), ("아우로워", "悌로워")]);
+}

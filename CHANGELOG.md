@@ -17,6 +17,7 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 - A Sino-Korean word beats a weak verb row: 選擇하도록, 改善하였어요, not 選도록, 善하였어요.
 
 ### Dictionary
+- 아우롭다 is written 悌롭다, a modern form coined from the old 아ᅀᆞᄅᆞ외다.
 - Common loanwords offer Hanja behind the Hangul: 페이지 頁 丁 張, 컴퓨터 電腦, 커피 珈琲, 러시아 露西亞.
 
 ### iOS

@@ -4,6 +4,12 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 
 ## 2026-11-06
 
+### Settings
+- Modifier keys are named 左側 and 右側: 左側 Ctrl, 右側 Alt.
+
+### Windows
+- On a Japanese keyboard layout, ASCII no longer turns into half-width katakana when the kana lock is on.
+
 ### Conversion
 - Well-known people's names convert whole: 金正恩同志, 文在寅, 李世乭. Hanja come from their Korean Wikipedia articles; `dict/people.tsv` lists them.
 - A loanword inside a longer word stays Hangul: 深化버전, 웹페이지. Its Hanja are offered only when it is typed alone.

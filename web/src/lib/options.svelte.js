@@ -17,6 +17,7 @@ function load() {
   if (!(EUMDOK ? ['sino', 'hangul'] : ['seokdok', 'sino', 'hangul']).includes(o.script)) o.script = DEFAULTS.script
   if (!['有', '在', '在ㅆ'].includes(o.itda)) o.itda = DEFAULTS.itda
   if (!['above', 'right'].includes(o.rubyPosition)) o.rubyPosition = DEFAULTS.rubyPosition
+  if (EUMDOK) o.rubyPosition = 'right'
   // The engine's own flag, which the site's 釋讀 / 國漢文混用 switch sets.
   // Turning it off leaves 韓㐎 專用 alone.
   Object.defineProperty(o, 'sinoOnly', {

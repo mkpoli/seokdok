@@ -5,6 +5,7 @@
   import { options, saveOptions } from './lib/options.svelte.js'
   import downloads from './lib/downloads.json'
   import Convert from './ui/Convert.svelte'
+  import { reveal } from './lib/reveal.js'
 
   const page = $derived(t().eumdokPage)
   const mb = (n) => `${(n / 1048576).toFixed(1)} MB`
@@ -16,8 +17,11 @@
   ].filter((p) => files[p.key])
   const langs = [
     ['ko', '한', 'ko'],
+    ['kore', '韓', 'ko'],
     ['en', 'EN', 'en'],
   ]
+
+  const rows = $derived(Array.from({ length: 6 }, (_, i) => page.wall.slice(i * 6, i * 6 + 6)))
 
   let theme = $state(document.documentElement.dataset.theme ?? 'auto')
   function cycleTheme() {
@@ -44,7 +48,7 @@
   <div class="tools">
     <div class="seg" role="group" aria-label="language">
       {#each langs as [code, label, lang]}
-        <button aria-pressed={i18n.lang === code || (code === 'ko' && i18n.lang === 'kore')} onclick={() => setLang(code)} {lang}>{label}</button>
+        <button aria-pressed={i18n.lang === code} onclick={() => setLang(code)} {lang}>{label}</button>
       {/each}
     </div>
     <button class="theme" onclick={cycleTheme} title={plain(t().theme[theme])} aria-label={plain(t().theme[theme])}>
@@ -54,11 +58,32 @@
 </header>
 
 <main id="top">
-  <section class="section lead">
-    <p class="eyebrow">{@html r(page.eyebrow)}</p>
-    <h1>音讀</h1>
-    <p class="lede">{@html r(page.lede)}</p>
-    <div class="compare">
+  <section class="band">
+    <div class="hero">
+      <div class="text">
+        <p class="eyebrow">{@html r(page.eyebrow)}</p>
+        <h1><span class="big">音讀</span></h1>
+        <p class="claim">{@html r(page.claim)}</p>
+        <p class="lede">{@html r(page.lede)}</p>
+        <div class="cta">
+          <a class="btn" data-variant="primary" data-size="lg" href="#install">{@html r(page.download)}</a>
+          <a class="btn" data-size="lg" href="#convert">{@html r(page.tryIt)}</a>
+        </div>
+      </div>
+      <div class="wall" aria-hidden="true">
+        {#each rows as row, i}
+          <div class="row" style:--i={i}>
+            {#each [...row, ...row] as word, c}
+              <span class="word" style:--size="{1 + ((i * 7 + c * 3) % 5) * 0.12}em">{@html r(word)}</span>
+            {/each}
+          </div>
+        {/each}
+      </div>
+    </div>
+  </section>
+
+  <section class="section">
+    <div class="compare" use:reveal>
       <figure>
         <figcaption>{@html r(page.typed)}</figcaption>
         <p lang="ko">선생님께서 하늘을 보셨다</p>
@@ -69,7 +94,14 @@
         <p lang="ko">先生님께서 하늘을 보셨다</p>
       </figure>
     </div>
-    <a class="btn" data-variant="primary" data-size="lg" href="#install">{@html r(page.download)}</a>
+    <div class="points">
+      {#each page.points as [head, body], i}
+        <article class="card point" use:reveal={i}>
+          <h3>{@html r(head)}</h3>
+          <p>{@html r(body)}</p>
+        </article>
+      {/each}
+    </div>
   </section>
 
   <Convert strings={page.convert} />
@@ -101,7 +133,15 @@
   </section>
 </main>
 
+<section class="section more">
+  <a class="card link" href="https://wiki.韓國語.漢字.net/" target="_blank" rel="noopener" use:reveal>
+    <b>國漢大百科</b>
+    <span>{@html r(page.wiki)}</span>
+  </a>
+</section>
+
 <footer class="section foot">
+  <p class="elsewhere">{@html r(page.moreHanja)} <a href="https://seokdok.mkpo.li/">釋讀</a></p>
   <p>{@html r(page.sources)} <a href="/dict/NOTICE.txt">NOTICE.txt</a></p>
   <p>{@html r(page.licence)} <a href="https://github.com/mkpoli/seokdok" rel="noopener">GitHub</a> · <a href="https://mkpo.li/">mkpoli</a></p>
 </footer>
@@ -171,11 +211,157 @@
   .theme .fill {
     fill: currentColor;
   }
-  .lead h1 {
+  .band {
+    overflow: hidden;
+    background:
+      radial-gradient(60% 60% at 78% 35%, var(--c-accent-soft), transparent 70%),
+      linear-gradient(180deg, var(--c-canvas), var(--c-canvas-2));
+  }
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+    align-items: center;
+    gap: var(--s-6);
+    width: min(var(--w-page), 100%);
+    min-height: calc(100svh - 56px);
+    margin-inline: auto;
+    padding: var(--s-7) var(--s-4);
+  }
+  .text > * {
+    animation: rise 800ms var(--ease) backwards;
+  }
+  .text > :nth-child(2) {
+    animation-delay: 90ms;
+  }
+  .text > :nth-child(3) {
+    animation-delay: 200ms;
+  }
+  .text > :nth-child(4) {
+    animation-delay: 300ms;
+  }
+  .text > :nth-child(5) {
+    animation-delay: 380ms;
+  }
+  @keyframes rise {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+  }
+  h1 {
     margin: 0;
+    line-height: 1;
+  }
+  .big {
+    display: block;
+    margin-left: -0.04em;
     color: var(--c-accent);
-    font: 900 clamp(84px, 16vw, 170px) / 1.05 var(--f-serif);
-    margin-bottom: var(--s-5);
+    font: 900 clamp(120px, 19vw, 230px) / 1.02 var(--f-serif);
+    letter-spacing: -0.02em;
+  }
+  .claim {
+    margin: var(--s-4) 0 var(--s-3);
+    text-wrap: balance;
+    font: 800 clamp(22px, 2.8vw, 30px) / 1.5 var(--f-serif);
+  }
+  .lede {
+    max-width: 46ch;
+    margin: 0 0 var(--s-5);
+    color: var(--c-soft);
+    font-size: 16.5px;
+    line-height: 2;
+  }
+  .cta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3);
+  }
+  .wall {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5em;
+    font: 500 clamp(20px, 2.4vw, 30px) / 1.2 var(--f-serif);
+    transform: perspective(900px) rotateY(-24deg) rotateX(4deg) skewY(-3deg);
+    transform-origin: left center;
+    mask-image: linear-gradient(90deg, transparent, #000 14%, #000 70%, transparent);
+  }
+  .row {
+    display: flex;
+    gap: 1em;
+    width: max-content;
+    animation: drift calc(48s + var(--i) * 6s) linear infinite;
+  }
+  .row:nth-child(even) {
+    animation-direction: reverse;
+  }
+  .word {
+    color: var(--c-ink);
+    font-size: var(--size);
+    white-space: nowrap;
+    opacity: 0.86;
+  }
+  .word:nth-child(5n + 2) {
+    color: var(--c-accent);
+    opacity: 1;
+  }
+  @keyframes drift {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .row {
+      animation: none;
+    }
+  }
+  @media (max-width: 860px) {
+    .hero {
+      grid-template-columns: 1fr;
+      min-height: auto;
+      padding-top: var(--s-6);
+    }
+    .wall {
+      order: -1;
+      height: 210px;
+      overflow: hidden;
+      transform: perspective(700px) rotateY(-14deg) skewY(-3deg);
+      font-size: 22px;
+    }
+  }
+  .points {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 260px), 1fr));
+    gap: var(--s-4);
+    margin-top: var(--s-5);
+  }
+  .point {
+    padding: var(--s-5);
+  }
+  .point h3 {
+    margin: 0 0 var(--s-2);
+    font: 700 21px/1.5 var(--f-serif);
+  }
+  .point p {
+    margin: 0;
+    color: var(--c-soft);
+    line-height: 1.9;
+  }
+  .link {
+    display: grid;
+    gap: var(--s-1);
+    padding: var(--s-5);
+    color: inherit;
+    text-decoration: none;
+  }
+  .link b {
+    color: var(--c-accent);
+    font: 800 26px/1.3 var(--f-serif);
+  }
+  .link span {
+    color: var(--c-soft);
+  }
+  .elsewhere {
+    font-size: 16px;
   }
   .compare {
     display: flex;

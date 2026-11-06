@@ -21,7 +21,7 @@ for a in "$@"; do
 done
 
 if [[ $system = 1 ]]; then
-  multiarch="$(gcc -print-multiarch 2>/dev/null || echo x86_64-linux-gnu)"
+  multiarch="$(gcc -print-multiarch 2>/dev/null || echo "$(uname -m)-linux-gnu")"
   libdir="/usr/lib/$multiarch/fcitx5"
   [[ -d "$libdir" ]] || libdir="/usr/lib/fcitx5"
   share="/usr/share"

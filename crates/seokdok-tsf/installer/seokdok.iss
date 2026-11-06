@@ -4,6 +4,9 @@
 ; The stage folder holds the DLL, dict\*.tsv, LICENSE, settings\, the settings
 ; app, and product.iss, the product's identifiers from products/<id>.json.
 ; What the wizard says is in messages-<id>.iss.
+; An Arm64 stage defines Arm64 in product.iss. It holds <id>.dll, an Arm64X
+; forwarder, with <id>-arm64.dll and <id>-x64.dll: the forwarder is the one COM
+; server, so native and emulated x64 applications both reach their own DLL.
 
 #ifndef MyAppVersion
   #define MyAppVersion "0.0.0"
@@ -35,16 +38,26 @@ PrivilegesRequired=lowest
 #else
 PrivilegesRequired=admin
 #endif
+#ifdef Arm64
+ArchitecturesAllowed=arm64
+ArchitecturesInstallIn64BitMode=arm64
+OutputBaseFilename={#ProductId}-{#MyAppVersion}-arm64-windows-setup
+#else
 ArchitecturesAllowed=x64compatible
 ArchitecturesInstallIn64BitMode=x64compatible
 OutputBaseFilename={#ProductId}-{#MyAppVersion}-x86_64-windows-setup
+#endif
 Compression=lzma2/ultra64
 LZMANumFastBytes=273
 LZMAUseSeparateProcess=yes
 SolidCompression=yes
 LicenseFile={#Stage}\LICENSE
 UninstallDisplayName={#ProductName}
+#ifdef Arm64
+UninstallDisplayIcon={app}\{#ProductId}-arm64.dll
+#else
 UninstallDisplayIcon={app}\{#ProductId}.dll
+#endif
 ShowLanguageDialog=auto
 ; The loaded DLL is moved aside (MoveLoadedDll), so nobody's apps need closing.
 CloseApplications=no
@@ -70,17 +83,30 @@ Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [InstallDelete]
 Type: files; Name: "{app}\{#ProductId}-old-*.dll"
+#ifdef Arm64
+Type: files; Name: "{app}\{#ProductId}-*-old-*.dll"
+#endif
 Type: filesandordirs; Name: "{app}\settings"
 
 [UninstallDelete]
 Type: files; Name: "{app}\{#ProductId}-old-*.dll"
+#ifdef Arm64
+Type: files; Name: "{app}\{#ProductId}-*-old-*.dll"
+#endif
 
 [Files]
 ; regserver calls DllRegisterServer on install and DllUnregisterServer on
 ; uninstall. A DLL loaded by a running app can be renamed but not overwritten:
 ; the old one moves aside, running apps keep it until reopened, and no reboot
 ; is needed. Setup deletes the moved copies it can on the next update.
-Source: "{#Stage}\{#ProductId}.dll"; DestDir: "{app}"; BeforeInstall: MoveLoadedDll; Flags: ignoreversion regserver restartreplace uninsrestartdelete
+#ifdef Arm64
+; The forwarder is registered; the two DLLs it forwards to are only copied.
+Source: "{#Stage}\{#ProductId}-arm64.dll"; DestDir: "{app}"; BeforeInstall: MoveLoadedDll('{#ProductId}-arm64'); Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "{#Stage}\{#ProductId}-x64.dll"; DestDir: "{app}"; BeforeInstall: MoveLoadedDll('{#ProductId}-x64'); Flags: ignoreversion restartreplace uninsrestartdelete
+Source: "{#Stage}\{#ProductId}.dll"; DestDir: "{app}"; BeforeInstall: MoveLoadedDll('{#ProductId}'); Flags: ignoreversion regserver restartreplace uninsrestartdelete
+#else
+Source: "{#Stage}\{#ProductId}.dll"; DestDir: "{app}"; BeforeInstall: MoveLoadedDll('{#ProductId}'); Flags: ignoreversion regserver restartreplace uninsrestartdelete
+#endif
 ; The engine reads dict\*.tsv next to the DLL.
 Source: "{#Stage}\dict\*"; DestDir: "{app}\dict"; Flags: ignoreversion recursesubdirs
 Source: "{#Stage}\LICENSE"; DestDir: "{app}"; Flags: ignoreversion
@@ -112,11 +138,11 @@ begin
   Result := '';
 end;
 
-procedure MoveLoadedDll();
+procedure MoveLoadedDll(Name: String);
 var
   Dll: String;
 begin
-  Dll := ExpandConstant('{app}\{#ProductId}.dll');
+  Dll := ExpandConstant('{app}\') + Name + '.dll';
   if FileExists(Dll) then
-    RenameFile(Dll, ExpandConstant('{app}\{#ProductId}-old-') + GetDateTimeString('yyyymmddhhnnss', #0, #0) + '.dll');
+    RenameFile(Dll, ExpandConstant('{app}\') + Name + '-old-' + GetDateTimeString('yyyymmddhhnnss', #0, #0) + '.dll');
 end;

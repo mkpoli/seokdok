@@ -1,0 +1,62 @@
+name: fcitx5 aarch64
+
+# Builds the Linux aarch64 tarballs of both products on an Arm runner.
+# web/scripts/release.sh takes the artifacts of the latest push to main.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "crates/**"
+      - "dict/**"
+      - "products/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/fcitx5-aarch64.yml"
+  pull_request:
+    paths:
+      - "crates/**"
+      - "dict/**"
+      - "products/**"
+      - "Cargo.toml"
+      - "Cargo.lock"
+      - ".github/workflows/fcitx5-aarch64.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tarball:
+    name: ${{ matrix.product }}
+    runs-on: ubuntu-24.04-arm
+    timeout-minutes: 40
+    strategy:
+      fail-fast: false
+      matrix:
+        product: [seokdok, eumdok]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: fcitx5-aarch64
+
+      - name: fcitx5 headers
+        run: sudo apt-get update && sudo apt-get install -y --no-install-recommends libfcitx5core-dev libfcitx5utils-dev libfcitx5config-dev g++ pkg-config jq
+
+      - name: Package
+        run: crates/seokdok-fcitx5/package.sh ${{ matrix.product }}
+
+      - name: Check the library
+        run: |
+          so=$(ls target/stage/${{ matrix.product }}-*-aarch64-linux-fcitx5/lib/lib${{ matrix.product }}.so)
+          file "$so" | tee /dev/stderr | awk '/ARM aarch64/ { ok = 1 } END { exit !ok }'
+          ldd "$so"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.product }}-fcitx5-aarch64
+          path: target/stage/*-aarch64-linux-fcitx5.tar.gz
+          if-no-files-found: error

@@ -12,6 +12,7 @@ Raw downloads. Nothing here is executed. "MIT/BSD repo" asks whether the file ma
 | 우리말샘 / 표준국어대사전 | CC BY-SA family (unverified); bulk download not confirmed | no |
 | Microsoft IME | proprietary | no |
 | Korean Wikisource dump (old books) | books public domain; site CC BY-SA 4.0 | as a derived list under CC BY-SA, with credit |
+| Wikidata query results and Korean Wikipedia article openings (`people/`) | CC0 1.0; CC BY-SA 4.0 | as a derived list under CC BY-SA, with credit |
 | kaikki.org Middle Korean JSONL | CC BY-SA 4.0 + GFDL (Wiktionary) | no (share-alike) |
 | 나무위키 신증유합, 훈몽자회 pages | books public domain; site CC BY-NC-SA 2.0 KR | uncertain; citations say so |
 | Old-form table from English Wiktionary | CC BY-SA 4.0 + GFDL (Wiktionary) | no (share-alike) |

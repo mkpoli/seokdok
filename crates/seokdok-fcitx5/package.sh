@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build the fcitx5 addon and stage a release tarball:
-#   target/stage/<id>-<version>-x86_64-linux-fcitx5/
+#   target/stage/<id>-<version>-<arch>-linux-fcitx5/   (arch is x86_64 or aarch64, as uname -m)
 #     lib/lib<id>.so  share/fcitx5/{addon,inputmethod}/<id>.conf
 #     dict/*.tsv  install.sh  product  LICENSE  README.txt
 # Usage: crates/seokdok-fcitx5/package.sh [seokdok|eumdok]  (FCITX5_INCLUDE as for build.sh)
@@ -9,7 +9,9 @@ id="${1:-seokdok}"
 cd "$(dirname "$0")/../.."
 version=$(cargo metadata --no-deps --format-version 1 | jq -r '.packages[] | select(.name=="seokdok-ffi") | .version')
 crates/seokdok-fcitx5/build.sh "$id"
-name="${id}-${version}-x86_64-linux-fcitx5"
+arch="$(uname -m)"
+case "$arch" in x86_64 | aarch64) ;; *) echo "unsupported architecture $arch" >&2; exit 1 ;; esac
+name="${id}-${version}-${arch}-linux-fcitx5"
 stage="target/stage/${name}"
 rm -rf "$stage"
 mkdir -p "$stage/lib" "$stage/share/fcitx5/addon" "$stage/share/fcitx5/inputmethod" "$stage/dict"

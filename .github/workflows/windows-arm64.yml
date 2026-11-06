@@ -1,0 +1,111 @@
+name: Windows Arm64 installer
+
+# Builds the Arm64 installers of both products. The installer carries the Arm64
+# DLL, the x64 DLL for emulated applications, an Arm64X forwarder that is the
+# one registered COM server, and the settings app for win-arm64.
+# web/scripts/release.sh takes the artifact of the latest push to main;
+# release-windows.yml calls this workflow for tags.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "windows/**"
+      - "crates/seokdok-tsf/**"
+      - "crates/seokdok-core/**"
+      - "crates/seokdok-session/**"
+      - "crates/seokdok-ffi/**"
+      - "crates/seokdok-product/**"
+      - "products/**"
+      - "dict/**"
+      - "Cargo.lock"
+      - ".github/workflows/windows-arm64.yml"
+  pull_request:
+    paths:
+      - "windows/**"
+      - "crates/seokdok-tsf/**"
+      - "crates/seokdok-core/**"
+      - "crates/seokdok-session/**"
+      - "crates/seokdok-ffi/**"
+      - "crates/seokdok-product/**"
+      - "products/**"
+      - "dict/**"
+      - "Cargo.lock"
+      - ".github/workflows/windows-arm64.yml"
+  workflow_call:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  installer:
+    name: ${{ matrix.product }}
+    runs-on: windows-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        product: [seokdok, eumdok]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+
+      - uses: Swatinem/rust-cache@v2
+        with:
+          key: windows-arm64-${{ matrix.product }}
+
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "10.0.x"
+
+      - name: Input method DLLs
+        shell: pwsh
+        run: |
+          rustup target add aarch64-pc-windows-msvc
+          $features = if ('${{ matrix.product }}' -eq 'seokdok') { @() } else { @('--features', '${{ matrix.product }}') }
+          cargo build --release --target x86_64-pc-windows-msvc -p seokdok-tsf @features
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          cargo build --release --target aarch64-pc-windows-msvc -p seokdok-tsf @features
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+
+      - name: Arm64X forwarder
+        shell: cmd
+        run: |
+          for /f "usebackq delims=" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -property installationPath`) do call "%%i\VC\Auxiliary\Build\vcvarsall.bat" amd64_arm64
+          pwsh -NoProfile -File crates\seokdok-tsf\forwarder.ps1 -Id ${{ matrix.product }}
+          if errorlevel 1 exit /b 1
+          dumpbin /nologo /headers /exports target\forwarder\${{ matrix.product }}.dll
+
+      - name: Settings app
+        shell: pwsh
+        run: windows\build.ps1 -Product ${{ matrix.product }} -Arch arm64
+
+      - name: Stage installer files
+        shell: bash
+        run: |
+          app=target/settings-app-arm64
+          [ "${{ matrix.product }}" = seokdok ] || app=target/settings-app-${{ matrix.product }}-arm64
+          crates/seokdok-tsf/stage.sh "$app" ${{ matrix.product }} arm64
+
+      - name: Inno Setup
+        shell: pwsh
+        run: choco upgrade innosetup -y --no-progress
+
+      - name: Compile installer
+        shell: pwsh
+        run: |
+          $id = '${{ matrix.product }}'
+          $stage = if ($id -eq 'seokdok') { 'windows-arm64' } else { "windows-$id-arm64" }
+          $version = (Select-String -Path Cargo.toml -Pattern '^version = "(.*)"' | Select-Object -First 1).Matches[0].Groups[1].Value
+          $iscc = Join-Path ${env:ProgramFiles(x86)} 'Inno Setup 6\ISCC.exe'
+          New-Item -ItemType Directory -Force target/installer-arm64 | Out-Null
+          & $iscc /Q "/DMyAppVersion=$version" "/DStage=$PWD\target\stage\$stage" "/O$PWD\target\installer-arm64" crates\seokdok-tsf\installer\seokdok.iss
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          Get-ChildItem target/installer-arm64
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.product }}-windows-arm64-installer
+          path: target/installer-arm64/*.exe
+          if-no-files-found: error

@@ -32,14 +32,6 @@
     "android": {
       "file": "eumdok-0.1.0-android.apk",
       "size": 17519108
-    },
-    "macos": {
-      "file": "eumdok-0.1.0-macos.zip",
-      "size": 11204772
-    },
-    "ios": {
-      "file": "eumdok-0.1.0-ios-unsigned.ipa",
-      "size": 8220021
     }
   }
 }

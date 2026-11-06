@@ -3,6 +3,7 @@
   import { i18n, setLang, t, r, plain } from './lib/i18n.svelte.js'
   import { engine } from './lib/engine.svelte.js'
   import downloads from './lib/downloads.json'
+  import { builds } from './lib/builds.js'
   import { Composer, Learned } from '../pkg/seokdok.js'
   import { Ime } from './lib/ime.svelte.js'
   import { Picks, STORAGE_KEY } from './lib/learned.js'
@@ -15,11 +16,11 @@
   const mb = (n) => `${(n / 1048576).toFixed(1)} MB`
   const files = downloads.eumdok ?? {}
   const platforms = [
-    { key: 'windows', name: 'Windows', req: 'Windows 10 · 11, x64' },
-    { key: 'linux', name: 'Linux', req: 'fcitx5 5.1+, x86_64' },
-    { key: 'android', name: 'Android', req: 'Android 8.0+, arm64 · arm32 · x86_64' },
-    { key: 'macos', name: 'macOS', req: 'macOS 13+, Apple silicon · Intel', run: () => `mkdir -p ~/Library/Input\\ Methods && cd ~/Library/Input\\ Methods\nditto -xk ~/Downloads/${files.macos.file} .\nxattr -dr com.apple.quarantine Eumdok.app\nEumdok.app/Contents/MacOS/Eumdok --register` },
-    { key: 'ios', name: 'iOS', req: 'iOS 16+' },
+    { key: 'windows', name: 'Windows', req: 'Windows 10 · 11', builds: builds(files.windows, files.windowsArm64) },
+    { key: 'linux', name: 'Linux', req: 'fcitx5 5.1+', builds: builds(files.linux, files.linuxArm64) },
+    { key: 'android', name: 'Android', req: 'Android 8.0+, arm64 · arm32 · x86_64', builds: [files.android] },
+    { key: 'macos', name: 'macOS', req: 'macOS 13+, Apple silicon · Intel', builds: [files.macos], run: () => `mkdir -p ~/Library/Input\\ Methods && cd ~/Library/Input\\ Methods\nditto -xk ~/Downloads/${files.macos.file} .\nxattr -dr com.apple.quarantine Eumdok.app\nEumdok.app/Contents/MacOS/Eumdok --register` },
+    { key: 'ios', name: 'iOS', req: 'iOS 16+', builds: [files.ios] },
   ].filter((p) => files[p.key])
   const langs = [
     ['ko', '한', 'ko'],
@@ -134,11 +135,17 @@
               <h3>{p.name}</h3>
               <span class="req">{p.req}</span>
             </header>
-            <a class="btn dl" data-variant="primary" href="/downloads/{files[p.key].file}" download>
-              <span>{@html r(page.download)}</span>
-              <small>{mb(files[p.key].size)}</small>
-            </a>
-            <p class="file">{files[p.key].file}</p>
+            <div class="builds">
+              {#each p.builds as b (b.file)}
+                <div class="build">
+                  <a class="btn dl" data-variant="primary" href="/downloads/{b.file}" download>
+                    <span>{@html r(page.download)}{b.arch ? ` · ${b.arch}` : ''}</span>
+                    <small>{mb(b.size)}</small>
+                  </a>
+                  <p class="file">{b.file}</p>
+                </div>
+              {/each}
+            </div>
             <p>{@html r(page[p.key])}</p>
             {#if p.run}<pre><code>{p.run()}</code></pre>{/if}
           </article>
@@ -156,6 +163,10 @@
   <a class="card link" href="https://wiki.韓國語.漢字.net/" target="_blank" rel="noopener" use:reveal>
     <b>國漢大百科</b>
     <span>{@html r(page.wiki)}</span>
+  </a>
+  <a class="card link" href="https://t.me/+WM1ZSd-2Nd7T55Wm" target="_blank" rel="noopener" use:reveal>
+    <b>漢字混用</b>
+    <span>{@html r(page.chat)}</span>
   </a>
 </section>
 
@@ -365,6 +376,11 @@
     color: var(--c-soft);
     line-height: 1.9;
   }
+  .more {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 280px), 1fr));
+    gap: var(--s-4);
+  }
   .link {
     display: grid;
     gap: var(--s-1);
@@ -452,6 +468,20 @@
   .file {
     margin: 0;
     overflow-wrap: anywhere;
+  }
+  .build .dl {
+    align-self: flex-start;
+  }
+  .builds {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--s-3) var(--s-4);
+  }
+  .build {
+    display: flex;
+    flex-direction: column;
+    gap: var(--s-2);
+    min-width: 0;
   }
   .dl {
     justify-self: start;

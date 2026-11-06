@@ -4,12 +4,20 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 
 ## 2026-11-06
 
+### Settings
+- Modifier keys are named 左側 and 右側: 左側 Ctrl, 右側 Alt.
+
+### Windows
+- On a Japanese keyboard layout, ASCII no longer turns into half-width katakana when the kana lock is on.
+
 ### Conversion
+- Well-known people's names convert whole: 金正恩同志, 文在寅, 李世乭. Hanja come from their Korean Wikipedia articles; `dict/people.tsv` lists them.
 - A loanword inside a longer word stays Hangul: 深化버전, 웹페이지. Its Hanja are offered only when it is typed alone.
 - 하다 and 되다 after a word stay Hangul by default: 表示하는, 發音되는. 爲 and 成 stay on offer, and a setting puts them first: 表示爲는, 發音成는.
 - A Sino-Korean word beats a weak verb row: 選擇하도록, 改善하였어요, not 選도록, 善하였어요.
 
 ### Dictionary
+- 아우롭다 is written 悌롭다, a modern form coined from the old 아ᅀᆞᄅᆞ외다.
 - Common loanwords offer Hanja behind the Hangul: 페이지 頁 丁 張, 컴퓨터 電腦, 커피 珈琲, 러시아 露西亞.
 
 ### iOS

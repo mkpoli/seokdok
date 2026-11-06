@@ -93,7 +93,7 @@
           tabindex="-1"
           href={site.id === current ? `${home}#top` : site.href}
           aria-current={site.id === current ? 'true' : undefined}
-          onclick={() => hide()}
+          onclick={() => hide(site.id === current)}
         >
           <img src={site.logo} alt="" width="32" height="32" />
           <span class="name"><span class="han" lang={site.lang}>{site.han}</span><span class="latn">{site.latn}</span></span>

@@ -10,6 +10,7 @@
   import { input, output } from './lib/custom.svelte.js'
   import ImePanel from './ui/ImePanel.svelte'
   import Convert from './ui/Convert.svelte'
+  import SiteSelect from './ui/SiteSelect.svelte'
   import { reveal } from './lib/reveal.js'
 
   const page = $derived(t().eumdokPage)
@@ -57,10 +58,12 @@
 </script>
 
 <header class="bar">
-  <a class="mark" href="#top" aria-label="Eumdok">
-    <img src="/favicon-eumdok.svg" alt="" width="28" height="28" />
-    <span class="mark-han">音讀</span><span class="mark-latn">Eumdok</span>
-  </a>
+  <SiteSelect current="eumdok" home="">
+    <span class="mark">
+      <img src="/favicon-eumdok.svg" alt="" width="28" height="28" />
+      <span class="mark-han">音讀</span><span class="mark-latn">Eumdok</span>
+    </span>
+  </SiteSelect>
   <div class="tools">
     <div class="seg" role="group" aria-label="language">
       {#each langs as [code, label, lang]}
@@ -202,7 +205,6 @@
     align-items: center;
     gap: var(--s-2);
     color: var(--c-accent);
-    text-decoration: none;
   }
   .mark img {
     border-radius: 18%;

@@ -1,6 +1,7 @@
 <script>
   import { i18n, setLang, t, r, plain } from '../lib/i18n.svelte.js'
   import { options, saveOptions, showRubyPosition } from '../lib/options.svelte.js'
+  import SiteSelect from './SiteSelect.svelte'
   import SponsorDialog from './SponsorDialog.svelte'
 
   // On a page other than the front page, `home` is '/' and the section links lead back to it.
@@ -46,9 +47,9 @@
 </script>
 
 <header class="bar">
-  <a class="mark" href="{home}#top" aria-label="seokdok">
-    <span class="mark-han">釋讀</span><span class="mark-latn">seokdok</span>
-  </a>
+  <SiteSelect current="seokdok" {home}>
+    <span class="mark"><img class="mark-logo" src="/favicon.svg" alt="" width="28" height="28" /><span class="mark-han">釋讀</span><span class="mark-latn">seokdok</span></span>
+  </SiteSelect>
   <nav aria-label="sections">
     <a href="{home}#ime">{@html r(t().nav.ime)}</a>
     <a href="{home}#custom">{@html r(t().nav.custom)}</a>
@@ -113,7 +114,10 @@
     align-items: baseline;
     gap: var(--s-2);
     color: var(--c-accent);
-    text-decoration: none;
+  }
+  .mark-logo {
+    align-self: center;
+    border-radius: 18%;
   }
   .mark-han {
     font: 900 22px/1 var(--f-serif);
@@ -146,7 +150,6 @@
   nav a:hover {
     color: var(--c-accent);
   }
-  .mark,
   .tools {
     flex-shrink: 0;
   }
@@ -290,9 +293,7 @@
     nav {
       display: none;
     }
-    .mark {
-      margin-right: auto;
-    }
+    .mark-logo,
     .mark-latn {
       display: none;
     }

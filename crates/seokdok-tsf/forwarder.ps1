@@ -24,7 +24,7 @@ Set-Content empty.cpp '' -Encoding ascii
 function Run { & $args[0] $args[1..($args.Length - 1)]; if ($LASTEXITCODE -ne 0) { throw "failed: $args" } }
 Run cl /nologo /c /Foempty_arm64.obj empty.cpp
 Run cl /nologo /c /arm64EC /Foempty_x64.obj empty.cpp
-Run link /nologo /lib /machine:x64 "/def:$Id-x64.def" "/out:$Id-x64.lib"
-Run link /nologo /lib /machine:arm64 "/def:$Id-arm64.def" "/out:$Id-arm64.lib"
+Run lib /nologo /machine:x64 "/def:$Id-x64.def" "/out:$Id-x64.lib"
+Run lib /nologo /machine:arm64 "/def:$Id-arm64.def" "/out:$Id-arm64.lib"
 Run link /nologo /dll /noentry /machine:arm64x "/defArm64Native:$Id-arm64.def" "/def:$Id-x64.def" empty_arm64.obj empty_x64.obj "/out:$out\$Id.dll" "$Id-arm64.lib" "$Id-x64.lib"
 Get-Item "$out\$Id.dll"

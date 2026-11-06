@@ -27,6 +27,7 @@ export const FILES = [
   ['sino', 'sino', ['BSD-3-Clause']],
   ['etym', 'sino', ['CC BY-SA 4.0']],
   ['loanwords', 'sino', ['CC BY-SA 4.0']],
+  ['people', 'sino', ['CC BY-SA 4.0', 'CC0 1.0']],
   ['hun', 'sino', ['BSD-3-Clause']],
 ].map(([stem, kind, licences]) => ({ stem, kind, licences }))
 
@@ -36,6 +37,7 @@ const REPO = 'https://github.com/mkpoli/seokdok/blob/main'
 export const LICENCE_URLS = {
   MIT: `${REPO}/LICENSE`,
   'CC BY-SA 4.0': 'https://creativecommons.org/licenses/by-sa/4.0/',
+  'CC0 1.0': 'https://creativecommons.org/publicdomain/zero/1.0/',
   'CC BY-NC-SA 2.0 KR': 'https://creativecommons.org/licenses/by-nc-sa/2.0/kr/',
   'BSD-3-Clause': 'https://github.com/libhangul/libhangul/blob/23d2cd9d10d516d523d60c562dbcc7ea08139a09/data/hanja/hanja.txt',
   'GPL-3.0': `${REPO}/dict/LICENSE-fusion.txt`,

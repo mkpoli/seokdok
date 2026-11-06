@@ -66,6 +66,8 @@ pub enum Source {
     KunAttested,
     /// A native place name from Japanese Wikipedia's list (`dict/place-names.tsv`).
     PlaceName,
+    /// A person's name with the Hanja their Korean Wikipedia article gives (`dict/people.tsv`).
+    PersonName,
     /// Proposed by a language model from word senses and 訓音 glosses;
     /// unreviewed.
     Suggested,
@@ -87,7 +89,7 @@ impl Source {
             Source::Corpus | Source::Editorial => 1,
             Source::Community => 2,
             Source::Eonhae | Source::KunAttested => 3,
-            Source::Suggested | Source::PlaceName => 4,
+            Source::Suggested | Source::PlaceName | Source::PersonName => 4,
             Source::Gloss | Source::Japanese | Source::JapaneseWeak | Source::Lexicon => 5,
         }
     }
@@ -102,6 +104,7 @@ impl Source {
             "kun-attested" => Source::KunAttested,
             "suggested" => Source::Suggested,
             "place-name" => Source::PlaceName,
+            "person-name" => Source::PersonName,
             "gloss" => Source::Gloss,
             "japanese" => Source::Japanese,
             "japanese-weak" => Source::JapaneseWeak,
@@ -160,7 +163,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
         Source::Eonhae => 4.2,
         Source::KunAttested => 4.3,
         Source::Suggested => 4.5,
-        Source::PlaceName => 4.6,
+        Source::PlaceName | Source::PersonName => 4.6,
         Source::Gloss => 6.0,
         Source::Japanese => 6.2,
         Source::JapaneseWeak => 7.2,
@@ -176,7 +179,7 @@ fn native_cost(source: Source, count: u32) -> f32 {
         // credited counts are noisy: never rank them above the community tier.
         Source::Suggested => attested.max(2.5),
         // Ranks by the chat's count as Suggested does; the earlier file wins a tie.
-        Source::Eonhae | Source::KunAttested | Source::PlaceName => attested.max(2.5),
+        Source::Eonhae | Source::KunAttested | Source::PlaceName | Source::PersonName => attested.max(2.5),
         Source::Gloss | Source::Japanese | Source::Lexicon => attested.max(3.0),
         Source::JapaneseWeak => attested.max(4.0),
         _ => attested.min(base),
@@ -189,6 +192,8 @@ fn sino_cost(reading: &str, source: Source, count: u32) -> f32 {
         (Source::User, _) => 1.0,
         // A word the editors put ahead of its homophones (음성 音聲, not 陰城).
         (Source::Editorial, _) => 1.5,
+        (Source::PersonName, 2) => 6.5,
+        (Source::PersonName, _) => 3.9,
         (_, 1) => 7.0,
         _ => 4.5,
     };

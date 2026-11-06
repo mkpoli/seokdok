@@ -24,6 +24,8 @@ final class Key: UIView {
     var repeatsFaster: (() -> Void)?
     /// Show the pop-up preview while held.
     var previews = false
+    /// An end key of the middle row, which also takes the margin beside it.
+    var reachesMargin = false
     /// Space: held, it turns the keyboard into a trackpad.
     var holdsForCursor = false
     var action: (() -> Void)?
@@ -337,6 +339,9 @@ final class KeyPad: UIView {
     /// How far from a key a touch still belongs to it: wider than the widest
     /// gap between keys, narrower than a blank cell of the number pad. Our choice.
     private static let reach: CGFloat = 16
+    /// The margins of the middle row type its end keys, as a grid of taps over the
+    /// system keyboard showed: this far from the key, level with it.
+    private static let sideReach: CGFloat = 36
     /// How far a finger may stray from a function key; our choice.
     private static let slop: CGFloat = 40
     /// The system keyboard's trackpad began about 0.6 s into a held press and
@@ -388,12 +393,19 @@ final class KeyPad: UIView {
         return (dx * dx + dy * dy).squareRoot()
     }
 
+    /// Half the gap between rows, so a margin's height meets the next row's.
+    private let rowGapHalf: CGFloat = 6
+
     private func key(at p: CGPoint) -> Key? {
         var keys: [Key] = []
         visibleKeys(in: self, into: &keys)
-        guard let nearest = keys.min(by: { distance(p, $0) < distance(p, $1) }),
-              distance(p, nearest) <= Self.reach else { return nil }
-        return nearest
+        guard let nearest = keys.min(by: { distance(p, $0) < distance(p, $1) }) else { return nil }
+        if distance(p, nearest) <= Self.reach { return nearest }
+        return keys.first { key in
+            guard key.reachesMargin else { return false }
+            let r = key.convert(key.bounds, to: self)
+            return p.y >= r.minY - rowGapHalf && p.y <= r.maxY + rowGapHalf && distance(p, key) <= Self.sideReach
+        }
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {

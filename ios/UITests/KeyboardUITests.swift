@@ -296,6 +296,13 @@ final class KeyboardUITests: XCTestCase {
         XCTAssertEqual(text(field).count, afterKey.count + 1, "a tap in the gap between two keys typed nothing")
         g.enter()
         sleep(1)
+        // The margin left of ㅁ.
+        let beforeMargin = text(field)
+        g.tap(x: 2, y: 129)
+        sleep(1)
+        XCTAssertEqual(text(field).count, beforeMargin.count + 1, "a tap in the row's margin typed nothing")
+        g.enter()
+        sleep(1)
         let afterColumn = text(field)
         g.tap(x: g.width / 2, y: g.row(0) + g.l.rowPitch / 2)
         sleep(1)

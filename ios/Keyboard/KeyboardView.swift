@@ -2,6 +2,8 @@ import UIKit
 
 protocol KeyboardViewDelegate: AnyObject {
     func letter(_ key: Character)
+    /// The letter this key would type with Shift the other way, for once.
+    func letterFlipped(_ key: Character)
     func symbol(_ ch: Character)
     /// Text as it is, past any composition (the .com key).
     func literal(_ text: String)
@@ -96,6 +98,7 @@ final class KeyboardView: UIView {
     private let column = UIStackView()
     private let keyPad = KeyPad()
     private let popup = KeyPopup()
+    private var alternatesKey: Key?
     private var keysTop: NSLayoutConstraint!
     private var keysLeading: NSLayoutConstraint!
     private var keysTrailing: NSLayoutConstraint!
@@ -147,6 +150,21 @@ final class KeyboardView: UIView {
         "2": "ABC", "3": "DEF", "4": "GHI", "5": "JKL", "6": "MNO", "7": "PQRS", "8": "TUV", "9": "WXYZ",
     ]
     private static let rows = ["qwertyuiop", "asdfghjkl", "zxcvbnm"]
+    /// What a long press on a symbol offers, and which of them is the key: read from
+    /// the system's Korean keyboard, iOS 26.5 simulator.
+    private static let symbolAlternates: [Character: (list: [String], main: Int)] = [
+        "0": (["°", "0"], 1),
+        "-": (["-", "–", "—", "•"], 0),
+        "/": (["/", "\\"], 0),
+        "$": (["₽", "¥", "€", "$", "¢", "£", "₩"], 3),
+        "₩": (["₽", "¥", "€", "$", "¢", "£", "₩"], 6),
+        "&": (["&", "§"], 0),
+        "\"": (["«", "»", "„", "“", "”", "\""], 5),
+        ".": ([".", "…"], 0),
+        "?": (["?", "¿"], 0),
+        "!": (["!", "¡"], 0),
+        "'": (["`", "‘", "’", "'"], 3),
+    ]
     /// Two pages of symbols, three rows each, as on the system keyboard.
     private static let symbolRows: [[String]] = [
         ["1234567890", "-/:;()₩&@\"", ".,?!'"],
@@ -190,6 +208,20 @@ final class KeyboardView: UIView {
         keyPad.onPress = { [weak self] in self?.feedback.key() }
         Key.onActivate = { [weak self] in self?.feedback.key() }
         keyPad.onPreview = { [weak self] key in self?.showPopup(key) }
+        keyPad.onAlternatesShow = { [weak self] key in
+            guard let self else { return }
+            self.alternatesKey = key
+            self.popup.showAlternates(key, over: key.convert(key.bounds, to: self), within: self.bounds)
+        }
+        keyPad.onAlternatesMove = { [weak self] x in self?.popup.moveAlternates(to: x) }
+        keyPad.onAlternatesEnd = { [weak self] typed in
+            guard let self, let key = self.alternatesKey else { return }
+            let chosen = self.popup.selectedAlternate
+            self.alternatesKey = nil
+            self.popup.hide()
+            guard typed else { return }
+            if chosen == key.alternatesMain { key.action?() } else { key.onAlternate?(chosen) }
+        }
         keyPad.onCursorBegin = { [weak self] in
             self?.feedback.cursor()
             self?.delegate?.beginCursor()
@@ -391,6 +423,13 @@ final class KeyboardView: UIView {
         let chars = Self.symbolRows[symbolPage].flatMap { Array($0) }
         for (k, ch) in zip(symbolKeys, chars) {
             k.set(main: String(ch), hint: nil)
+            let offered = Self.symbolAlternates[ch]
+            k.alternates = offered?.list ?? []
+            k.alternatesMain = offered?.main ?? 0
+            k.onAlternate = { [weak self] i in
+                guard let list = offered?.list, let ch = list[i].first else { return }
+                self?.tap { $0.symbol(ch) }
+            }
         }
         symbolPageKey.title = symbolPage == 0 ? "#+=" : "123"
     }
@@ -609,12 +648,17 @@ final class KeyboardView: UIView {
             let up = Character(ch.uppercased())
             if latin {
                 key.set(main: String(shifted ? up : ch), hint: nil)
+                key.alternates = []
                 continue
             }
             let main = Session.jamo(shifted ? up : ch) ?? String(ch)
             let other = Session.jamo(shifted ? ch : up)
             let hint = other == main ? nil : other
             key.set(main: shown(main), hint: hint.map(shown))
+            // Held, a key offers its other letter, old ones included; the system's
+            // Korean keyboard does this for its double consonants and ㅒ ㅖ.
+            key.alternates = hint.map { [shown(main), shown($0)] } ?? []
+            key.onAlternate = { [weak self] _ in self?.tap { $0.letterFlipped(ch) } }
         }
         shiftKey.isOn = shifted
         shiftKey.setSymbol(s.shift == .locked ? "capslock.fill" : shifted ? "shift.fill" : "shift")

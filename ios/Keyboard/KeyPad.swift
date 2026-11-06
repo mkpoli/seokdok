@@ -24,6 +24,12 @@ final class Key: UIView {
     var repeatsFaster: (() -> Void)?
     /// Show the pop-up preview while held.
     var previews = false
+    /// What a long press offers, in order; `action` still types the key itself,
+    /// which stands at `alternatesMain`. Empty offers nothing.
+    var alternates: [String] = []
+    var alternatesMain = 0
+    /// Type the alternate at this index.
+    var onAlternate: ((Int) -> Void)?
     /// 123 and Shift: a finger that started here can slide onto a letter and type
     /// it where it lifts. `slideReturn` then runs, so 123 restores its layer.
     var slides = false
@@ -331,6 +337,20 @@ final class KeyPad: UIView {
 
     private var tracks: [ObjectIdentifier: Track] = [:]
     private var previewing: Key?
+    /// The touch choosing among a held key's alternates.
+    private var alternatesTouch: ObjectIdentifier?
+    private var alternatesTimer: Timer?
+    /// The touch the timer is for.
+    private var alternatesArmed: ObjectIdentifier?
+    /// The system's alternates came up between 0.3 s and 0.4 s into a press, in
+    /// shots on an iOS 26.5 simulator.
+    private static let alternatesHold: TimeInterval = 0.35
+    /// A key is held long enough for its alternates.
+    var onAlternatesShow: ((Key) -> Void)?
+    /// The finger moved along them, to this x.
+    var onAlternatesMove: ((CGFloat) -> Void)?
+    /// The finger lifted (true) or the touch was cancelled.
+    var onAlternatesEnd: ((Bool) -> Void)?
     private var repeatTimer: Timer?
     /// Held Delete, measured from the system keyboard's held Delete in iOS 18.5
     /// and iOS 26.5 simulators: on the clock of those runs its first repeat came
@@ -436,6 +456,8 @@ final class KeyPad: UIView {
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         // Other fingers do nothing while one steers the caret.
         guard cursorTouch == nil else { return }
+        // A new finger ends a tray, typing what it had chosen, as with a held letter.
+        endAlternates(typed: true)
         // A press in the moment the keys are still faded types as usual.
         finishCursorFade()
         for touch in touches.sorted(by: { $0.timestamp < $1.timestamp }) {
@@ -444,6 +466,7 @@ final class KeyPad: UIView {
             let id = ObjectIdentifier(touch)
             tracks[id] = Track(key: k)
             press(k)
+            armAlternates(k, id)
             if k.holdsForCursor {
                 holdTimer?.invalidate()
                 holdTimer = Timer.scheduledTimer(withTimeInterval: Self.cursorHold, repeats: false) { [weak self, weak touch] _ in
@@ -474,6 +497,10 @@ final class KeyPad: UIView {
                 }
                 continue
             }
+            if id == alternatesTouch {
+                onAlternatesMove?(p.x)
+                continue
+            }
             guard var t = tracks[id] else { continue }
             if t.key.slides {
                 guard let next = key(at: p), next.previews else { continue }
@@ -492,11 +519,18 @@ final class KeyPad: UIView {
                 t.inside = next != nil
                 t.key.isPressed = t.inside
                 preview(t.inside ? t.key : nil)
+                let wasInside = tracks[id]?.inside == true
                 if let next, next !== t.key, next.previews {
                     t.key.isPressed = false
                     t.key = next
                     next.isPressed = true
                     preview(next)
+                    armAlternates(next, id)
+                } else if next !== t.key {
+                    // Off the keys, or over one that offers nothing.
+                    if alternatesArmed == id { disarmAlternates() }
+                } else if !wasInside {
+                    armAlternates(t.key, id)
                 }
             } else {
                 t.inside = distance(p, t.key) < Self.slop
@@ -513,6 +547,10 @@ final class KeyPad: UIView {
                 endCursor()
                 continue
             }
+            if id == alternatesTouch {
+                endAlternates(typed: true)
+                continue
+            }
             guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
             if t.inside, t.key.fires == .onRelease { t.key.action?() }
@@ -527,10 +565,46 @@ final class KeyPad: UIView {
                 endCursor()
                 continue
             }
+            if id == alternatesTouch {
+                endAlternates(typed: false)
+                continue
+            }
             guard let t = tracks.removeValue(forKey: id) else { continue }
             release(t.key)
             t.returnTo?.slideReturn?()
         }
+    }
+
+    private func armAlternates(_ k: Key, _ id: ObjectIdentifier) {
+        disarmAlternates()
+        guard !k.alternates.isEmpty else { return }
+        alternatesArmed = id
+        alternatesTimer = Timer.scheduledTimer(withTimeInterval: Self.alternatesHold, repeats: false) { [weak self, weak k] _ in
+            guard let self, let k, !k.alternates.isEmpty, let t = self.tracks[id], t.key === k, t.inside else { return }
+            self.alternatesArmed = nil
+            self.alternatesTouch = id
+            self.preview(nil)
+            // Keys held by other fingers must not change the tray's key under it.
+            for (other, held) in self.tracks where other != id {
+                self.tracks[other] = nil
+                self.release(held.key)
+            }
+            self.onAlternatesShow?(k)
+        }
+    }
+
+    private func disarmAlternates() {
+        alternatesTimer?.invalidate()
+        alternatesArmed = nil
+    }
+
+    private func endAlternates(typed: Bool) {
+        guard let id = alternatesTouch else { return }
+        alternatesTouch = nil
+        let t = tracks.removeValue(forKey: id)
+        if let t { release(t.key) }
+        onAlternatesEnd?(typed)
+        t?.returnTo?.slideReturn?()
     }
 
     /// A new touch while a letter or Space is held: type it now, so two thumbs stay
@@ -570,6 +644,7 @@ final class KeyPad: UIView {
     }
 
     private func beginCursor(_ id: ObjectIdentifier, at p: CGPoint) {
+        endAlternates(typed: false)
         guard let t = tracks.removeValue(forKey: id) else { return }
         t.key.isPressed = false
         // Other keys still down (a thumb on a letter) end with it.
@@ -612,6 +687,8 @@ final class KeyPad: UIView {
         // Another finger may still hold the same key.
         if tracks.values.contains(where: { $0.key === k }) { return }
         k.isPressed = false
+        // Only the finger the timer is for: another's lift must not cancel a tray.
+        if let armed = alternatesArmed, tracks[armed] == nil { disarmAlternates() }
         if k.holdsForCursor || k.onHold != nil {
             holdTimer?.invalidate()
             holdTimer = nil
@@ -705,6 +782,13 @@ final class KeyPopup: UIView {
     }
 
     func hide() {
+        if !cells.isEmpty {
+            hideWork?.cancel()
+            hideWork = nil
+            isHidden = true
+            hideAlternates()
+            return
+        }
         // Each move off the keys asks again; the first request's time stands.
         guard hideWork == nil, !isHidden else { return }
         let work = DispatchWorkItem { [weak self] in
@@ -713,6 +797,108 @@ final class KeyPopup: UIView {
         }
         hideWork = work
         DispatchQueue.main.asyncAfter(deadline: .now() + Self.linger, execute: work)
+    }
+
+    // MARK: Alternates
+
+    private var cells: [UILabel] = []
+    private let selection = CALayer()
+    private var order: [Int] = []
+    private var tray = CGRect.zero
+    private(set) var selectedAlternate = 0
+
+    /// iOS 26's tray floats clear of the key, which stays in view.
+    private static var trayFloats: Bool {
+        if #available(iOS 26, *) { return true }
+        return false
+    }
+    /// A floating tray's measures, from the system's on iOS 26.5: its top and bottom
+    /// over the key, the room around the cells, and the choice's room above and below.
+    private static let trayRise: CGFloat = 73
+    private static let trayDrop: CGFloat = 5
+    private static let trayPad: CGFloat = 8.3
+    private static let choicePad: CGFloat = 10
+
+    /// A tray over the key, with the key itself over its own place and chosen. Keys
+    /// on the right half read towards the middle, as on the system keyboard.
+    func showAlternates(_ key: Key, over rect: CGRect, within outer: CGRect) {
+        hideWork?.cancel()
+        hideWork = nil
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        frame = outer
+        order = Array(key.alternates.indices)
+        var main = key.alternatesMain
+        if key.alternates.count == 2, main == 0, rect.midX > outer.midX {
+            order.reverse()
+            main = 1
+        }
+        let floats = Self.trayFloats
+        let side = floats ? Self.trayPad : 0
+        let cell = min(max(rect.width + (floats ? 4.5 : 4), 34), (outer.width - 2 - 2 * side) / CGFloat(order.count))
+        let width = cell * CGFloat(order.count)
+        let x = min(max(rect.midX - cell * (CGFloat(main) + 0.5) - side, outer.minX + 1), outer.maxX - width - 2 * side - 1) + side
+        let wanted = rect.minY - (floats ? Self.trayRise : 54)
+        let top = max(wanted, outer.minY)
+        let bottom = rect.minY - (floats ? Self.trayDrop : 14)
+        // Under the keyboard's top edge the choice gives up some of its room.
+        let cramped = top > wanted
+        let cellTop = floats ? top + (cramped ? 4 : Self.choicePad) : top
+        let height = bottom - (floats ? (cramped ? 5 : Self.choicePad) : 0) - cellTop
+        tray = CGRect(x: x, y: cellTop, width: width, height: height)
+        let path = floats
+            ? UIBezierPath(roundedRect: CGRect(x: x - side, y: top, width: width + 2 * side, height: bottom - top), cornerRadius: 11).cgPath
+            : Self.path(body: tray, key: rect)
+        shape.path = path
+        shape.shadowPath = path
+        shape.fillColor = KeyMetrics.letterFill.resolvedColor(with: traitCollection).cgColor
+        label.isHidden = true
+        if selection.superlayer == nil {
+            selection.backgroundColor = UIColor.systemBlue.cgColor
+            selection.cornerRadius = floats ? 12 : 6
+            layer.addSublayer(selection)
+        }
+        cells.forEach { $0.removeFromSuperview() }
+        cells = order.enumerated().map { i, index in
+            let l = UILabel(frame: CGRect(x: x + CGFloat(i) * cell, y: cellTop, width: cell, height: height))
+            l.text = key.alternates[index]
+            l.textAlignment = .center
+            l.font = OldHangul.font(ofSize: floats ? 26 : 24)
+            l.adjustsFontSizeToFitWidth = true
+            addSubview(l)
+            return l
+        }
+        selection.isHidden = false
+        isHidden = false
+        CATransaction.commit()
+        choose(main)
+    }
+
+    func moveAlternates(to x: CGFloat) {
+        guard !cells.isEmpty else { return }
+        let i = Int((x - tray.minX) / (tray.width / CGFloat(cells.count)))
+        choose(min(max(i, 0), cells.count - 1))
+    }
+
+    private func choose(_ i: Int) {
+        selectedAlternate = order[i]
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        selection.frame = Self.trayFloats ? cells[i].frame : cells[i].frame.insetBy(dx: 2, dy: 3)
+        CATransaction.commit()
+        for (j, l) in cells.enumerated() {
+            l.textColor = j == i ? .white : .label
+        }
+    }
+
+    private func hideAlternates() {
+        cells.forEach { $0.removeFromSuperview() }
+        cells = []
+        CATransaction.begin()
+        CATransaction.setDisableActions(true)
+        selection.isHidden = true
+        CATransaction.commit()
+        label.isHidden = false
     }
 
     /// From the bottom of the body's straight sides to the top of the key.

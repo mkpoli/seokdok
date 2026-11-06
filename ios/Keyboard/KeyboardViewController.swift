@@ -359,6 +359,14 @@ extension KeyboardViewController: KeyboardViewDelegate {
         apply()
     }
 
+    func letterFlipped(_ key: Character) {
+        let was = shift
+        shift = was == .off ? .once : .off
+        letter(key)
+        if was == .locked { shift = .locked }
+        refresh()
+    }
+
     /// Straight quotes curl in fields of prose, on the field's say-so, as the system's
     /// keyboards do: closing after a letter or digit, or when one of the kind is still
     /// open, and opening elsewhere (Apple's typed `‘` after `.,?!` with none open).

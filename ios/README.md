@@ -111,6 +111,8 @@ after changing `project.yml`.
   the script to the settings. Without a folder to write them to, it moves between
   Korean and Latin.
 - 123 opens digits and punctuation, #+= the second page.
+- Hold a key for a third of a second to see what else it types, its corner letter
+  or a symbol's alternates; slide along the tray and lift.
 
 A hardware keyboard does not reach this keyboard. A custom keyboard is an
 extension, and overriding `pressesBegan` in its `UIInputViewController` has

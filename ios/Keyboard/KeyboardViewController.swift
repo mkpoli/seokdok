@@ -20,7 +20,7 @@ final class KeyboardViewController: UIInputViewController {
     /// Bumped whenever a composition ends or its field changes, so a delayed
     /// check for an earlier text change does nothing.
     private var checkGeneration = 0
-    /// What the focused field asks for; only `.standard` converts.
+    /// What the focused field asks for; only the Hangul layouts convert.
     private var layout = Layout.standard
     /// A long press on the mode key opened the bar's controls for what was
     /// learned. Without Full Access the app cannot reach this keyboard's files.
@@ -199,7 +199,10 @@ final class KeyboardViewController: UIInputViewController {
         case .phonePad: return .phone
         case .emailAddress: return .email
         case .URL: return .url
-        case .asciiCapable, .namePhonePad: return .ascii
+        case .asciiCapable: return .ascii
+        case .numbersAndPunctuation: return .numbers
+        case .twitter: return .twitter
+        case .webSearch: return .web
         default: return .standard
         }
     }
@@ -328,6 +331,11 @@ extension KeyboardViewController: KeyboardViewDelegate {
             insert(String(ch))
         }
         apply()
+    }
+
+    func literal(_ text: String) {
+        dropForeignComposition()
+        insert(text)
     }
 
     func space() {

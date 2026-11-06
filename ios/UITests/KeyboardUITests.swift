@@ -8,7 +8,7 @@ import XCTest
 final class KeyboardUITests: XCTestCase {
     /// Keys from `KeyLayout`, measured from the bottom of an iPhone 16-sized
     /// window: the system's strip under the keyboard is 75 pt high, and its frame
-    /// reaches further up on iOS 26. Pad rows are 52.8 pt apart in three columns
+    /// reaches further up on iOS 26. Pad rows are 53.33 pt apart in three columns
     /// with 6 between.
     private struct Geometry {
         let app: XCUIApplication
@@ -50,8 +50,8 @@ final class KeyboardUITests: XCTestCase {
         /// Hold Space, then drag this far with the finger still down.
         func dragSpace(by dx: CGFloat) {
             let y = (top + row(3)) / height
-            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.55, dy: y))
-            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.55 + dx / width, dy: y))
+            let start = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4, dy: y))
+            let end = app.coordinate(withNormalizedOffset: CGVector(dx: 0.4 + dx / width, dy: y))
             start.press(forDuration: 0.9, thenDragTo: end, withVelocity: 60, thenHoldForDuration: 0.5)
             usleep(400_000)
         }
@@ -79,19 +79,20 @@ final class KeyboardUITests: XCTestCase {
             tap(x: width - l.margin - l.bottomSlotWidth(in: width) / 2, y: row(3))
         }
 
-        /// Of the bottom row, with 123 and no mode key: an email field's @ and .
+        /// Of the bottom row, left of Return: an email field's @ and .
         func emailExtra(_ i: Int) {
-            let first = l.margin + (l.bottomSlotWidth(in: width) - l.gap) / 2 + l.gap
-            tap(x: first + l.keyWidth(in: width) / 2 + CGFloat(i) * l.columnPitch(in: width), y: row(3))
+            let right = width - l.margin - l.bottomSlotWidth(in: width) - l.gap
+            tap(x: right - l.keyWidth(in: width) / 2 - CGFloat(1 - i) * l.columnPitch(in: width), y: row(3))
         }
 
         /// The vertical centre of the candidate bar.
         var barCenter: CGFloat { 22 }
 
-        /// Pad key in column `c` (0-2) of row `r` (0-3 the grid, 4 the bottom row).
+        /// Pad key in column `c` (0-2) of row `r` (0-3): the pad is 216 pt high
+        /// over the same 75 pt strip, 45 pt lower than the letters' top.
         func pad(_ r: Int, _ c: Int) {
-            let w = (width - 6 - 12) / 3
-            tap(x: 3 + CGFloat(c) * (w + 6) + w / 2, y: CGFloat(r) * 52.8 + 23.4)
+            let w = (width - 12 - 12) / 3
+            tap(x: 6 + CGFloat(c) * (w + 6) + w / 2, y: 45 + 6 + CGFloat(r) * 53.33 + 23.5)
         }
     }
 

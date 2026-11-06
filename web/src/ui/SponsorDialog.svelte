@@ -53,7 +53,7 @@
 <dialog class="sponsor-dialog" bind:this={dialog} aria-labelledby="sponsor-title"
   onclose={() => { open = false }}
   onpointerdown={(/** @type {PointerEvent} */ event) => { pressedOutside = outside(event) }}
-  onclick={(/** @type {MouseEvent} */ event) => { if (pressedOutside && outside(event)) open = false }}>
+  onclick={(/** @type {MouseEvent} */ event) => { if (pressedOutside && event.target === dialog && outside(event)) open = false; pressedOutside = false }}>
   {#if open}
     <header>
       <h2 id="sponsor-title">{t().sponsor.label}</h2>

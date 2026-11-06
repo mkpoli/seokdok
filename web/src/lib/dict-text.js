@@ -105,6 +105,10 @@ const ko = {
       name: '{外來語|외래어}',
       about: '유럽 {言語|언어}, 튀르키예語, 아랍語, 힌디語, 페르시아語에서 {借用|차용}해 {韓㐎|한글}로 {置|두}는 {個言|낱말}입니다(페이지, 피자). English Wiktionary에서 {來|와}ㅆ고, {備考|비고}는 {原語|원어}의 Wiktionary {符號|부호}입니다.',
     },
+    people: {
+      name: '{人名|인명}',
+      about: '{有名|유명}한 {人|사람}의 {姓名|이름}과 {漢字|한자}입니다(김정은 金正恩, 이순신 李舜臣). 위키데이터에서 {人物|인물}을 {選|고르}고 {韓國語|한국어} 위키百科 {文書|문서}에서 {漢字|한자}를 {取|가져}왔으며, {字|글자}의 {音|소리}가 {姓名|이름}과 {合|맞}는 {事|거}ㅅ만 {入|넣}었습니다. {備考|비고}는 위키데이터 {項目|항목}과 {文書|문서} {版|판}입니다.',
+    },
     hun: {
       name: '{訓音|훈음} 키',
       about: '{訓音|훈음}으로 {字|글자}를 {探|찾}는 키입니다. 살찔비를 {打|치}면 肥가 {出|나}옵니다. {此|이} 파일의 {讀音|읽기} {欄|칸}에는 키가 {入|들}어 {有|있}습니다. libhangul에서 {來|와}ㅆ습니다.',
@@ -213,6 +217,10 @@ const en = {
     loanwords: {
       name: 'Loanwords',
       about: "Words borrowed from European languages, Turkish, Arabic, Hindi or Persian, which stay in Hangul (페이지, 피자). From English Wiktionary; the note is the source language's Wiktionary code.",
+    },
+    people: {
+      name: "People's names",
+      about: "Well-known people's names and their Hanja (김정은 金正恩, 이순신 李舜臣). People come from Wikidata and Hanja from their Korean Wikipedia articles, kept only when each character's sound matches the name. The note gives the Wikidata item and the article revision.",
     },
     hun: {
       name: '訓音 keys',

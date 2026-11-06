@@ -310,6 +310,8 @@ pub struct Engine {
     sinos: SinoTable,
     hun: HunTable,
     loans: HashSet<String>,
+    /// Sino entries that only `people.tsv` gives, ascending: a name stands at the start of a word.
+    people: Vec<u32>,
     pub options: Options,
     stems: Trie<(u32, u16)>,
     nominals: Trie<u32>,
@@ -577,6 +579,8 @@ pub struct Builder {
     hun: Vec<(String, String)>,
     /// Loanwords (loanwords.tsv), which stay in Hangul.
     loans: HashSet<String>,
+    /// Sino entries that only `people.tsv` gives, ascending: a name stands at the start of a word.
+    people: Vec<u32>,
     /// Finds a (reading, Hanja) pair's entry; the Sino files overlap
     /// (fusion.tsv and sino.tsv share most words).
     pairs: PairIndex,
@@ -585,7 +589,7 @@ pub struct Builder {
 
 impl Builder {
     pub fn new() -> Builder {
-        let mut b = Builder { natives: Vec::new(), labels: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), loans: HashSet::new(), pairs: PairIndex::default(), errors: Vec::new() };
+        let mut b = Builder { natives: Vec::new(), labels: Vec::new(), sinos: SinoTable::default(), hun: Vec::new(), loans: HashSet::new(), people: Vec::new(), pairs: PairIndex::default(), errors: Vec::new() };
         b.native("builtin", BUILTIN);
         b
     }
@@ -643,7 +647,12 @@ impl Builder {
                     kept.cost = kept.cost.min(e.cost);
                     kept.count = kept.count.saturating_add(e.count);
                 }
-                None => self.sinos.push(&e.reading, &e.hanja, e.cost, e.count),
+                None => {
+                    if e.source == Source::PersonName {
+                        self.people.push(self.sinos.len() as u32);
+                    }
+                    self.sinos.push(&e.reading, &e.hanja, e.cost, e.count)
+                }
             },
             Err(m) => self.errors.push(format!("{label}:{line}: {m}")),
         }
@@ -651,7 +660,7 @@ impl Builder {
 
     /// The engine and the parse errors (file label, line, message).
     pub fn build(self, options: Options) -> (Engine, Vec<String>) {
-        let Builder { mut natives, labels, mut sinos, hun, loans, pairs, errors } = self;
+        let Builder { mut natives, labels, mut sinos, hun, loans, people, pairs, errors } = self;
         drop(pairs);
         natives.shrink_to_fit();
         sinos.text.shrink_to_fit();
@@ -662,6 +671,7 @@ impl Builder {
             sinos,
             hun: HunTable::new(hun),
             loans,
+            people,
             options,
             stems: Trie::new(),
             nominals: Trie::new(),
@@ -700,7 +710,7 @@ impl Engine {
 
     /// Native dictionaries loaded by [`Engine::from_dir`], in order.
     pub const NATIVE_FILES: &'static [&'static str] = &["user.tsv", "corpus.tsv", "editorial.tsv", "community.tsv", "eonhae.tsv", "kun-attested.tsv", "suggested.tsv", "place-names.tsv", "wikt-native.tsv", "gloss.tsv", "kun-ja.tsv", "kun-ja-weak.tsv"];
-    pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "editorial-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv", "loanwords.tsv", "hun.tsv"];
+    pub const SINO_FILES: &'static [&'static str] = &["user-sino.tsv", "editorial-sino.tsv", "fusion.tsv", "sino.tsv", "etym.tsv", "loanwords.tsv", "people.tsv", "hun.tsv"];
 
     /// Load every known dictionary file present in `dir`.
     /// Files are read a line at a time, which keeps the peak low (the iOS
@@ -879,6 +889,9 @@ impl Engine {
                     continue;
                 }
                 for &i in items {
+                    if self.people.binary_search(&i).is_ok() && !self.name_fits(comps, s, q) {
+                        continue;
+                    }
                     let one = crate::jamo::syllable_count(&comps[s..q]) == 1;
                     let suffix = one
                         && after_word[s]
@@ -1259,6 +1272,16 @@ impl Engine {
         if alone && !HOMOGRAPH_PARTICLES.contains(&compose(comps).as_str()) {
             edges.push(Edge { start: 0, end: n, cost: ALONE_COST, kind: Kind::Raw });
         }
+    }
+
+    /// A name opens its word (아이소라 holds no 李素羅), and a two-syllable one
+    /// fills it, with a particle at most (마주앉다 holds no 馬周).
+    fn name_fits(&self, comps: &[char], s: usize, q: usize) -> bool {
+        let n = comps.len();
+        s == 0
+            && (crate::jamo::syllable_count(&comps[..q]) > 2
+                || q == n
+                || self.particle_trie.prefixes(comps, q).iter().any(|(r, _)| *r == n))
     }
 
     /// A loanword (페이지, 파일, 피자), alone or with a particle or the light
@@ -2289,7 +2312,7 @@ impl Engine {
             Source::KunAttested => 1.6,
             Source::Suggested => 2.0,
             // Listed Hanja are read by sound first: 高亭 is 고정 in running text, whatever a village called it.
-            Source::PlaceName => 8.0,
+            Source::PlaceName | Source::PersonName => 8.0,
             Source::Gloss | Source::Japanese | Source::Lexicon => 3.0,
             Source::JapaneseWeak => 3.5,
         };

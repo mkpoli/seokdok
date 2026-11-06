@@ -21,6 +21,7 @@ comments; the header line names the columns.
 | `fusion.tsv` | 音讀 words with usage frequencies | FusionIME (十八字) | GPL-3.0 |
 | `sino.tsv` | 音讀 words and characters, plus words attested in the chat | libhangul, 釋讀會 chat | BSD-3-Clause |
 | `etym.tsv` | Hanja spellings the files above lack, including words Sino-Korean only by origin (대충 大總, 재미 滋味, 김치 沉菜) | English Wiktionary (kaikki.org) | CC BY-SA 4.0 |
+| `people.tsv` | Well-known people's names and their Hanja | Wikidata, Korean Wikipedia | CC0 1.0, CC BY-SA 4.0 |
 | `loanwords.tsv` | Korean words borrowed from European languages, which stay in Hangul (페이지, 파일, 피자) | English Wiktionary (kaikki.org) | CC BY-SA 4.0 |
 | `hun.tsv` | Keys for finding a character by its 訓音 gloss (살찔비 肥) | libhangul | BSD-3-Clause |
 
@@ -45,7 +46,7 @@ lemma	written	pos	class	source	count	note
   (명사, 동사 …).
 - `class`: inflection class, guessed when blank: `reg`, `b` (ㅂ), `d` (ㄷ),
   `s` (ㅅ), `h` (ㅎ), `reu` (르), `reo` (러), `ani` (아니다).
-- `source`: `user`, `corpus`, `editorial`, `community`, `eonhae`, `kun-attested`, `suggested`, `place-name`, `gloss`.
+- `source`: `user`, `corpus`, `editorial`, `community`, `eonhae`, `kun-attested`, `suggested`, `place-name`, `person-name`, `gloss`.
 - `count`: corpus attestations, refreshed by `tools/attest.py`. Attested
   entries rank by count.
 
@@ -156,6 +157,12 @@ with `source` set to `user`. Check a file with
   (https://en.wiktionary.org/wiki/Wiktionary:Copyrights). Wiktionary's
   etymologies are crowd-edited and some are disputed (사랑 思量); the file
   records them as Wiktionary has them.
+
+- **People** (`people.tsv`, `tools/people_names.py`): Wikidata (CC0) lists humans of a Korean or Chinese
+  state with at least 6 sitelinks and a Korean Wikipedia article; the Hanja come from the opening section of
+  that article (CC BY-SA 4.0), and a form is kept only when each character's sound matches the Hangul name.
+  Each note gives the Wikidata item and article revision. A wiki is a secondary source. Sound checks use `sino.tsv`
+  and Unihan's kHangul. Rows rank below every common word sharing their reading.
 
 - **Loanwords** (`loanwords.tsv`, `tools/loanwords.py`): headwords of the same
   English Wiktionary extract (kaikki.org, enwiktionary dump of 2026-10-01,

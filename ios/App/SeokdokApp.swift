@@ -263,7 +263,7 @@ private struct ConversionPage: View {
                 about: L("먼저 나오는 表記입니다. 다른 表記도 候補에 남습니다.", "Listed first. The others stay among the candidates."),
                 example: Product.hasKun ? "하고 → 하고 · 爲고 · \u{1112}\u{119E}고" : "하고 → 하고 · \u{1112}\u{119E}고"
             ) {
-                Choices(name: haName, selection: ha, options: [(0, L("그대로 하고", "As it is: 하고"))] + (Product.hasKun ? [(1, L("漢字로 爲고", "In Hanja: 爲고"))] : []) + [
+                Choices(name: haName, selection: ha, options: [(0, L("그대로 하고", "As it is: 하고"))] + (Product.hasKun ? [(1, L("漢字로 爲고, 成는", "In Hanja: 爲고, 成는"))] : []) + [
                     (2, L("옛 表記로 \u{1112}\u{119E}고", "Old spelling: \u{1112}\u{119E}고")),
                 ] + (Product.hasKun ? [(3, L("옛 表記로, 했다만 爲ㅆ다", "Old spelling, and 爲ㅆ다 for 했다"))] : []))
             }

@@ -222,6 +222,10 @@ kbd {
   vertical-align: 0.05em;
 }
 
+/* With readings inline, a line must not break between a word and its particle. */
+[data-ruby='right'] body {
+  word-break: keep-all;
+}
 /* Readings to the right at half size, as 文書문서. The top bar, the tiles and the
    on-screen keys have no room for them and keep theirs above. */
 [data-ruby='right'] ruby:not(.bar ruby, .tile ruby, .key ruby) {

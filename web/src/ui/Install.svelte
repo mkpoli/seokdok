@@ -20,7 +20,7 @@
       name: 'Linux',
       req: 'fcitx5 5.1+',
       builds: builds(downloads.linux, downloads.linuxArm64),
-      run: `tar xzf seokdok-*-linux-fcitx5.tar.gz\ncd seokdok-*-linux-fcitx5 && ./install.sh\nfcitx5 -rd`,
+      run: `tar xzf seokdok-${downloads.version}-$(uname -m)-linux-fcitx5.tar.gz\ncd seokdok-${downloads.version}-$(uname -m)-linux-fcitx5 && ./install.sh\nfcitx5 -rd`,
       system: 'sudo ./install.sh --system',
       remove: './install.sh --uninstall',
       where: '~/.config/seokdok/custom.json',

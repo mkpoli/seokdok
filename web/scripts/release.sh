@@ -70,10 +70,13 @@ fi
 [ -f "$ipa" ] || { echo "no iOS IPA at $ipa" >&2; exit 1; }
 
 # Artifact $2 of the latest successful push run of workflow $1 on main, into directory $3.
+# Refuses a run older than the last change to what it builds.
 fetch_arm() {
-  local run
-  run=$(gh run list --workflow "$1" --branch main --status success --json databaseId,event -q '[.[] | select(.event == "push")][0].databaseId')
+  local run sha
+  read -r run sha < <(gh run list --workflow "$1" --branch main --status success --json databaseId,event,headSha -q '[.[] | select(.event == "push")][0] | "\(.databaseId) \(.headSha)"')
   [ -n "$run" ] || { echo "no successful run of $1 on main" >&2; exit 1; }
+  git -C "$root" diff --quiet "$sha" HEAD -- crates dict products windows Cargo.toml Cargo.lock \
+    || { echo "$1 run $run built $sha, and its sources have changed since" >&2; exit 1; }
   gh run download "$run" --name "$2" --dir "$3"
 }
 arm="$(mktemp -d)"

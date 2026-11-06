@@ -55,6 +55,21 @@ fn module_path_utf16() -> windows::core::Result<Vec<u16>> {
     Ok(v)
 }
 
+/// The path registered as the COM server. On Arm64 Windows the installer ships
+/// `<id>-arm64.dll` and `<id>-x64.dll` behind an Arm64X forwarder `<id>.dll`; the
+/// forwarder is what both kinds of process must load, so the architecture
+/// suffix of the DLL that is running is dropped. A DLL without a suffix is its own server.
+fn server_path_utf16() -> windows::core::Result<Vec<u16>> {
+    let path = module_path_utf16()?;
+    let text = String::from_utf16_lossy(&path[..path.len() - 1]);
+    for suffix in ["-arm64.dll", "-x64.dll"] {
+        if text.len() > suffix.len() && text.to_ascii_lowercase().ends_with(suffix) {
+            return Ok(wide(&format!("{}.dll", &text[..text.len() - suffix.len()])));
+        }
+    }
+    Ok(path)
+}
+
 /// Format a GUID as the canonical brace-wrapped string, e.g.
 /// `{AAF18869-67ED-48A1-A3F6-42E961E994A1}`.
 fn guid_braced(guid: &GUID) -> String {
@@ -135,7 +150,7 @@ fn register_server() -> windows::core::Result<()> {
     let clsid_str = guid_braced(&GUID_TEXT_SERVICE);
     let clsid_key = wide(&format!("CLSID\\{}", clsid_str));
     let inproc_key = wide(&format!("CLSID\\{}\\InProcServer32", clsid_str));
-    let dll_path = module_path_utf16()?;
+    let dll_path = server_path_utf16()?;
 
     // HKCR\CLSID\{..} (default) = service name
     {

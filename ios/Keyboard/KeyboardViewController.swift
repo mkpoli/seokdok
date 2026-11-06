@@ -156,7 +156,11 @@ final class KeyboardViewController: UIInputViewController {
     override func textDidChange(_ textInput: UITextInput?) {
         super.textDidChange(textInput)
         if updateLayout() || dropForeignComposition() { return }
-        guard marked != nil else { return }
+        guard marked != nil else {
+            // A field's traits and whether it has text decide the Return key.
+            refresh()
+            return
+        }
         checkGeneration += 1
         checkComposition(generation: checkGeneration, looksLeft: 4)
     }
@@ -318,15 +322,16 @@ final class KeyboardViewController: UIInputViewController {
         s.runs = runs
         s.candidates = session.candidates()
         s.loading = !Session.ready
-        switch textDocumentProxy.returnKeyType ?? .default {
-        case .go, .google, .join, .route, .search, .send, .yahoo, .done, .emergencyCall, .continue:
-            s.returnIsAction = true
-        default:
-            s.returnIsAction = false
-        }
+        s.returnKey = ReturnKey(textDocumentProxy.returnKeyType ?? .default)
+        s.returnDisabled = returnDisabled && runs.isEmpty
         s.learnMenu = learnMenu
         s.learnOn = hasFullAccess && AppGroup.containerURL != nil ? nil : Session.learn
         keys.render(s)
+    }
+
+    /// The field wants text before its Return does anything, and has none.
+    private var returnDisabled: Bool {
+        (textDocumentProxy.enablesReturnKeyAutomatically ?? false) && !textDocumentProxy.hasText
     }
 
     /// Insert text the session did not take.
@@ -452,14 +457,18 @@ extension KeyboardViewController: KeyboardViewDelegate {
     func enter() {
         lastKeyWasSpace = false
         dropForeignComposition()
+        guard layout.isPad || !returnDisabled || !session.preedit().isEmpty else { return }
         guard layout.converts else {
             insert("\n")
             return
         }
-        if !session.key(Session.Key.enter) {
+        // Only 釋 and 混 stop at confirming; see `KeyboardView.render`.
+        let confirmsOnly = session.mode == .seokdok
+        let used = session.key(Session.Key.enter)
+        apply()
+        if !used || !confirmsOnly {
             insert("\n")
         }
-        apply()
     }
 
     func backspace() {

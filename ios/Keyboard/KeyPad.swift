@@ -69,6 +69,15 @@ final class Key: UIView {
         didSet { refill() }
     }
 
+    /// A Return the field does not accept yet.
+    var isDisabledLook = false {
+        didSet {
+            guard isDisabledLook != oldValue else { return }
+            accessibilityTraits = isDisabledLook ? [.keyboardKey, .notEnabled] : .keyboardKey
+            refill()
+        }
+    }
+
     /// While the keyboard is a trackpad the labels and shadows go and the caps
     /// fade towards the background, by the amounts measured from a recording
     /// of the system keyboard (iOS 18.5 simulator).
@@ -236,6 +245,16 @@ final class Key: UIView {
             label.textColor = .label
         }
         icon.tintColor = look == .accent ? .white : .label
+        if isDisabledLook {
+            // iOS 26's keys share one fill, so the system greys a disabled Return.
+            if #available(iOS 26, *) {
+                backgroundColor = UIColor { $0.userInterfaceStyle == .dark ? UIColor(white: 46.0 / 255, alpha: 1) : UIColor(white: 196.0 / 255, alpha: 1) }
+            } else {
+                backgroundColor = KeyMetrics.functionFill
+            }
+            label.textColor = .tertiaryLabel
+            icon.tintColor = .tertiaryLabel
+        }
         if look == .plain { layer.shadowOpacity = 0 }
         if isDimmed {
             backgroundColor = backgroundColor?.withAlphaComponent(look == .letter ? 0.45 : 0.6)
@@ -243,6 +262,7 @@ final class Key: UIView {
     }
 
     override func accessibilityActivate() -> Bool {
+        guard !isDisabledLook else { return false }
         Self.onActivate?()
         action?()
         return true

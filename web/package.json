@@ -13,7 +13,7 @@
     "build": "bun run wasm && bun run dict && vite build",
     "preview": "vite preview",
     "test": "bun test src",
-    "deploy": "bun run build && bunx wrangler deploy",
+    "deploy": "bun run build && bunx wrangler deploy && sh scripts/eumdok-site.sh && bunx wrangler deploy --config wrangler.eumdok.jsonc",
     "release": "bash scripts/release.sh"
   },
   "devDependencies": {

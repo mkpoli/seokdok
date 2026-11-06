@@ -1,0 +1,12 @@
+{
+  "name": "eumdok",
+  "compatibility_date": "2026-11-01",
+  // The 音讀 site: what scripts/eumdok-site.sh leaves of the build.
+  "assets": {
+    "directory": "./dist-eumdok",
+    "not_found_handling": "single-page-application"
+  },
+  "routes": [{ "pattern": "eumdok.mkpo.li", "custom_domain": true }],
+  "workers_dev": false,
+  "preview_urls": false
+}

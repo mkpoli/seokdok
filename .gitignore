@@ -9,3 +9,4 @@ __pycache__/
 /web/public/downloads/
 /ios/SeokdokCore.xcframework/
 /ios/Seokdok.xcodeproj/
+web/dist-eumdok

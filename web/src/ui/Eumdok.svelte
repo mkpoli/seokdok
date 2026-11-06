@@ -19,7 +19,7 @@
     {@html r(t().eumdok.title)}
   </h2>
   <p class="lede" use:reveal={2}>{@html r(t().eumdok.lede)}</p>
-  <p use:reveal={2}><a class="btn" href="/eumdok">{@html r(t().eumdok.page)}</a></p>
+  <p use:reveal={2}><a class="btn" href="https://eumdok.mkpo.li/">{@html r(t().eumdok.page)}</a></p>
 
   <div class="compare" use:reveal={3}>
     <figure>

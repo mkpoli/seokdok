@@ -21,6 +21,9 @@ final class KeyboardViewController: UIInputViewController {
     /// The document the marked text was written into
     /// (`textDocumentProxy.documentIdentifier`).
     private var composingDocument: UUID?
+    /// The text last confirmed here and when, while a word break may be owed
+    /// after it.
+    private var lastCommit: (text: String, at: Date)?
     private var loadTimer: Timer?
     /// Bumped whenever a composition ends or its field changes, so a delayed
     /// check for an earlier text change does nothing.
@@ -190,6 +193,28 @@ final class KeyboardViewController: UIInputViewController {
         return true
     }
 
+    /// A word break is owed after what was confirmed, and only there: if the
+    /// app has since sent or cleared the text, or the caret was tapped elsewhere,
+    /// the next word starts where it stands. The proxy's context can lag behind
+    /// the keyboard's own insert, so a commit is taken on trust for as long as
+    /// `checkComposition` allows that lag, and a field with text but no context to
+    /// show keeps the break. Text just like the commit before a tapped caret looks
+    /// the same from here, and keeps it too.
+    private func forgetStaleBreak() {
+        guard let last = lastCommit, session.preedit().isEmpty else { return }
+        lastCommit = nil
+        guard Date().timeIntervalSince(last.at) > 0.8 else { return }
+        let proxy = textDocumentProxy
+        let moved: Bool
+        if let before = proxy.documentContextBeforeInput, !before.isEmpty {
+            // Either may be the shorter: the proxy can offer only part of a sentence.
+            moved = !before.hasSuffix(last.text.suffix(8)) && !last.text.hasSuffix(before)
+        } else {
+            moved = !proxy.hasText || !(proxy.documentContextAfterInput ?? "").isEmpty
+        }
+        if moved { session.reset() }
+    }
+
     /// Forget the composition without writing it: the document it was typed
     /// into already holds it as plain text, and the document now in focus
     /// does not own it.
@@ -266,6 +291,7 @@ final class KeyboardViewController: UIInputViewController {
             // Replaces the marked text, if any.
             proxy.insertText(commit)
             marked = nil
+            lastCommit = (commit, Date())
         }
         let text = session.preedit().map(\.text).joined()
         if !text.isEmpty {
@@ -320,6 +346,7 @@ extension KeyboardViewController: KeyboardViewDelegate {
             refresh()
             return
         }
+        forgetStaleBreak()
         if session.preedit().isEmpty {
             session.setPrivateField(fieldIsPrivate())
         }

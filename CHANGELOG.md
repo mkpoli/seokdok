@@ -25,6 +25,7 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 - Numerals typed as their own word rank high: 삼 and 세 give 三, 이 and 사 offer 二 and 四 second, and 세 사람 gives 三 人, 오 분 gives 五 分.
 
 ### Site
+- seokdok.mkpo.li/dict lists every dictionary row: search by Hangul reading or Hanja, filter by source file, and read what each source is and its licence.
 - The site honours the hand-set homophone choices it had been dropping: 구사 驅使, 의자 椅子, 지도 地圖.
 
 ### Windows

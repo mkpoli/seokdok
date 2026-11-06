@@ -5,7 +5,7 @@ import SINO from './sino-chars.json'
 import pages from './pages.js'
 
 const ko = {
-  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '{個言|낱말}', convert: '{變換|변환}', old: '{古|예}ㅅ{韓㐎|한글}', install: '{設置|설치}', eumdok: '{音讀|음독}', join: '{會|모임}' },
+  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '{個言|낱말}', dict: '{辭典|사전}', convert: '{變換|변환}', old: '{古|예}ㅅ{韓㐎|한글}', install: '{設置|설치}', eumdok: '{音讀|음독}', join: '{會|모임}' },
   theme: { light: '{明|밝}게', dark: '{暗|어둡}게', auto: '{自動|자동}' },
   hero: {
     kicker: '{釋讀會|풀어읽기모임} {御製|어제}',
@@ -333,7 +333,7 @@ const ko = {
 }
 
 const en = {
-  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', convert: 'Convert', old: 'Old Hangul', install: 'Install', eumdok: '音讀', join: 'Group' },
+  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', dict: 'Dictionary', convert: 'Convert', old: 'Old Hangul', install: 'Install', eumdok: '音讀', join: 'Group' },
   theme: { light: 'Light', dark: 'Dark', auto: 'Auto' },
   hero: {
     kicker: '釋讀會 御製',

@@ -1,0 +1,22 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>사전 · Dictionary | 釋讀 seokdok</title>
+    <meta name="description" content="釋讀(석독) 입력기의 사전을 읽기나 한자로 찾고 출처별로 봅니다. Search the dictionaries of the 釋讀 seokdok input method by Hangul reading or Hanja, and filter by source." />
+    <link rel="canonical" href="https://seokdok.mkpo.li/dict" />
+    <meta name="theme-color" content="#24348c" />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <script>
+      try {
+        const t = localStorage.getItem('seokdok:theme')
+        if (t === 'light' || t === 'dark') document.documentElement.dataset.theme = t
+      } catch {}
+    </script>
+  </head>
+  <body>
+    <div id="app"></div>
+    <script type="module" src="/src/dict.js"></script>
+  </body>
+</html>

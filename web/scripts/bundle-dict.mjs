@@ -1,12 +1,15 @@
-// Pack dict/*.tsv into two gzipped files for the browser:
+// Pack dict/*.tsv into gzipped files for the browser:
 //   public/dict/native.bin  訓讀 entries, in the engine's priority order
 //   public/dict/sino.bin    音讀 entries (fusion.tsv + sino.tsv), one line per
 //                              reading/Hanja pair with its largest count, then
 //                              one with the rest of its counts if there are any
+//   public/dict/browse.bin  every row with its file and note, for the /dict page
+//                              only (see src/lib/dict-browse.js)
 // Comments are dropped; licence notices travel in public/dict/NOTICE.txt.
 import { readFileSync, writeFileSync, mkdirSync } from 'node:fs'
 import { gzipSync } from 'node:zlib'
 import { join } from 'node:path'
+import { packRows } from '../src/lib/dict-browse.js'
 
 const root = join(import.meta.dirname, '..', '..')
 const dict = join(root, 'dict')
@@ -53,6 +56,7 @@ const write = (name, text) => {
 }
 write('native.bin', native.join('\n'))
 write('sino.bin', sinoText)
+write('browse.bin', packRows((stem) => readFileSync(join(dict, `${stem}.tsv`), 'utf8')))
 writeFileSync(
   join(out, 'NOTICE.txt'),
   readFileSync(join(dict, 'README.md'), 'utf8') + '\n\n' + readFileSync(join(dict, 'LICENSE-fusion.txt'), 'utf8'),

@@ -52,6 +52,7 @@
     <a href="{home}#custom">{@html r(t().nav.custom)}</a>
     <a href="{home}#rules">{@html r(t().nav.rules)}</a>
     <a href="{home}#words">{@html r(t().nav.words)}</a>
+    <a href="/dict">{@html r(t().nav.dict)}</a>
     <a href="{home}#convert">{@html r(t().nav.convert)}</a>
     <a href="{home}#old">{@html r(t().nav.old)}</a>
     <a href="{home}#install">{@html r(t().nav.install)}</a>

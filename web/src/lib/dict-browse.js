@@ -246,4 +246,18 @@ const POS = { 명사: 'noun', 대명사: 'pron', 수사: 'num', 의존명사: 'b
 const POS_KEYS = new Set(Object.values(POS))
 
 /** The label key of a row's part of speech, or null to show it as written. */
-export const posKey = (pos) => POS[pos] ?? (POS_KEYS.has(pos) ? pos : null)
+export const posKey = (pos) => (Object.hasOwn(POS, pos) ? POS[pos] : POS_KEYS.has(pos) ? pos : null)
+
+const NOTE_PREVIEW = 160
+// Vowels and finals of a conjoining syllable (old Hangul: ᄀᆞᆺ).
+const JOINS = /^[\u1160-\u11ff\ud7b0-\ud7ff]/
+
+/** The start of a long note, whole syllables only; null when the note is short enough to show. */
+export function notePreview(note) {
+  if (note.length <= NOTE_PREVIEW) return null
+  const chars = [...note]
+  if (chars.length <= NOTE_PREVIEW) return null
+  let end = NOTE_PREVIEW
+  while (end < chars.length && JOINS.test(chars[end])) end++
+  return end < chars.length ? chars.slice(0, end).join('') : null
+}

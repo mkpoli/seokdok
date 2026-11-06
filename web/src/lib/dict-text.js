@@ -1,6 +1,7 @@
 // The /dict page's text, in Korean (with {漢字|한자} marks) and English. Kept out of
 // i18n.svelte.js so the other pages do not download it. %n is a number. `files`
-// says in plain words what each dict/*.tsv is; dict/README.md has the full account.
+// says in plain words what each dict/*.tsv is; dict/README.md and each file's header
+// have the full account.
 
 const ko = {
   title: '{辭典|사전} {探|찾}기',
@@ -9,6 +10,7 @@ const ko = {
   placeholder: '{例|예}: 하늘, 天, 讀다',
   filter: '{出處|출처}',
   all: '{全體|전체}',
+  row: '%n{行|행}',
   rows: '%n{行|행}',
   empty: '{此|이} {條件|조건}에 {合|맞}는 {行|행}이 {無|없}습니다.',
   loading: '{辭典|사전}을 {讀|읽}는 {中|중}',
@@ -53,7 +55,7 @@ const ko = {
     },
     eonhae: {
       name: '{古|예}ㅅ {冊|책}',
-      about: '訓蒙字會(1527) {等|등} {字|글자} {敎本|교본}과 {諺解|언해}에 {記|적}힌 {訓讀|훈독}입니다. {備考|비고}에 {確認|확인}할 {處|곳}을 {記|적}었습니다. {本文|본문}은 위키文獻과 나무위키의 {轉寫|전사}이며 {大部分|대부분} {校正|교정}되지 {不|안}ㅎ았습니다. 위키文獻 {行|행} 150{個|개}를 {手|손}으로 {確認|확인}하니 3{個|개}가 {錯|틀}렸습니다.',
+      about: '訓蒙字會(1527) {等|등} {字|글자} {敎本|교본}과 {諺解|언해}에 {記|적}힌 {訓讀|훈독}입니다. {備考|비고}에 {確認|확인}할 {處|곳}을 {記|적}었습니다. {本文|본문}은 {大部分|대부분} {校正|교정}되지 {不|안}ㅎ은 위키文獻의 {轉寫|전사}와, {誰|누구}나 {編輯|편집}할 {手|수} {有|있}는 나무위키입니다. {標本|표본}을 {手|손}으로 {確認|확인}하니 2~10%가 {錯|틀}렸습니다. {其|그} {行|행}은 {除去|제거}했으나 {他|다른} {行|행}에도 {誤謬|오류}가 {有|있}을 {手|수} {有|있}습니다.',
     },
     'kun-attested': {
       name: '{印刷|인쇄}된 {訓讀|훈독}',
@@ -69,7 +71,7 @@ const ko = {
     },
     'wikt-native': {
       name: '{常用|상용} {固有語|고유어}',
-      about: '{漢字|한자} {候補|후보}가 {無|없}던 {常用|상용} {固有語|고유어}입니다. {部分|부분}의 {漢字|한자}를 {連|이}어 {作|만드}ㄴ {事|거}ㅅ(눈앞 目前)이거나 {訓音|훈음}・JMdict {連結|연결}을 {從|따르}ㄴ {事|거}ㅅ이며, {合成語|합성어} {全體|전체}의 {表記|표기}를 {記|적}은 {出處|출처}는 {無|없}습니다. {部分|부분}과 {意味|의미}는 English Wiktionary에서 {來|와}ㅆ습니다.',
+      about: '{第一|첫} {候補|후보}가 {韓㐎|한글} {其|그}대로이던 {常用|상용} {固有語|고유어}입니다. {部分|부분}의 {漢字|한자}를 {連|이}어 {作|만드}ㄴ {事|거}ㅅ(눈앞 目前)이거나 {訓音|훈음}・JMdict {連結|연결}을 {從|따르}ㄴ {事|거}ㅅ이며, {合成語|합성어} {全體|전체}의 {表記|표기}를 {記|적}은 {出處|출처}는 {無|없}습니다. {部分|부분}과 {意味|의미}는 English Wiktionary에서 {來|와}ㅆ고, {候補|후보}는 {皆|모두} {手|손}으로 {讀|읽}어 {確認|확인}했습니다.',
     },
     gloss: {
       name: '{訓音|훈음} {推定|추정}',
@@ -93,7 +95,7 @@ const ko = {
     },
     sino: {
       name: 'libhangul',
-      about: 'libhangul {漢字|한자} {目錄|목록}의 {音讀|음독} {個言|낱말}과 {字|글자}에 {對話|대화}에 {出|나}온 {個言|낱말}을 {加|더}한 {事|거}ㅅ입니다. {回數|횟수}는 텔레그램 {對話房|대화방} {二|두} {處|곳}(釋讀會, 漢字混用)에 {出|나}온 {番|번} {數|수}입니다.',
+      about: 'libhangul {漢字|한자} {目錄|목록}의 {音讀|음독} {個言|낱말}과 {字|글자}에 {對話|대화}에 {出|나}온 {個言|낱말}을 {加|더}한 {事|거}ㅅ입니다. {回數|횟수}는 텔레그램 {對話房|대화방} {二|두} {處|곳}({釋讀會|풀어읽기모임}, 漢字混用)에 {出|나}온 {番|번} {數|수}입니다.',
     },
     etym: {
       name: 'Wiktionary {漢字|한자}',
@@ -117,6 +119,7 @@ const en = {
   placeholder: 'e.g. 하늘, 天, 讀다',
   filter: 'Source',
   all: 'All',
+  row: '%n row',
   rows: '%n rows',
   empty: 'No rows match.',
   loading: 'Loading the dictionary',
@@ -161,7 +164,7 @@ const en = {
     },
     eonhae: {
       name: 'Old books',
-      about: "Readings from character primers such as 訓蒙字會 (1527) and from 諺解, which print the Chinese next to its Korean. The note says where to check each row. The text is transcribed by Korean Wikisource and 나무위키, mostly unproofread; a hand check of 150 Wikisource rows found 3 wrong.",
+      about: "Readings from character primers such as 訓蒙字會 (1527) and from 諺解, which print the Chinese next to its Korean. The note says where to check each row. The text comes from Korean Wikisource's transcription, mostly unproofread, and 나무위키, which anyone can edit. Hand checks of samples found 2–10% of rows wrong; those are gone, and the rest may still hold errors.",
     },
     'kun-attested': {
       name: 'Printed readings',
@@ -177,7 +180,7 @@ const en = {
     },
     'wikt-native': {
       name: 'Common native words',
-      about: "Common native words that had no Hanja candidate. A row joins the Hanja of the word's parts (눈앞 目前) or follows a 訓音 or JMdict link; no source states a compound's whole spelling. Parts and senses come from English Wiktionary.",
+      about: "Common native words whose first candidate stayed in Hangul. A row joins the Hanja of the word's parts (눈앞 目前) or follows a 訓音 or JMdict link; no source states a compound's whole spelling. Parts and senses come from English Wiktionary, and every candidate was read by hand.",
     },
     gloss: {
       name: '訓音 guesses',

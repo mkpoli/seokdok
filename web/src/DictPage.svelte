@@ -3,13 +3,11 @@
   // The rows live in a worker (lib/dict.worker.js); the page holds one page of them.
   import { i18n, r, plain } from './lib/i18n.svelte.js'
   import text from './lib/dict-text.js'
-  import { FILES, LICENCE_URLS, README_URL, fileUrl, posKey } from './lib/dict-browse.js'
+  import { FILES, LICENCE_URLS, README_URL, fileUrl, notePreview, posKey } from './lib/dict-browse.js'
   import TopBar from './ui/TopBar.svelte'
   import Footer from './ui/Footer.svelte'
 
   const SIZE = 50
-  // Longer notes open on demand, so one long citation does not push the page down.
-  const NOTE_PREVIEW = 160
   const fmt = (n) => n.toLocaleString('en-US')
   const stems = FILES.map((f) => f.stem)
 
@@ -33,6 +31,10 @@
   const worker = new Worker(new URL('./lib/dict.worker.js', import.meta.url), { type: 'module' })
   let lastId = 0
 
+  // The script itself failed to load, as when this page outlives a deploy.
+  worker.onerror = (e) => {
+    failed = e.message || 'worker'
+  }
   worker.onmessage = ({ data }) => {
     if (data.progress) {
       const { loaded, total } = data.progress
@@ -45,9 +47,12 @@
     } else if (data.failed) {
       failed = data.failed
     } else if (data.id === lastId) {
+      const first = !result
       result = data
       page = data.page
       syncUrl()
+      // The section's height depends on rows that were not there on load.
+      if (first && location.hash) requestAnimationFrame(() => document.querySelector(location.hash)?.scrollIntoView())
     }
   }
 
@@ -61,7 +66,7 @@
     if (file) p.set('src', file)
     if (page > 1) p.set('p', page)
     const s = p.toString()
-    history.replaceState(null, '', s ? `/dict?${s}` : '/dict')
+    history.replaceState(null, '', (s ? `/dict?${s}` : '/dict') + location.hash)
   }
 
   let timer
@@ -81,21 +86,24 @@
 
   // A filter picked lower down the page shows its rows from the top of the results.
   let top
+  let status = $state()
+  // Keyboard focus follows: the control pressed may be off screen or now disabled.
+  function showResults() {
+    top?.scrollIntoView()
+    status?.focus({ preventScroll: true })
+  }
   function chooseAndShow(stem) {
     choose(stem)
-    top?.scrollIntoView()
+    showResults()
   }
 
   function go(p) {
     page = p
     run()
-    top?.scrollIntoView()
+    showResults()
   }
 
-  const posLabel = (pos) => {
-    const key = posKey(pos)
-    return key ? r(d.pos[key]) : pos
-  }
+  const countLabel = (n) => r((n === 1 ? d.row : d.rows).replace('%n', fmt(n)))
   const name = (stem) => d.files[stem].name
   const licenceLabel = (l) => l.split(':')
 </script>
@@ -169,7 +177,7 @@
       <div class="bar"><span style:width="{progress * 100}%"></span></div>
     </div>
   {:else}
-    <p class="status" role="status">{@html r(d.rows.replace('%n', fmt(result.total)))}</p>
+    <p class="status" role="status" tabindex="-1" bind:this={status}>{@html countLabel(result.total)}</p>
     {#if result.rows.length === 0}
       <p class="message">{@html r(d.empty)}</p>
     {:else}
@@ -186,22 +194,23 @@
             </tr>
           </thead>
           <tbody>
-            {#each result.rows as row}
-              {@const chars = row.note.length > NOTE_PREVIEW ? [...row.note] : null}
+            {#each result.rows as row, i (`${result.id}:${i}`)}
+              {@const preview = notePreview(row.note)}
+              {@const pos = posKey(row.pos)}
               <tr>
                 <td class="reading" lang="ko" translate="no">{row.reading}</td>
                 <td class="spelling" lang="ko" translate="no">{row.spelling}</td>
-                <td class="pos">{#if row.pos}{@html posLabel(row.pos)}{/if}</td>
+                <td class="pos">{#if pos}{@html r(d.pos[pos])}{:else}{row.pos}{/if}</td>
                 <td class="num">{#if row.count}<span class="cell-label">{@html r(d.columns.count)}</span> {row.count}{/if}</td>
                 <td class="src">
                   <button class="badge" title={plain(d.files[row.file].about)} onclick={() => chooseAndShow(row.file)}>{@html r(name(row.file))}</button>
                 </td>
                 <td class="note">
                   {#if row.tag}<span class="tag">{#if d.tags[row.tag]}{@html r(d.tags[row.tag])}{:else}{row.tag}{/if}</span>{/if}
-                  {#if chars}
+                  {#if preview}
                     <details lang="ko" translate="no">
-                      <summary>{chars.slice(0, NOTE_PREVIEW).join('')}<span class="more">…</span></summary>
-                      {chars.slice(NOTE_PREVIEW).join('')}
+                      <summary><span class="preview">{preview}…</span></summary>
+                      {row.note}
                     </details>
                   {:else if row.note}
                     <span lang="ko" translate="no">{row.note}</span>
@@ -224,7 +233,7 @@
           <dt>
             {@html r(name(f.stem))}
             <a href={fileUrl(f.stem)} rel="noopener"><code>{f.stem}.tsv</code></a>
-            {#if fileRows[f.stem]}<small>{@html r(d.rows.replace('%n', fmt(fileRows[f.stem])))}</small>{/if}
+            {#if fileRows[f.stem]}<small>{@html countLabel(fileRows[f.stem])}</small>{/if}
           </dt>
           <dd>
             <p>{@html r(d.files[f.stem].about)}</p>
@@ -341,6 +350,7 @@
     font-size: 14px;
   }
   .status {
+    outline: 0;
     margin: 0 0 var(--s-2);
     color: var(--c-muted);
     font: 600 14px/2 var(--f-sans);
@@ -365,8 +375,9 @@
     height: 100%;
     background: var(--c-accent);
   }
+  /* A very long reading can outgrow the table; it scrolls within the sheet. */
   .sheet {
-    overflow: hidden;
+    overflow-x: auto;
   }
   table {
     width: 100%;
@@ -443,7 +454,7 @@
   summary {
     cursor: pointer;
   }
-  details[open] .more {
+  details[open] .preview {
     display: none;
   }
   .pager {

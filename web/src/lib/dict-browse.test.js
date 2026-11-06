@@ -1,7 +1,7 @@
 import { describe, expect, test } from 'bun:test'
 import { readdirSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { DictIndex, expandRows, FILES, LICENCE_URLS, normalize, packRows, pageOf, posKey } from './dict-browse.js'
+import { DictIndex, expandRows, FILES, LICENCE_URLS, normalize, notePreview, packRows, pageOf, posKey } from './dict-browse.js'
 import text from './dict-text.js'
 
 const dict = join(import.meta.dirname, '..', '..', '..', 'dict')
@@ -78,6 +78,21 @@ describe('the packed file', () => {
     for (const pos of ['noun', '명사', '동사', 'adj', '형용사']) expect(text.en.pos[posKey(pos)]).toBeTruthy()
     expect(posKey('조수사')).toBeNull()
   })
+})
+
+test('a part of speech named like an object property is shown as written', () => {
+  expect(posKey('constructor')).toBeNull()
+  expect(posKey('__proto__')).toBeNull()
+})
+
+test('a long note is cut between syllables', () => {
+  expect(notePreview('짧다')).toBeNull()
+  const old = 'ᄀ\u119e\u11ba'
+  const note = 'x'.repeat(159) + old + 'y'.repeat(50)
+  expect(notePreview(note)).toBe('x'.repeat(159) + old.slice(0, 3))
+  expect(notePreview('x'.repeat(200))).toBe('x'.repeat(160))
+  // Nothing would be left to open.
+  expect(notePreview('x'.repeat(160))).toBeNull()
 })
 
 test('marks in the Korean text hold Hanja over a Hangul reading', () => {

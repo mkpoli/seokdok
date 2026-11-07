@@ -7,6 +7,9 @@ Changes that people typing or reading with 釋讀 can notice, by the date they r
 ### Options
 - Carrying a final consonant into the next syllable now covers every case: 見써요 and 事슬 as well as 在쓰면. The option no longer needs another setting turned on.
 
+### Conversion
+- A 表音表記 spelling typed as input keeps its carry: 거슬 gives 事슬, 봐써요 gives 見써요, 가쓰면 gives 去쓰면. Typing 것을 still gives 事ㅅ을, and a word that already reads well keeps its reading.
+
 ## 2026-11-06
 
 ### Names

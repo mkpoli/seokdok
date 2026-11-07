@@ -282,7 +282,7 @@ mod tests {
                     let comps = [al.comps.clone(), end].concat();
                     let kind = Kind::Verb { entry: i as u32, allo: a as u16, ending: idx as u16 };
                     let edge = Edge { start: 0, end: comps.len(), cost: 0.0, kind };
-                    let dict = e.render_dict(&comps, &edge);
+                    let dict = e.render_dict(&comps, &edge, e.options.resyllabify);
                     let word = compose(&comps);
                     for c in e.okurigana(&comps, &edge, &dict, true) {
                         f(&c.text, &word, &dict);

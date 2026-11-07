@@ -242,16 +242,19 @@ fn plain_of(v: char) -> Option<char> {
     })
 }
 
-/// The coda that an onset becomes (ㅎ too: 됴흔 = 좋은).
+/// The coda that an onset becomes (ㅎ too: 됴흔 = 좋은; ㅆ and ㄲ have
+/// finals of their own: 봐써요 = 봤어요).
 fn coda_of(l: char) -> Option<char> {
     Some(match l {
         '\u{1100}' => '\u{11A8}',
+        '\u{1101}' => '\u{11A9}',
         '\u{1102}' => '\u{11AB}',
         '\u{1103}' => '\u{11AE}',
         '\u{1105}' => '\u{11AF}',
         '\u{1106}' => '\u{11B7}',
         '\u{1107}' => '\u{11B8}',
         '\u{1109}' => '\u{11BA}',
+        '\u{110A}' => '\u{11BB}',
         '\u{110C}' => '\u{11BD}',
         '\u{110E}' => '\u{11BE}',
         '\u{110F}' => '\u{11BF}',
@@ -391,6 +394,25 @@ pub(crate) fn modern_mask(run: &str, unconverted: bool) -> u16 {
         }
     }
     found
+}
+
+/// Whether a run can be a spelling that carries a consonant into the next
+/// syllable: 거슬 (것을), 봐써요 (봤어요). Unlike the era classes, this looks at
+/// every boundary, because the carry can stand before an ending or a particle.
+pub(crate) fn has_carry(run: &str) -> bool {
+    let us = units_of(run);
+    if us.len() < 2 {
+        return false;
+    }
+    let mut sink = Vec::new();
+    for i in 0..us.len() - 1 {
+        ops(&us, i, CARRY, false, &mut sink);
+        if !sink.is_empty() {
+            return true;
+        }
+        sink.clear();
+    }
+    false
 }
 
 /// The strong classes' marks: ㄷ ㅌ before ㅑ ㅕ ㅛ, ㅅ after a past-tense vowel, or a ㅌ ㅋ ㅊ ㅍ onset (the ending of 좋다, 많다 …).

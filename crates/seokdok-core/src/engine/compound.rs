@@ -34,7 +34,7 @@ impl Engine {
         if self.options.sino_only || rest.is_empty() {
             return Vec::new();
         }
-        self.convert_plain(rest, false, false, Around::default(), self.options.resyllabify)
+        self.convert_plain(rest, false, false, Around::default(), self.options.resyllabify, true)
             .whole
             .into_iter()
             .filter(|c| c.text.chars().any(is_han))
@@ -108,7 +108,7 @@ impl Engine {
         let tail = Self::edge_particle(e).map_or(String::new(), |p| compose(&self.particles[p as usize].comps));
         let stem_end = e.end - Self::edge_particle(e).map_or(0, |p| self.particles[p as usize].comps.len());
         let word = compose(&comps[e.start..stem_end]);
-        for c in self.convert_plain(&word, false, false, Around::default(), self.options.resyllabify).whole {
+        for c in self.convert_plain(&word, false, false, Around::default(), self.options.resyllabify, true).whole {
             if list.len() >= PER_PART {
                 break;
             }

@@ -2,6 +2,11 @@
 
 Changes that people typing or reading with 釋讀 can notice, by the date they reached `main`. The site follows `main`. Installers follow when they are next rebuilt, so a download can be behind the newest entry. Every commit is in `git log`.
 
+## 2026-11-09
+
+### Conversion
+- A noun with a particle lists the carried spelling behind the dictionary one: 것을 offers 事ㅅ을 and 事슬. With `resyllabify` on, 事슬 comes first.
+
 ## 2026-11-08
 
 ### Dictionary

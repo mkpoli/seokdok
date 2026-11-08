@@ -1489,8 +1489,8 @@ impl Engine {
     /// The dictionary's written forms of an edge, then the other 末音添記
     /// choices for the same word (see [`Engine::okurigana`]), and the plural's
     /// spellings with Hanja.
-    fn render(&self, comps: &[char], e: &Edge, resyll: bool) -> Vec<Candidate> {
-        let mut out = self.render_dict(comps, e, resyll);
+    fn render(&self, comps: &[char], e: &Edge, resyll: bool, variants: bool) -> Vec<Candidate> {
+        let mut out = self.render_dict(comps, e, resyll, variants);
         if !self.options.sino_only {
             self.add_plural_forms(e, &mut out);
             let more = self.okurigana(comps, e, &out, true);
@@ -1499,13 +1499,15 @@ impl Engine {
         out
     }
 
-    fn render_dict(&self, comps: &[char], e: &Edge, resyll: bool) -> Vec<Candidate> {
-        self.render_dict_as(comps, e, !self.options.sino_only, resyll)
+    fn render_dict(&self, comps: &[char], e: &Edge, resyll: bool, variants: bool) -> Vec<Candidate> {
+        self.render_dict_as(comps, e, !self.options.sino_only, resyll, variants)
     }
 
     /// [`Engine::render_dict`], with 訓讀 words in Hanja (`kun`) or in Hangul.
-    /// The reader needs the Hanja whatever the conversion mode.
-    fn render_dict_as(&self, comps: &[char], e: &Edge, kun: bool, resyll: bool) -> Vec<Candidate> {
+    /// The reader needs the Hanja whatever the conversion mode. `variants`
+    /// adds the other 末音添記 choice for a noun; the old-letter reader keeps
+    /// one form (§8).
+    fn render_dict_as(&self, comps: &[char], e: &Edge, kun: bool, resyll: bool, variants: bool) -> Vec<Candidate> {
         let slice = &comps[e.start..e.end];
         let raw = || Candidate { text: compose(slice), note: String::new() };
         match &e.kind {
@@ -1529,7 +1531,15 @@ impl Engine {
                 let after = particle.map_or(&[][..], |p| &self.particles[p as usize].comps[..]);
                 let t = self.nominal_written(n, after, resyll);
                 let note = if sino_word { format!("{} · 音讀", n.lemma) } else { note(n, None) };
-                vec![Candidate { text: t, note }]
+                let mut out = vec![Candidate { text: t, note: note.clone() }];
+                // The other 末音添記 choice stays selectable: 事ㅅ을 and 事슬.
+                if variants {
+                    let other = self.nominal_written(n, after, !resyll);
+                    if other != out[0].text {
+                        out.push(Candidate { text: other, note });
+                    }
+                }
+                out
             }
             Kind::Verb { entry, allo, ending } => {
                 let n = &self.natives[*entry as usize];
@@ -1659,7 +1669,7 @@ impl Engine {
         if has_old(run) {
             return self.convert_old(run);
         }
-        let Converted { mut whole, mut segments, best_cost, .. } = self.convert_plain(run, after_hanja, true, around, self.options.resyllabify);
+        let Converted { mut whole, mut segments, best_cost, .. } = self.convert_plain(run, after_hanja, true, around, self.options.resyllabify, true);
         // Spellings of the era: the strong classes whenever the run shows
         // one, the others when it was left as typed. A reading that carries
         // a typed consonant is written carried as well.
@@ -1672,14 +1682,14 @@ impl Engine {
                 // A reading reached by carrying the typed consonant writes the
                 // candidate carried too: 거슬 gives 事슬, not 事ㅅ을.
                 let found: Vec<FoundReading> = self
-                    .read_as(&syls, mask, true, MAX_READINGS_MODERN, true, self.options.resyllabify)
+                    .read_as(&syls, mask, true, MAX_READINGS_MODERN, true, self.options.resyllabify, true)
                     .into_iter()
                     .map(|mut f| {
                         if f.classes & CARRY != 0 {
                             // The carried form is found on the dictionary
                             // spelling; with the option on, the reading was
                             // rendered already carried.
-                            let base = if self.options.resyllabify { self.convert_plain(&f.reading, false, false, Around::default(), false).whole } else { f.candidates };
+                            let base = if self.options.resyllabify { self.convert_plain(&f.reading, false, false, Around::default(), false, true).whole } else { f.candidates };
                             let (cands, carried) = carried_first(base);
                             f.candidates = cands;
                             f.carried = carried;
@@ -1743,7 +1753,7 @@ impl Engine {
         // reading.
         if !era_carry && !self.options.sino_only && best_cost > CARRY_WORTH && crate::jamo::syllable_count(&comps) <= CARRY_MAX_UNITS && !self.word_then_tail(&comps) && has_carry(run) {
             if let Some(syls) = parse(run) {
-                let found = self.read_as(&syls, CARRY, false, MAX_READINGS_MODERN, false, false);
+                let found = self.read_as(&syls, CARRY, false, MAX_READINGS_MODERN, false, false, true);
                 if let Some(f) = found.first() {
                     let lead = f.cost < best_cost;
                     let behind = f.cost <= best_cost + CARRY_BEHIND;
@@ -1795,11 +1805,11 @@ impl Engine {
     /// kept as a choice.
     fn convert_old(&self, run: &str) -> (Vec<Candidate>, Vec<Segment>) {
         let syls = parse(run).unwrap_or_default();
-        let found = self.read_as(&syls, ALL, false, MAX_READINGS_OLD, false, self.options.resyllabify);
+        let found = self.read_as(&syls, ALL, false, MAX_READINGS_OLD, false, self.options.resyllabify, false);
         // The old spelling of the best reading, as for modern input.
         let (old, ha) = match found.first() {
             Some(f) => {
-                let c = self.convert_plain(&f.reading, false, true, Around::default(), self.options.resyllabify);
+                let c = self.convert_plain(&f.reading, false, true, Around::default(), self.options.resyllabify, false);
                 (c.old, c.ha)
             }
             None => (None, None),
@@ -1851,13 +1861,13 @@ impl Engine {
     /// those that use a dictionary word and cost little more than the best.
     /// `guard` keeps the weak readings of an unconverted run cheap; a carried
     /// spelling is checked by the cost of its conversion instead.
-    fn read_as(&self, syls: &[Syl], mask: u16, strict: bool, cap: usize, guard: bool, resyll: bool) -> Vec<FoundReading> {
+    fn read_as(&self, syls: &[Syl], mask: u16, strict: bool, cap: usize, guard: bool, resyll: bool, variants: bool) -> Vec<FoundReading> {
         let mut found: Vec<FoundReading> = Vec::new();
         for r in readings(syls, mask, strict, cap) {
             if guard && strict && !self.worth_converting(syls, &r) {
                 continue;
             }
-            let c = self.convert_plain(&r.text, false, false, Around::default(), resyll);
+            let c = self.convert_plain(&r.text, false, false, Around::default(), resyll, variants);
             // A guess has to be confirmed by words that cover all of it.
             if let Some(cost) = c.cost.filter(|_| c.covered || !r.optional) {
                 found.push(FoundReading { cost: cost + r.penalty, reading: r.text, candidates: c.whole, attested: c.attested, classes: r.classes, carried: false });
@@ -1908,7 +1918,7 @@ impl Engine {
 
     /// `full`: also build the segments and the old spellings, which the
     /// readings tried for another run do not need.
-    fn convert_plain(&self, run: &str, after_hanja: bool, full: bool, around: Around, resyll: bool) -> Converted {
+    fn convert_plain(&self, run: &str, after_hanja: bool, full: bool, around: Around, resyll: bool, variants: bool) -> Converted {
         let comps = decompose(run);
         let edges = self.edges(&comps, around);
         let paths = self.kbest(&comps, &edges, self.options.max_candidates.max(4));
@@ -1919,7 +1929,7 @@ impl Engine {
             }
         };
         // The best path's renderings are used three times.
-        let best: Vec<Vec<Candidate>> = paths.first().map(|(_, path)| path.iter().map(|&ei| self.render(&comps, &edges[ei], resyll)).collect()).unwrap_or_default();
+        let best: Vec<Vec<Candidate>> = paths.first().map(|(_, path)| path.iter().map(|&ei| self.render(&comps, &edges[ei], resyll, variants)).collect()).unwrap_or_default();
         for (n, (_, path)) in paths.iter().enumerate() {
             let mut text = String::new();
             let mut notes = Vec::new();
@@ -1928,7 +1938,7 @@ impl Engine {
                 let r = if n == 0 {
                     &best[k]
                 } else {
-                    rendered = self.render(&comps, &edges[ei], resyll);
+                    rendered = self.render(&comps, &edges[ei], resyll, variants);
                     &rendered
                 };
                 text.push_str(&r[0].text);
@@ -1990,7 +2000,7 @@ impl Engine {
                     matches!(e.kind, Kind::Nominal { entry, .. } if crate::jamo::syllable_count(&self.natives[entry as usize].stem) == 1)
                 };
                 for &(_, i) in &alts {
-                    let mut forms = if one_syllable(&edges[i]) || self.is_plural(&edges[i]) { self.render(&comps, &edges[i], resyll) } else { self.render_dict(&comps, &edges[i], resyll) };
+                    let mut forms = if one_syllable(&edges[i]) || self.is_plural(&edges[i]) { self.render(&comps, &edges[i], resyll, variants) } else { self.render_dict(&comps, &edges[i], resyll, variants) };
                     self.add_past_forms(&edges[i], &mut forms);
                     for c in forms {
                         if !cands.iter().any(|x| x.text == c.text) {
@@ -1999,7 +2009,7 @@ impl Engine {
                     }
                 }
                 for &(_, i) in &alts {
-                    for c in self.render(&comps, &edges[i], resyll) {
+                    for c in self.render(&comps, &edges[i], resyll, variants) {
                         if !cands.iter().any(|x| x.text == c.text) {
                             cands.push(c);
                         }
@@ -2282,21 +2292,21 @@ impl Engine {
                         kind: Kind::Verb { entry: i as u32, allo: a as u16, ending: idx as u16 },
                     };
                     let surface = compose(&comps);
-                    for c in self.render_dict_as(&comps, &edge, true, self.options.resyllabify) {
+                    for c in self.render_dict_as(&comps, &edge, true, self.options.resyllabify, true) {
                         out.push((c.text, surface.clone()));
                     }
                 }
             }
         } else {
             let base = Edge { start: 0, end: n.stem.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: None } };
-            out.push((self.render_dict_as(&n.stem, &base, true, self.options.resyllabify)[0].text.clone(), compose(&n.stem)));
+            out.push((self.render_dict_as(&n.stem, &base, true, self.options.resyllabify, true)[0].text.clone(), compose(&n.stem)));
             let pron = matches!(n.pos, Pos::Pron | Pos::Bound);
             let last = *n.stem.last().unwrap();
             for (pi, p) in self.particles.iter().enumerate() {
                 if allowed(p.cond, last, pron) {
                     let comps = [n.stem.clone(), p.comps.clone()].concat();
                     let e = Edge { start: 0, end: comps.len(), cost: 0.0, kind: Kind::Nominal { entry: i as u32, particle: Some(pi as u16) } };
-                    out.push((self.render_dict_as(&comps, &e, true, self.options.resyllabify)[0].text.clone(), compose(&comps)));
+                    out.push((self.render_dict_as(&comps, &e, true, self.options.resyllabify, true)[0].text.clone(), compose(&comps)));
                     // Text may be written either way, whatever this reader's own setting is.
                     let other = self.nominal_written(n, &p.comps, !self.options.resyllabify);
                     if other != out.last().unwrap().0 {
@@ -2772,6 +2782,7 @@ lemma\twritten\tpos\tclass\tsource\tcount
         assert_eq!(first(&e, "이써"), "在써");
         // The spelling as typed is still the one the dictionary writes.
         assert_eq!(first(&e, "것을"), "事ㅅ을");
+        any(&e, "것을", "事슬");
         assert_eq!(e.read("事슬"), "것을");
         assert_eq!(e.read("見써요"), "봤어요");
     }

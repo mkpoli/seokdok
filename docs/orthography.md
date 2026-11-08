@@ -175,8 +175,10 @@ analysis and writes a consonant after its Hanja; a word that already reads
 well keeps its reading (바다 is 海, 머리 is 頭, 아니라니 stays 아니라니). In
 國漢文混用 native words stay in Hangul, so the rule does not apply there.
 
-The input spellings and the carried candidates in the table are
-*(constructed)*. Old letters keep their own readings (§8).
+Both spellings stay selectable for a noun with a particle: 것을 lists 事ㅅ을
+and 事슬, and `resyllabify` decides which comes first. The input spellings
+and the carried candidates in the table are *(constructed)*. Old letters
+keep their own readings (§8).
 
 ## 6. Nominals and particles
 

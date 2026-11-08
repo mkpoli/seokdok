@@ -121,6 +121,17 @@ fn carried_spellings_keep_the_carry() {
 }
 
 #[test]
+fn nominals_list_both_tail_spellings() {
+    let e = engine(Options::default());
+    assert!(offers(&e, "것을", "事ㅅ을"));
+    assert!(offers(&e, "것을", "事슬"));
+    assert!(offers(&e, "이것을", "此事슬"));
+    let carried = engine(Options { resyllabify: true, ..Options::default() });
+    assert!(offers(&carried, "것을", "事슬"));
+    assert!(offers(&carried, "것을", "事ㅅ을"));
+}
+
+#[test]
 fn sino_only_leaves_native_words_in_hangul() {
     check(Options { sino_only: true, ..Options::default() }, &[
         ("나라를 사랑하는 마음", "나라를 사랑하는 마음"),

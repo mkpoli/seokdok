@@ -6,7 +6,7 @@ import pages from './pages.js'
 
 const ko = {
   sites: { label: '사이트', more: '{他|다른} {文字|문자} 프로젝트' },
-  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '{個言|낱말}', dict: '{辭典|사전}', convert: '{變換|변환}', old: '{古|예}ㅅ{韓㐎|한글}', install: '{設置|설치}', eumdok: '{音讀|음독}', join: '{會|모임}' },
+  nav: { ime: '{入力器|입력기}', custom: '{自作|자작}', rules: '{表記|표기}', words: '{個言|낱말}', dict: '{辭典|사전}', convert: '{變換|변환}', old: '{古|예}ㅅ{韓㐎|한글}', install: '{設置|설치}', eumdok: '{音讀|음독}', join: '{會|모임}', more: '{其他|기타}', sections: '{目次|목차}' },
   theme: { light: '{明|밝}게', dark: '{暗|어둡}게', auto: '{自動|자동}' },
   hero: {
     kicker: '{釋讀會|풀어읽기모임} {御製|어제}',
@@ -372,7 +372,7 @@ const ko = {
 
 const en = {
   sites: { label: 'Sites', more: 'More writing-system projects' },
-  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', dict: 'Dictionary', convert: 'Convert', old: 'Old Hangul', install: 'Install', eumdok: '音讀', join: 'Group' },
+  nav: { ime: 'Try', custom: 'Customize', rules: 'Spelling', words: 'Words', dict: 'Dictionary', convert: 'Convert', old: 'Old Hangul', install: 'Install', eumdok: '音讀', join: 'Group', more: 'More', sections: 'Sections' },
   theme: { light: 'Light', dark: 'Dark', auto: 'Auto' },
   hero: {
     kicker: '釋讀會 御製',

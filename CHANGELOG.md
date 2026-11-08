@@ -2,6 +2,11 @@
 
 Changes that people typing or reading with 釋讀 can notice, by the date they reached `main`. The site follows `main`. Installers follow when they are next rebuilt, so a download can be behind the newest entry. Every commit is in `git log`.
 
+## 2026-11-08
+
+### Dictionary
+- 페이지 offers 葉 among its Hanja: 頁, 葉, 丁, 張.
+
 ## 2026-11-07
 
 ### Options

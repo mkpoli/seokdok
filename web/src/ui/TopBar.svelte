@@ -7,6 +7,64 @@
   // On a page other than the front page, `home` is '/' and the section links lead back to it.
   let { home = '' } = $props()
 
+  // Five sections stay in the bar; the rest fold into the menu. From 641px to
+  // 999px the menu button is the only navigation; phones keep the existing row
+  // without section links.
+  const primary = ['ime', 'custom', 'dict', 'convert', 'install']
+  const sections = [...primary, 'rules', 'words', 'old', 'eumdok', 'join']
+  const href = (key) => (key === 'dict' ? '/dict' : `${home}#${key}`)
+
+  let open = $state(false)
+  let root = $state()
+  let trigger = $state()
+  // Inline links are display:none at wide sizes, so only the visible items count.
+  const items = () => [...root.querySelectorAll('[role="menuitem"]')].filter((el) => el.getClientRects().length)
+
+  function show() {
+    open = true
+    requestAnimationFrame(() => items()[0]?.focus())
+  }
+  function hide(refocus = false) {
+    open = false
+    if (refocus) trigger?.focus()
+  }
+
+  function onTriggerKey(event) {
+    if (event.key === 'ArrowDown' || event.key === 'ArrowUp') {
+      event.preventDefault()
+      show()
+    }
+  }
+
+  function onMenuKey(event) {
+    event.stopPropagation()
+    const list = items()
+    const at = list.indexOf(document.activeElement)
+    if (event.key === 'Escape') {
+      event.preventDefault()
+      hide(true)
+    } else if (event.key === 'Tab') {
+      hide(true)
+    } else if (event.key === ' ') {
+      event.preventDefault()
+      list[at]?.click()
+    } else {
+      const to = { ArrowDown: at + 1, ArrowUp: at - 1, Home: 0, End: list.length - 1 }[event.key]
+      if (to === undefined) return
+      event.preventDefault()
+      list[(to + list.length) % list.length].focus()
+    }
+  }
+
+  $effect(() => {
+    if (!open) return
+    const away = (event) => {
+      if (!event.composedPath().includes(root)) hide()
+    }
+    document.addEventListener('pointerdown', away, true)
+    return () => document.removeEventListener('pointerdown', away, true)
+  })
+
   // The switch moves at once; the page re-renders on the next frame.
   let pending = $state(null)
   const sino = $derived(pending ?? options.sinoOnly)
@@ -50,17 +108,35 @@
   <SiteSelect current="seokdok" {home}>
     <span class="mark"><img class="mark-logo" src="/favicon.svg" alt="" width="28" height="28" /><span class="mark-han">釋讀</span><span class="mark-latn">Seokdok</span></span>
   </SiteSelect>
-  <nav aria-label="sections">
-    <a href="{home}#ime">{@html r(t().nav.ime)}</a>
-    <a href="{home}#custom">{@html r(t().nav.custom)}</a>
-    <a href="{home}#rules">{@html r(t().nav.rules)}</a>
-    <a href="{home}#words">{@html r(t().nav.words)}</a>
-    <a href="/dict">{@html r(t().nav.dict)}</a>
-    <a href="{home}#convert">{@html r(t().nav.convert)}</a>
-    <a href="{home}#old">{@html r(t().nav.old)}</a>
-    <a href="{home}#install">{@html r(t().nav.install)}</a>
-    <a href="{home}#eumdok">{@html r(t().nav.eumdok)}</a>
-    <a href="{home}#join">{@html r(t().nav.join)}</a>
+  <nav aria-label={plain(t().nav.sections)}>
+    {#each primary as key}
+      <a href={href(key)}>{@html r(t().nav[key])}</a>
+    {/each}
+    <div class="more" bind:this={root}>
+      <button
+        bind:this={trigger}
+        type="button"
+        class="more-btn"
+        aria-haspopup="menu"
+        aria-expanded={open}
+        aria-label={plain(t().nav.more)}
+        onclick={() => (open ? hide() : show())}
+        onkeydown={onTriggerKey}
+      >
+        <span class="more-text">{@html r(t().nav.more)}</span>
+        <svg class="chevron" class:up={open} viewBox="0 0 10 10" aria-hidden="true"><path d="M1.5 3.5 5 7l3.5-3.5" /></svg>
+        <svg class="menu-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 4.5h11M2.5 8h11M2.5 11.5h11" /></svg>
+      </button>
+      {#if open}
+        <div class="menu" role="menu" tabindex="-1" aria-label={plain(t().nav.more)} onkeydown={onMenuKey}>
+          {#each sections as key}
+            <a class="item" class:inline={primary.includes(key)} role="menuitem" tabindex="-1" href={href(key)} onclick={() => hide()}>
+              {@html r(t().nav[key])}
+            </a>
+          {/each}
+        </div>
+      {/if}
+    </div>
   </nav>
   <div class="tools">
     <div class="mode" title={plain(t().options.sinoTip)}>
@@ -127,28 +203,113 @@
     letter-spacing: 0.08em;
     color: var(--c-muted);
   }
-  /* The links scroll inside the space the logo and the tools leave. */
+  /* The links left after the menu are short enough to fit at 1000px and up. */
   nav {
     flex: 1 1 0;
     min-width: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
     display: flex;
-    /* Links with and without ruby share one baseline (國漢文混用 drops some). */
-    align-items: baseline;
+    align-items: center;
     gap: var(--s-3);
-    margin-right: auto;
   }
-  nav a {
+  nav > a {
     flex-shrink: 0;
     white-space: nowrap;
     color: var(--c-soft);
     font-weight: 600;
     font-size: 14px;
+    line-height: 1.6;
     text-decoration: none;
   }
-  nav a:hover {
+  nav > a:hover {
     color: var(--c-accent);
+  }
+  .more {
+    position: relative;
+    flex: none;
+  }
+  .more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    height: 36px;
+    padding: 0 4px;
+    border: 1px solid transparent;
+    border-radius: 999px;
+    background: none;
+    color: var(--c-soft);
+    font: 600 14px/1.6 var(--f-sans);
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  .more-btn:hover,
+  .more-btn[aria-expanded='true'] {
+    color: var(--c-accent);
+    background: var(--c-hover);
+  }
+  .more-btn:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: 2px;
+  }
+  .more-btn :global(rt) {
+    font-size: 0.5em;
+  }
+  .chevron {
+    width: 10px;
+    height: 10px;
+    flex: none;
+    fill: none;
+    stroke: var(--c-muted);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: transform var(--t-fast) var(--ease);
+  }
+  .chevron.up {
+    transform: rotate(180deg);
+  }
+  .menu-icon {
+    display: none;
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+  .menu {
+    position: absolute;
+    top: calc(100% + var(--s-3));
+    left: 0;
+    z-index: 30;
+    min-width: 176px;
+    max-height: calc(100dvh - 80px);
+    overflow-y: auto;
+    padding: var(--s-1);
+    background: var(--c-surface);
+    border: 1px solid var(--c-border);
+    border-radius: var(--r-3);
+    box-shadow: var(--shadow-2);
+  }
+  .item {
+    display: block;
+    padding: var(--s-2) var(--s-3);
+    border-radius: var(--r-2);
+    color: var(--c-ink);
+    font: 600 14px/1.5 var(--f-sans);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .item:hover,
+  .item:focus-visible {
+    background: var(--c-hover);
+    color: var(--c-accent);
+  }
+  .item:focus-visible {
+    outline: 2px solid var(--c-accent);
+    outline-offset: -2px;
+  }
+  .item :global(rt) {
+    font-size: 0.5em;
   }
   .tools {
     flex-shrink: 0;
@@ -287,6 +448,40 @@
     .sponsor-heart {
       animation: none;
       transition: none;
+    }
+  }
+  @media (max-width: 1099px) {
+    .mark-latn {
+      display: none;
+    }
+  }
+  /* The bar keeps one round menu button; its menu lists every section. */
+  @media (max-width: 999px) {
+    nav > a {
+      display: none;
+    }
+    .more {
+      margin-left: auto;
+    }
+    .more-btn {
+      width: 36px;
+      height: 36px;
+      justify-content: center;
+      padding: 0;
+      border-color: var(--c-border);
+      background: var(--c-surface);
+    }
+    .more-text,
+    .chevron {
+      display: none;
+    }
+    .menu-icon {
+      display: block;
+    }
+  }
+  @media (min-width: 1000px) {
+    .item.inline {
+      display: none;
     }
   }
   @media (max-width: 640px) {

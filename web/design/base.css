@@ -226,9 +226,9 @@ kbd {
 [data-ruby='right'] body {
   word-break: keep-all;
 }
-/* Readings to the right at half size, as 文書문서. The top bar, the tiles and the
-   on-screen keys have no room for them and keep theirs above. */
-[data-ruby='right'] ruby:not(.bar ruby, .tile ruby, .key ruby) {
+/* Readings to the right at half size, as 文書문서. The top bar and the on-screen
+   keys have no room for them and keep theirs above. */
+[data-ruby='right'] ruby:not(.bar ruby, .key ruby) {
   display: inline;
   white-space: nowrap;
 }
@@ -236,7 +236,7 @@ kbd {
 [data-ruby='right'] h3 ruby:not(.bar ruby) {
   white-space: normal;
 }
-[data-ruby='right'] ruby:not(.bar ruby, .tile ruby, .key ruby) > rt {
+[data-ruby='right'] ruby:not(.bar ruby, .key ruby) > rt {
   display: inline;
   font-size: max(0.5em, 8px);
   ruby-position: unset;
